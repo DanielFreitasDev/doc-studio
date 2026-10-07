@@ -120,7 +120,10 @@ async function main() {
       store.update((doc) => doc.blocks.splice(clamp(index, 0, doc.blocks.length), 0, ...blocks), { kind: 'structure' });
       ui.set({ selectedId: blocks[0].id, selectSource: 'insert' });
       if (isCompact()) ui.set({ pane: 'editor' });
-      requestAnimationFrame(() => editor.reveal(blocks[0].id, { focus }));
+      requestAnimationFrame(() => {
+        blocks.forEach((block) => editor.markNew(block.id));
+        editor.reveal(blocks[0].id, { focus });
+      });
       announce(blocks.length === 1 ? `${BLOCK_TYPES[blocks[0].type].label} inserido.` : `${blocks.length} blocos inseridos.`);
     },
 
@@ -333,14 +336,20 @@ async function main() {
   ui.subscribe(syncLayout);
   syncLayout(ui.snapshot());
 
-  $$('.view-switch input').forEach((input) => input.addEventListener('change', () => ui.set({ view: input.value })));
+  /** Troca de área/modo com transição suave (View Transitions), quando houver suporte. */
+  function withTransition(update) {
+    if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) update();
+    else document.startViewTransition(update);
+  }
+
+  $$('.view-switch input').forEach((input) => input.addEventListener('change', () => withTransition(() => ui.set({ view: input.value }))));
 
   $('.bottom-nav').addEventListener('click', (event) => {
     const button = event.target.closest('button[data-pane-target]');
     if (!button) return;
     const patch = { pane: button.dataset.paneTarget };
     if (button.dataset.tabTarget) patch.tab = button.dataset.tabTarget;
-    ui.set(patch);
+    withTransition(() => ui.set(patch));
     (patch.pane === 'editor' ? $('#editor') : patch.pane === 'preview' ? $('#preview-scroll') : $(`#panel-${ui.get('tab')}`))
       ?.scrollTo?.({ top: 0 });
   });
@@ -777,7 +786,7 @@ async function main() {
       actions.duplicateBlock(selected);
     } else if (mod && ['1', '2', '3'].includes(event.key)) {
       event.preventDefault();
-      ui.set({ view: ['editor', 'split', 'preview'][Number(event.key) - 1] });
+      withTransition(() => ui.set({ view: ['editor', 'split', 'preview'][Number(event.key) - 1] }));
     } else if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown') && selected && !inDialog) {
       event.preventDefault();
       actions.moveBlockBy(selected, event.key === 'ArrowUp' ? -1 : 1);
@@ -837,12 +846,19 @@ async function main() {
     openDialog(templatesDialog);
   }
 
+  // Some a tela de abertura e as páginas entram em sequência (só na primeira exibição).
+  const pagesEl = $('#pages');
+  pagesEl.classList.add('is-intro');
+  setTimeout(() => pagesEl.classList.remove('is-intro'), 1200);
+  $('#boot').classList.add('is-done');
+
   // Exposto só para depuração no console do navegador.
   Object.defineProperty(window, 'docStudio', { value: { store, ui, preview }, configurable: true });
 }
 
 main().catch((error) => {
   console.error(error);
+  document.getElementById('boot')?.classList.add('is-done');
   const warning = document.getElementById('file-warning');
   warning.hidden = false;
   warning.textContent = `Não foi possível iniciar o Estúdio de Documentos: ${error.message}`;

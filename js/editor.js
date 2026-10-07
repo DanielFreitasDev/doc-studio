@@ -430,6 +430,13 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       card.classList.add('is-flash');
       if (focus) (card.querySelector('.block-card__body [data-path]') ?? card.querySelector('[data-drag-handle]'))?.focus({ preventScroll: true });
     },
+    /** Animação de entrada de um cartão recém-inserido. */
+    markNew(id) {
+      const card = cardOf(id);
+      if (!card) return;
+      card.classList.add('is-entering');
+      card.addEventListener('animationend', () => card.classList.remove('is-entering'), { once: true });
+    },
     collapseAll(collapse) {
       ui.set({ collapsed: collapse ? new Set(store.doc.blocks.map((b) => b.id)) : new Set() });
     },

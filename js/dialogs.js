@@ -23,7 +23,10 @@ export function toast(message, { actionLabel, onAction, tone = 'info', duration 
   let timer = 0;
   const close = () => {
     clearTimeout(timer);
-    element.remove();
+    if (element.classList.contains('is-leaving')) return;
+    element.classList.add('is-leaving');
+    element.addEventListener('animationend', () => element.remove(), { once: true });
+    setTimeout(() => element.remove(), 400); // garantia se a animação não rodar
   };
   if (actionLabel && onAction) {
     const button = document.createElement('button');

@@ -104,6 +104,20 @@
     </defs>
   </svg>
 
+  <!-- Tela de abertura: some quando o documento termina de carregar (script.js). -->
+  <div class="boot" id="boot" aria-hidden="true">
+    <svg class="boot__mark" viewBox="0 0 32 32" focusable="false">
+      <rect x="5" y="2" width="22" height="28" rx="3" fill="#fff" stroke="#c9d3cf"/>
+      <path d="M14 2h10a3 3 0 0 1 3 3v12z" fill="#26A737"/>
+      <path d="M5 21l9 9H8a3 3 0 0 1-3-3z" fill="#F04321"/>
+      <path d="M5 16l6 14H8a3 3 0 0 1-3-3z" fill="#2DB39E" opacity=".9"/>
+      <rect x="9" y="11" width="9" height="2" rx="1" fill="#465564"/>
+      <rect x="9" y="15" width="12" height="1.4" rx=".7" fill="#9AA4AD"/>
+    </svg>
+    <span class="boot__bar"></span>
+    <span>Preparando o Estúdio de Documentos…</span>
+  </div>
+
   <a class="skip-link" href="#editor-list">Pular para o editor</a>
 
   <!-- Aviso exibido apenas quando o arquivo é aberto direto do disco (file://), onde módulos ES não carregam. -->
@@ -113,7 +127,12 @@
     Na pasta do projeto, rode <code>python3 -m http.server 8080</code> e acesse <code>http://localhost:8080</code>.
   </div>
   <script>
-    if (location.protocol === 'file:') document.getElementById('file-warning').hidden = false;
+    if (location.protocol === 'file:') {
+      document.getElementById('file-warning').hidden = false;
+      document.getElementById('boot').classList.add('is-done');
+    }
+    // Garantia: se o script principal não carregar (navegador antigo, erro de rede), a tela de abertura sai.
+    setTimeout(() => document.getElementById('boot').classList.add('is-done'), 8000);
   </script>
 
   <div class="app" id="app" data-pane="editor" data-view="split" data-panel-open="true">

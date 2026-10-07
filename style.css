@@ -308,6 +308,18 @@ code {
   z-index: var(--z-sticky);
 }
 
+/* Fio com as cores do grafismo do MIV sob a barra superior. */
+.topbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, #26a737, #2db39e 42%, #f59c00 74%, #e94f0e);
+  pointer-events: none;
+}
+
 .topbar__brand { display: flex; align-items: center; gap: var(--space-2); flex: none; }
 .brand-mark { width: 30px; height: 30px; }
 /* Em telas estreitas o título fica só para leitores de tela (a página mantém seu h1). */
