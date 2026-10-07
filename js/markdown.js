@@ -10,8 +10,12 @@
  *   ```título … ```     → código ou texto de tela (linhas literais)
  *   Pergunta? + R: ...  → pergunta e resposta
  *   demais linhas       → parágrafos (linha em branco separa parágrafos)
+ *
+ * Nada é descartado pelos limites dos blocos (20 mil caracteres por texto,
+ * 60 passos, 40 perguntas, 400 linhas e 12 colunas de tabela): o excesso
+ * continua em blocos seguintes do mesmo tipo.
  */
-import { createBlock } from './schema.js';
+import { createBlock, BLOCK_TYPES, MAX_TEXT, TABLE_LIMITS } from './schema.js';
 
 const ALERT_TYPES = {
   'atencao': 'warning', 'atenção': 'warning', 'warning': 'warning', 'aviso': 'warning',
@@ -29,6 +33,44 @@ const BULLET = /^\s*(?:[-*+•▪◦‣]|–)\s+(.*)$/;
 const ORDERED = /^\s*\d+[.)]\s+(.*)$/;
 const ANSWER = /^\s*(?:R|Resp(?:osta)?)\s*[:.-]\s*(.*)$/i;
 
+/** Corta um texto longo em partes de até `max` caracteres: entre linhas, entre frases ou entre palavras. */
+export function chunkText(text, max = MAX_TEXT) {
+  const parts = [];
+  let rest = String(text ?? '').trim();
+  while (rest.length > max) {
+    const head = rest.slice(0, max + 1);
+    const cut = [head.lastIndexOf('\n'), head.lastIndexOf('. ') + 1, head.lastIndexOf(' ')].find((index) => index > max / 2) ?? max;
+    parts.push(rest.slice(0, cut).trim());
+    rest = rest.slice(cut).trim();
+  }
+  if (rest) parts.push(rest);
+  return parts;
+}
+
+const chunkList = (list, size) => Array.from({ length: Math.ceil(list.length / size) }, (_, index) => list.slice(index * size, (index + 1) * size));
+const itemsLimit = (type) => BLOCK_TYPES[type].fields.find((field) => field.key === 'items').max;
+
+/** Agrupa linhas em textos de até MAX_TEXT caracteres (uma linha longa demais é cortada em partes). */
+function chunkLines(lines) {
+  const groups = [[]];
+  let size = 0;
+  for (const line of lines.flatMap((text) => (text.length > MAX_TEXT ? chunkText(text) : [text]))) {
+    if (size + line.length + 1 > MAX_TEXT && groups.at(-1).length) {
+      groups.push([]);
+      size = 0;
+    }
+    groups.at(-1).push(line);
+    size += line.length + 1;
+  }
+  return groups.map((group) => group.join('\n'));
+}
+
+/** Tabela com colunas demais: as excedentes juntam-se à última (separadas por " · "), sem perder texto. */
+function fitColumns(row) {
+  const max = TABLE_LIMITS.columns;
+  return row.length <= max ? row : [...row.slice(0, max - 1), row.slice(max - 1).filter(Boolean).join(' · ')];
+}
+
 /** Converte "Título: texto" (ou "**Título** texto") em { title, text }. */
 function splitTitle(content) {
   const bold = /^\*\*(.+?)\*\*\s*[:.\-–]?\s*(.*)$/.exec(content);
@@ -45,8 +87,7 @@ export function markdownToBlocks(source) {
   let i = 0;
 
   const flushParagraph = () => {
-    const text = paragraph.join('\n').trim();
-    if (text) blocks.push(createBlock('paragraph', { text, style: 'normal' }));
+    for (const text of chunkText(paragraph.join('\n'))) blocks.push(createBlock('paragraph', { text, style: 'normal' }));
     paragraph = [];
   };
 
@@ -64,7 +105,7 @@ export function markdownToBlocks(source) {
       i += 1;
       while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) { code.push(lines[i]); i += 1; }
       i += 1;
-      blocks.push(createBlock('code', { title: fence[1].trim(), text: code.join('\n') }));
+      chunkLines(code).forEach((text, index) => blocks.push(createBlock('code', { title: index ? '' : fence[1].trim(), text })));
       continue;
     }
 
@@ -120,7 +161,9 @@ export function markdownToBlocks(source) {
           quoted[0] = bold[2];
         }
       }
-      blocks.push(createBlock('callout', { tone, title, text: quoted.join('\n').trim() }));
+      // Um destaque só com título ("> [!ATENÇÃO] Confira o CNPJ.") também vira bloco.
+      const texts = chunkText(quoted.join('\n'));
+      (texts.length ? texts : ['']).forEach((text, index) => blocks.push(createBlock('callout', { tone, title: index ? '' : title, text })));
       continue;
     }
 
@@ -131,8 +174,9 @@ export function markdownToBlocks(source) {
         if (!isTableSeparator(lines[i])) rows.push(splitRow(lines[i]));
         i += 1;
       }
-      const [header = ['Coluna'], ...body] = rows;
-      blocks.push(createBlock('table', { header, rows: body.length ? body : [header.map(() => '')] }));
+      const [header = ['Coluna'], ...body] = rows.map(fitColumns);
+      const parts = body.length ? chunkList(body, TABLE_LIMITS.rows) : [[header.map(() => '')]];
+      for (const part of parts) blocks.push(createBlock('table', { header, rows: part }));
       continue;
     }
 
@@ -143,7 +187,7 @@ export function markdownToBlocks(source) {
         items.push(BULLET.exec(lines[i])[1].trim());
         i += 1;
       }
-      blocks.push(createBlock('list', { items: items.join('\n'), style: 'bullet' }));
+      for (const text of chunkLines(items)) blocks.push(createBlock('list', { items: text, style: 'bullet' }));
       continue;
     }
 
@@ -159,7 +203,10 @@ export function markdownToBlocks(source) {
         }
         i += 1;
       }
-      blocks.push(createBlock('steps', { title: '', start: 1, tone: 'theme', items }));
+      // Mais passos que o bloco comporta: os seguintes continuam a numeração num novo bloco.
+      chunkList(items, itemsLimit('steps')).forEach((part, index) => {
+        blocks.push(createBlock('steps', { title: '', start: 1 + index * itemsLimit('steps'), tone: 'theme', items: part }));
+      });
       continue;
     }
 
@@ -172,7 +219,7 @@ export function markdownToBlocks(source) {
         i += 2;
         while (i < lines.length && !lines[i].trim()) i += 1;
       }
-      blocks.push(createBlock('faq', { items }));
+      for (const part of chunkList(items, itemsLimit('faq'))) blocks.push(createBlock('faq', { items: part }));
       continue;
     }
 
