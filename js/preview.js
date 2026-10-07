@@ -269,6 +269,7 @@ export function createPreview({ store, ui, assets, actions }) {
       { label: 'Cabeçalho das páginas', icon: 'layout', hint: current('header', DESIGN_OPTIONS.header), submenu: radio('header', DESIGN_OPTIONS.header) },
       { label: 'Rodapé das páginas', icon: 'layout', hint: current('footer', DESIGN_OPTIONS.footer), submenu: radio('footer', DESIGN_OPTIONS.footer) },
       { label: 'Numeração', icon: 'outline', hint: current('pageNumber', DESIGN_OPTIONS.pageNumber), submenu: radio('pageNumber', DESIGN_OPTIONS.pageNumber) },
+      { label: 'Margens laterais', icon: 'layout', hint: current('margins', DESIGN_OPTIONS.margins), submenu: radio('margins', DESIGN_OPTIONS.margins) },
       { separator: true },
     ];
   }
