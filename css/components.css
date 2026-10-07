@@ -1294,6 +1294,23 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 .dialog__body .template-group__title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-2); margin: 0 0 var(--space-3); }
 .dialog__body .template-grid + .template-group__title { margin-top: var(--space-6); }
 .template-group__title small { font-size: var(--text-sm); font-weight: 400; color: var(--text-muted); }
+.template-item { position: relative; }
+/* "Ver páginas": aparece sobre a miniatura (sempre visível no toque e no foco do teclado). */
+.template-card__peek { position: absolute; top: var(--space-2); right: var(--space-2); opacity: 0; transform: translateY(-2px); transition: opacity var(--dur-fast), transform var(--dur-fast); box-shadow: var(--shadow-1); }
+.template-item:hover .template-card__peek,
+.template-card__peek:focus-visible,
+.template-item:focus-within .template-card__peek { opacity: 1; transform: none; }
+@media (hover: none) { .template-card__peek { opacity: 1; transform: none; } }
+#template-grid.is-previewing > :not(.template-preview) { display: none; }
+.template-preview { display: grid; gap: var(--space-4); }
+.template-preview__bar { position: sticky; top: calc(-1 * var(--space-4)); z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-2) 0; background: var(--surface); }
+.template-preview__text { flex: 1 1 240px; min-width: 0; }
+.template-preview__text h3 { margin: 0; font-size: var(--text-lg); }
+.template-preview__text p { margin: 0; font-size: var(--text-sm); color: var(--text-muted); }
+.template-preview__pages { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-5); padding: var(--space-5); border-radius: var(--radius-md); background: var(--canvas); background-image: radial-gradient(var(--canvas-dot) 1px, transparent 1px); background-size: 14px 14px; }
+.template-preview__page { display: grid; justify-items: center; gap: var(--space-2); margin: 0; }
+.template-preview__page .page { box-shadow: var(--page-shadow); }
+.template-preview__page figcaption { font-size: var(--text-xs); color: var(--text-muted); }
 .template-grid--blank .template-card { border-style: dashed; border-width: 1.5px; }
 .template-grid--blank .template-card:hover { border-style: solid; }
 .template-card__icon {

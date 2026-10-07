@@ -397,6 +397,48 @@ export const TEMPLATES = [
     ],
   },
 
+  {
+    id: 'technical',
+    name: 'Nota técnica',
+    description: 'Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência.',
+    design: { theme: 'navy', cover: 'envelope', backCover: 'minimal', header: 'logo', footer: 'stripe', pageNumber: 'text', sectionStyle: 'number', cardStyle: 'outline', chapterStyle: 'folder', headingWeight: 'regular' },
+    meta: {
+      kicker: 'Nota técnica · Tecnologia da Informação',
+      title: 'Integração do\nAgendamento\nde Vistoria',
+      subtitle: 'Configuração e operação',
+      description: 'Portal de Serviços · Sistema de atendimento',
+      audienceLabel: 'Para',
+      audience: 'Equipe técnica e\nsuporte das unidades',
+      version: `Versão 1.0 · ${monthYear()}`,
+      headerTitle: 'Nota técnica',
+      headerSubtitle: 'Integração do agendamento',
+      headerRight: 'DETRAN/CE',
+    },
+    blocks: [
+      { type: 'section', kicker: 'Contexto', title: 'Objetivo', intro: 'Descrever como configurar e verificar a integração entre o **Portal de Serviços** e o sistema de atendimento das unidades.' },
+      { type: 'paragraph', style: 'normal', align: 'justify', text: 'Esta nota substitui as orientações enviadas por e-mail e vale para todas as unidades. Em caso de dúvida, consulte a [central de serviços](https://www.detran.ce.gov.br) antes de abrir um chamado.' },
+      { type: 'section', kicker: 'Antes de começar', title: 'Requisitos' },
+      { type: 'table', header: ['Item', 'Versão mínima', 'Observação'], rows: [
+        ['Sistema de atendimento', '4.2 (exemplo)', 'Atualização automática nas unidades'],
+        ['Navegador', 'Chrome 120 ou Edge 120', 'Outros navegadores não são suportados'],
+        ['Rede', 'Acesso ao endereço do portal', 'Liberado no firewall da unidade'],
+      ], tone: 'navy', zebra: true, keyColumn: true, note: 'Versões ilustrativas: confira as vigentes com a equipe de TI.' },
+      { type: 'section', kicker: 'Configuração', title: 'Como configurar', newPage: true },
+      { type: 'steps', start: 1, tone: 'theme', items: [
+        { title: 'Verifique o serviço', text: 'No servidor da unidade, confira se o serviço de integração está ativo.' },
+        { title: 'Ajuste o endereço do portal', text: 'Edite o arquivo de configuração com o endereço informado pela TI.' },
+        { title: 'Reinicie e teste', text: 'Reinicie o serviço e faça um agendamento de teste.' },
+      ] },
+      { type: 'code', title: 'Comandos no servidor (exemplo)', numbers: true, text: '$ sudo systemctl status agendamento.service\n$ sudo nano /etc/agendamento/config.ini\n$ sudo systemctl restart agendamento.service' },
+      { type: 'code', title: 'Trecho do arquivo config.ini (exemplo)', numbers: false, text: '[portal]\nendereco = https://portal.exemplo.ce.gov.br\ntempo_limite = 30' },
+      { type: 'section', kicker: 'Suporte', title: 'Mensagens de erro' },
+      { type: 'message', label: 'Mensagem na tela', text: 'Não foi possível conectar ao Portal de Serviços. Tente novamente em instantes.', tone: 'danger' },
+      { type: 'callout', tone: 'tip', title: 'O que fazer', text: 'Confira a rede da unidade e o endereço do portal no arquivo de configuração. Persistindo, abra um chamado informando o horário do erro.' },
+      { type: 'section', kicker: 'Referências', title: 'Para saber mais' },
+      { type: 'list', style: 'bullet', items: '[Portal do DETRAN/CE](https://www.detran.ce.gov.br)\nManual do sistema de atendimento, capítulo 3\nPOP 012 · Conferência de Documentos' },
+    ],
+  },
+
   /* ---------------------------------------------------------------- começar do zero */
   {
     id: 'blank',

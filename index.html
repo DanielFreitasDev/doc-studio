@@ -335,6 +335,18 @@
         <ul class="template-grid template-grid--blank" aria-labelledby="template-group-blank" data-template-group="blank"></ul>
         <h3 class="template-group__title" id="template-group-model">Modelos prontos <small>com estrutura e textos de exemplo para substituir</small></h3>
         <ul class="template-grid" aria-labelledby="template-group-model" data-template-group="model"></ul>
+        <!-- Todas as páginas de um modelo antes de escolher ("Ver páginas"). -->
+        <section class="template-preview" id="template-preview" aria-labelledby="template-preview-title" hidden>
+          <div class="template-preview__bar">
+            <button class="btn btn--ghost" type="button" data-template-back><svg class="icon"><use href="#i-chevron-left"/></svg>Voltar aos modelos</button>
+            <div class="template-preview__text">
+              <h3 id="template-preview-title"></h3>
+              <p id="template-preview-description"></p>
+            </div>
+            <button class="btn btn--primary" type="button" data-template-use><svg class="icon"><use href="#i-check"/></svg>Usar este modelo</button>
+          </div>
+          <div class="template-preview__pages" id="template-preview-pages"></div>
+        </section>
       </div>
     </form>
   </dialog>

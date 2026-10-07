@@ -737,20 +737,55 @@ async function main() {
   [templatesDialog, documentsDialog, importDialog, shortcutsDialog, $('#pdf-dialog'), $('#confirm-dialog')].forEach(enableBackdropClose);
 
   let templateGridReady = false;
+  const templatePages = new Map();
+  /** Ids de SVG únicos por modelo (as miniaturas convivem na mesma página). */
+  const scopeIds = (html, prefix) => html.replaceAll('id="p', `id="${prefix}-p`).replaceAll('url(#p', `url(#${prefix}-p`);
+
   function templateCardHtml(template) {
     const doc = documentFromTemplate(template);
     applyDocAttributes($('#measure-doc'), doc.design);
     const { pagesHtml } = layoutDocument(doc, {}, $('#measure-body'), new Map());
+    templatePages.set(template.id, { pagesHtml, design: doc.design });
     const thumbs = template.then === 'import'
       ? `<span class="template-card__icon"><svg class="icon icon--xl"><use href="#i-pen"/></svg></span>`
-      : pagesHtml.slice(0, 2).map((html) =>
-        panels.thumbHtml(html.replaceAll('id="p', `id="tpl-${template.id}-p`).replaceAll('url(#p', `url(#tpl-${template.id}-p`), doc.design, 0.13)).join('');
+      : pagesHtml.slice(0, 2).map((html) => panels.thumbHtml(scopeIds(html, `tpl-${template.id}`), doc.design, 0.13)).join('');
     const pages = template.group === 'blank' ? '' : `<small>${pagesHtml.length} páginas de exemplo</small>`;
+    const peek = template.group === 'blank'
+      ? ''
+      : `<button type="button" class="btn btn--soft btn--small template-card__peek" data-template-preview="${template.id}"><svg class="icon" aria-hidden="true"><use href="#i-eye"/></svg>Ver páginas<span class="visually-hidden"> de ${esc(template.name)}</span></button>`;
     return `
-      <li><button type="button" class="template-card" data-template="${template.id}">
+      <li class="template-item"><button type="button" class="template-card" data-template="${template.id}">
         <span class="template-card__preview" aria-hidden="true">${thumbs}</span>
         <span class="template-card__text"><strong>${esc(template.name)}</strong><small>${esc(template.description)}</small>${pages}</span>
-      </button></li>`;
+      </button>${peek}</li>`;
+  }
+
+  /** Mostra todas as páginas de um modelo dentro da galeria, antes de escolher. */
+  function showTemplatePreview(templateId) {
+    const template = TEMPLATES.find((t) => t.id === templateId);
+    const data = templatePages.get(templateId);
+    if (!template || !data) return;
+    const grid = $('#template-grid');
+    const section = $('#template-preview');
+    $('#template-preview-title').textContent = template.name;
+    $('#template-preview-description').textContent = `${template.description} ${data.pagesHtml.length} páginas.`;
+    $('#template-preview-pages').innerHTML = data.pagesHtml.map((html, index) =>
+      `<figure class="template-preview__page">${panels.thumbHtml(scopeIds(html, `tpv-${template.id}-${index}`), data.design, 0.3)}<figcaption>Página ${index + 1}</figcaption></figure>`).join('');
+    section.dataset.template = templateId;
+    grid.classList.add('is-previewing');
+    section.hidden = false;
+    grid.scrollTop = 0;
+    section.querySelector('[data-template-back]').focus();
+  }
+
+  function hideTemplatePreview({ focus = true } = {}) {
+    const section = $('#template-preview');
+    if (section.hidden) return;
+    const id = section.dataset.template;
+    section.hidden = true;
+    $('#template-grid').classList.remove('is-previewing');
+    $('#template-preview-pages').innerHTML = '';
+    if (focus) $(`[data-template-preview="${CSS.escape(id)}"]`)?.focus();
   }
 
   function renderTemplateGrid() {
@@ -763,11 +798,18 @@ async function main() {
   }
 
   $('#template-grid').addEventListener('click', (event) => {
+    const peek = event.target.closest('[data-template-preview]');
+    if (peek) return showTemplatePreview(peek.dataset.templatePreview);
+    if (event.target.closest('[data-template-back]')) return hideTemplatePreview();
+    const use = event.target.closest('[data-template-use]');
     const card = event.target.closest('[data-template]');
-    if (!card) return;
+    const id = use ? $('#template-preview').dataset.template : card?.dataset.template;
+    if (!id) return;
+    hideTemplatePreview({ focus: false });
     templatesDialog.close('chosen');
-    newFromTemplate(card.dataset.template);
+    newFromTemplate(id);
   });
+  templatesDialog.addEventListener('close', () => hideTemplatePreview({ focus: false }));
 
   async function renderDocumentList() {
     const list = (await storage.list().catch(() => [])).sort((a, b) => b.updatedAt - a.updatedAt);
