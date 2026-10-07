@@ -31,7 +31,7 @@ Esquemas legíveis por máquina (JSON Schema 2020-12, gerados das definições d
 
 ### Arquivo-fonte (`.source.json`)
 
-Igual ao anterior, mas pensado para agentes: imagens por caminho (`{ "src": "entrada/tela.png" }`, relativo ao arquivo), ids opcionais e `intent` no lugar de `type`. `docstudio build` converte no arquivo final, embutindo as imagens **sem reduzir nem recomprimir**. Também é aceito só o objeto do documento (`{ "name", "meta", "design", "blocks" }`).
+Igual ao anterior, mas pensado para agentes: imagens por caminho, relativo à pasta do próprio arquivo-fonte (com o fonte em `saida/` e as imagens em `entrada/`, use `{ "src": "../entrada/tela.png" }`), ids opcionais e `intent` no lugar de `type`. `docstudio build` converte no arquivo final, embutindo as imagens **sem reduzir nem recomprimir**. Também é aceito só o objeto do documento (`{ "name", "meta", "design", "blocks" }`).
 
 ## 2. Ids estáveis
 

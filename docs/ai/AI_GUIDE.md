@@ -44,7 +44,8 @@ Códigos de saída: `0` ok, `1` erro de validação/renderização (nada é grav
 5. `docstudio build` → corrija até não haver erros.
 6. `docstudio render --pdf --png --report` e **inspecione** (seção 6).
 7. Corrija com o arquivo-fonte ou com operações e renderize de novo.
-8. Entregue o `.docstudio.json` (abre no editor por *Abrir cópia de segurança* ou pelo link de `docstudio serve`) e o PDF.
+8. **Nomes de saída**: quando o pedido disser "salve como `pasta/nome`", use `nome` como base: `pasta/nome.source.json` (o que você escreveu), `pasta/nome.docstudio.json` (o documento), `pasta/nome.pdf`, `pasta/nome-paginas/` (PNG) e `pasta/nome.relatorio.json`. Sem indicação, use `saida/<slug-do-título>`.
+9. Entregue o `.docstudio.json` (abre no editor por *Abrir cópia de segurança* ou pelo link de `docstudio serve`) e o PDF.
 
 ## 4. Alterar um documento existente (modo controlado)
 
@@ -57,11 +58,17 @@ Códigos de saída: `0` ok, `1` erro de validação/renderização (nada é grav
 
 ## 5. Bom uso dos componentes
 
+**Material de entrada "sujo"** (texto extraído de PDF, e-mails): descarte números de página, cabeçalhos e rodapés repetidos. Referências a figuras que não vieram ("Figura 7") são removidas — nunca invente a figura; referências a seções de outro documento viram o nome do documento + "(confirmar)". Dados incertos também levam "(confirmar)", e a lista do que ficou para confirmar vai no relatório final.
+
+**Mensagem de sistema × print:** use o bloco `message` (intenção `system-message`/`error-message`) para a frase exata que o sistema exibe; use o print (`screenshot`) quando a pessoa precisa **ver onde clicar**. Com os dois disponíveis para o mesmo erro, prefira o print com a frase exata na legenda, para não repetir o texto.
+
+**Texto de tela** (`` `G003` ``) e o bloco `code` saem em fonte monoespaçada do sistema, fora das fontes do MIV (exceção funcional, ver `BRAND_RULES.md`): use só para comandos, códigos e textos literais. Para destacar um nome de tela ou serviço, prefira **negrito**.
+
 - Varie os componentes quando isso **melhora a compreensão**: sequência de ações → `steps`; requisitos → `list` com `style: "check"`; risco → `callout` `danger`; comparação → `table` ou `cards` (intenção `comparison`); visão geral do processo → `flow`; prazos → `timeline`; números-chave → `stats`.
 - Evite páginas que sejam só título + parágrafo + título + parágrafo; 5 parágrafos seguidos geram recomendação.
 - Não use destaque para decorar: 1–2 por página, texto curto.
 - Títulos de passo: verbo no imperativo ("Informe o chassi"). Parágrafos curtos (3–6 linhas). Linguagem simples para leigos.
-- Prints: legenda sempre (vira "Figura N" e texto alternativo); largura 100% para telas de computador, 45–70% para celular; resolução ≥ 150 ppi no tamanho impresso (o validador avisa).
+- Prints: legenda sempre (vira "Figura N" e texto alternativo); largura 100% para telas de computador, 45–70% para celular; resolução ≥ 150 ppi no tamanho impresso. `inspect` mostra, para cada imagem, os pixels, a resolução na largura atual e a **largura máxima** que mantém 150 ppi (ex.: `[706 px · 105 ppi a 100% · máx. 70%]`); o validador avisa com a mesma sugestão.
 - Tabelas: até 12 colunas; tabelas largas (> 5 colunas) em páginas paisagem (`pagebreak` com `orientation: "landscape"` antes e `"portrait"` depois).
 - Nova página: `section` com `newPage: true` para capítulos grandes; deixe a paginação cuidar do resto (títulos nunca ficam órfãos, tabelas repetem o cabeçalho, parágrafos se dividem por linha).
 
@@ -70,11 +77,11 @@ Códigos de saída: `0` ok, `1` erro de validação/renderização (nada é grav
 - `render` lista cada página: tipo, ocupação da área útil, palavras e os ids dos blocos. Sinais de problema:
   - `✖ ESTOURA`: um bloco não cabe numa página (divida o conteúdo);
   - `⚠ passa da área útil` ou ocupação > 100%: avise o mantenedor (é defeito do app);
-  - página com < 20% de ocupação seguida de outra página: quebra forçada desnecessária (`newPage`/`pagebreak`) ou bloco grande que pulou — reorganize ou reduza a imagem;
-  - página com > 700 palavras: densa demais;
+  - `⚠ quase vazia` (< 20% de ocupação, inclusive a última página de conteúdo): quebra forçada desnecessária (`newPage`/`pagebreak`), bloco grande que pulou ou sobra no fim — reorganize, enxugue ou reduza uma imagem;
+  - `⚠ densa` (> 700 palavras): divida ou use listas e passo a passo;
   - poucos itens de uma lista/glossário sozinhos no topo da página seguinte: ajuste largura de imagens ou a ordem.
 - Abra os PNG (`--png`) e confira visualmente capa, hierarquia, prints legíveis e contracapa.
-- No PDF: o relatório compara o número de páginas com a prévia e conta imagens rasterizadas (só fotos/prints devem ser imagens; com `pdfimages -list` e `pdffonts` dá para conferir Kanit/Maitree embutidas).
+- No PDF: o relatório compara o número de páginas com a prévia e conta imagens rasterizadas (só fotos/prints devem ser imagens; confira com `pdfimages -list`). `pdffonts` deve listar só Kanit e Maitree — e uma monoespaçada (ex.: DejaVu Sans Mono) apenas se o documento tiver texto de tela ou bloco de código.
 - Repita até não haver erros nem avisos relevantes.
 
 ## 7. Limites honestos

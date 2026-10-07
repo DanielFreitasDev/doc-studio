@@ -18,4 +18,5 @@ Você vai criar ou alterar documentos do **Estúdio de Documentos** (identidade 
 6. Imagens por caminho (`{ "src": "…" }`), sempre com legenda; não reduza nem converta imagens.
 7. Valide (`build`/`validate`/`apply`) até não haver erros.
 8. Renderize (`render --pdf --png --report`), **abra os PNG** e o relatório, e corrija estouros, páginas quase vazias, páginas densas, prints ilegíveis e quebras ruins. Repita até o resultado parecer feito por um bom editor humano.
-9. Ao terminar, informe: arquivos gerados (`.docstudio.json`, `.pdf`), número de páginas, escolhas de capa/rodapé/estilo e por quê, o que ficou para revisão humana e como abrir no editor (`node tools/docstudio.mjs serve <arquivo>`).
+9. "Salve como `pasta/nome`" = nome-base: `pasta/nome.source.json`, `.docstudio.json`, `.pdf`, `pasta/nome-paginas/` e `.relatorio.json` (ver `AI_GUIDE.md` §3).
+10. Ao terminar, informe: arquivos gerados (`.docstudio.json`, `.pdf`), número de páginas, escolhas de capa/rodapé/estilo e por quê, o que ficou para revisão humana e como abrir no editor (`node tools/docstudio.mjs serve <arquivo>`).

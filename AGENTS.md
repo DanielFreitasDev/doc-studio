@@ -4,6 +4,8 @@ Browser-based block editor ("Estúdio de Documentos") with a live A4 preview for
 
 The stack is intentionally plain HTML5, CSS3 and modern JavaScript with native ES modules: no framework, library, package manager, bundler, TypeScript or CSS preprocessor. There is no backend; documents live in the user's browser (IndexedDB) and travel as `.json` files.
 
+AI agents asked to create or change a document (not the app): start at `docs/ai/AI_GUIDE.md` and use `node tools/docstudio.mjs`; never edit HTML/CSS/JS to build a document.
+
 ## Layout
 - `index.html`, `style.css` (tokens + app shell) and `script.js` (composition root and app-level actions) are the entry points. `css/` holds `components.css` (UI), `document.css` (the A4 page and all document blocks) and `print.css` (loaded with `media="print"`).
 - Block types are declared once in `js/schema.js` (fields, defaults, validation) and rendered in `js/render.js`; editor forms are generated from the schema (`js/fields.js`). A new block type = schema entry + renderer + CSS in `document.css`.
