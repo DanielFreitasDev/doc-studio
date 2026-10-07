@@ -1562,7 +1562,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   position: fixed;
   inset: auto;
   margin: 0;
-  display: grid;
   gap: var(--space-2);
   padding: var(--space-3);
   border: 1px solid var(--border);
@@ -1573,7 +1572,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   max-height: calc(100dvh - 16px);
   overflow: auto;
 }
-.quick-edit:popover-open { animation: pop-in var(--dur-med) var(--ease); }
+.quick-edit:popover-open { display: grid; animation: pop-in var(--dur-med) var(--ease); }
+.quick-edit:not([popover]):not([hidden]) { display: grid; }
 .quick-edit__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--text-xs); color: var(--text-muted); }
 .quick-edit__title strong { color: var(--text); font-weight: 600; }
 .quick-edit__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); }
@@ -1585,7 +1585,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   position: fixed;
   inset: auto;
   margin: 0;
-  display: flex;
   gap: 2px;
   padding: 3px;
   border: 1px solid var(--border);
@@ -1594,7 +1593,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   color: var(--text);
   box-shadow: var(--shadow-2);
 }
-.format-bubble:popover-open { animation: pop-in var(--dur-fast) var(--ease); }
+.format-bubble:popover-open { display: flex; animation: pop-in var(--dur-fast) var(--ease); }
+.format-bubble:not([popover]):not([hidden]) { display: flex; }
 .format-bubble .icon-btn { width: 32px; height: 32px; }
 .format-bubble [aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-soft-text); }
 
