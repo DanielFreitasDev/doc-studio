@@ -16,7 +16,7 @@ import { BLOCK_TYPES, blockSummary } from '../js/schema.js';
 import { THEMES, DESIGN_PRESETS, contentWidthMm } from '../js/design.js';
 import { TEMPLATES } from '../js/templates.js';
 import { validateDocument, brandReport, contentAdvice, effectivePpi, maxImageWidth } from '../js/validate.js';
-import { applyOperations, diffDocuments, parseOperationsPayload } from '../js/operations.js';
+import { applyOperations, diffDocuments, parseOperationsPayload, assetConflicts, assetConflictMessage } from '../js/operations.js';
 import { buildCatalog, COMPONENT_GUIDE } from '../js/catalog.js';
 import { GRAPHIC_PALETTE, SIGNATURE_COLORS, DERIVED_COLORS, contrastRatio } from '../js/brand.js';
 import { TONE_OPTIONS } from '../js/schema.js';
@@ -199,6 +199,12 @@ const commands = {
     const { document, assets } = await loadDocumentFile(file);
     const payload = parseOperationsPayload(await readText(opsFile));
     const incoming = await resolveAssets(payload.assets, path.dirname(path.resolve(opsFile)));
+    const conflicts = assetConflicts(assets, incoming);
+    if (conflicts.length) {
+      console.error(`✖ ${assetConflictMessage(conflicts)}`);
+      process.exitCode = 1;
+      return;
+    }
     const allAssets = { ...assets, ...incoming };
     const before = normalizeDocument(document);
     if (payload.documentId && payload.documentId !== before.id) console.warn(`⚠ As alterações foram preparadas para o documento ${payload.documentId}; este é ${before.id}.`);

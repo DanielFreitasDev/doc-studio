@@ -89,6 +89,8 @@ Nos campos marcados com * no catálogo: `**negrito**`, `*itálico*`, `++sublinha
 
 Posições: `"start"`, `"end"`, `{ "index": n }`, `{ "before": "id" }`, `{ "after": "id" }`. O lote é **atômico**: se uma operação falhar, nada muda, e a mensagem diz qual operação e por quê (com ids parecidos quando o alvo não existe). Também é aceito só o array de operações.
 
+**Imagens do lote** (`assets`): ids novos são acrescentados ao documento. Reenviar uma imagem com um id que já existe só é aceito se o arquivo for o mesmo; para trocar uma imagem, envie a nova com outro id (`img_tela1-v2`) e aponte o bloco para ela com `update` (`"set": { "assetId": "img_tela1-v2" }`) — assim a troca entra no desfazer. Caminhos de `update` só descem por listas e objetos (`items.0.title`); nomes como `__proto__` são recusados.
+
 ## 7. API no navegador
 
 Com o app aberto, `window.docStudio` expõe:

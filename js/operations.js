@@ -257,6 +257,22 @@ export function applyOperations(doc, operations, { assetIds = null } = {}) {
   return { ok: true, doc: draft, changes, warnings };
 }
 
+/**
+ * Imagens do lote com o id de uma imagem que já existe, mas com outro
+ * conteúdo. Trocar a imagem "por baixo" não entraria no desfazer (as imagens
+ * ficam fora do histórico) e o editor e a linha de comando divergiriam; por
+ * isso o lote é recusado e pede um id novo. Reenviar a mesma imagem é aceito.
+ */
+export function assetConflicts(existing, incoming) {
+  return Object.entries(incoming ?? {})
+    .filter(([id, asset]) => existing[id] && existing[id].dataUrl !== asset?.dataUrl)
+    .map(([id]) => id);
+}
+
+export function assetConflictMessage(ids) {
+  return `A imagem “${ids.join('”, “')}” já existe no documento com outro conteúdo. Para trocar, envie a nova com outro id (ex.: “${ids[0]}-v2”) e aponte o bloco para ela com update. Nenhuma alteração foi aplicada.`;
+}
+
 /** Lê o texto de um arquivo de operações. Lança erro com mensagem amigável se for inválido. */
 export function parseOperationsPayload(text) {
   let data;

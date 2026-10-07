@@ -31,7 +31,7 @@ import { createQuickEdit } from './js/quickedit.js';
 import { setupFormatBar } from './js/formatbar.js';
 import { createBlockSelection } from './js/selection.js';
 import { validateDocument, brandReport, contentAdvice } from './js/validate.js';
-import { applyOperations, parseOperationsPayload, diffDocuments, OPERATIONS_FORMAT, OPERATIONS_VERSION } from './js/operations.js';
+import { applyOperations, parseOperationsPayload, diffDocuments, assetConflicts, assetConflictMessage, OPERATIONS_FORMAT, OPERATIONS_VERSION } from './js/operations.js';
 
 const appEl = $('#app');
 const isCompact = () => !matchMedia('(min-width: 760px)').matches;
@@ -1105,6 +1105,8 @@ async function main() {
   }
 
   function commitOperations(preview) {
+    const conflicts = assetConflicts(Object.fromEntries(assets.ids().map((id) => [id, assets.get(id)])), Object.fromEntries(incoming));
+    if (conflicts.length) return { ok: false, doc: store.doc, changes: [], error: assetConflictMessage(conflicts) };
     const { doc: next, incoming, changes } = preview;
     assets.merge(incoming);
     store.update((doc) => {
