@@ -48,6 +48,11 @@ export const COMPONENT_GUIDE = {
     avoid: 'Mensagens curtas exibidas ao usuário (use Mensagem do sistema).',
     pdf: 'Cada linha é uma unidade; continua na página seguinte entre linhas.',
   },
+  signature: {
+    use: 'Fecho de ofício, comunicado, ata ou parecer: nome e cargo de quem assina (até 3 lado a lado), com linha para a assinatura à mão.',
+    avoid: 'Listar a equipe ou os autores (use Cartões ou Lista); repetir a assinatura do Governo (ela já está no cabeçalho e na capa).',
+    pdf: 'Não se divide; com a linha, reserva cerca de 12 mm para a assinatura à mão.',
+  },
   steps: {
     use: 'Procedimentos: ações numeradas que o leitor executa, cada uma com título curto (verbo no imperativo) e explicação.',
     avoid: 'Itens sem ordem (Lista ou Cartões) e visão geral de fluxo (Fluxo).',

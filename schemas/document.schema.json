@@ -334,6 +334,9 @@
                 "$ref": "#/$defs/block-code"
               },
               {
+                "$ref": "#/$defs/block-signature"
+              },
+              {
                 "$ref": "#/$defs/block-steps"
               },
               {
@@ -412,6 +415,7 @@
                       "process",
                       "key-figures",
                       "definitions",
+                      "signature",
                       "command",
                       "chapter",
                       "chapter-opener",
@@ -629,6 +633,57 @@
         "numbers": {
           "type": "boolean",
           "description": "Numerar as linhas"
+        }
+      }
+    },
+    "block-signature": {
+      "title": "Assinatura — Linha para assinar com nome e cargo (ofício, comunicado, ata)",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "signature"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 3,
+          "description": "Quem assina",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Nome"
+              },
+              "role": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Cargo e órgão"
+              }
+            }
+          }
+        },
+        "align": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ],
+          "description": "Posição: left = À esquerda; center = Centralizada; right = À direita"
+        },
+        "line": {
+          "type": "boolean",
+          "description": "Linha para assinar à mão"
         }
       }
     },

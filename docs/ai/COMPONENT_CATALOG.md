@@ -30,6 +30,7 @@ Em vez de `type`, um bloco pode trazer `"intent"`: o sistema escolhe o tipo e as
 | `process` | Visão geral de um fluxo em poucas etapas, lado a lado | `{"type":"flow"}` |
 | `key-figures` | Números que resumem o assunto | `{"type":"stats","style":"kpi"}` |
 | `definitions` | Termos, siglas e definições | `{"type":"glossary"}` |
+| `signature` | Fecho com nome e cargo de quem assina (ofício, comunicado, ata) | `{"type":"signature"}` |
 | `command` | Comandos, códigos, configurações, texto de tela literal | `{"type":"code"}` |
 | `chapter` | Início de um novo assunto (título numerado em nova página) | `{"type":"section","newPage":true}` |
 | `chapter-opener` | Página inteira de abertura de capítulo (use com moderação) | `{"type":"section","newPage":true,"opener":true}` |
@@ -158,6 +159,26 @@ Padrão:
 
 ```json
 {"type":"code","title":"","text":"Primeira linha\nSegunda linha","numbers":false}
+```
+
+#### `signature` — Assinatura
+
+Linha para assinar com nome e cargo (ofício, comunicado, ata).
+
+- **Use para:** Fecho de ofício, comunicado, ata ou parecer: nome e cargo de quem assina (até 3 lado a lado), com linha para a assinatura à mão.
+- **Evite:** Listar a equipe ou os autores (use Cartões ou Lista); repetir a assinatura do Governo (ela já está no cabeçalho e na capa).
+- **No PDF:** Não se divide; com a linha, reserva cerca de 12 mm para a assinatura à mão.
+
+| campo | rótulo | valores |
+| --- | --- | --- |
+| `items` | Quem assina | lista (máx. 3) de { `name`, `role` } |
+| `align` | Posição | `left` À esquerda · `center` Centralizada · `right` À direita |
+| `line` | Linha para assinar à mão | `true` / `false` |
+
+Padrão:
+
+```json
+{"type":"signature","items":[{"name":"Nome do signatário","role":"Cargo · Órgão"}],"align":"center","line":true}
 ```
 
 ### Organização
@@ -577,10 +598,10 @@ Mudam só a aparência, nunca o conteúdo.
 | `guide` | Guia rápido | Manuais e guias | 9 | Poucas páginas, direto ao ponto: o que muda, como fazer e o que observar. Ideal para comunicar uma regra nova. |
 | `pop` | Procedimento (POP) | Procedimentos e técnicos | 12 | Procedimento Operacional Padrão: objetivo, responsáveis, materiais, execução, riscos, registros e controle de versões. |
 | `report` | Relatório de resultados | Gestão e projetos | 9 | Indicadores em destaque, linha do tempo, comparativos e conclusões. Visual sóbrio para a gestão. |
-| `notice` | Comunicado | Comunicação oficial | 8 | Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura. |
+| `notice` | Comunicado | Comunicação oficial | 7 | Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura. |
 | `project` | Apresentação de projeto | Gestão e projetos | 8 | Contexto, objetivos, etapas, investimento e equipe, com capa de placa de obra do MIV. Ideal para projetos e obras. |
 | `citizen` | Cartilha para o cidadão | Manuais e guias | 7 | Linguagem simples, passo a passo, documentos necessários e dúvidas comuns, com capa de totem do MIV. |
-| `letter` | Ofício | Comunicação oficial | 8 | Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página. |
+| `letter` | Ofício | Comunicação oficial | 7 | Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página. |
 | `technical` | Nota técnica | Procedimentos e técnicos | 13 | Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência. |
 | `blank` | Documento em branco | começar do zero | 0 | Capa, contracapa e páginas com a identidade visual, sem nenhum texto de exemplo. |
 | `letterhead` | Papel timbrado | começar do zero | 0 | O papel timbrado do MIV: assinatura centralizada no alto, endereço e faixa no pé. Para ofício, memorando ou nota. |

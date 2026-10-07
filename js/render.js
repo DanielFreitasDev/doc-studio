@@ -165,6 +165,17 @@ const RENDERERS = {
     return atoms;
   },
 
+  signature(block) {
+    // Até três signatários lado a lado; a linha deixa o espaço da assinatura à mão (como nos ofícios).
+    const items = block.items.map((item, index) => `
+      <div class="b-sign__item">
+        ${block.line ? '<span class="b-sign__line" aria-hidden="true"></span>' : ''}
+        ${item.name ? `<p class="b-sign__name"${ed(`items.${index}.name`)}>${esc(item.name)}</p>` : ''}
+        ${item.role ? `<p class="b-sign__role"${ed(`items.${index}.role`)}>${esc(item.role)}</p>` : ''}
+      </div>`).join('');
+    return [atom(block, 'atom--sign', `<div class="b-sign b-sign--${block.align}${block.line ? ' has-line' : ''}" style="--cols:${Math.max(1, block.items.length)}">${items}</div>`)];
+  },
+
   steps(block) {
     const atoms = [];
     if (block.title) atoms.push(atom(block, 'atom--h3 atom--steps-title', `<h3 class="b-h3"${ed('title')}>${renderInline(block.title)}</h3>`, { keep: true }));

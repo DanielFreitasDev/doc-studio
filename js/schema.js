@@ -156,6 +156,25 @@ export const BLOCK_TYPES = {
     summary: (b) => b.title || b.text.split('\n')[0],
   },
 
+  signature: {
+    label: 'Assinatura',
+    description: 'Linha para assinar com nome e cargo (ofício, comunicado, ata)',
+    icon: 'signature',
+    group: 'text',
+    keywords: 'assinatura signatario nome cargo responsavel diretor fecho oficio ata',
+    defaults: () => ({ items: [{ name: 'Nome do signatário', role: 'Cargo · Órgão' }], align: 'center', line: true }),
+    fields: [
+      {
+        key: 'items', kind: 'items', label: 'Quem assina', itemLabel: 'Signatário', max: 3, inline: true,
+        fields: [{ key: 'name', kind: 'text', label: 'Nome', plain: true }, { key: 'role', kind: 'text', label: 'Cargo e órgão', plain: true }],
+        newItem: () => ({ name: '', role: '' }),
+      },
+      { key: 'align', kind: 'segmented', label: 'Posição', options: [{ value: 'left', label: 'À esquerda' }, { value: 'center', label: 'Centralizada' }, { value: 'right', label: 'À direita' }] },
+      { key: 'line', kind: 'toggle', label: 'Linha para assinar à mão' },
+    ],
+    summary: (b) => b.items.map((i) => i.name).filter(Boolean).join(' · '),
+  },
+
   steps: {
     label: 'Passo a passo',
     description: 'Etapas numeradas ligadas por linha',
@@ -519,6 +538,7 @@ export const BLOCK_INTENTS = {
   process: { description: 'Visão geral de um fluxo em poucas etapas, lado a lado', block: { type: 'flow' } },
   'key-figures': { description: 'Números que resumem o assunto', block: { type: 'stats', style: 'kpi' } },
   definitions: { description: 'Termos, siglas e definições', block: { type: 'glossary' } },
+  signature: { description: 'Fecho com nome e cargo de quem assina (ofício, comunicado, ata)', block: { type: 'signature' } },
   command: { description: 'Comandos, códigos, configurações, texto de tela literal', block: { type: 'code' } },
   chapter: { description: 'Início de um novo assunto (título numerado em nova página)', block: { type: 'section', newPage: true } },
   'chapter-opener': { description: 'Página inteira de abertura de capítulo (use com moderação)', block: { type: 'section', newPage: true, opener: true } },

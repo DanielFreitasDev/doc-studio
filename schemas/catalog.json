@@ -416,6 +416,71 @@
       }
     },
     {
+      "type": "signature",
+      "label": "Assinatura",
+      "description": "Linha para assinar com nome e cargo (ofício, comunicado, ata)",
+      "group": "text",
+      "use": "Fecho de ofício, comunicado, ata ou parecer: nome e cargo de quem assina (até 3 lado a lado), com linha para a assinatura à mão.",
+      "avoid": "Listar a equipe ou os autores (use Cartões ou Lista); repetir a assinatura do Governo (ela já está no cabeçalho e na capa).",
+      "pdf": "Não se divide; com a linha, reserva cerca de 12 mm para a assinatura à mão.",
+      "fields": [
+        {
+          "key": "items",
+          "label": "Quem assina",
+          "type": "items",
+          "max": 3,
+          "itemFields": [
+            {
+              "key": "name",
+              "label": "Nome",
+              "type": "string",
+              "formatting": false
+            },
+            {
+              "key": "role",
+              "label": "Cargo e órgão",
+              "type": "string",
+              "formatting": false
+            }
+          ]
+        },
+        {
+          "key": "align",
+          "label": "Posição",
+          "type": "enum",
+          "values": [
+            {
+              "value": "left",
+              "label": "À esquerda"
+            },
+            {
+              "value": "center",
+              "label": "Centralizada"
+            },
+            {
+              "value": "right",
+              "label": "À direita"
+            }
+          ]
+        },
+        {
+          "key": "line",
+          "label": "Linha para assinar à mão",
+          "type": "boolean"
+        }
+      ],
+      "defaults": {
+        "items": [
+          {
+            "name": "Nome do signatário",
+            "role": "Cargo · Órgão"
+          }
+        ],
+        "align": "center",
+        "line": true
+      }
+    },
+    {
       "type": "steps",
       "label": "Passo a passo",
       "description": "Etapas numeradas ligadas por linha",
@@ -1833,6 +1898,13 @@
       }
     },
     {
+      "id": "signature",
+      "description": "Fecho com nome e cargo de quem assina (ofício, comunicado, ata)",
+      "becomes": {
+        "type": "signature"
+      }
+    },
+    {
       "id": "command",
       "description": "Comandos, códigos, configurações, texto de tela literal",
       "becomes": {
@@ -2824,7 +2896,7 @@
       "description": "Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura.",
       "kind": "model",
       "category": "official",
-      "blocks": 8,
+      "blocks": 7,
       "design": {
         "theme": "green",
         "cover": "none",
@@ -2884,7 +2956,7 @@
       "description": "Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página.",
       "kind": "model",
       "category": "official",
-      "blocks": 8,
+      "blocks": 7,
       "design": {
         "theme": "green",
         "cover": "none",

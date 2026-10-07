@@ -418,6 +418,17 @@
 .b-li--ordered .b-li__mark { font-family: 'Kanit', sans-serif; font-weight: 600; font-size: 0.92em; padding-left: 0; }
 .b-li--check .b-li__mark svg { width: 3.2mm; height: 3.2mm; margin-top: 0.9mm; stroke: var(--doc-primary); stroke-width: 3; fill: none; }
 
+/* ---------------------------------------------------------------- assinatura (fecho de ofício e comunicado) */
+.atom--sign { margin: 4mm 0 var(--doc-gap); }
+.b-sign { display: grid; grid-template-columns: repeat(var(--cols, 1), minmax(0, 62mm)); column-gap: 12mm; }
+.b-sign--left { justify-content: start; }
+.b-sign--center { justify-content: center; text-align: center; }
+.b-sign--right { justify-content: end; text-align: right; }
+.b-sign.has-line { padding-top: 12mm; } /* espaço para a assinatura à mão */
+.b-sign__line { display: block; height: 0; margin-bottom: 2mm; border-top: 0.3mm solid var(--doc-heading); }
+.b-sign__name { font-size: 10pt; font-weight: 600; line-height: 13pt; color: var(--doc-heading); }
+.b-sign__role { margin-top: 0.6mm; font-size: 8.6pt; font-weight: 300; line-height: 11.5pt; color: var(--doc-muted); }
+
 /* ---------------------------------------------------------------- passo a passo */
 .atom--steps-title { margin-bottom: 4pt; }
 .atom--step { margin-bottom: 0; }

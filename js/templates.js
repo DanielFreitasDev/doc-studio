@@ -299,8 +299,7 @@ export const TEMPLATES = [
       { type: 'list', style: 'bullet', items: 'O agendamento passa a ser feito pelo Portal de Serviços.\nO comprovante digital substitui o impresso.\nCasos excepcionais seguem para atendimento presencial.' },
       { type: 'callout', tone: 'info', title: 'Dúvidas', text: 'Entre em contato com a coordenação responsável pelo canal oficial da Diretoria.' },
       { type: 'paragraph', style: 'normal', text: `Fortaleza, ${longDate()}.` },
-      { type: 'divider', style: 'space' },
-      { type: 'paragraph', style: 'normal', text: '**Nome do Diretor**\nDiretor de Veículos · DETRAN/CE' },
+      { type: 'signature', align: 'center', line: false, items: [{ name: 'Nome do Diretor', role: 'Diretor de Veículos · DETRAN/CE' }] },
     ],
   },
 
@@ -411,8 +410,7 @@ export const TEMPLATES = [
       { type: 'paragraph', style: 'normal', text: 'Senhor(a) Diretor(a),' },
       { type: 'paragraph', style: 'normal', text: 'Escreva aqui o texto do ofício (exemplo). Use parágrafos curtos e objetivos.\n\nNo segundo parágrafo, detalhe o pedido, os prazos e os contatos para resposta.' },
       { type: 'paragraph', style: 'normal', text: 'Atenciosamente,' },
-      { type: 'divider', style: 'space' },
-      { type: 'paragraph', style: 'normal', text: '**Nome do signatário**\nCargo · DETRAN/CE' },
+      { type: 'signature', align: 'center', line: true, items: [{ name: 'Nome do signatário', role: 'Cargo · DETRAN/CE' }] },
     ],
   },
 
