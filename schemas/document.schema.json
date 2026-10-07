@@ -263,6 +263,13 @@
                 "airy"
               ]
             },
+            "margins": {
+              "enum": [
+                "narrow",
+                "regular",
+                "wide"
+              ]
+            },
             "signature": {
               "enum": [
                 "joint",

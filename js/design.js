@@ -6,15 +6,27 @@
 import { monthYear } from './utils.js';
 
 /**
- * Geometria da folha A4 (mm). Margens de 20 mm como o papel timbrado do MIV
- * (p. 34); a paginação, a validação e a documentação para agentes leem daqui.
+ * Geometria da folha A4 (mm). A margem lateral padrão é a de 20 mm dos
+ * manuais aprovados; o MIV fixa o formato (A4, p. 34) mas não a margem do
+ * texto, então a opção "margins" a estreita ou alarga sem tocar no cabeçalho,
+ * no rodapé e nas capas (que são arte). A altura útil não muda: depende do
+ * cabeçalho e da faixa do rodapé. A paginação, a validação e a documentação
+ * para agentes leem daqui; a mesma medida existe em css/document.css
+ * (`--doc-margin-x`).
  */
 export const PAGE_GEOMETRY = Object.freeze({
   pageMm: { portrait: [210, 297], landscape: [297, 210] },
+  marginsMm: { regular: 20, narrow: 15, wide: 25 },
   contentWidthMm: { portrait: 170, landscape: 257 },
   contentHeightMm: { portrait: 252, landscape: 165 },
   letterheadOffsetMm: 31,
 });
+
+/** Largura útil (mm) da página com a margem lateral escolhida. */
+export function contentWidthMm(orientation = 'portrait', margins = 'regular') {
+  const page = PAGE_GEOMETRY.pageMm[orientation === 'landscape' ? 'landscape' : 'portrait'][0];
+  return page - 2 * (PAGE_GEOMETRY.marginsMm[margins] ?? PAGE_GEOMETRY.marginsMm.regular);
+}
 
 /**
  * Temas de cor. A cor principal de cada tema vem da paleta do grafismo do MIV
@@ -118,6 +130,12 @@ export const DESIGN_OPTIONS = {
     { value: 'regular', label: 'Padrão' },
     { value: 'airy', label: 'Arejada' },
   ],
+  // Margem lateral das páginas de conteúdo (PAGE_GEOMETRY.marginsMm).
+  margins: [
+    { value: 'narrow', label: 'Estreita (15 mm)' },
+    { value: 'regular', label: 'Padrão (20 mm)' },
+    { value: 'wide', label: 'Larga (25 mm)' },
+  ],
   // Assinaturas conjuntas seguem o MIV (p. 16–18): órgão à esquerda, Governo sempre à direita.
   signature: [
     { value: 'joint', label: 'DETRAN/CE + Governo', description: 'Assinatura conjunta com a Secretaria da Infraestrutura (MIV p. 16)' },
@@ -145,7 +163,7 @@ export const DESIGN_OPTIONS = {
 export const DESIGN_LABELS = Object.freeze({
   theme: 'Tema de cores', cover: 'Capa', backCover: 'Contracapa', header: 'Cabeçalho', footer: 'Rodapé',
   pageNumber: 'Numeração', sectionStyle: 'Títulos de seção', cardStyle: 'Cartões', bodyFont: 'Fonte do texto',
-  headingWeight: 'Peso dos títulos', density: 'Espaçamento', signature: 'Assinatura', colorMode: 'Impressão',
+  headingWeight: 'Peso dos títulos', density: 'Espaçamento', margins: 'Margens laterais', signature: 'Assinatura', colorMode: 'Impressão',
   chapterStyle: 'Abertura de capítulo', numberSections: 'Numerar seções', countCover: 'Capa conta como página',
   customLogo: 'Logo próprio', coverImage: 'Foto da capa',
 });
@@ -170,6 +188,7 @@ export const DEFAULT_DESIGN = Object.freeze({
   cardStyle: 'soft',
   bodyFont: 'maitree',
   density: 'regular',
+  margins: 'regular',
   signature: 'joint',
   chapterStyle: 'folder',
   headingWeight: 'regular',
@@ -271,6 +290,7 @@ export function docAttributes(design) {
     'data-card-style': design.cardStyle,
     'data-body-font': design.bodyFont,
     'data-density': design.density,
+    'data-margins': design.margins,
     'data-heading-weight': design.headingWeight,
     'data-color-mode': design.colorMode,
   };

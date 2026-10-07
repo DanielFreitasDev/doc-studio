@@ -493,6 +493,7 @@ Escolha sempre entre as opções registradas; não existe CSS, cor ou fonte livr
 | `bodyFont` | `maitree` Maitree (serifada) · `kanit` Kanit (sem serifa) |
 | `headingWeight` | `regular` Padrão (manuais aprovados) · `strong` Extra forte (como o MIV) |
 | `density` | `compact` Compacta · `regular` Padrão · `airy` Arejada |
+| `margins` | `narrow` Estreita (15 mm) · `regular` Padrão (20 mm) · `wide` Larga (25 mm) |
 | `signature` | `joint` DETRAN/CE + Governo · `seinfra` Governo + Secretaria · `state` Governo do Ceará · `concept` Governo + conceito · `custom` Logo próprio + Governo · `none` Sem assinatura |
 | `colorMode` | `color` Colorida · `gray` Escala de cinza (P&B) |
 | `chapterStyle` | `folder` Faixas (pasta) · `solid` Verde pleno (MIV) · `stage` Palco · `arcs` Arcos |
@@ -640,5 +641,5 @@ Posições: "start", "end", { "index": n }, { "before": "id" }, { "after": "id" 
 
 ## Página e imagens
 
-A4 com margens de 20 mm: área útil 170 × 252 mm em retrato e 257 × 165 mm em paisagem. Imagens: png, jpeg, webp, gif, svg; resolução mínima 150 ppi no tamanho impresso (ideal 300).
+A4 com margens laterais de 20 mm (padrão): área útil 170 × 252 mm em retrato e 257 × 165 mm em paisagem. A opção `margins` muda só a largura: `narrow` (15 mm, 180 mm úteis em retrato) para tabelas largas e `wide` (25 mm, 160 mm). Imagens: png, jpeg, webp, gif, svg; resolução mínima 150 ppi no tamanho impresso (ideal 300).
 

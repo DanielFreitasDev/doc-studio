@@ -222,7 +222,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       <fieldset class="design-group" id="design-theme"><legend>Tema de cores</legend><ul class="swatch-grid">${swatches}</ul></fieldset>
       ${segmentedGroup('Impressão', 'colorMode', DESIGN_OPTIONS.colorMode, 'Para impressora preto e branco: capa, faixas e assinaturas em tons de cinza, na correspondência de cores do MIV (p. 12).')}
       <details class="design-more" id="design-more"${preferences.get('design-more-open', false) ? ' open' : ''}>
-      <summary>Mais ajustes <small>títulos, cartões, numeração, abertura de capítulo, peso dos títulos, fonte e espaçamento</small></summary>
+      <summary>Mais ajustes <small>títulos, cartões, numeração, abertura de capítulo, peso dos títulos, fonte, espaçamento e margens</small></summary>
       ${segmentedGroup('Títulos de seção', 'sectionStyle', DESIGN_OPTIONS.sectionStyle)}
       ${segmentedGroup('Cartões', 'cardStyle', DESIGN_OPTIONS.cardStyle)}
       <fieldset class="design-group"><legend>Numeração</legend>
@@ -236,6 +236,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       ${segmentedGroup('Peso dos títulos', 'headingWeight', DESIGN_OPTIONS.headingWeight, 'O MIV usa Kanit ExtraBold nos títulos; os manuais aprovados, Kanit SemiBold.')}
       ${segmentedGroup('Fonte do texto corrido', 'bodyFont', DESIGN_OPTIONS.bodyFont, 'O MIV usa Maitree no texto e Kanit nos títulos.')}
       ${segmentedGroup('Espaçamento', 'density', DESIGN_OPTIONS.density)}
+      ${segmentedGroup('Margens laterais', 'margins', DESIGN_OPTIONS.margins, 'Vale para o texto e o cabeçalho das páginas de conteúdo; capas e faixas seguem o MIV. A estreita acomoda tabelas mais largas.')}
       </details>`;
     $('.design-more', designRoot).addEventListener('toggle', (event) => preferences.set('design-more-open', event.target.open));
     syncDesign();

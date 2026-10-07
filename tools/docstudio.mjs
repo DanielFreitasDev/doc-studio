@@ -13,7 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createDocument, normalizeDocument, toFilePayload } from '../js/model.js';
 import { BLOCK_TYPES, blockSummary } from '../js/schema.js';
-import { THEMES, DESIGN_PRESETS } from '../js/design.js';
+import { THEMES, DESIGN_PRESETS, contentWidthMm } from '../js/design.js';
 import { TEMPLATES } from '../js/templates.js';
 import { validateDocument, brandReport, contentAdvice, effectivePpi, maxImageWidth } from '../js/validate.js';
 import { applyOperations, diffDocuments, parseOperationsPayload } from '../js/operations.js';
@@ -175,7 +175,7 @@ const commands = {
       const asset = dims[block.assetId];
       if (block.type !== 'image' || !asset) return '';
       if (asset.svg) return ' [SVG vetorial]';
-      return ` [${asset.width} px · ${effectivePpi(asset.width, (170 * block.width) / 100)} ppi a ${block.width}% · máx. ${maxImageWidth(asset.width)}%]`;
+      return ` [${asset.width} px · ${effectivePpi(asset.width, (contentWidthMm('portrait', doc.design.margins) * block.width) / 100)} ppi a ${block.width}% · máx. ${maxImageWidth(asset.width, 'portrait', doc.design.margins)}%]`;
     };
     const rows = doc.blocks.map((block, index) => ({ index, id: block.id, type: block.type, label: BLOCK_TYPES[block.type].label, summary: blockSummary(block), image: imageInfo(block) }));
     if (options.json) {

@@ -26,6 +26,9 @@
   --doc-border: #dce2e6;
   --doc-surface: #f4f6f5;
 
+  /* Margem lateral das páginas de conteúdo (PAGE_GEOMETRY.marginsMm em js/design.js). */
+  --doc-margin-x: 20mm;
+
   /* Faixa em degradê usada em filetes (verde → água → laranja) */
   --doc-brand-rule: linear-gradient(90deg, #26a737, #2db39e 50%, #f59c00);
   --doc-brand-divider: linear-gradient(90deg, #26a737, #2db39e 45%, #f59c00 75%, #e94f0e);
@@ -83,6 +86,8 @@
 }
 
 .doc[data-body-font="kanit"] { --doc-body-font: 'Kanit', sans-serif; --doc-body-weight: 400; --doc-body-bold: 600; }
+.doc[data-margins="narrow"] { --doc-margin-x: 15mm; }
+.doc[data-margins="wide"] { --doc-margin-x: 25mm; }
 .doc[data-density="compact"] { --doc-p-size: 9.1pt; --doc-p-lead: 13pt; --doc-gap: 6pt; }
 .doc[data-density="airy"] { --doc-p-size: 10pt; --doc-p-lead: 15.4pt; --doc-gap: 10pt; }
 
@@ -161,8 +166,8 @@
 .page__header {
   position: absolute;
   top: 9.4mm;
-  left: 20mm;
-  right: 20mm;
+  left: var(--doc-margin-x);
+  right: var(--doc-margin-x);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -196,7 +201,7 @@
 /* Papel timbrado (MIV p. 34–36): assinatura centralizada no alto da primeira folha. */
 /* Vertical sem secretaria com 37 mm de largura; com secretaria, 40,5 mm (mínimo do MIV, p. 21).
    O corpo da primeira folha desce 31 mm (LETTERHEAD_OFFSET em js/paginate.js). */
-.page__letterhead { position: absolute; top: 8mm; left: 20mm; right: 20mm; display: flex; justify-content: center; }
+.page__letterhead { position: absolute; top: 8mm; left: var(--doc-margin-x); right: var(--doc-margin-x); display: flex; justify-content: center; }
 .page__letterhead .brand { --brand-h: 17.8mm; }
 .page__letterhead .brand--vertical { --brand-h: 29.6mm; }
 .page__letterhead .brand--vertical:has(.brand__state--secretaria) { --brand-h: 32.4mm; }
@@ -219,8 +224,8 @@
 .page__body {
   position: absolute;
   top: 21mm;
-  left: 20mm;
-  right: 20mm;
+  left: var(--doc-margin-x);
+  right: var(--doc-margin-x);
   height: 252mm;
 }
 
@@ -237,7 +242,7 @@
 
 .page__number {
   position: absolute;
-  left: 20mm;
+  left: var(--doc-margin-x);
   bottom: 9.8mm;
   display: grid;
   place-items: center;
@@ -254,7 +259,7 @@
   display: block;
   white-space: nowrap;
   left: auto;
-  right: 20mm;
+  right: var(--doc-margin-x);
   bottom: 13mm;
   width: auto;
   height: auto;
@@ -266,10 +271,10 @@
 }
 .page__number--text strong { color: var(--doc-navy); font-weight: 600; }
 /* Com endereço no pé, o círculo vai para a direita; com a meia faixa, para o lado de fora (como no MIV). */
-.page--footer-address .page__number:not(.page__number--text) { left: auto; right: 20mm; }
+.page--footer-address .page__number:not(.page__number--text) { left: auto; right: var(--doc-margin-x); }
 .page--outer-right .page__number:not(.page__number--text) { left: auto; right: 11mm; bottom: 15mm; }
 .page--outer-left .page__number:not(.page__number--text) { left: 11mm; bottom: 15mm; }
-.page--outer-left .page__number--text { right: auto; left: 20mm; }
+.page--outer-left .page__number--text { right: auto; left: var(--doc-margin-x); }
 
 /* ---------------------------------------------------------------- unidades de paginação ("átomos") */
 .atom { display: flow-root; margin: 0 0 var(--doc-gap); }
@@ -292,7 +297,7 @@
 .pages .atom.drop-target-before { box-shadow: 0 -1.2mm 0 -0.4mm var(--doc-primary); }
 .pages .atom.drop-target-after { box-shadow: 0 1.2mm 0 -0.4mm var(--doc-primary); }
 
-/* Medição invisível: mesma largura útil da página (170 mm). */
+/* Medição invisível: mesma largura útil da página (170 mm com a margem padrão). */
 .measure-host {
   position: fixed;
   left: -10000px;
@@ -301,8 +306,8 @@
   pointer-events: none;
   contain: layout style;
 }
-.measure-body { position: relative; width: 170mm; font-size: 9.6pt; line-height: 1.4; }
-.measure-body--landscape { width: 257mm; }
+.measure-body { position: relative; width: calc(210mm - 2 * var(--doc-margin-x)); font-size: 9.6pt; line-height: 1.4; }
+.measure-body--landscape { width: calc(297mm - 2 * var(--doc-margin-x)); }
 
 /* ---------------------------------------------------------------- texto inline */
 .doc strong { font-weight: 600; color: var(--doc-heading); }

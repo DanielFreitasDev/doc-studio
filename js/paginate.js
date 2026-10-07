@@ -32,7 +32,7 @@ const TOLERANCE = 0.75;
 // Controle de linhas viúvas e órfãs: um parágrafo dividido deixa ao menos 2 linhas em cada página.
 const MIN_LINES = 2;
 
-/** A coluna de medição tem a largura útil da orientação do átomo (170 ou 257 mm). */
+/** A coluna de medição tem a largura útil da orientação do átomo (170 ou 257 mm com a margem padrão). */
 const setOrientation = (measureBody, orientation) => measureBody.classList.toggle('measure-body--landscape', orientation === 'landscape');
 
 /* ------------------------------------------------------------------ larguras de tabela */
@@ -43,7 +43,8 @@ const setOrientation = (measureBody, orientation) => measureBody.classList.toggl
  * mesmo quando a tabela é dividida entre páginas.
  */
 function measureTableColumns(block, measureBody, cache, orientation) {
-  const key = JSON.stringify([block.header, block.rows, block.keyColumn, orientation]);
+  // A largura útil muda com a margem lateral escolhida (data-margins no .doc da medição).
+  const key = JSON.stringify([block.header, block.rows, block.keyColumn, orientation, measureBody.closest('.doc')?.dataset.margins]);
   if (cache.has(key)) return cache.get(key);
   setOrientation(measureBody, orientation);
 

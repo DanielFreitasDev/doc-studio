@@ -14,7 +14,7 @@
  * Sem dependência do DOM: roda no navegador e no Node (ferramenta de linha de comando).
  */
 import { BLOCK_TYPES, BLOCK_ID, MAX_TEXT, TABLE_LIMITS, BLOCK_INTENTS, expandIntent } from './schema.js';
-import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DEFAULT_DESIGN, DEFAULT_META, PAGE_GEOMETRY } from './design.js';
+import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DEFAULT_DESIGN, DEFAULT_META, PAGE_GEOMETRY, contentWidthMm } from './design.js';
 import { MAX_BLOCKS } from './model.js';
 import { stripMarkup, safeUrl } from './markup.js';
 import { GRAPHIC_PALETTE, SIGNATURE_COLORS, TYPOGRAPHY, contrastRatio } from './brand.js';
@@ -283,14 +283,14 @@ function finish(report) {
 const OFFICIAL_HEX = new Set([...GRAPHIC_PALETTE, ...SIGNATURE_COLORS].map((c) => c.hex));
 
 /** Largura impressa de uma imagem (mm) para estimar a resolução. */
-function printedWidthMm(block, orientation) {
-  return (PAGE_GEOMETRY.contentWidthMm[orientation] * block.width) / 100;
+function printedWidthMm(block, orientation, margins) {
+  return (contentWidthMm(orientation, margins) * block.width) / 100;
 }
 
 /** Maior largura do bloco de imagem (%, em passos de 5) que mantém a resolução mínima. */
-export function maxImageWidth(pixelWidth, orientation = 'portrait') {
+export function maxImageWidth(pixelWidth, orientation = 'portrait', margins = 'regular') {
   const widthMm = (pixelWidth / IMAGE_PPI.minimum) * MM_PER_INCH;
-  const percent = Math.floor(((widthMm / PAGE_GEOMETRY.contentWidthMm[orientation]) * 100) / 5) * 5;
+  const percent = Math.floor(((widthMm / contentWidthMm(orientation, margins)) * 100) / 5) * 5;
   return Math.max(25, Math.min(100, percent));
 }
 
@@ -349,10 +349,10 @@ export function brandReport(doc, assets = null) {
       if (!asset) continue;
       checked += 1;
       if (asset.svg) continue;
-      const ppi = effectivePpi(asset.width, printedWidthMm(block, orientation));
+      const ppi = effectivePpi(asset.width, printedWidthMm(block, orientation, design.margins));
       const label = block.caption ? `“${stripMarkup(block.caption).slice(0, 50)}”` : 'sem legenda';
       if (ppi < IMAGE_PPI.minimum) {
-        const maxWidth = maxImageWidth(asset.width, orientation);
+        const maxWidth = maxImageWidth(asset.width, orientation, design.margins);
         add('warning', 'image-resolution', `Imagem ${label}: ${ppi} ppi no tamanho impresso (mínimo ${IMAGE_PPI.minimum}). Pode pixelar no PDF: use um arquivo maior ou diminua a largura para até ${maxWidth}%.`, { blockId: block.id });
       }
     }

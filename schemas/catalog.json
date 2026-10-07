@@ -122,6 +122,11 @@
         210
       ]
     },
+    "marginsMm": {
+      "regular": 20,
+      "narrow": 15,
+      "wide": 25
+    },
     "contentWidthMm": {
       "portrait": 170,
       "landscape": 257
@@ -1942,6 +1947,7 @@
       "cardStyle": "soft",
       "bodyFont": "maitree",
       "density": "regular",
+      "margins": "regular",
       "signature": "joint",
       "chapterStyle": "folder",
       "headingWeight": "regular",
@@ -2285,6 +2291,20 @@
       {
         "id": "airy",
         "label": "Arejada"
+      }
+    ],
+    "margins": [
+      {
+        "id": "narrow",
+        "label": "Estreita (15 mm)"
+      },
+      {
+        "id": "regular",
+        "label": "Padrão (20 mm)"
+      },
+      {
+        "id": "wide",
+        "label": "Larga (25 mm)"
       }
     ],
     "signature": [
