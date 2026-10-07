@@ -133,14 +133,21 @@ function groupBy(runs, key) {
 }
 
 /**
- * Um "+", "=" ou "~" solto na ponta de um trecho formatado encostaria no
- * marcador ("C+" sublinhado viraria "++C+++"): ali ele precisa de escape.
+ * Dentro de um sublinhado, destaque ou riscado, o caractere do próprio
+ * marcador ("+", "=" ou "~") precisa de escape em qualquer posição: na ponta
+ * encostaria no marcador ("C+" viraria "++C+++") e no meio interromperia a
+ * marca ("++Ligue +55++" não seria lido como sublinhado). Pula o que já tem
+ * barra invertida (inclusive a própria barra escapada).
  */
-function guardEdges(core, char) {
+function guardMarker(core, char) {
   if (!'+=~'.includes(char)) return core;
-  let text = core;
-  if (text.endsWith(char) && !text.endsWith(`\\${char}`)) text = `${text.slice(0, -1)}\\${char}`;
-  if (text.startsWith(char)) text = `\\${text}`;
+  let text = '';
+  for (let i = 0; i < core.length; i += 1) {
+    if (core[i] === '\\') {
+      text += core.slice(i, i + 2);
+      i += 1;
+    } else text += core[i] === char ? `\\${char}` : core[i];
+  }
   return text;
 }
 
@@ -156,7 +163,7 @@ function emit(runs, level = 0) {
     if (!core) return inner;
     const marked = key === 'link'
       ? `[${core}](${value.replace(/\)/g, '%29').replace(/\s/g, '%20')})`
-      : `${FORMATS[key].marker}${guardEdges(core, FORMATS[key].marker[0])}${FORMATS[key].marker}`;
+      : `${FORMATS[key].marker}${guardMarker(core, FORMATS[key].marker[0])}${FORMATS[key].marker}`;
     return `${lead}${marked}${trail}`;
   }).join('');
 }
