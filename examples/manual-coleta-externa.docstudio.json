@@ -1,0 +1,764 @@
+{
+  "format": "doc-studio",
+  "version": 1,
+  "exportedAt": "2026-10-07T18:02:12.470Z",
+  "document": {
+    "schema": 1,
+    "id": "d_uoo6o88eqzlz",
+    "name": "Manual da Coleta Externa · Primeiro emplacamento",
+    "createdAt": 1791396132468,
+    "updatedAt": 1791396132468,
+    "meta": {
+      "kicker": "DETRAN/CE · Diretoria de Veículos",
+      "title": "Manual da\nColeta Externa",
+      "subtitle": "de primeiro emplacamento",
+      "description": "Coleta externa da vistoria do 0 km e atendimento na G003",
+      "audienceLabel": "Para",
+      "audience": "Despachantes e seus funcionários\nque fazem a coleta externa e o atendimento na G003",
+      "version": "Versão 1.1 · Outubro de 2026 · Em produção desde 06/10/2026",
+      "headerTitle": "Manual da Coleta Externa",
+      "headerSubtitle": "· Primeiro emplacamento",
+      "headerRight": "DETRAN/CE · Diretoria de Veículos",
+      "backTitle": "Departamento Estadual de Trânsito do Ceará",
+      "backText": "Av. Godofredo Maciel, 2900 · Maraponga\nCEP: 60710-903 · Fortaleza-Ceará\nFone: (85) 3195.2300",
+      "backWeb": "www.detran.ce.gov.br"
+    },
+    "design": {
+      "theme": "green",
+      "cover": "folder",
+      "backCover": "folder",
+      "header": "classic",
+      "footer": "bar",
+      "pageNumber": "circle",
+      "sectionStyle": "kicker",
+      "cardStyle": "soft",
+      "bodyFont": "maitree",
+      "density": "regular",
+      "signature": "joint",
+      "chapterStyle": "folder",
+      "headingWeight": "regular",
+      "colorMode": "color",
+      "customLogo": "",
+      "coverImage": "",
+      "numberSections": true,
+      "countCover": true
+    },
+    "blocks": [
+      {
+        "id": "b_resumo",
+        "type": "section",
+        "title": "Em resumo",
+        "kicker": "Visão geral",
+        "intro": "A vistoria do veículo 0 km que vai para o primeiro emplacamento pode ser feita **fora do DETRAN/CE**, na concessionária ou em pátio autorizado, pelo aplicativo de uma empresa credenciada. Depois, o despachante conclui o primeiro emplacamento na **G003 – Atendimento de Emplacamento Externo**, no Getran.",
+        "newPage": false,
+        "opener": false
+      },
+      {
+        "id": "b_numeros",
+        "type": "stats",
+        "style": "kpi",
+        "tone": "alternate",
+        "items": [
+          {
+            "value": "5",
+            "label": "evidências",
+            "sub": "chassi + 4 fotos externas"
+          },
+          {
+            "value": "4",
+            "label": "condições",
+            "sub": "para a coleta reduzida"
+          },
+          {
+            "value": "261",
+            "label": "serviço na G003",
+            "sub": "260 para motocicleta"
+          },
+          {
+            "value": "26/10",
+            "label": "implantação plena",
+            "sub": "NF-e e vistoria obrigatórias"
+          }
+        ]
+      },
+      {
+        "id": "b_quem-titulo",
+        "type": "heading",
+        "text": "Quem participa",
+        "level": "2"
+      },
+      {
+        "id": "b_quem",
+        "type": "cards",
+        "columns": "2",
+        "marker": "letter",
+        "tone": "alternate",
+        "items": [
+          {
+            "title": "Concessionária",
+            "text": "Vende o veículo 0 km. Precisa estar cadastrada no DETRAN/CE com o seu CNPJ."
+          },
+          {
+            "title": "Despachante",
+            "text": "Faz o atendimento do primeiro emplacamento na G003, entrando no Getran na lotação da concessionária."
+          },
+          {
+            "title": "Coletor",
+            "text": "O próprio despachante ou um funcionário ativo dele. Faz as fotos pelo aplicativo da empresa credenciada (Portaria DETRAN/CE nº 747/2026)."
+          },
+          {
+            "title": "DETRAN/CE",
+            "text": "Classifica a vistoria, faz a conferência automatizada e, quando preciso, a conferência por vistoriador."
+          }
+        ]
+      },
+      {
+        "id": "b_sumario",
+        "type": "toc",
+        "title": "Neste manual",
+        "columns": "2",
+        "style": "lines"
+      },
+      {
+        "id": "b_cronograma",
+        "type": "section",
+        "title": "Cronograma e normas",
+        "kicker": "Contexto",
+        "intro": "As regras deste manual estão em produção desde 06/10/2026. A coleta de imagens e evidências digitais entra em vigor em etapas, conforme o Comunicado DIREV nº 10/2026.",
+        "newPage": true,
+        "opener": false
+      },
+      {
+        "id": "b_linha-tempo",
+        "type": "timeline",
+        "title": "",
+        "tone": "alternate",
+        "items": [
+          {
+            "date": "06/10",
+            "title": "Novas regras em produção",
+            "text": "Coleta de imagens facultativa."
+          },
+          {
+            "date": "19/10",
+            "title": "Coleta de imagens obrigatória",
+            "text": "Em operação assistida."
+          },
+          {
+            "date": "26/10",
+            "title": "Implantação plena",
+            "text": "NF-e e vistoria obrigatórias na G003."
+          }
+        ]
+      },
+      {
+        "id": "b_normas-titulo",
+        "type": "heading",
+        "text": "Normas de referência",
+        "level": "2"
+      },
+      {
+        "id": "b_normas",
+        "type": "table",
+        "tone": "navy",
+        "zebra": true,
+        "keyColumn": true,
+        "note": "",
+        "header": [
+          "Norma",
+          "O que define"
+        ],
+        "rows": [
+          [
+            "Resoluções CONTRAN nº 1.026 e nº 1.027/2026",
+            "Nova sistemática de identificação veicular e do RENAVE."
+          ],
+          [
+            "Circular SENATRAN nº 2, de 30/09/2026",
+            "Cronograma nacional de implantação da Resolução nº 1.026/2026."
+          ],
+          [
+            "Comunicado DIREV nº 10/2026, de 05/10/2026",
+            "Cronograma no Ceará da coleta de imagens e evidências digitais."
+          ],
+          [
+            "Portaria DETRAN/CE nº 1.901/2026",
+            "A coleta externa só pode ocorrer em locais autorizados pela DIREV, com georreferenciamento, incluindo o pátio compartilhado."
+          ],
+          [
+            "Portaria DETRAN/CE nº 747/2026",
+            "Aplicativo da empresa credenciada para a coleta externa."
+          ]
+        ]
+      },
+      {
+        "id": "b_por-que",
+        "type": "callout",
+        "tone": "tip",
+        "title": "Por que a coleta é reduzida no 0 km?",
+        "text": "O veículo novo ainda não tem histórico de uso: motor, hodômetro e vídeo 3D não acrescentam informação nesse momento. Em troca, o chassi passa a ter **conferência rigorosa**, porque é com ele que o veículo “nasce” nos registros do DETRAN/CE."
+      },
+      {
+        "id": "b_classificacao",
+        "type": "section",
+        "title": "Quando é primeiro emplacamento",
+        "kicker": "Classificação",
+        "intro": "O DETRAN/CE decide na solicitação se a vistoria é de primeiro emplacamento. Para isso, as **quatro condições** abaixo precisam ser atendidas ao mesmo tempo.",
+        "newPage": true,
+        "opener": false
+      },
+      {
+        "id": "b_condicoes",
+        "type": "cards",
+        "columns": "2",
+        "marker": "number",
+        "tone": "theme",
+        "items": [
+          {
+            "title": "Coleta pelo aplicativo credenciado",
+            "text": "A solicitação é feita pelo aplicativo de uma empresa credenciada de coleta externa."
+          },
+          {
+            "title": "Veículo ainda sem emplacamento",
+            "text": "A Base de Índice Nacional (BIN) informa que o veículo está aguardando o primeiro emplacamento."
+          },
+          {
+            "title": "Concessionária cadastrada",
+            "text": "A concessionária para a qual a coleta é feita está cadastrada no DETRAN/CE com o mesmo CNPJ."
+          },
+          {
+            "title": "Coletor vinculado à concessionária",
+            "text": "O coletor está habilitado na concessionária ou é funcionário ativo de um despachante habilitado nela."
+          }
+        ]
+      },
+      {
+        "id": "b_classificacao-vale",
+        "type": "callout",
+        "tone": "info",
+        "title": "A classificação vale até o fim da coleta",
+        "text": "Se uma condição não for atendida, a vistoria segue como **vistoria externa comum**, com a coleta completa (inclui motor, hodômetro e vídeo 3D). Para mudar a classificação depois de corrigir o cadastro ou o vínculo, faça uma **nova solicitação** no aplicativo."
+      },
+      {
+        "id": "b_fluxo-titulo",
+        "type": "heading",
+        "text": "Como o pedido percorre o fluxo",
+        "level": "2"
+      },
+      {
+        "id": "b_fluxo",
+        "type": "flow",
+        "label": "Etapa",
+        "tone": "alternate",
+        "items": [
+          {
+            "title": "Solicitação",
+            "text": "No aplicativo da empresa credenciada."
+          },
+          {
+            "title": "Classificação",
+            "text": "Atende às 4 condições? Veículo pesado é isento."
+          },
+          {
+            "title": "Coleta reduzida",
+            "text": "Chassi + 4 fotos externas."
+          },
+          {
+            "title": "Conferência",
+            "text": "Automatizada pelo robô ou por vistoriador."
+          }
+        ]
+      },
+      {
+        "id": "b_operacao",
+        "type": "section",
+        "title": "Do pátio à G003",
+        "kicker": "Operação",
+        "intro": "O processo tem duas fases: a **coleta**, feita no aplicativo da empresa credenciada, e o **atendimento**, feito pelo despachante na G003.",
+        "newPage": true,
+        "opener": false
+      },
+      {
+        "id": "b_fase-1",
+        "type": "steps",
+        "title": "Fase 1 · Coleta no aplicativo",
+        "start": 1,
+        "tone": "theme",
+        "items": [
+          {
+            "title": "Confira o cadastro antes de ir ao veículo",
+            "text": "A concessionária deve estar cadastrada no DETRAN/CE e o coletor vinculado a ela. É o que garante a coleta reduzida."
+          },
+          {
+            "title": "Esteja em um local autorizado",
+            "text": "A coleta só vale na concessionária ou em pátio autorizado pela DIREV. O aplicativo confere a localização."
+          },
+          {
+            "title": "Solicite a vistoria no aplicativo",
+            "text": "Informe o veículo e o local. Em pátio compartilhado, escolha também a concessionária."
+          },
+          {
+            "title": "Faça as cinco fotos e envie",
+            "text": "Chassi, dianteira, diagonal dianteira, diagonal traseira e traseira."
+          },
+          {
+            "title": "Acompanhe o resultado",
+            "text": "Aprovada na hora pelo robô de conferência ou, se houver pendência, após a conferência por vistoriador."
+          }
+        ]
+      },
+      {
+        "id": "b_fase-2",
+        "type": "steps",
+        "title": "Fase 2 · Atendimento na G003",
+        "start": 6,
+        "tone": "teal",
+        "items": [
+          {
+            "title": "Entre no Getran na lotação da concessionária e abra a G003",
+            "text": "Informe o chassi do veículo."
+          },
+          {
+            "title": "Inclua o serviço 261 e vincule a NF-e",
+            "text": "Para motocicleta, o serviço é o 260. A NF-e é vinculada pela chave de acesso."
+          },
+          {
+            "title": "Selecione a vistoria aprovada e conclua o 261",
+            "text": "Só aparecem as vistorias que você pode usar."
+          },
+          {
+            "title": "Conclua os demais serviços e feche o atendimento",
+            "text": "O fechamento exige a NF-e vinculada."
+          }
+        ]
+      },
+      {
+        "id": "b_pesados-aviso",
+        "type": "callout",
+        "tone": "warning",
+        "title": "Atenção",
+        "text": "Veículo pesado (ônibus, micro-ônibus, caminhão, caminhão-trator, reboque e semirreboque) 0 km **não faz coleta externa**."
+      },
+      {
+        "id": "b_coleta",
+        "type": "section",
+        "title": "Evidências: o que fotografar",
+        "kicker": "Coleta",
+        "intro": "A vistoria de primeiro emplacamento pede apenas **cinco fotos**. O aplicativo da empresa credenciada já aplica essa regra quando a vistoria é classificada como primeiro emplacamento.",
+        "newPage": true,
+        "opener": false
+      },
+      {
+        "id": "b_fotos",
+        "type": "table",
+        "tone": "theme",
+        "zebra": true,
+        "keyColumn": false,
+        "note": "O lado de cada diagonal segue a orientação do aplicativo.",
+        "header": [
+          "Nº",
+          "Foto",
+          "Dica"
+        ],
+        "rows": [
+          [
+            "1",
+            "Dianteira",
+            "Frente inteira no quadro, de frente para o veículo."
+          ],
+          [
+            "2",
+            "Diagonal dianteira",
+            "Canto da frente, mostrando frente e lateral."
+          ],
+          [
+            "3",
+            "Diagonal traseira",
+            "Canto de trás, mostrando traseira e lateral."
+          ],
+          [
+            "4",
+            "Traseira",
+            "Traseira inteira no quadro, de frente para ela."
+          ],
+          [
+            "5",
+            "Chassi",
+            "Gravação inteira, nítida e legível, sem reflexo. Passa por conferência rigorosa."
+          ]
+        ]
+      },
+      {
+        "id": "b_nao-pedidos",
+        "type": "chips",
+        "label": "Não são pedidos no veículo 0 km",
+        "items": "~~Foto do motor~~\n~~Foto do hodômetro~~\n~~Etiqueta de originalidade~~\n~~Vídeo 3D~~",
+        "tone": "navy"
+      },
+      {
+        "id": "b_comparacao-titulo",
+        "type": "heading",
+        "text": "Comparação com a vistoria externa comum",
+        "level": "2"
+      },
+      {
+        "id": "b_comparacao",
+        "type": "table",
+        "tone": "navy",
+        "zebra": true,
+        "keyColumn": true,
+        "note": "",
+        "header": [
+          "Evidência",
+          "Primeiro emplacamento (0 km)",
+          "Vistoria externa comum"
+        ],
+        "rows": [
+          [
+            "Chassi",
+            "Exigida · conferência rigorosa",
+            "Exigida"
+          ],
+          [
+            "Dianteira, traseira e diagonais",
+            "Exigida",
+            "Exigida"
+          ],
+          [
+            "Motor",
+            "Não exigida",
+            "Exigida (exceto reboques)"
+          ],
+          [
+            "Hodômetro",
+            "Não exigida",
+            "Exigida (exceto reboques)"
+          ],
+          [
+            "Etiqueta de originalidade",
+            "Não exigida",
+            "Conforme o tipo de veículo"
+          ],
+          [
+            "Vídeo 3D",
+            "Não exigida",
+            "Exigida"
+          ]
+        ]
+      },
+      {
+        "id": "b_resultado",
+        "type": "section",
+        "title": "Conferência e resultado",
+        "kicker": "Resultado",
+        "intro": "Logo após o envio, o DETRAN/CE confere a vistoria de primeiro emplacamento de forma automatizada. Quando tudo está em ordem, ela é aprovada na hora e já pode ser usada na G003.",
+        "newPage": true,
+        "opener": false
+      },
+      {
+        "id": "b_situacoes-envio",
+        "type": "table",
+        "tone": "navy",
+        "zebra": true,
+        "keyColumn": true,
+        "note": "",
+        "header": [
+          "Situação no envio",
+          "Resultado"
+        ],
+        "rows": [
+          [
+            "Cumpre as regras do primeiro emplacamento",
+            "Aprovada pelo robô de conferência do DETRAN/CE. O resultado aparece no aplicativo."
+          ],
+          [
+            "Pendência de gravação ou regravação de chassi ou de motor",
+            "Segue para conferência por vistoriador do DETRAN/CE."
+          ],
+          [
+            "Alguma condição deixou de valer entre a solicitação e o envio (ex.: vínculo do coletor desativado)",
+            "Segue para conferência por vistoriador do DETRAN/CE."
+          ]
+        ]
+      },
+      {
+        "id": "b_aprovacao",
+        "type": "cards",
+        "columns": "2",
+        "marker": "none",
+        "tone": "alternate",
+        "items": [
+          {
+            "title": "Aprovada automaticamente",
+            "text": "A vistoria já aparece na G003 para ser selecionada no serviço 261."
+          },
+          {
+            "title": "Conferência por vistoriador",
+            "text": "Aguarde a aprovação. Enquanto isso, a G003 informa que não há vistoria para ser utilizada. Não é preciso refazer a coleta."
+          }
+        ]
+      },
+      {
+        "id": "b_ia",
+        "type": "paragraph",
+        "text": "As métricas de inteligência artificial enviadas pelo aplicativo ficam registradas, mas ainda não são critério de aprovação. A conferência rigorosa do chassi continua sendo feita no aplicativo, antes do envio.",
+        "style": "note",
+        "align": "left"
+      },
+      {
+        "id": "b_patio",
+        "type": "section",
+        "title": "Pátio compartilhado",
+        "kicker": "Local de coleta",
+        "intro": "Um mesmo pátio, autorizado pela DIREV, pode ser usado por várias concessionárias, cada uma com o seu CNPJ. O pátio é **onde** a coleta acontece; a concessionária é **para quem** ela é feita.",
+        "newPage": false,
+        "opener": false
+      },
+      {
+        "id": "b_patio-escolha",
+        "type": "table",
+        "tone": "navy",
+        "zebra": true,
+        "keyColumn": true,
+        "note": "O cadastro de pátios e das concessionárias vinculadas a cada pátio é feito pelo DETRAN/CE, a partir da autorização da DIREV.",
+        "header": [
+          "Onde a coleta acontece",
+          "O que escolher no aplicativo"
+        ],
+        "rows": [
+          [
+            "Na própria concessionária",
+            "O local de coleta (a concessionária)."
+          ],
+          [
+            "Em pátio compartilhado",
+            "O pátio e a concessionária para a qual a coleta é feita. Ela precisa estar vinculada ao pátio; sem ela, ou com concessionária não vinculada, a solicitação é recusada."
+          ]
+        ]
+      },
+      {
+        "id": "b_patio-dica",
+        "type": "callout",
+        "tone": "info",
+        "title": "Compartilhar o pátio não compartilha vistorias",
+        "text": "Cada concessionária vê apenas as suas vistorias."
+      },
+      {
+        "id": "b_pesados",
+        "type": "section",
+        "title": "Veículos pesados",
+        "kicker": "Isenção",
+        "intro": "Por definição da Diretoria de Veículos (DIREV), os veículos pesados em primeiro emplacamento são **isentos de vistoria** no fluxo de coleta externa. Não há coleta nem exigência de vistoria na G003.",
+        "newPage": false,
+        "opener": false
+      },
+      {
+        "id": "b_pesados-tipos",
+        "type": "chips",
+        "label": "Veículos pesados",
+        "items": "Micro-ônibus\nÔnibus\nCaminhão\nCaminhão-trator\nReboque\nSemirreboque",
+        "tone": "theme"
+      },
+      {
+        "id": "b_pesados-tabela",
+        "type": "table",
+        "tone": "navy",
+        "zebra": true,
+        "keyColumn": true,
+        "note": "",
+        "header": [
+          "Onde",
+          "O que acontece"
+        ],
+        "rows": [
+          [
+            "Aplicativo: solicitar a vistoria",
+            "Recusada. Nenhuma vistoria é gerada."
+          ],
+          [
+            "Aplicativo: enviar os dados da coleta",
+            "Recusado, sem receber nenhum arquivo."
+          ],
+          [
+            "G003: serviço 261 (ou 260)",
+            "Concluído automaticamente, sem vistoria e sem exigir NF-e no serviço."
+          ],
+          [
+            "G003: fechar o atendimento",
+            "A NF-e continua obrigatória para fechar o atendimento (serviço 219)."
+          ]
+        ]
+      },
+      {
+        "id": "b_pesados-msg-app",
+        "type": "message",
+        "label": "Mensagem no aplicativo",
+        "text": "Veículos pesados no fluxo de coleta externa são isentos de vistoria.",
+        "tone": "info"
+      },
+      {
+        "id": "b_pesados-msg-g003",
+        "type": "message",
+        "label": "Mensagem na G003",
+        "text": "Veículo pesado: a coleta de vistoria é dispensada no Emplacamento Externo e o serviço foi concluído sem vistoria.",
+        "tone": "info"
+      },
+      {
+        "id": "b_regras",
+        "type": "section",
+        "title": "NF-e e vistoria na G003",
+        "kicker": "Regras",
+        "intro": "Ao trabalhar o 260 ou o 261, a G003 decide o que exigir nesta ordem; **a primeira situação que se aplica vale**.",
+        "newPage": true,
+        "opener": false
+      },
+      {
+        "id": "b_regras-tabela",
+        "type": "table",
+        "tone": "navy",
+        "zebra": true,
+        "keyColumn": false,
+        "note": "Mesmo quando o 260 ou o 261 não exige a NF-e, ela continua obrigatória para fechar o atendimento.",
+        "header": [
+          "Nº",
+          "Situação",
+          "O que a G003 faz"
+        ],
+        "rows": [
+          [
+            "1",
+            "Dispensa autorizada pelo DETRAN/CE",
+            "Vistoria não exigida."
+          ],
+          [
+            "2",
+            "Veículo pesado",
+            "Conclui o serviço sem vistoria e sem exigir NF-e no serviço."
+          ],
+          [
+            "3",
+            "Até 25/10/2026, chassi sem vistoria disponível",
+            "Conclui o serviço sem vistoria e sem exigir NF-e no serviço."
+          ],
+          [
+            "4",
+            "Sem NF-e vinculada",
+            "Mostra VINCULAR NOTA FISCAL."
+          ],
+          [
+            "5",
+            "Até 25/10/2026, NF-e emitida até 25/10/2026",
+            "Vistoria não exigida."
+          ],
+          [
+            "6",
+            "NF-e emitida depois de 25/10/2026, ou atendimento a partir de 26/10/2026",
+            "Vistoria obrigatória: selecione na lista."
+          ]
+        ]
+      },
+      {
+        "id": "b_quem-usa",
+        "type": "callout",
+        "tone": "danger",
+        "title": "Quem pode usar a vistoria da coleta externa",
+        "text": "O despachante da concessionária só pode usar a vistoria de coleta externa quando o coletor foi **ele mesmo ou um funcionário ativo dele**. Vistorias de outros coletores não aparecem na lista do 261."
+      },
+      {
+        "id": "b_mensagens-titulo",
+        "type": "heading",
+        "text": "Mensagens da G003",
+        "level": "2"
+      },
+      {
+        "id": "b_msg-nfe",
+        "type": "message",
+        "label": "Mensagem na G003",
+        "text": "É obrigatório vincular a Nota Fiscal Eletrônica ao atendimento antes de trabalhar o serviço de Emplacamento Externo.",
+        "tone": "danger"
+      },
+      {
+        "id": "b_msg-sem-vistoria",
+        "type": "message",
+        "label": "Mensagem na G003",
+        "text": "Não há vistoria para ser utilizada.",
+        "tone": "info"
+      },
+      {
+        "id": "b_duvidas",
+        "type": "section",
+        "title": "Situações comuns",
+        "kicker": "Dúvidas",
+        "intro": "",
+        "newPage": true,
+        "opener": false
+      },
+      {
+        "id": "b_faq",
+        "type": "faq",
+        "questionLabel": "Situação",
+        "answerLabel": "O que fazer",
+        "tone": "teal",
+        "items": [
+          {
+            "question": "O aplicativo pede motor, hodômetro ou vídeo 3D de um 0 km.",
+            "answer": "A vistoria não foi classificada como primeiro emplacamento (coletor sem vínculo ou concessionária não cadastrada). Regularize o cadastro ou o vínculo e faça nova solicitação, ou faça a coleta completa."
+          },
+          {
+            "question": "Coleta em pátio recusada.",
+            "answer": "Concessionária não informada ou não vinculada ao pátio. Escolha uma concessionária vinculada ao pátio."
+          },
+          {
+            "question": "A vistoria 0 km não foi aprovada na hora.",
+            "answer": "Há pendência de chassi ou motor, ou uma condição mudou entre a solicitação e o envio. Aguarde a conferência por vistoriador; não é preciso refazer a coleta."
+          },
+          {
+            "question": "“Acesso negado! Usuário logado não é Despachante de Concessionária.”",
+            "answer": "O Getran foi aberto em lotação que não é de concessionária. Saia e entre de novo escolhendo a lotação da concessionária."
+          },
+          {
+            "question": "“Campo chaveNfe deve ter 44 dígitos”.",
+            "answer": "Chave de acesso incompleta ou digitada errado. Confira os 44 números da chave na NF-e."
+          },
+          {
+            "question": "“Não há vistoria para ser utilizada.”",
+            "answer": "Vistoria ainda em conferência, não aprovada ou coletada por quem não é você nem funcionário ativo seu. Aguarde a aprovação ou confira o vínculo do coletor."
+          }
+        ]
+      },
+      {
+        "id": "b_glossario",
+        "type": "glossary",
+        "title": "Glossário rápido",
+        "tone": "navy",
+        "items": [
+          {
+            "term": "BIN",
+            "definition": "Base de Índice Nacional, cadastro nacional dos veículos."
+          },
+          {
+            "term": "Chave de acesso",
+            "definition": "Os 44 números que identificam a NF-e."
+          },
+          {
+            "term": "DIREV",
+            "definition": "Diretoria de Veículos do DETRAN/CE."
+          },
+          {
+            "term": "G003",
+            "definition": "Atendimento de Emplacamento Externo, no Getran."
+          },
+          {
+            "term": "Lotação",
+            "definition": "A unidade escolhida ao entrar no Getran."
+          },
+          {
+            "term": "Coleta reduzida",
+            "definition": "As cinco fotos da vistoria de primeiro emplacamento."
+          }
+        ]
+      }
+    ]
+  },
+  "assets": {}
+}

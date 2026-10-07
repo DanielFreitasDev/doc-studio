@@ -8,8 +8,9 @@ Thumbs.db
 # Artefatos de testes no navegador
 .playwright-mcp/
 
-# Arquivos exportados durante testes
+# Arquivos exportados durante testes (os exemplos montados ficam versionados)
 *.docstudio.json
+!examples/*.docstudio.json
 
 # Configurações pessoais de agentes (não compartilhadas)
 CLAUDE.local.md
