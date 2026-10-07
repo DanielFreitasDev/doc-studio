@@ -4,6 +4,7 @@ description: python3 -m http.server permite cache heurístico; o navegador pode 
 type: project
 category: gotcha
 date: 2026-10-07
+updated: 2026-10-07
 ---
 Depois de editar CSS ou JS, recarregue sem cache antes de concluir que uma correção não funcionou.
 
@@ -11,6 +12,6 @@ Depois de editar CSS ou JS, recarregue sem cache antes de concluir que uma corre
 
 **Por que importa:** dá a falsa impressão de que a correção falhou (ou de que um bug sumiu) e leva a mudanças desnecessárias.
 
-**Como aplicar:** no navegador, use recarregamento forçado (Ctrl+Shift+R) ou DevTools com "Disable cache". Em testes automatizados, limpe o cache antes de recarregar (no Playwright/Chromium: CDP `Network.clearBrowserCache`) ou sirva os arquivos com `Cache-Control: no-store`. Confira com `getComputedStyle` ou procurando a regra nova em `document.styleSheets`.
+**Como aplicar:** no navegador, use recarregamento forçado (Ctrl+Shift+R) ou DevTools com "Disable cache". Em testes automatizados, limpe o cache antes de recarregar (no Playwright/Chromium: CDP `Network.clearBrowserCache`) ou sirva os arquivos com `Cache-Control: no-store` — `node tools/docstudio.mjs serve` já faz isso. Confira com `getComputedStyle` ou procurando a regra nova em `document.styleSheets`.
 
-**Evidência:** em 2026-10-07, após editar `css/document.css`, a regra `:where(.doc)` não aparecia em `document.styleSheets` até limpar o cache pelo CDP. O mesmo comportamento já tinha sido registrado no projeto `scribble`.
+**Evidência:** em 2026-10-07, após editar `css/document.css`, a regra `:where(.doc)` não aparecia em `document.styleSheets` até limpar o cache pelo CDP. O mesmo comportamento já tinha sido registrado no projeto `scribble`. Na sexta auditoria (mesma data), a revisão de alterações de IA mostrava a versão antiga de `js/operations.js` até trocar para `docstudio serve` (resposta com `cache-control: no-store`) e desligar o cache pelo CDP.

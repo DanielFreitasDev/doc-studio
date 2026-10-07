@@ -1,0 +1,15 @@
+{
+  "format": "doc-studio-operations",
+  "version": 1,
+  "description": "Deixa o manual mais didático: resumo em lista de requisitos, dúvidas logo após a operação e capa em arcos.",
+  "operations": [
+    { "op": "insert", "at": { "after": "b_quem" }, "blocks": [
+      { "id": "b_antes-de-comecar", "intent": "requirement", "items": "Concessionária cadastrada no DETRAN/CE com o CNPJ\nColetor vinculado à concessionária\nLocal de coleta autorizado pela DIREV\nAplicativo de empresa credenciada" }
+    ] },
+    { "op": "update", "id": "b_classificacao-vale", "expect": { "type": "callout" }, "set": { "tone": "warning", "title": "Atenção: a classificação vale até o fim da coleta" } },
+    { "op": "move", "ids": ["b_duvidas", "b_faq"], "to": { "after": "b_pesados-aviso" } },
+    { "op": "transform", "id": "b_ia", "to": "callout", "expect": { "text": "inteligência artificial" } },
+    { "op": "update", "id": "b_fotos", "set": { "rows.4.2": "Gravação inteira, nítida e legível, sem reflexo. **Passa por conferência rigorosa.**" } },
+    { "op": "setDesign", "set": { "cover": "identity", "backCover": "concept" } }
+  ]
+}

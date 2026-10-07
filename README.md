@@ -8,6 +8,8 @@ Os manuais feitos para a Diretoria de Veículos (Manual do Despachante · G003 e
 
 O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo em blocos (ou cola um texto pronto), escolhe capa, contracapa, cores e estilos, e vê ao lado exatamente como cada página vai sair — e pode editar o texto direto na página. Nada de ajustar margens, estilos e quebras de página no Word, nem de decorar marcações.
 
+> **Agentes de IA (Claude Code, Codex e outros):** comecem por [`docs/ai/AI_GUIDE.md`](docs/ai/AI_GUIDE.md). O contrato está em [`docs/ai/DOCUMENT_FORMAT.md`](docs/ai/DOCUMENT_FORMAT.md), [`docs/ai/COMPONENT_CATALOG.md`](docs/ai/COMPONENT_CATALOG.md) e [`docs/ai/BRAND_RULES.md`](docs/ai/BRAND_RULES.md); o prompt pronto, em [`docs/ai/AGENT_PROMPT.md`](docs/ai/AGENT_PROMPT.md).
+
 > **Como se chama esse tipo de sistema?** É um **editor por blocos com pré-visualização ao vivo** (*block editor* + *live preview*). "Por blocos" é o modelo do Notion e do Gutenberg do WordPress: cada parte do documento é um bloco que você insere, arrasta e configura. "Pré-visualização ao vivo" é o painel que redesenha o resultado enquanto você digita — o mesmo princípio dos editores **WYSIWYG** (*What You See Is What You Get*, "o que você vê é o que você recebe").
 
 ## 2. Funcionalidades
@@ -64,10 +66,18 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - **Assinaturas** na ordem do MIV (órgão à esquerda, Governo à direita, sem fio separador, afastados pela largura do escudo): DETRAN/CE + Governo (Infraestrutura), Governo + Secretaria da Infraestrutura, somente Governo do Ceará, **Governo + conceito** "Cuidar das pessoas, avançar o Ceará." (p. 9), logo próprio + Governo, ou nenhuma. Na capa "Pasta oficial" a assinatura vira **vertical** — com órgão parceiro, a conjunta vertical lado a lado da p. 17.
 - **Página de abertura de capítulo** opcional por seção, em quatro estilos: faixas da pasta, **verde pleno** (degradê e texto em branco, como as p. 2–3 do MIV), palco e arcos.
 - **Impressão em escala de cinza** (MIV p. 12), para impressora preto e branco: assinaturas com a tabela de correspondência de cores do MIV, faixas, capas e textos em cinza, e o PDF continua vetorial.
-- 8 **temas de cor** da paleta do grafismo (inclusive Azul), 3 estilos de título de seção, 3 estilos de cartão, 3 numerações, **peso dos títulos** (padrão dos manuais aprovados ou Kanit ExtraBold/Black como o MIV), 2 fontes de texto e 3 espaçamentos (em "Mais ajustes", para não sobrecarregar o painel).
+- 8 **temas de cor** da paleta do grafismo e das cores da assinatura do MIV (o Azul é o azul do mar, Pantone 7709 C), 3 estilos de título de seção, 3 estilos de cartão, 3 numerações, **peso dos títulos** (padrão dos manuais aprovados ou Kanit ExtraBold/Black como o MIV), 2 fontes de texto e 3 espaçamentos (em "Mais ajustes", para não sobrecarregar o painel).
 - **Assinaturas em vetor (SVG) extraídas do próprio MIV**: nítidas em qualquer tamanho; o PDF não tem nenhuma imagem rasterizada (exceto fotos e prints do usuário).
 - Divisor com o **grafismo** do MIV.
 - Painel Design pensado para leigos: **atalhos no topo** (Estilos, Capa, Cabeçalho, Rodapé, Contracapa, Assinatura, Cores) e **miniaturas** para capa, cabeçalho, rodapé, contracapa e assinatura, todas com os textos, cores e marcas do próprio documento.
+
+**Criar com IA (AI-native)**
+- Três formas de criar chegam ao **mesmo documento**: no editor, por um modelo ou pedindo a um agente de IA. O agente não escreve HTML: produz um arquivo no formato oficial (blocos, intenções semânticas como `"warning"` ou `"procedure"`, opções de design registradas), que passa pela mesma validação, pela mesma paginação e pelo mesmo PDF.
+- **`tools/docstudio.mjs`** (linha de comando, sem dependências): `catalog`, `new`, `build` (imagens por caminho viram dados, sem perda de qualidade), `validate`, `inspect`, `apply` (alterações pontuais por id), `render` (PDF, PNG de cada página e relatório de paginação no próprio app, via Chrome sem interface), `serve`, `generate` e `check`.
+- **Verificar documento** (menu ⋯): erros, avisos e sugestões em português — estrutura, identidade visual do MIV (assinatura, cores, contraste, fontes, resolução das imagens), textos de exemplo, seções vazias, páginas densas ou quase vazias, blocos cortados — com botão "Ver" que leva ao bloco. O diálogo do PDF usa a mesma verificação.
+- **Aplicar alterações de IA** (menu ⋯): cole ou abra o `.ops.json` do agente, revise o que entra, sai, muda e muda de lugar (com nomes legíveis) e aplique; o lote inteiro é **um passo de desfazer**. Cor por código, logo inválido, componente inexistente, CSS ou link `javascript:` são recusados com a explicação.
+- **Copiar para IA (JSON)** no botão direito de um bloco ou de uma seleção: leva os blocos com ids e o formato de resposta esperado para colar no agente.
+- Regras da marca, catálogo e esquemas JSON **gerados das mesmas definições do editor** (`schemas/`, `docs/ai/`), então a documentação dos agentes não fica desatualizada.
 
 **Arquivos**
 - Salvamento automático no navegador (IndexedDB), lista "Meus documentos" (abrir, duplicar, excluir).
@@ -125,7 +135,17 @@ doc-studio/
 │   ├── tooltip.js         Dica de ferramenta própria (substitui o title nativo)
 │   ├── images.js          Imagens: validação, redução e registro
 │   ├── storage.js         IndexedDB (documentos) e preferências (localStorage)
+│   ├── brand.js           Regras do MIV legíveis por máquina (paleta, assinaturas, logos, regras)
+│   ├── validate.js        Validação, verificação da marca e recomendações (app e linha de comando)
+│   ├── operations.js      Operações por id (inserir, alterar, mover…), lote atômico, diferenças
+│   ├── catalog.js         Guia de uso de cada bloco e catálogo completo para agentes
 │   └── utils.js           Utilitários pequenos e puros
+├── tools/
+│   ├── docstudio.mjs      Linha de comando para agentes e automação (Node 22.4+, sem dependências)
+│   └── lib/               Arquivos e imagens, Chrome via CDP, geração de esquemas e catálogos
+├── schemas/               JSON Schema do documento e das operações, catálogo e marca (gerados)
+├── docs/ai/               Guia, formato, catálogo (gerado), regras da marca (gerado), prompt e exemplos
+├── examples/              Documentos escritos como um agente faria (.source.json) e montados (.docstudio.json)
 └── assets/
     ├── favicon.svg
     ├── fonts/             Kanit (Light a Black) e Maitree (WOFF, subconjunto latino) + LICENSE.md
@@ -140,7 +160,7 @@ doc-studio/
 
 ## 4. Tecnologias utilizadas
 
-HTML5, CSS3 e JavaScript (ES2023) puros, sem bibliotecas, frameworks ou etapa de build. Recursos nativos usados: módulos ES, `<dialog>`, Popover API (menus, menu de contexto, edição na página, barra flutuante), `contenteditable` com eventos `beforeinput` (Input Events), `DOMParser` (limpeza do que é colado), eventos `copy`/`cut`/`paste` e Clipboard API, páginas nomeadas do CSS (`@page landscape`), Pointer Events, IndexedDB, `structuredClone`, `ResizeObserver`, `IntersectionObserver`, View Transitions (quando há suporte), CSS Grid/Flexbox, Container Queries, `color-mix()`, `:has()`, `zoom`, `scrollbar-gutter`, `::-webkit-scrollbar`/`scrollbar-color`, `field-sizing` (com alternativa em JS), `@page`, SVG (grafismo, assinaturas e capa com foto).
+HTML5, CSS3 e JavaScript (ES2023) puros, sem bibliotecas, frameworks ou etapa de build. A ferramenta de linha de comando usa só o Node (módulos `http`, `fs`, `child_process` e o `WebSocket` nativo) e o Chrome/Chromium já instalado, pelo Chrome DevTools Protocol (`Page.printToPDF`, `Page.captureScreenshot`). Recursos nativos usados: módulos ES, `<dialog>`, Popover API (menus, menu de contexto, edição na página, barra flutuante), `contenteditable` com eventos `beforeinput` (Input Events), `DOMParser` (limpeza do que é colado), eventos `copy`/`cut`/`paste` e Clipboard API, páginas nomeadas do CSS (`@page landscape`), Pointer Events, IndexedDB, `structuredClone`, `ResizeObserver`, `IntersectionObserver`, View Transitions (quando há suporte), CSS Grid/Flexbox, Container Queries, `color-mix()`, `:has()`, `zoom`, `scrollbar-gutter`, `::-webkit-scrollbar`/`scrollbar-color`, `field-sizing` (com alternativa em JS), `@page`, SVG (grafismo, assinaturas e capa com foto).
 
 ## 5. Como executar
 
@@ -156,6 +176,15 @@ Para publicar, basta copiar a pasta para qualquer servidor de arquivos estático
 
 Navegadores recomendados: Chrome/Edge 120+, Firefox 126+ e Safari 17+.
 
+**Linha de comando (agentes e automação).** Com Node 22.4+ (e Chrome ou Chromium para PDF/PNG):
+
+```bash
+node tools/docstudio.mjs help                       # todos os comandos
+node tools/docstudio.mjs serve                      # o app em http://127.0.0.1:8080, sem cache
+node tools/docstudio.mjs render examples/manual-coleta-externa.docstudio.json --pdf manual.pdf --png paginas/
+node tools/docstudio.mjs check                      # consistência do projeto (rode antes de cada commit)
+```
+
 ## 6. Como usar
 
 1. Na primeira abertura, escolha como começar: **em branco**, **papel timbrado**, **colando um texto** ou por um **modelo pronto** (fechar a galeria = documento em branco).
@@ -166,6 +195,8 @@ Navegadores recomendados: Chrome/Edge 120+, Firefox 126+ e Safari 17+.
 6. Para levar o trabalho a outro computador: menu **⋯ → Baixar cópia de segurança** (arquivo `.docstudio.json`); no outro, **Abrir cópia de segurança**.
 
 Botão direito em qualquer texto, bloco, célula, item, capa ou rodapé mostra as ações daquele objeto (Shift + botão direito: menu do navegador).
+
+**Com um agente de IA:** peça ao Claude Code ou ao Codex, nesta pasta, algo como "Crie um manual com os arquivos de `entrada/` seguindo `docs/ai/AGENT_PROMPT.md`". Ele entrega um `.docstudio.json` (abra em ⋯ → Abrir cópia de segurança, ou pelo link de `node tools/docstudio.mjs serve arquivo`) e o PDF. Para ajustes, selecione blocos → botão direito → **Copiar para IA (JSON)**, cole no agente e traga a resposta em ⋯ → **Aplicar alterações de IA**. Antes do PDF, ⋯ → **Verificar documento**.
 
 Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (dentro de um texto: link) · `Alt+↑/↓` mover bloco(s) · `Ctrl+D` duplicar · `Ctrl+B`/`Ctrl+I`/`Ctrl+U` negrito/itálico/sublinhado · Ctrl/Shift + clique selecionar vários · `Ctrl+C`/`X`/`V` fora de um texto copiar/recortar/colar blocos · `Delete` excluir os selecionados · duplo clique na prévia editar ali · `Ctrl+1/2/3` modos de visualização · `Ctrl+S` salvar · `Ctrl+P` PDF · tecla `Menu` ou `Shift+F10` menu de contexto · `?` ajuda.
 
@@ -231,6 +262,13 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 39 | Inserir "Código ou texto de tela" com 3 linhas e "Numerar as linhas" | Caixa cinza com fonte de máquina, linhas numeradas e espaços preservados | Linhas juntas ou numeração ausente |
 | 40 | Modelos → "Ver páginas" na Nota técnica → "Usar este modelo" | Todas as páginas aparecem grandes; o documento é criado com elas | Só miniaturas ou modelo errado |
 | 41 | Colar um texto com uma palavra de 400 letras sem espaços | A palavra quebra dentro da coluna, sem vazar da página | Texto saindo da folha |
+| 42 | Clicar em Inserir → Seção e digitar logo em seguida | O texto digitado substitui "Nova seção" | Texto junto de "Nova seção" |
+| 43 | ⋯ → Verificar documento num modelo pronto | "1 aviso" (textos de exemplo), regras do MIV com ✓, botão "Ver" leva ao bloco | Diálogo vazio ou "Ver" sem efeito |
+| 44 | ⋯ → Aplicar alterações de IA, colar `examples/manual-coleta-externa.alteracoes.ops.json` com o exemplo aberto (`?open=examples/manual-coleta-externa.docstudio.json`) → Aplicar → Ctrl+Z → Ctrl+Shift+Z | Revisão com "Novo", "Alterado", "Mudou de lugar", "Capa: Arcos"; tudo aplicado; Ctrl+Z desfaz o lote inteiro; Ctrl+Shift+Z refaz | Aplicação parcial ou várias etapas de desfazer |
+| 45 | No mesmo diálogo, colar `[{"op":"insert","blocks":[{"type":"callout","tone":"#ff0000","text":"x"}]}]` | Mensagem "Cores não são aceitas por código…" e Aplicar desativado | Bloco inserido |
+| 46 | Botão direito num bloco → Copiar para IA (JSON) e colar num editor de texto | JSON com `documentId`, instruções e o bloco com id | Nada copiado |
+| 47 | Design → tema Azul | Faixas, títulos e destaques em azul do mar (#56a7b2) | Documento continua verde |
+| 48 | `node tools/docstudio.mjs check` e `render` de um exemplo | "Projeto consistente"; PDF com o mesmo número de páginas, ocupação ≤ 100% | Erro ou página "passa da área útil" |
 
 ### Edge cases
 
@@ -248,6 +286,16 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 - axe DevTools para varredura de acessibilidade WCAG 2.2.
 
 ### O que foi verificado no desenvolvimento
+
+Sexta auditoria (07/10/2026), integração AI-native:
+- **Fluxo AI-A** (criar do zero): o manual da coleta externa foi reescrito por agente a partir do PDF de referência só com o contrato (`examples/manual-coleta-externa.source.json`), validado, paginado em 11 páginas e conferido página a página em PNG; com dois prints reais extraídos da referência (fora do repositório), as imagens entraram no PDF com o tamanho original (1045 e 706 px, 157 e 178 ppi impressos) e só elas como imagens (`pdfimages -list`);
+- **AI-B** (alteração pontual): 4 operações por id alteraram exatamente os 4 blocos-alvo; ordem, design e textos fixos do resto idênticos (comparação JSON);
+- **AI-C** (reorganização): `reorder` + tema pela interface; Ctrl+Z restaurou ordem e tema num passo e Ctrl+Shift+Z reaplicou;
+- **AI-D** (proteção): cor por código, assinatura inválida, componente inexistente, opção de CSS, link `javascript:` e campo `style` livre recusados com mensagem; HTML num texto aplicado pela API apareceu como texto, sem executar (`onerror` não disparou);
+- `render` dos 12 modelos e dos 14 estilos prontos (um em escala de cinza): sem estouro, nenhuma página acima de 100% da área útil, PDF sem imagens rasterizadas; o estilo "Com foto" sem foto é recusado pela verificação da marca;
+- Fluxos A e B pela interface (modelo pronto; documento em branco com seção, parágrafo com acentos e cedilha, destaque, print colado, rodapé "Meia faixa" e contracapa "Conceito"), diálogos novos em 1440 e 390 px, axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) nos diálogos novos nos temas claro e escuro: sem violações; console sem erros;
+- Defeitos encontrados e corrigidos: tema Azul sem cores no CSS (o documento continuava verde; agora usa o azul do mar da assinatura, Pantone 7709 C); tom de texto da água-marinha com contraste 4,49:1 (agora 4,56:1); glossário com respiro fora da medição (a caixa invadia a margem inferior em até ~6 mm ao continuar na página seguinte); texto digitado logo após inserir um bloco se juntava ao texto padrão; no Safari/WebKit, fechar o menu ⋯ disparava um erro de popover (a dica de ferramenta abria durante o fechamento do menu).
+- **Firefox e WebKit**: abrir pelo link `?open=`, aplicar alterações pela API, desfazer, "Verificar documento" e a revisão de alterações: mesma paginação do Chromium (11 páginas, ocupação ≤ 100%) e console sem erros (o WebKit só avisa que ignora `interactive-widget`).
 
 Quinta auditoria (07/10/2026), com Playwright:
 - **Chromium** (1440, 1366, 1024, 768, 390 e 320 px; janelas de 1800, 1152 e 960 px equivalentes ao zoom de 80%, 125% e 150%): texto visual (digitação com acentos e cedilha, Enter, negrito, sublinhado, destaque, link com validação, Ctrl+Z, escape de `*`, `C++` e `==`), colagem do Word (HTML com `<img onerror>` e `href="javascript:"` reduzido a negrito e itálico) e do Excel numa célula, barra flutuante, barra de formatação só pelo teclado (Tab, setas, Enter), edição na página (capa, célula, passo; no celular por toque), seleção múltipla com Ctrl/Shift, copiar/colar blocos e texto (eventos de área de transferência sintéticos: no Chromium sem interface o Ctrl+V real não lê o que o app copia), Delete + desfazer, menu da página, imagem quadrada recortada pelo topo, parágrafo justificado, bloco de código, páginas em paisagem, galeria com "Ver páginas" e arrastar pela alça; sem rolagem horizontal em nenhuma largura e sem erros no console;
@@ -292,6 +340,9 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - **Escala de cinza com cores reais, não com filtro.** `filter: grayscale(1)` no CSS faria o Chromium transformar cada página do PDF em imagem de 300 dpi (testado: texto deixa de ser selecionável e as fontes somem do PDF). Por isso as cores do documento viram tokens CSS com versão em cinza, o grafismo SVG troca cada cor pelo cinza de mesma luminância e as assinaturas usam arquivos `-gray.svg` gerados com a tabela de correspondência da p. 12 do MIV (o nome "CEARÁ" em preto, o brasão nos cinzas da tabela). *Impacto:* o PDF continua vetorial; fotos do usuário (que já são imagens) recebem o filtro.
 - **Medição sempre válida na impressão.** A área invisível de medição continua com largura no CSS de impressão e a paginação ignora medições com largura zero; antes, um recálculo durante a impressão juntava páginas no PDF.
 - **Menu de contexto por provedores, sem bloquear o do navegador.** Cada módulo registra uma função que reconhece "seus" elementos e devolve as ações (editor: texto, item, célula, bloco; prévia: bloco, capa, rodapé; painel: Estrutura e paleta). O primeiro que reconhecer monta o menu; se nenhum reconhecer, o menu do navegador fica. As ações chamam as mesmas funções dos botões (mesmas condições, "Desfazer" e confirmações). Shift + botão direito é a saída para o menu do navegador (corretor ortográfico). No toque longo em campo de texto o app não intervém, para não quebrar copiar/colar do celular. O texto é alterado com `execCommand('insertText')`, que mantém o Ctrl+Z nativo do campo (com `setRangeText` como alternativa). *Impacto:* um novo componente ganha menu registrando um provedor; o menu mora dentro do diálogo aberto, porque um diálogo modal deixa inerte tudo o que está fora dele.
+- **Contrato para agentes em vez de HTML gerado por IA.** A IA usa o mesmo modelo de documento do editor (blocos com id estável, intenções semânticas, opções registradas) e operações por id (`insert`, `update`, `move`, `reorder`…) com guarda `expect`. *Por quê:* HTML livre destruiria a identidade visual e não teria validação; operações por posição (como o JSON Patch, RFC 6902) quebram quando o documento muda; por id, a mudança é auditável e mira o bloco certo. *Impacto:* o lote é atômico e entra como um passo de desfazer; o que não está no catálogo é recusado com a explicação.
+- **Renderização para agentes pelo próprio app.** A CLI abre `index.html?render=` num Chrome sem interface e usa `Page.printToPDF` — o mesmo DOM, CSS de impressão e paginação do botão "Exportar PDF". *Alternativa descartada:* um renderizador próprio em Node, que divergiria da prévia. *Impacto:* precisa de Chrome/Chromium instalado; o PDF sai marcado (acessível) e com marcadores.
+- **Uma fonte para regras e documentação.** `js/brand.js` (fatos do MIV) e as definições do editor geram `schemas/` e os catálogos de `docs/ai/`; `check` confere tokens CSS × temas, paleta, guia e renderizador de cada bloco e exemplos. Foi essa conferência que achou o tema Azul sem CSS e o contraste da água-marinha.
 - **Sem PWA/instalação.** Não foi pedido; marcado como *não aplicável*. O app já funciona sem internet depois de carregado, porque não depende de rede.
 
 ## 9. Boas práticas adotadas
@@ -314,7 +365,9 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - Documento inteiro em paisagem (apresentações e fundos de palco no formato original do MIV), com capas redesenhadas a partir das peças horizontais do MIV (p. 1, 56–57, 104, 116–117); hoje a paisagem vale para as páginas de conteúdo.
 - Margens configuráveis (hoje fixas em 20 mm, como no papel timbrado do MIV).
 - Comentários e revisão entre colegas.
-- Testes automatizados versionados (Playwright) no repositório.
+- Testes automatizados versionados (Playwright) no repositório; hoje há a conferência de consistência (`docstudio check`) e a renderização por linha de comando, mas não testes de interação.
+- Assistente de IA dentro do app (painel "Criar com IA"): a arquitetura já tem a API (`window.docStudio.applyOperations`, `check`, `report`) e a revisão de alterações; falta a conexão com um modelo, que exige escolher fornecedor e um back-end para a chave de acesso.
+- Importar PDF e `.docx` como material para agentes direto na interface (hoje o agente lê esses arquivos por conta própria).
 - Versão monocromática da assinatura (MIV p. 13, brasão em traço), que o MIV reserva para "último caso"; hoje a impressão em uma cor usa a escala de cinza da p. 12.
 - PWA instalável com funcionamento offline garantido por service worker, se houver demanda.
 

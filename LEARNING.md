@@ -4,11 +4,13 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 
 ## Bugs e soluções
 - [Reset de margens não valia na área de medição](docs/learning/bug-reset-fora-da-area-de-medicao.md) — CSS que muda tamanho de bloco vale em `.page` e na medição; resets com `:where(.doc)`.
+- [Respiro de segmento fora da medição](docs/learning/bug-respiro-de-segmento-fora-da-medicao.md) — `seg-start/seg-end` entram depois da paginação; só cantos, respiro em `is-first/is-last`.
+- [Tema declarado no JS sem tokens no CSS](docs/learning/bug-tema-sem-tokens-no-css.md) — tema Azul existia só em `design.js`; `docstudio check` confere temas, paleta e contraste.
 - [Paginação recalculada durante a impressão](docs/learning/bug-medicao-escondida-na-impressao.md) — a área de medição não pode sumir no CSS de impressão; senão o PDF junta páginas.
 
 ## Pegadinhas de ambiente, dependências e bibliotecas
 - [Utilitários de visibilidade perdem para os componentes](docs/learning/gotcha-especificidade-dos-utilitarios-de-visibilidade.md) — `components.css` carrega depois; use `.topbar .hide-compact` e similares.
-- [Cache de CSS e módulos no servidor local](docs/learning/gotcha-cache-de-modulos-no-servidor-local.md) — `http.server` permite cache heurístico; recarregue sem cache antes de julgar uma correção.
+- [Cache de CSS e módulos no servidor local](docs/learning/gotcha-cache-de-modulos-no-servidor-local.md) — `http.server` permite cache heurístico; recarregue sem cache ou use `docstudio serve` (no-store).
 - [Firefox e WebKit no ambiente de testes](docs/learning/gotcha-navegadores-de-teste-no-ambiente.md) — `executablePath` e `127.0.0.1`; colar testado com `ClipboardEvent` sintético; seletor de arquivo trava o MCP.
 - [Popover fora do diálogo modal fica inerte](docs/learning/gotcha-popover-fora-do-dialogo-modal.md) — menu aberto com `<dialog>` modal precisa morar dentro do diálogo; fora dele não recebe clique nem foco.
 - [Zoom "ajustar à largura" em laço](docs/learning/gotcha-zoom-em-laco-com-barra-de-rolagem.md) — barra de rolagem clássica muda a largura; `scrollbar-gutter: stable` na área rolável.
@@ -20,6 +22,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Menu de contexto por provedores](docs/learning/decision-menu-de-contexto-por-provedores.md) — botão direito só onde um provedor reconhece o elemento; ações dos botões, Shift = menu do navegador, toque em campo = nativo.
 - [Campos visuais sobre a marcação segura](docs/learning/decision-texto-com-marcacao-em-vez-de-contenteditable.md) — edição WYSIWYG, mas o documento guarda marcação escapada; formatação por trechos, sem `execCommand`.
 - [Edição na página por campo flutuante](docs/learning/decision-edicao-na-pagina-por-campo-flutuante.md) — duplo clique abre campo sobre o trecho (`data-edit`); as páginas não ficam editáveis.
+- [Contrato para agentes de IA](docs/learning/decision-contrato-para-agentes-de-ia.md) — mesmo modelo do editor, operações por id, PDF pelo próprio app; nada de HTML gerado nem renderizador paralelo.
 - [Paisagem pela quebra de página](docs/learning/decision-paisagem-por-quebra-de-pagina.md) — A4 deitado só no conteúdo, a partir de uma quebra; capas do MIV ficam em retrato.
 
 ## Abordagens que NÃO funcionaram

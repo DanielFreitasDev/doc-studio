@@ -1,0 +1,70 @@
+{
+  "format": "doc-studio",
+  "version": 1,
+  "document": {
+    "name": "Procedimento · Vistoria no Emplacamento Externo (G003)",
+    "meta": {
+      "kicker": "DETRAN/CE · Diretoria de Veículos",
+      "title": "Manual do\nDespachante",
+      "subtitle": "Emplacamento Externo",
+      "description": "GETRAN Veículos · Função G003 · Primeiro emplacamento",
+      "audienceLabel": "Para",
+      "audience": "Despachantes que atendem\no primeiro emplacamento na G003",
+      "version": "Versão 1.0 · Outubro de 2026",
+      "headerTitle": "Manual do Despachante",
+      "headerSubtitle": "· Emplacamento Externo · G003",
+      "headerRight": "DETRAN/CE · Diretoria de Veículos"
+    },
+    "design": {
+      "theme": "teal",
+      "cover": "envelope",
+      "backCover": "minimal",
+      "header": "rule",
+      "footer": "stripe",
+      "pageNumber": "circle",
+      "sectionStyle": "band",
+      "cardStyle": "top",
+      "signature": "joint",
+      "chapterStyle": "folder"
+    },
+    "blocks": [
+      { "id": "b_objetivo", "type": "section", "kicker": "Orientação", "title": "Objetivo", "intro": "Orientar os despachantes sobre as novas regras do **Primeiro Emplacamento** na função **G003** do GETRAN Veículos, especialmente quanto à Nota Fiscal Eletrônica e à utilização da vistoria." },
+      { "id": "b_ficha", "type": "stats", "style": "sheet", "tone": "alternate", "items": [
+        { "value": "GETRAN Veículos", "label": "Sistema", "sub": "acesso do despachante" },
+        { "value": "G003", "label": "Função", "sub": "Atendimento de Emplacamento Externo" },
+        { "value": "260 e 261", "label": "Serviços", "sub": "motocicleta e veículo" }
+      ] },
+      { "id": "b_muda-titulo", "type": "heading", "text": "O que muda na tela", "level": "2" },
+      { "id": "b_muda", "type": "cards", "columns": "2", "marker": "number", "tone": "alternate", "items": [
+        { "title": "Nota Fiscal Eletrônica", "text": "Precisa estar vinculada ao atendimento. Enquanto não estiver, a G003 mostra **Vincular Nota Fiscal**." },
+        { "title": "Vistoria válida e apta", "text": "Quando exigida, a vistoria é selecionada numa lista. Só aparecem vistorias válidas e aptas." },
+        { "title": "Coleta externa", "text": "Só aparece a vistoria ligada ao próprio despachante ou a funcionário vinculado a ele." },
+        { "title": "Seleção obrigatória", "text": "Havendo vistoria disponível e exigida, ela deve ser selecionada antes de prosseguir." }
+      ] },
+
+      { "id": "b_nfe", "type": "section", "kicker": "Nota fiscal", "title": "Nota Fiscal Eletrônica", "intro": "Nos atendimentos abrangidos pela nova regra, a NF-e deve estar vinculada ao atendimento para o serviço prosseguir, quando exigida." },
+      { "id": "b_nfe-regras", "intent": "requirement", "items": "Sem NF-e vinculada, a G003 mostra a opção **VINCULAR NOTA FISCAL**.\nDepois da vinculação, aparece: **Nota Fiscal Eletrônica vinculada ao atendimento**." },
+      { "id": "b_nfe-msg", "intent": "success", "title": "Confirmação na tela", "text": "“Nota Fiscal Eletrônica vinculada ao atendimento.”" },
+
+      { "id": "b_vistoria", "type": "section", "kicker": "Vistoria", "title": "Vistoria para o Emplacamento Externo", "intro": "Quando houver exigência de vistoria, use uma vistoria **válida e apta** disponibilizada pelo sistema." },
+      { "id": "b_vencidas", "intent": "warning", "text": "Vistorias vencidas ou em situação não apta **não são disponibilizadas** para utilização no atendimento." },
+      { "id": "b_coleta-titulo", "type": "heading", "text": "Disponibilidade da vistoria de coleta externa", "level": "2" },
+      { "id": "b_coleta-quem", "type": "list", "style": "check", "items": "Vistoria ligada ao próprio despachante responsável (fonte pagadora)\nVistoria de funcionário devidamente vinculado ao despachante" },
+      { "id": "b_outro", "intent": "danger", "title": "Vistoria de outro despachante não aparece", "text": "A vistoria ligada a outro despachante não fica disponível, mesmo que o veículo tenha vistoria." },
+      { "id": "b_duvida", "intent": "faq", "questionLabel": "Dúvida comum", "answerLabel": "Resposta", "tone": "teal", "items": [
+        { "question": "“Eu sei que o veículo tem vistoria, mas ela não aparece para mim.”", "answer": "Se a vistoria foi feita por coleta externa, ela só aparece para o despachante que a coletou ou cujo funcionário a coletou. Confira também se ela está válida e apta." }
+      ] },
+
+      { "id": "b_vincular", "type": "section", "kicker": "Ação", "title": "Vinculação da vistoria", "newPage": true, "intro": "Quando houver vistoria válida disponível e sua utilização for exigida, selecione-a na G003 antes de prosseguir com o atendimento." },
+      { "id": "b_passos", "intent": "procedure", "start": 1, "tone": "theme", "items": [
+        { "title": "Abra o serviço de Emplacamento Externo", "text": "Na tela **Trabalhar Serviço Atendimento**, clique em EMPLACAMENTO EXTERNO." },
+        { "title": "Marque a vistoria", "text": "Na tela **Serviço de Vistoria**, marque a vistoria desejada." },
+        { "title": "Conclua o serviço", "text": "Clique em **Concluir Serviço**. A tela confirma: “Serviço concluído com sucesso!”." }
+      ] },
+      { "id": "b_sem-vistoria", "type": "section", "kicker": "Atenção", "title": "Quando a vistoria não estiver disponível" },
+      { "id": "b_antes", "intent": "important-information", "title": "Antes de procurar o DETRAN/CE", "text": "Verifique se a vistoria está válida e apta e, no caso de coleta externa, se está ligada ao próprio despachante ou a funcionário devidamente vinculado." },
+      { "id": "b_msg", "intent": "system-message", "label": "Mensagem na G003", "text": "Não há vistoria para ser utilizada." }
+    ]
+  },
+  "assets": {}
+}

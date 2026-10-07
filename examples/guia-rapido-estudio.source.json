@@ -1,0 +1,57 @@
+{
+  "format": "doc-studio",
+  "version": 1,
+  "document": {
+    "name": "Guia rápido · Estúdio de Documentos",
+    "meta": {
+      "kicker": "DETRAN/CE · Diretoria de Veículos",
+      "title": "Guia rápido do\nEstúdio de Documentos",
+      "subtitle": "Manuais na identidade visual do Ceará",
+      "description": "Editor visual · Pré-visualização A4 · PDF · Agentes de IA",
+      "audienceLabel": "Para",
+      "audience": "Servidores que escrevem\nmanuais, guias e procedimentos",
+      "version": "Versão 1.0 · Outubro de 2026",
+      "headerTitle": "Guia rápido do Estúdio",
+      "headerSubtitle": "· Documentos na identidade visual",
+      "headerRight": "DETRAN/CE · Diretoria de Veículos"
+    },
+    "design": {
+      "theme": "green",
+      "cover": "identity",
+      "backCover": "concept",
+      "header": "rule",
+      "footer": "half",
+      "pageNumber": "circle",
+      "sectionStyle": "kicker",
+      "cardStyle": "soft",
+      "signature": "joint",
+      "chapterStyle": "solid"
+    },
+    "blocks": [
+      { "id": "b_comece", "type": "section", "kicker": "Começar", "title": "Três formas de criar", "intro": "Todas chegam ao mesmo documento, com os mesmos blocos, a mesma identidade visual e o mesmo PDF." },
+      { "id": "b_formas", "intent": "comparison", "columns": "3", "marker": "number", "items": [
+        { "title": "No editor", "text": "Comece em branco e adicione blocos pelo painel **Inserir**, pelo botão **+** ou digitando **/**." },
+        { "title": "Por um modelo", "text": "Escolha um modelo pronto em **Modelos** e troque os textos de exemplo." },
+        { "title": "Com um agente de IA", "text": "Peça ao Claude Code ou ao Codex: ele cria o arquivo pelo contrato de `docs/ai/` e você abre no editor." }
+      ] },
+      { "id": "b_tela", "intent": "screenshot", "assetId": "img_tela", "caption": "Tela principal: blocos à esquerda, conteúdo no centro e a prévia A4 à direita." },
+
+      { "id": "b_editar", "type": "section", "kicker": "Escrever", "title": "Editar sem decorar nada" },
+      { "id": "b_dicas", "intent": "procedure", "start": 1, "tone": "theme", "items": [
+        { "title": "Clique duas vezes num texto da prévia", "text": "Um campo abre sobre o trecho e a página se atualiza enquanto você digita." },
+        { "title": "Selecione para formatar", "text": "Negrito, itálico, sublinhado, destaque e link pela barra, pelo botão direito ou por Ctrl+B / I / U / K." },
+        { "title": "Reorganize arrastando", "text": "Arraste pela alça ⋮⋮, pela Estrutura ou direto na página. Ctrl+Z desfaz qualquer passo." },
+        { "title": "Gere o PDF", "text": "**Exportar PDF** confere o documento e abre a impressão: escolha **Salvar como PDF**." }
+      ] },
+      { "id": "b_verificar", "intent": "tip", "title": "Antes de enviar", "text": "Menu ⋯ → **Verificar documento** mostra o que revisar: textos de exemplo, imagens com pouca resolução, páginas densas e as regras do Manual de Identidade Visual." },
+
+      { "id": "b_ia", "type": "section", "kicker": "Agentes de IA", "title": "Alterações sugeridas pela IA", "intro": "Selecione blocos, use **Copiar para IA (JSON)** no botão direito e peça a mudança ao agente. A resposta volta em **Aplicar alterações de IA**." },
+      { "id": "b_tela-ia", "intent": "screenshot", "assetId": "img_ia", "caption": "Revisão antes de aplicar: o que entra, sai, muda e muda de lugar.", "width": 85 },
+      { "id": "b_seguro", "intent": "important-information", "title": "Seguro por padrão", "text": "A IA só usa os blocos e as opções registradas: cores, logos e fontes fora do Manual de Identidade Visual são recusados. Tudo entra como um único passo de desfazer." }
+    ]
+  },
+  "assets": {
+    "img_tela": { "src": "assets/estudio-tela-principal.png" },
+    "img_ia": { "src": "assets/estudio-aplicar-alteracoes.png" }
+  }
+}
