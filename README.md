@@ -15,11 +15,13 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 ## 2. Funcionalidades
 
 **Escrita**
-- 21 tipos de bloco: seção numerada, subtítulo, parágrafo (à esquerda, justificado ou centralizado), lista (marcadores, números ou checklist), citação, **código ou texto de tela** (comandos e configurações em fonte de máquina, com numeração opcional), passo a passo, cartões, fluxo com setas, linha do tempo, sumário automático com página (em linhas ou pontilhado como o do MIV, p. 4), destaque (informação, sucesso, atenção, alerta, dica), mensagem do sistema, pergunta e resposta, etiquetas, tabela, indicadores (números grandes ou fichas), glossário, imagem com figura numerada, divisor e quebra de página (em retrato ou **paisagem**).
+- 22 tipos de bloco: seção numerada, subtítulo, parágrafo (à esquerda, justificado ou centralizado), lista (marcadores, números ou checklist), citação, **código ou texto de tela** (comandos e configurações em fonte de máquina, com numeração opcional), passo a passo, cartões, fluxo com setas, linha do tempo, sumário automático com página (em linhas ou pontilhado como o do MIV, p. 4), destaque (informação, sucesso, atenção, alerta, dica), mensagem do sistema, pergunta e resposta, etiquetas, tabela, indicadores (números grandes ou fichas), glossário, imagem com figura numerada, **assinatura** (linha para assinar, nome e cargo de até três pessoas lado a lado, para ofícios, comunicados e atas), divisor e quebra de página (em retrato ou **paisagem**).
 - **Texto visual, sem marcação**: o negrito aparece em negrito, o link sublinhado. Selecione o texto e use a barra (fixa nos textos longos, flutuante sobre a seleção nos de uma linha), o botão direito ou Ctrl+B / I / U / K: negrito, itálico, sublinhado, riscado, destaque, texto de tela e **link** (clicável no PDF). Colar do Word ou do navegador mantém negrito, itálico, sublinhado, riscado e links; o resto vira texto limpo.
 - **Edição direto na página**: clique duas vezes num texto da prévia (capa, contracapa, cabeçalho, títulos, passos, células de tabela, legendas…) e digite ali mesmo; a página se atualiza por baixo. No celular, basta um toque.
 - **Escrever com texto livre** (recurso avançado): cole ou digite texto (Markdown simples ou texto do Word) e ele vira blocos — `#` vira seção, `1.` vira passo a passo, `> [!ATENÇÃO]` vira destaque, tabelas `| a | b |` viram tabela, "Pergunta?" + "R: resposta" vira pergunta e resposta, um trecho entre ``` vira bloco de código.
-- **Parágrafos longos continuam na página seguinte**, linha a linha, como no Word: o que couber fica na página e o resto segue na próxima, sempre com pelo menos duas linhas de cada lado (controle de linhas viúvas e órfãs). Nada de buraco no pé da página nem parágrafo cortado.
+- **Parágrafos longos continuam na página seguinte**, linha a linha, como no Word: o que couber fica na página e o resto segue na próxima, sempre com pelo menos duas linhas de cada lado (controle de linhas viúvas e órfãs). Nada de buraco no pé da página nem parágrafo cortado. Item de lista, citação, passo, destaque, mensagem, pergunta e resposta e termo de glossário maiores que uma página também continuam na seguinte, na mesma coluna, em vez de sair cortados.
+- **Tabelas legíveis**: cada coluna recebe ao menos a largura da sua maior palavra (nada de "Atendiment-o"), colunas só com números alinham à direita e "R$ 120,00" nunca se separa no fim da linha.
+- **A prévia acompanha o que você faz**: ao inserir um bloco, ela rola até ele; ao digitar, mostra o trecho quando ele muda de página. O bloco recém-inserido recebe o cursor no texto principal (no Destaque, o texto, não o tipo).
 - Sem seleção, a formatação vale para a palavra sob o cursor; com o cursor fora de uma palavra, ela vale para o que você digitar em seguida (Ctrl+B, digita, Ctrl+B de novo e continua sem negrito, como no Word — também com acentos por tecla morta). Por baixo, o documento guarda uma marcação simples (`**negrito**`, `++sublinhado++`, `[link](https://…)`…) que só aparece no "Escrever texto".
 - Comando **`/`** num parágrafo vazio e **Ctrl+K** abrem o seletor de blocos com busca.
 - 8 **combinações prontas** (ex.: "Seção com passo a passo", "Dúvidas comuns", "Como era × como fica").
@@ -40,7 +42,7 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - Clique com o botão direito (ou tecla Menu / Shift+F10) e aparecem as ações **daquilo que está sob o cursor**, em vez do menu do navegador:
   - **texto selecionado**: negrito, itálico, sublinhado, riscado, destaque e texto de tela (com o estado atual marcado), inserir/editar/abrir/remover link, remover formatação, recortar, copiar, colar e selecionar tudo — a formatação só aparece nos campos em que ela sai no documento;
   - **"Escrever texto"**: "Transformar a linha em" seção (`#`), subtítulo (`##`), lista (`-`), passo a passo (`1.`), destaque (`>`), atenção, dica, alerta ou sucesso, e "Inserir" tabela, pergunta e resposta, divisor ou quebra de página — sem decorar a marcação;
-  - **bloco** (no editor, na prévia ou na Estrutura): editar ou mostrar na prévia, opções do bloco (cor, tipo, estilo, alinhamento, formato da imagem, interruptores), **transformar em** outro tipo de texto sem perder o conteúdo (parágrafo → destaque, lista, citação…), inserir acima/abaixo, mover, duplicar, copiar, recortar e colar o bloco, copiar só o texto (tabelas saem prontas para colar no Excel), recolher e excluir (com "Desfazer");
+  - **bloco** (no editor, na prévia ou na Estrutura): editar ou mostrar na prévia, opções do bloco (cor, tipo, estilo, alinhamento, formato e **largura pronta da imagem** — pequena, média, grande ou largura total —, interruptores), **transformar em** outro tipo de texto sem perder o conteúdo (parágrafo → destaque, lista, citação…), inserir acima/abaixo, mover, duplicar, copiar, recortar e colar o bloco, copiar só o texto (tabelas saem prontas para colar no Excel), recolher e excluir (com "Desfazer");
   - **célula de tabela**: inserir linha acima/abaixo, coluna à esquerda/direita, excluir linha ou coluna;
   - **item** (passo, cartão, pergunta…): inserir abaixo, mover, remover;
   - **capa, contracapa, cabeçalho e rodapé na prévia**: editar os textos e trocar estilo, assinatura, tema de cores e numeração ali mesmo;
@@ -59,7 +61,7 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 
 **Design (tudo do MIV)**
 - 14 **estilos prontos**, com miniatura da capa, que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Papel timbrado, Identidade do MIV, Apresentação, Evento, Sol do sertão, Evento (palco), Obras e projetos, Com foto, Clássico e Campanha (totem).
-- 14 **capas**, cada uma baseada numa peça do MIV: Pasta (a dos manuais aprovados), Pasta oficial (assinatura vertical centralizada), Arcos (capa do próprio MIV), Painel verde (slide de abertura), Convite, Envelope (verso), Leque (elemento base), Verde pleno (contracapa do MIV), Minimalista, **Foto** (sua foto recortada pelas faixas, como o slide da p. 56), **Totem** (p. 115), **Placa** (placa de obra, p. 76, com o conceito do Governo), **Palco** (fundo de palco, p. 104) e **Certificado** (p. 52) — ou sem capa.
+- 14 **capas**, cada uma baseada numa peça do MIV: Pasta (a dos manuais aprovados), Pasta oficial (assinatura vertical centralizada), Arcos (capa do próprio MIV), Painel verde (slide de abertura), Convite, Envelope (verso), Leque (elemento base), Verde pleno (contracapa do MIV), Minimalista, **Foto** (sua foto recortada pelas faixas, como o slide da p. 56), **Totem** (p. 115), **Placa** (placa de obra, p. 76, com a frase de campanha sob a assinatura), **Palco** (fundo de palco, p. 104) e **Certificado** (p. 52) — ou sem capa.
 - 10 **contracapas**: Pasta (verso), Conceito (assinatura em negativo + slogan, como a contracapa do MIV), Verde pleno, Leque, Minimalista, **Vinheta** (assinatura e conceito em cores, p. 62), **Arcos**, **Palco**, **Certificado** e **Backdrop** (quadros verdes e brancos com as assinaturas alternadas, como o backdrop de eventos da p. 116: com o DETRAN/CE, a versão "vinculadas e autarquias"; só com o Governo, a "institucional") — ou sem contracapa. Todas mostram site e redes sociais, como a p. 117.
 - **Cabeçalhos**: texto, texto e linha, texto e assinatura (30 mm, mínimo do MIV), **timbrado** (assinatura centralizada no alto da primeira folha, como o papel timbrado do MIV: vertical, com a secretaria embaixo quando houver, p. 34–35; com órgão parceiro, o par horizontal da p. 36), **faixa no topo** (certificado, p. 52) ou nenhum.
 - **Rodapés**: faixa do papel timbrado, faixa com endereço (papel timbrado completo), **meia faixa** (o rodapé das páginas do próprio MIV, espelhado nas páginas pares), linha fina, **camadas** (fundo de palco e vinheta) ou nenhum.
@@ -74,13 +76,13 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 **Criar com IA (AI-native)**
 - Três formas de criar chegam ao **mesmo documento**: no editor, por um modelo ou pedindo a um agente de IA. O agente não escreve HTML: produz um arquivo no formato oficial (blocos, intenções semânticas como `"warning"` ou `"procedure"`, opções de design registradas), que passa pela mesma validação, pela mesma paginação e pelo mesmo PDF.
 - **`tools/docstudio.mjs`** (linha de comando, sem dependências): `catalog`, `new`, `build` (imagens por caminho viram dados, sem perda de qualidade), `validate`, `inspect`, `apply` (alterações pontuais por id), `render` (PDF, PNG de cada página e relatório de paginação no próprio app, via Chrome sem interface), `serve`, `generate` e `check`.
-- **Verificar documento** (menu ⋯): erros, avisos e sugestões em português — estrutura, identidade visual do MIV (assinatura, cores, contraste, fontes, resolução das imagens), textos de exemplo, seções vazias, páginas densas ou quase vazias, blocos cortados — com botão "Ver" que leva ao bloco. O diálogo do PDF usa a mesma verificação.
+- **Verificar documento** (menu ⋯): erros, avisos e sugestões em português — estrutura, identidade visual do MIV (assinatura, cores, contraste, fontes — inclusive símbolos que Kanit e Maitree não têm, como ⋯ ou emoji —, resolução das imagens considerando o recorte), textos de exemplo, seções vazias, páginas densas ou quase vazias, blocos cortados — com botão "Ver" que leva ao bloco. O diálogo do PDF usa a mesma verificação.
 - **Aplicar alterações de IA** (menu ⋯): cole ou abra o `.ops.json` do agente, revise o que entra, sai, muda e muda de lugar (com nomes legíveis) e aplique; o lote inteiro é **um passo de desfazer**. Cor por código, logo inválido, componente inexistente, CSS ou link `javascript:` são recusados com a explicação.
 - **Copiar para IA (JSON)** no botão direito de um bloco ou de uma seleção: leva os blocos com ids e o formato de resposta esperado para colar no agente.
 - Regras da marca, catálogo e esquemas JSON **gerados das mesmas definições do editor** (`schemas/`, `docs/ai/`), então a documentação dos agentes não fica desatualizada.
 
 **Arquivos**
-- Salvamento automático no navegador (IndexedDB), lista "Meus documentos" (abrir, duplicar, excluir).
+- Salvamento automático no navegador (IndexedDB), lista "Meus documentos" (abrir, duplicar, excluir). Com o mesmo documento aberto em duas abas, uma avisa quando a outra salva ("Recarregar"), em vez de apagar o trabalho dela em silêncio.
 - **Salvar/abrir arquivo `.json`** para levar o documento a outro computador ou guardar versão.
 - **Exportar PDF** pela impressão do navegador: A4, sem margens, fontes embutidas, texto selecionável. A prévia e o PDF são idênticos.
 
@@ -143,7 +145,7 @@ doc-studio/
 │   └── utils.js           Utilitários pequenos e puros
 ├── tools/
 │   ├── docstudio.mjs      Linha de comando para agentes e automação (Node 22.4+, sem dependências)
-│   └── lib/               Arquivos e imagens, Chrome via CDP, geração de esquemas e catálogos
+│   └── lib/               Arquivos e imagens, Chrome via CDP, geração de esquemas e catálogos, caracteres das fontes
 ├── tests/                 Testes automáticos (node --test): contrato sem navegador e o app no Chrome sem interface
 ├── schemas/               JSON Schema do documento e das operações, catálogo e marca (gerados)
 ├── docs/ai/               Guia, formato, catálogo (gerado), regras da marca (gerado), prompt e exemplos
@@ -230,7 +232,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 10g | Design → atalho "Rodapé" (no celular, deslize a fila de atalhos) | O painel rola até as miniaturas de rodapé, que mostram o pé de uma página | Atalho não rola ou miniatura mostra o topo da página |
 | 11 | Criar uma tabela com 80 linhas | A tabela continua nas páginas seguintes repetindo o cabeçalho | Linhas cortadas no pé da página |
 | 12 | Colar um parágrafo enorme (sem linhas em branco) | O parágrafo continua na página seguinte, linha a linha, sem aviso; nenhuma página termina ou começa com uma linha só do parágrafo | Parágrafo inteiro pula de página (buraco no pé), texto cortado ou palavra repetida/perdida na divisão |
-| 12a | Criar uma tabela cuja célula tenha um texto maior que uma página | Aviso laranja no bloco ("maior que a área da página") e contorno vermelho na página | Texto cortado sem aviso |
+| 12a | Criar uma tabela de 3 colunas com três células de 4 mil caracteres na mesma linha (a linha fica maior que uma página) | Aviso laranja no bloco ("maior que a área da página") e contorno vermelho na página | Texto cortado sem aviso |
 | 13 | Exportar PDF | Caixa "Gerar o PDF" com os passos (e avisos, se houver); "Abrir janela de impressão" → Salvar como PDF: mesmo número de páginas da prévia, A4, sem margens brancas, cores do fundo presentes | Páginas extras em branco, margens, ou a caixa aparece no PDF |
 | 13a | Num modelo pronto, Exportar PDF | Aviso "O documento ainda tem textos marcados como “(exemplo)”" com botão "Ver" | Nenhum aviso |
 | 14 | Recarregar a página (F5) | O mesmo documento reabre, com as imagens | Documento volta ao modelo |
@@ -238,7 +240,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 16 | Redimensionar a janela até 320 px de largura | Navegação inferior; nenhuma barra de rolagem horizontal na página | Conteúdo cortado ou rolagem lateral |
 | 17 | Navegar só com Tab/Shift+Tab/Enter/Esc/setas | Todos os controles alcançáveis, foco visível, menus fecham com Esc; ao focar um botão de ícone, aparece a dica própria | Foco preso ou invisível |
 | 18 | Design → capa **Foto** e escolher uma imagem | A foto aparece no alto da capa, recortada pela diagonal, com as faixas verde, água-marinha e laranja por cima | Foto distorcida ou fora do recorte |
-| 19 | Design → capas Totem, Placa, Palco e Certificado; contracapa Vinheta | Cada uma igual à peça citada do MIV (p. 115, 76, 104, 52 e 62); na Placa, o conceito em quatro linhas na área branca | Texto sobre faixa ilegível ou cortado |
+| 19 | Design → capas Totem, Placa, Palco e Certificado; contracapa Vinheta | Cada uma igual à peça citada do MIV (p. 115, 76, 104, 52 e 62); na Placa, a "Linha de apoio" (Textos) como frase de campanha na área branca, sob a assinatura; o conceito do Governo só aparece ao lado da marca | Texto sobre faixa ilegível ou cortado |
 | 20 | Num bloco Passo a passo, clicar numa cor da paleta e no + de "Começar a numeração em" | O nome da cor aparece na legenda; o número sobe e a prévia muda | Lista suspensa ou setas nativas |
 | 21 | Passar o mouse sobre Desfazer e rolar painéis | Dica escura própria (sem a amarela do sistema); barras de rolagem finas e arredondadas | Dica ou barra com a aparência do navegador |
 | 22 | Documento de uma página (modelo Ofício) com "Ajustar à largura" | O zoom fica parado | O zoom fica oscilando e a prévia "treme" |
@@ -276,7 +278,15 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 50 | Design → Mais ajustes → Margens laterais "Estreita"; exportar o PDF | Texto e cabeçalho a 15 mm das bordas (180 mm úteis); capa igual; PDF com o mesmo número de páginas da prévia | Texto sobre o número da página ou páginas a mais no PDF |
 | 51 | No fim de um parágrafo: Ctrl+B, digitar "ab", Ctrl+B, digitar " cd" | "ab" em negrito e " cd" normal; o botão **B** acompanha | Palavra "negrito" inserida ou tudo em negrito |
 | 52 | Excluir um bloco, digitar em outro campo e clicar "Desfazer" no aviso | Aviso explicando que há edições depois; a digitação continua lá (use Ctrl+Z) | A digitação some e o bloco continua excluído |
-| 53 | `node --test` | 30 testes passando (com Chrome instalado) | Falha ou teste pulado sem motivo |
+| 53 | `node --test` | 39 testes passando (com Chrome instalado) | Falha ou teste pulado sem motivo |
+| 54 | Colar num item de lista (ou num Destaque) um texto de ~1.500 palavras | O item continua na página seguinte, alinhado na mesma coluna, sem repetir o número; nenhum aviso de texto cortado | Texto cortado no pé ou aviso "sairá cortado" |
+| 55 | Inserir → Destaque e digitar logo em seguida | O texto substitui "Explique o ponto…"; o tipo continua "Atenção"; a prévia rola até o destaque | Tipo muda para "Informação" ou a prévia fica na capa |
+| 56 | Inserir → Assinatura, "Adicionar signatário", duplo clique no nome na prévia | Linha para assinar com nome e cargo, dois lado a lado; o nome muda na página | Signatários empilhados ou sem linha |
+| 57 | Botão direito numa imagem da prévia → Largura → Pequena; Ctrl+Z | Imagem com 40% da largura; Ctrl+Z volta ao tamanho anterior | Item ausente ou sem desfazer |
+| 58 | Abrir o mesmo documento em duas abas; editar e esperar salvar na primeira | A segunda mostra "Este documento foi alterado em outra aba" com "Recarregar", que traz a edição; fechar a segunda não apaga nada | Nenhum aviso ou edição perdida |
+| 59 | Duplo clique no título da capa, digitar e apertar Enter | O campo fecha e o título não ganha linha vazia; Shift+Enter quebra a linha | Linha vazia no título ou campo continua aberto |
+| 60 | Num parágrafo, digitar "Menu ⋯ ✓" e abrir ⋯ → Verificar documento | Aviso "Caracteres fora das fontes do MIV (⋯ ✓)" | Nenhum aviso |
+| 61 | Tabela com 7 colunas (uma com "Atendimento" e outra com "R$ 120,00") | Nenhuma palavra partida; valores alinhados à direita | "Atendiment" numa linha e "o" na outra |
 
 ### Edge cases
 
@@ -288,6 +298,9 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 - **Espaço do navegador cheio** → status "Falha ao salvar" e botão "Baixar cópia" na barra superior (em qualquer largura).
 - **PDF com fundo branco nas capas** → na janela de impressão, marque "Gráficos de plano de fundo" (o CSS já pede `print-color-adjust: exact`; alguns navegadores ignoram).
 - **Seção sem blocos "Seção"** → o sumário mostra a orientação para adicioná-las.
+- **"Escrever texto" com mais do que um bloco comporta** (parágrafo acima de 20 mil caracteres, 80 passos, 50 perguntas, 15 colunas) → o excesso continua em blocos seguintes do mesmo tipo (passos com a numeração seguinte; colunas excedentes juntas na última), sem perder texto.
+- **Abertura de capítulo com introdução longa demais** → aviso de bloco cortado (a abertura é uma página só).
+- **Imagem grande ainda carregando quando outro documento é aberto** → ela não é aplicada ao documento novo (aviso).
 
 ### Ferramentas úteis
 
@@ -296,6 +309,15 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 - axe DevTools para varredura de acessibilidade WCAG 2.2.
 
 ### O que foi verificado no desenvolvimento
+
+Oitava auditoria (07/10/2026), dois revisores independentes e fluxos completos:
+- **Revisão de código** (agente só leitura, reproduzindo em Node e Chrome): 11 defeitos confirmados, todos corrigidos — sublinhar "Ligue +55…" gravava as marcas no texto; uma aba parada apagava ao fechar o que outra aba salvou; "Escrever texto" descartava em silêncio o que passava dos limites; nova página dentro de uma sequência em paisagem voltava a retrato; abertura de capítulo longa cortada sem aviso; colar células do Excel interpretava `*` e `**` e passava do limite; validação aceitava textos que seriam cortados; resolução ignorava o recorte da imagem; "página quase vazia" falsa com a prévia escondida; operações `toString`/`constructor` aceitas; links com apóstrofo recusados. Também: imagem aplicada ao documento errado se outro fosse aberto durante o carregamento, e larguras de tabela presas à fonte anterior.
+- **Fidelidade ao MIV e aos manuais aprovados** (agente só leitura, 81 PDFs comparados com as p. 1, 9, 15, 26, 34–36, 44, 52, 55, 57, 62, 76, 104, 115–117): conceito do Governo solto na capa Placa e nas contracapas sem assinatura (MIV p. 9: sempre ao lado da marca), tabelas partindo palavras, fio do cabeçalho dentro da área de proteção da marca (p. 15), fontes do sistema no PDF por símbolos fora de Kanit/Maitree, texto branco translúcido sobre o verde, sumário lido por linha, bordas desalinhadas no Painel verde — todos corrigidos. Novo bloco **Assinatura** (sugestão da comparação com ofícios e o certificado da p. 52).
+- **Pela interface** (Playwright, Chromium): blocos maiores que a página saíam cortados (agora divididos; 1.200 palavras numeradas em lista, citação, passo, destaque e FAQ sem perda nem repetição, também no Firefox e no WebKit, com a mesma paginação de 12 páginas); a prévia não acompanhava o bloco inserido; inserir um Destaque e digitar trocava o tipo; foco no `<body>` depois da galeria; título da capa "POLIESPORTIV / A"; Enter no título da capa gravava linha vazia. Fluxo A (POP → título na página → imagem → mover pelo teclado e pelo arraste com rolagem automática → "Relatório executivo" → Ctrl+Z/Ctrl+Shift+Z → PDF) e fluxo B (em branco → seção, parágrafo com acentos e cedilha, imagem, destaque, rodapé "Meia faixa", contracapa "Vinheta" → PDF): PDFs com as páginas da prévia, só Kanit e Maitree, a única imagem é o print (217 ppi);
+- `render` dos 13 modelos e começos e dos 14 estilos prontos: sem estouro, sem fonte fora do MIV, zero imagens rasterizadas (o estilo "Com foto" sem foto continua recusado de propósito);
+- larguras 320, 360, 390, 759, 760, 768, 960 × 600 e 1152 × 720 (zoom de 150% e 125%), 1024, 1093 × 614, 1280, 1440 e 1920 px: sem rolagem horizontal; axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) no editor, com o bloco Assinatura, menu da imagem com o submenu Largura, aviso de outra aba e temas claro e escuro: sem violações WCAG (resta a boa prática "region" do menu de contexto, anterior a esta rodada); teclado: Shift+F10 → Largura → setas → Enter, foco volta à alça;
+- duas abas reais no mesmo navegador: aviso na aba parada, edição preservada ao fechá-la, "Recarregar" sem eco;
+- **39 testes automáticos** (`node --test`) passando, 11 no app real em Chrome sem interface.
 
 Sétima auditoria (07/10/2026), revisão de código e testes automáticos:
 - **Revisão de código** por um agente independente (só leitura, reproduzindo em Node): 8 defeitos, todos corrigidos — o mais grave, um `.ops.json` com `"__proto__.icon"` contaminava objetos do app e injetava HTML num menu (agora recusado, com CSP como segunda barreira); "Desfazer" do aviso desfazendo outra edição; textos acima do limite cortados em silêncio ao reabrir; imagem reenviada com o mesmo id tratada de um jeito no app e de outro na CLI; erro técnico escapando do lote; `design: null` derrubando a importação; link com apóstrofo quebrado; "C+" sublinhado perdendo a formatação;
@@ -365,6 +387,9 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - **Política de segurança (CSP) no `index.html`.** Documentos e alterações chegam de fora (arquivos, agentes de IA, colagens); mesmo que um defeito deixasse passar HTML, o navegador só executa scripts dos arquivos do próprio app. Por isso não há script embutido na página (o do tema foi para `js/boot.js`). *Impacto:* depuração com scripts injetados precisa do console ou do `evaluate` do Playwright, não de `<script>` inline.
 - **Formatação pendente com o cursor parado.** O documento guarda marcação (`**negrito**`), que não representa "negrito vazio"; antes, Ctrl+B sem seleção inseria a palavra "negrito". Agora a formatação fica pendente e o texto digitado em seguida entra pelo modelo de trechos (como os *stored marks* dos editores de texto): o navegador não decide se a letra cai dentro ou fora do `<b>` vizinho. Acentos por tecla morta chegam como composição (IME), que não pode ser cancelada; a formatação é aplicada quando ela termina.
 - **Margem lateral como opção de design.** O MIV fixa o A4, não a margem do texto; a margem vive num token CSS (`--doc-margin-x`) usado pela página e pela área de medição, então a paginação continua idêntica ao PDF. A altura útil não muda (depende do cabeçalho e da faixa do rodapé).
+- **Textos maiores que a página divididos, não cortados.** A divisão por linha dos parágrafos foi generalizada: no átomo que não cabe, o campo de texto que cruza o limite é partido com `Range.deleteContents()` numa cópia (a caixa do destaque, o item da lista e os negritos partidos continuam abertos), e a continuação segue na mesma coluna. Blocos menores que a página continuam indo inteiros para a seguinte (um destaque partido no pé da página sem necessidade seria pior de ler); tabelas ficam de fora, porque uma célula partida desalinharia as colunas.
+- **Conceito do Governo só ao lado da marca.** O MIV (p. 9, 62, 117) nunca mostra "Cuidar das pessoas, avançar o Ceará." solto nem junto de órgão parceiro; a capa Placa usa no lugar a frase de campanha da placa de obra (p. 76).
+- **Cobertura das fontes como fato da marca.** Kanit e Maitree estão no projeto como subconjunto latino; a lista de caracteres fica em `js/brand.js`, extraída dos arquivos de fonte e conferida pelo `check`, e a verificação avisa símbolos que cairiam numa fonte do sistema (diferente em cada computador) dentro do PDF.
 - **Testes com o executor nativo do Node.** `node --test` não precisa de pacote: os testes do contrato rodam sem navegador e os do app usam o mesmo Chrome via CDP do `docstudio render`.
 - **Sem PWA/instalação.** Não foi pedido; marcado como *não aplicável*. O app já funciona sem internet depois de carregado, porque não depende de rede.
 
@@ -383,7 +408,10 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 
 - Exportar `.docx` para quem precisa editar no Word.
 - Biblioteca compartilhada de modelos e blocos da equipe (exigiria um back-end).
-- Dividir também citações, itens de lista e células de tabela muito longos por linha (hoje parágrafos e o bloco de código são divididos; os demais geram aviso).
+- Dividir linhas de tabela maiores que uma página (várias células de 4 mil caracteres na mesma linha); hoje geram aviso.
+- Bloco de decisão (pergunta com dois caminhos, como o "Atende às 4 condições?" do manual da Coleta Externa, p. 4) e marcadores numerados sobre imagens (posições das fotos do veículo, p. 6).
+- Foto em escala de cinza convertida uma vez em canvas, em vez do filtro CSS, que reamostra a foto e a moldura no PDF.
+- Menu de contexto dentro de um landmark (o axe-core aponta "region", boa prática; não é critério WCAG).
 - Reduzir o tamanho dos SVG das assinaturas (160–220 KB cada): a contracapa Backdrop repete 21 assinaturas e acrescenta cerca de 1,5 MB ao PDF.
 - Documento inteiro em paisagem (apresentações e fundos de palco no formato original do MIV), com capas redesenhadas a partir das peças horizontais do MIV (p. 1, 56–57, 104, 116–117); hoje a paisagem vale para as páginas de conteúdo.
 - Margens superior e inferior configuráveis (hoje só a lateral; as de cima e de baixo dependem do cabeçalho e da faixa do rodapé).

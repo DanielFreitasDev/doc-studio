@@ -8,6 +8,9 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Tema declarado no JS sem tokens no CSS](docs/learning/bug-tema-sem-tokens-no-css.md) — tema Azul existia só em `design.js`; `docstudio check` confere temas, paleta e contraste.
 - [Paginação recalculada durante a impressão](docs/learning/bug-medicao-escondida-na-impressao.md) — a área de medição não pode sumir no CSS de impressão; senão o PDF junta páginas.
 - [Caminho de operação chegava ao protótipo](docs/learning/bug-caminho-de-operacao-no-prototipo.md) — `__proto__.x` num update contaminava objetos antes da validação; caminhos externos passam por `isSafeKey`.
+- [Colunas de tabela partiam palavras](docs/learning/bug-colunas-de-tabela-partindo-palavras.md) — `anywhere` zera a largura mínima na medição; `break-word` deixa a URL dominar; mínimo da maior palavra até 40 mm.
+- [Aba parada sobrescrevia o documento](docs/learning/bug-aba-parada-sobrescreve-documento.md) — `flush()` salvava sem nada pendente; agora só o pendente, e abas avisam pelo BroadcastChannel.
+- [Marcador no meio do trecho formatado](docs/learning/bug-marcador-no-meio-do-trecho.md) — "+", "=" e "~" dentro de sublinhado/destaque/riscado precisam de escape em qualquer posição.
 
 ## Pegadinhas de ambiente, dependências e bibliotecas
 - [Utilitários de visibilidade perdem para os componentes](docs/learning/gotcha-especificidade-dos-utilitarios-de-visibilidade.md) — `components.css` carrega depois; use `.topbar .hide-compact` e similares.
@@ -16,11 +19,12 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Popover fora do diálogo modal fica inerte](docs/learning/gotcha-popover-fora-do-dialogo-modal.md) — menu aberto com `<dialog>` modal precisa morar dentro do diálogo; fora dele não recebe clique nem foco.
 - [Zoom "ajustar à largura" em laço](docs/learning/gotcha-zoom-em-laco-com-barra-de-rolagem.md) — barra de rolagem clássica muda a largura; `scrollbar-gutter: stable` na área rolável.
 - [display próprio anula o popover fechado](docs/learning/gotcha-display-de-popover-fechado.md) — declare `display` só em `:popover-open`; no seletor base o popover fechado fica na tela.
-- [Testes com node --test e scripts sob CSP](docs/learning/gotcha-testes-automaticos-node-e-csp.md) — `node --test tests/` falha no Node 24; com a CSP, injete axe e afins por `evaluate`, não `<script>`.
+- [Testes com node --test e scripts sob CSP](docs/learning/gotcha-testes-automaticos-node-e-csp.md) — `node --test tests/` falha no Node 24; com a CSP, injete axe por `evaluate`; exclusões do axe vão no contexto.
+- [Fontes são subconjuntos latinos](docs/learning/gotcha-fontes-subconjunto-latino.md) — ⋯ ✓ ≤ emoji viram fonte do sistema no PDF; cobertura em `TYPOGRAPHY.glyphRanges`, conferida pelo `check`.
 
 ## Decisões de arquitetura
-- [Paginação por átomos e PDF pela impressão](docs/learning/decision-paginacao-por-atomos.md) — blocos medidos com o CSS real; prévia e PDF são o mesmo DOM; parágrafos divididos por linha; outro átomo maior que a página gera aviso.
-- [Assinaturas pelas regras do MIV](docs/learning/decision-assinaturas-pelas-regras-do-miv.md) — órgão à esquerda, Governo à direita, sem fio, tamanhos mínimos, vertical e conceito em 4 linhas; difere dos dois primeiros manuais de propósito.
+- [Paginação por átomos e PDF pela impressão](docs/learning/decision-paginacao-por-atomos.md) — blocos medidos com o CSS real; prévia e PDF são o mesmo DOM; parágrafos divididos por linha; outros textos só quando maiores que a página.
+- [Assinaturas pelas regras do MIV](docs/learning/decision-assinaturas-pelas-regras-do-miv.md) — órgão à esquerda, Governo à direita, sem fio, tamanhos mínimos; conceito só ao lado do Governo, nunca solto; difere dos dois primeiros manuais de propósito.
 - [Menu de contexto por provedores](docs/learning/decision-menu-de-contexto-por-provedores.md) — botão direito só onde um provedor reconhece o elemento; ações dos botões, Shift = menu do navegador, toque em campo = nativo.
 - [Campos visuais sobre a marcação segura](docs/learning/decision-texto-com-marcacao-em-vez-de-contenteditable.md) — edição WYSIWYG, mas o documento guarda marcação escapada; formatação por trechos, sem `execCommand`.
 - [Edição na página por campo flutuante](docs/learning/decision-edicao-na-pagina-por-campo-flutuante.md) — duplo clique abre campo sobre o trecho (`data-edit`); as páginas não ficam editáveis.
