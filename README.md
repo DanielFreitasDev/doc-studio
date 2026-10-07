@@ -15,6 +15,7 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 **Escrita**
 - 20 tipos de bloco: seção numerada, subtítulo, parágrafo, lista (marcadores, números ou checklist), citação, passo a passo, cartões, fluxo com setas, linha do tempo, sumário automático com página (em linhas ou pontilhado como o do MIV, p. 4), destaque (informação, sucesso, atenção, alerta, dica), mensagem do sistema, pergunta e resposta, etiquetas, tabela, indicadores (números grandes ou fichas), glossário, imagem com figura numerada, divisor e quebra de página.
 - **Escrever com texto livre**: cole ou digite texto (Markdown simples ou texto do Word) e ele vira blocos — `#` vira seção, `1.` vira passo a passo, `> [!ATENÇÃO]` vira destaque, tabelas `| a | b |` viram tabela, "Pergunta?" + "R: resposta" vira pergunta e resposta.
+- **Parágrafos longos continuam na página seguinte**, linha a linha, como no Word: o que couber fica na página e o resto segue na próxima, sempre com pelo menos duas linhas de cada lado (controle de linhas viúvas e órfãs). Nada de buraco no pé da página nem parágrafo cortado.
 - Formatação no texto: `**negrito**`, `*itálico*`, `` `código` ``, `==destaque==`, `~~riscado~~` (com barra de botões e Ctrl+B / Ctrl+I).
 - Comando **`/`** num parágrafo vazio e **Ctrl+K** abrem o seletor de blocos com busca.
 - 8 **combinações prontas** (ex.: "Seção com passo a passo", "Dúvidas comuns", "Como era × como fica").
@@ -36,11 +37,12 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 **Design (tudo do MIV)**
 - 14 **estilos prontos**, com miniatura da capa, que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Papel timbrado, Identidade do MIV, Apresentação, Evento, Sol do sertão, Evento (palco), Obras e projetos, Com foto, Clássico e Campanha (totem).
 - 14 **capas**, cada uma baseada numa peça do MIV: Pasta (a dos manuais aprovados), Pasta oficial (assinatura vertical centralizada), Arcos (capa do próprio MIV), Painel verde (slide de abertura), Convite, Envelope (verso), Leque (elemento base), Verde pleno (contracapa do MIV), Minimalista, **Foto** (sua foto recortada pelas faixas, como o slide da p. 56), **Totem** (p. 115), **Placa** (placa de obra, p. 76, com o conceito do Governo), **Palco** (fundo de palco, p. 104) e **Certificado** (p. 52) — ou sem capa.
-- 9 **contracapas**: Pasta (verso), Conceito (assinatura em negativo + slogan, como a contracapa do MIV), Verde pleno, Leque, Minimalista, **Vinheta** (assinatura e conceito em cores, p. 62), **Arcos**, **Palco** e **Certificado** — ou sem contracapa. Todas mostram site e redes sociais, como a p. 117.
+- 10 **contracapas**: Pasta (verso), Conceito (assinatura em negativo + slogan, como a contracapa do MIV), Verde pleno, Leque, Minimalista, **Vinheta** (assinatura e conceito em cores, p. 62), **Arcos**, **Palco**, **Certificado** e **Backdrop** (quadros verdes e brancos com as assinaturas alternadas, como o backdrop de eventos da p. 116: com o DETRAN/CE, a versão "vinculadas e autarquias"; só com o Governo, a "institucional") — ou sem contracapa. Todas mostram site e redes sociais, como a p. 117.
 - **Cabeçalhos**: texto, texto e linha, texto e assinatura (30 mm, mínimo do MIV), **timbrado** (assinatura centralizada no alto da primeira folha, como o papel timbrado do MIV: vertical, com a secretaria embaixo quando houver, p. 34–35; com órgão parceiro, o par horizontal da p. 36), **faixa no topo** (certificado, p. 52) ou nenhum.
 - **Rodapés**: faixa do papel timbrado, faixa com endereço (papel timbrado completo), **meia faixa** (o rodapé das páginas do próprio MIV, espelhado nas páginas pares), linha fina, **camadas** (fundo de palco e vinheta) ou nenhum.
 - **Assinaturas** na ordem do MIV (órgão à esquerda, Governo à direita, sem fio separador, afastados pela largura do escudo): DETRAN/CE + Governo (Infraestrutura), Governo + Secretaria da Infraestrutura, somente Governo do Ceará, **Governo + conceito** "Cuidar das pessoas, avançar o Ceará." (p. 9), logo próprio + Governo, ou nenhuma. Na capa "Pasta oficial" a assinatura vira **vertical** — com órgão parceiro, a conjunta vertical lado a lado da p. 17.
 - **Página de abertura de capítulo** opcional por seção, em quatro estilos: faixas da pasta, **verde pleno** (degradê e texto em branco, como as p. 2–3 do MIV), palco e arcos.
+- **Impressão em escala de cinza** (MIV p. 12), para impressora preto e branco: assinaturas com a tabela de correspondência de cores do MIV, faixas, capas e textos em cinza, e o PDF continua vetorial.
 - 8 **temas de cor** da paleta do grafismo (inclusive Azul), 3 estilos de título de seção, 3 estilos de cartão, 3 numerações, **peso dos títulos** (padrão dos manuais aprovados ou Kanit ExtraBold/Black como o MIV), 2 fontes de texto e 3 espaçamentos (em "Mais ajustes", para não sobrecarregar o painel).
 - **Assinaturas em vetor (SVG) extraídas do próprio MIV**: nítidas em qualquer tamanho; o PDF não tem nenhuma imagem rasterizada (exceto fotos e prints do usuário).
 - Divisor com o **grafismo** do MIV.
@@ -104,7 +106,7 @@ doc-studio/
                            Infraestrutura (ceara), Governo sem secretaria (ceara-state),
                            vertical sem e com secretaria (ceara-vertical,
                            ceara-vertical-secretaria) e DETRAN/CE; -negative para
-                           fundos coloridos
+                           fundos coloridos; -gray para a escala de cinza (MIV p. 12)
 ```
 
 **Por que vários arquivos?** O escopo é o de uma aplicação (editor, paginação, design, armazenamento, arrastar e soltar). Um único `script.js` passaria de 4 mil linhas. Cada módulo ES tem uma responsabilidade; o `script.js` é a "raiz de composição": cria as peças e as conecta. O CSS segue a mesma lógica: base do app, componentes, documento A4 e impressão.
@@ -164,7 +166,8 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 | 10f | Bloco Sumário → Estilo "Pontilhado (MIV)" | Número, título, pontos até o número da página | Pontos sobre o texto ou página errada |
 | 10g | Design → atalho "Rodapé" (no celular, deslize a fila de atalhos) | O painel rola até as miniaturas de rodapé, que mostram o pé de uma página | Atalho não rola ou miniatura mostra o topo da página |
 | 11 | Criar uma tabela com 80 linhas | A tabela continua nas páginas seguintes repetindo o cabeçalho | Linhas cortadas no pé da página |
-| 12 | Colar um parágrafo enorme (sem linhas em branco) | Aviso laranja no bloco ("maior que a área da página") e contorno vermelho na página | Texto cortado sem aviso |
+| 12 | Colar um parágrafo enorme (sem linhas em branco) | O parágrafo continua na página seguinte, linha a linha, sem aviso; nenhuma página termina ou começa com uma linha só do parágrafo | Parágrafo inteiro pula de página (buraco no pé), texto cortado ou palavra repetida/perdida na divisão |
+| 12a | Criar uma tabela cuja célula tenha um texto maior que uma página | Aviso laranja no bloco ("maior que a área da página") e contorno vermelho na página | Texto cortado sem aviso |
 | 13 | Exportar PDF | Caixa "Gerar o PDF" com os passos (e avisos, se houver); "Abrir janela de impressão" → Salvar como PDF: mesmo número de páginas da prévia, A4, sem margens brancas, cores do fundo presentes | Páginas extras em branco, margens, ou a caixa aparece no PDF |
 | 13a | Num modelo pronto, Exportar PDF | Aviso "O documento ainda tem textos marcados como “(exemplo)”" com botão "Ver" | Nenhum aviso |
 | 14 | Recarregar a página (F5) | O mesmo documento reabre, com as imagens | Documento volta ao modelo |
@@ -177,6 +180,8 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 | 21 | Passar o mouse sobre Desfazer e rolar painéis | Dica escura própria (sem a amarela do sistema); barras de rolagem finas e arredondadas | Dica ou barra com a aparência do navegador |
 | 22 | Documento de uma página (modelo Ofício) com "Ajustar à largura" | O zoom fica parado | O zoom fica oscilando e a prévia "treme" |
 | 23 | Exportar o PDF de um manual com abertura de capítulo | Mesmo número de páginas da prévia, sem conteúdo invadindo o rodapé | Uma página a menos e texto sobre a faixa |
+| 24 | Design → Contracapa "Backdrop" com "DETRAN/CE + Governo"; depois "Governo do Ceará" | Quadros verdes com o Governo em negativo alternados com quadros brancos com o DETRAN/CE (depois, com o Governo em cores), como a p. 116; endereço centralizado abaixo | Assinatura cortada ou quadros desalinhados |
+| 25 | Design → Impressão "Escala de cinza (P&B)" e exportar o PDF | Capa, faixas, assinaturas (brasão em tons de cinza, nome em preto, como a p. 12) e textos em cinza; `pdfimages -list` sem imagens (exceto fotos) e texto selecionável | Algo colorido sobrando ou o PDF virou imagem |
 
 ### Edge cases
 
@@ -195,18 +200,19 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 
 ### O que foi verificado no desenvolvimento
 
-Última rodada em 07/10/2026 (terceira auditoria do MIV), com Playwright:
-- **Chromium**: os 11 modelos e "começar do zero" sem páginas cortadas, sem imagens quebradas e sem erros no console; todas as capas, contracapas, cabeçalhos, rodapés e aberturas conferidos lado a lado com as páginas citadas do MIV;
-- **PDF** (`page.pdf()` do Chromium) em seis estilos prontos com abertura de capítulo: A4, mesmo número de páginas da prévia (8 = 8), inclusive forçando um recálculo com a mídia de impressão ativa; **nenhuma imagem rasterizada** (`pdfimages`), fontes Kanit (Light a Black) e Maitree embutidas (`pdffonts`); recorte a 600 dpi do brasão nítido;
-- larguras 320, 360, 390, 559/560, 759/760, 1024, 1179/1180, 1279/1280, 1440 e 1920 px sem rolagem horizontal; celular (390 px) com galeria, editor, Design e prévia;
-- axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) no painel Design, editor, galeria de modelos e tema escuro: sem violações na interface. A única ocorrência é o contraste da "chamada" verde (#26a737) dentro das páginas do documento, cor prescrita pelo MIV e mantida;
-- **Firefox e WebKit** (motor do Safari), pelo Playwright: abertura, galeria, modelo "Manual operacional" com 7 páginas, controles próprios e nenhuma imagem quebrada, sem erros (o WebKit só avisa que ignora `interactive-widget` da meta viewport).
+Última rodada em 07/10/2026 (quarta auditoria), com Playwright:
+- **Chromium**: os 11 modelos e "começar do zero" e o "Manual operacional" com os 14 estilos prontos, mais escala de cinza com Backdrop (26 combinações): sem páginas cortadas, sem imagens quebradas e sem erros no console; todas as capas, contracapas, cabeçalhos, rodapés e aberturas conferidos lado a lado com as páginas citadas do MIV;
+- **PDF** (`page.pdf()` do Chromium) nas 26 combinações: A4, mesmo número de páginas da prévia, **nenhuma imagem rasterizada** (`pdfimages`), fontes Kanit e Maitree embutidas (`pdffonts`); recorte a 600 dpi do Backdrop com o brasão nítido. Com foto na capa em escala de cinza, só a foto vira imagem (300 dpi);
+- **parágrafo dividido entre páginas** em Chromium, Firefox e WebKit: mesma paginação nos três (9 páginas), texto íntegro (as partes juntas são iguais ao original) e o PDF com o mesmo número de páginas da prévia, inclusive com o cabeçalho timbrado e forçando o recálculo com a mídia de impressão ativa. Custo medido: 66 ms para paginar 31 páginas com 25 divisões;
+- larguras 320, 390 e 1440 px nas telas alteradas (painel Design), sem rolagem horizontal; a varredura completa de 320 a 1920 px é da terceira auditoria;
+- axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) no painel Design, editor, galeria de modelos e tema escuro (terceira auditoria): sem violações na interface. A única ocorrência é o contraste da "chamada" verde (#26a737) dentro das páginas do documento, cor prescrita pelo MIV e mantida;
+- **Firefox e WebKit** (motor do Safari), pelo Playwright: abertura, modelo "Manual operacional" com parágrafo dividido, contracapa Backdrop e escala de cinza, nenhuma imagem quebrada, sem erros (o WebKit só avisa que ignora `interactive-widget` da meta viewport).
 
 **Não validados neste ambiente:** Safari e Chrome em aparelhos reais (iOS/Android), arraste por toque em aparelho real e a janela de impressão do Firefox/Safari (o PDF foi conferido pelo Chromium).
 
 ## 8. Decisões técnicas principais
 
-- **Paginação real em A4 (prévia = PDF).** Cada bloco vira "átomos" (uma linha de tabela, um passo, uma linha de cartões). O app mede cada átomo numa coluna invisível com a largura útil da página (170 mm), distribui-os em páginas de 252 mm de altura útil e só então desenha as páginas. Títulos nunca ficam sozinhos no pé da página e tabelas repetem o cabeçalho. Como a medição usa o mesmo CSS da impressão, o PDF sai igual à prévia. *Impacto:* precisão; o custo é recalcular o layout a cada mudança (com atraso de 140 ms e troca só das páginas alteradas).
+- **Paginação real em A4 (prévia = PDF).** Cada bloco vira "átomos" (uma linha de tabela, um passo, uma linha de cartões). O app mede cada átomo numa coluna invisível com a largura útil da página (170 mm), distribui-os em páginas de 252 mm de altura útil e só então desenha as páginas. Títulos nunca ficam sozinhos no pé da página, tabelas repetem o cabeçalho e parágrafos que não cabem são divididos na linha exata (o app acha o início de cada linha com `Range.getClientRects()` por busca binária e corta o HTML com `Range.cloneContents()`, que fecha corretamente negritos e destaques partidos), deixando ao menos duas linhas em cada página. Como a medição usa o mesmo CSS da impressão, o PDF sai igual à prévia. *Impacto:* precisão; o custo é recalcular o layout a cada mudança (com atraso de 140 ms e troca só das páginas alteradas).
 - **PDF pela impressão do navegador.** Gerar PDF em JavaScript puro exigiria reimplementar fontes e layout; a impressão nativa com `@page { size: A4; margin: 0 }` produz PDF vetorial, com texto selecionável e fontes embutidas.
 - **Grafismo em SVG com coordenadas medidas no MIV.** As faixas da capa "Pasta", do rodapé e da meia faixa foram medidas no manual oficial e redesenhadas como polígonos com degradê; a capa Arcos e o leque usam setores de anel (arcos SVG), como o elemento base. Sai nítido em qualquer zoom e na impressão.
 - **Assinaturas pelas regras do MIV (p. 15–22).** Órgão à esquerda e Governo à direita, sem fio separador, afastados pela largura do escudo e alinhados pelo centro do escudo; tamanhos mínimos respeitados (com secretaria ≥ 40 mm de largura; sem secretaria ≥ 30 mm). *Impacto:* a ordem das marcas mudou em relação aos dois primeiros manuais (que tinham o Governo à esquerda e um fio entre as marcas). As assinaturas são **SVG vetoriais extraídos do próprio MIV** (p. 20, 50 e 117): saem nítidas em qualquer tamanho e no PDF. A vertical com secretaria junta a vertical oficial (p. 20) e a linha da secretaria da p. 50, na proporção medida no MIV, centralizada como nas p. 17, 20 e 35; nada foi redesenhado. O conceito "Cuidar das pessoas, avançar o Ceará." tem quebras de linha fixas, porque o MIV (p. 9) define as quatro linhas.
@@ -219,6 +225,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 - **IndexedDB em vez de localStorage.** Documentos com prints passam facilmente dos ~5 MB do localStorage.
 - **Arrastar com Pointer Events.** O drag-and-drop nativo do HTML não funciona com toque na maioria dos celulares. No toque, itens da paleta exigem toque longo (para não brigar com a rolagem); sempre há alternativa por clique e teclado.
 - **Controles próprios em vez dos nativos.** Pedido explícito: nada com a aparência padrão do navegador. Os controles continuam sendo `<input>` reais (rádios, número, deslizante, interruptor) com a aparência redesenhada em CSS, então teclado e leitores de tela funcionam como antes; só a lista suspensa de cores foi trocada por uma paleta de rádios, mais fácil para leigos. A dica de ferramenta própria lê os atributos `title` existentes, então não há duas fontes de texto. *Impacto:* nenhum controle novo exige JavaScript para funcionar com o teclado.
+- **Escala de cinza com cores reais, não com filtro.** `filter: grayscale(1)` no CSS faria o Chromium transformar cada página do PDF em imagem de 300 dpi (testado: texto deixa de ser selecionável e as fontes somem do PDF). Por isso as cores do documento viram tokens CSS com versão em cinza, o grafismo SVG troca cada cor pelo cinza de mesma luminância e as assinaturas usam arquivos `-gray.svg` gerados com a tabela de correspondência da p. 12 do MIV (o nome "CEARÁ" em preto, o brasão nos cinzas da tabela). *Impacto:* o PDF continua vetorial; fotos do usuário (que já são imagens) recebem o filtro.
 - **Medição sempre válida na impressão.** A área invisível de medição continua com largura no CSS de impressão e a paginação ignora medições com largura zero; antes, um recálculo durante a impressão juntava páginas no PDF.
 - **Sem PWA/instalação.** Não foi pedido; marcado como *não aplicável*. O app já funciona sem internet depois de carregado, porque não depende de rede.
 
@@ -237,12 +244,13 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 
 - Exportar `.docx` para quem precisa editar no Word.
 - Biblioteca compartilhada de modelos e blocos da equipe (exigiria um back-end).
-- Dividir parágrafos muito longos entre páginas por linha (hoje o app avisa para dividir).
+- Dividir também citações, itens de lista e células de tabela muito longos por linha (hoje só o parágrafo é dividido; os demais geram aviso).
+- Reduzir o tamanho dos SVG das assinaturas (160–220 KB cada): a contracapa Backdrop repete 21 assinaturas e acrescenta cerca de 1,5 MB ao PDF.
 - Documentos em paisagem (apresentações e fundos de palco no formato original do MIV).
 - Edição direta do texto na prévia (hoje a prévia leva ao bloco no editor).
 - Comentários e revisão entre colegas.
 - Testes automatizados versionados (Playwright) no repositório.
-- Versões em tons de cinza/monocromáticas da assinatura (MIV p. 12–13) para impressão em uma cor.
+- Versão monocromática da assinatura (MIV p. 13, brasão em traço), que o MIV reserva para "último caso"; hoje a impressão em uma cor usa a escala de cinza da p. 12.
 - PWA instalável com funcionamento offline garantido por service worker, se houver demanda.
 
 ## 11. Licenças de terceiros

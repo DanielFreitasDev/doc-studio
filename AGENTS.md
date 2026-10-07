@@ -7,7 +7,7 @@ The stack is intentionally plain HTML5, CSS3 and modern JavaScript with native E
 ## Layout
 - `index.html`, `style.css` (tokens + app shell) and `script.js` (composition root and app-level actions) are the entry points. `css/` holds `components.css` (UI), `document.css` (the A4 page and all document blocks) and `print.css` (loaded with `media="print"`).
 - Block types are declared once in `js/schema.js` (fields, defaults, validation) and rendered in `js/render.js`; editor forms are generated from the schema (`js/fields.js`). A new block type = schema entry + renderer + CSS in `document.css`.
-- `js/paginate.js` measures render "atoms" in the hidden `#measure-body` (170 mm wide) and splits them into 252 mm pages (221 mm on the first page with the letterhead header); `js/preview.js` patches only changed pages. Cover, back cover and footer art are SVG polygons and ring sectors in `js/graphics.js`, each based on a cited MIV page.
+- `js/paginate.js` measures render "atoms" in the hidden `#measure-body` (170 mm wide) and splits them into 252 mm pages (221 mm on the first page with the letterhead header); atoms marked `splittable` (paragraphs) are cut at a line boundary, keeping at least 2 lines on each page. `js/preview.js` patches only changed pages. Cover, back cover and footer art are SVG polygons and ring sectors in `js/graphics.js`, each based on a cited MIV page.
 - Images are kept in an asset registry (`js/images.js`), outside undo history; blocks store only the asset id (the cover photo and custom logo too: `design.coverImage`, `design.customLogo`).
 - Custom form controls: `js/controls.js` (number stepper, range fill, colour palette label, search clear) and `js/tooltip.js` (replaces native `title` tooltips) work by event delegation on real `<input>`/`title` markup.
 
@@ -26,7 +26,8 @@ The stack is intentionally plain HTML5, CSS3 and modern JavaScript with native E
 - The app UI defaults to the light theme (user requirement); dark and automatic are opt-in. The document is always white paper. PWA/offline is not a selected capability.
 - No browser-default look anywhere in the UI (user requirement): no native `<select>`, spin buttons, search decorations, scrollbars or `title` tooltips; keep real inputs underneath for keyboard and screen readers. Visual effects stay subtle and use `transform`/`opacity` only.
 - Signatures follow the MIV rules (p. 9, 15–22): partner logo left, Governo right, no separator, gap = shield width, minimum widths (≥ 40 mm with secretaria, ≥ 30 mm without); the concept "Cuidar das pessoas, avançar o Ceará." is always four lines. Logo files in `assets/img/` are vector SVG extracted from the MIV (never replace them with raster files); `js/render.js` `brandHtml()` picks the version (horizontal, vertical, joint vertical, with concept).
-- The exported PDF must stay vector: zero raster images except user photos/prints (check with `pdfimages -list`).
+- The exported PDF must stay vector: zero raster images except user photos/prints (check with `pdfimages -list`). Never use CSS `filter` on document elements other than user photos: Chromium rasterizes the whole page in the PDF.
+- Grayscale print mode (`design.colorMode = 'gray'`, MIV p. 12): document colors live in CSS tokens with a gray override in `css/document.css`; SVG art colors go through `grayscaleSvg()`; each logo has a `-gray.svg` twin. A new colour or logo needs its gray version too.
 - Keep `README.md` sections current when features or structure change (the user requires its 11 sections, including a manual validation checklist).
 - No commit, push, dependency, framework or structural change unless the task includes it.
 
