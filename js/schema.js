@@ -594,6 +594,23 @@ function normalizeField(field, value, fallback) {
   }
 }
 
+/**
+ * Orientação das páginas numa posição da lista de blocos: a da última quebra
+ * de página antes dela. Uma quebra nova herda essa orientação, para não
+ * desfazer sem querer uma sequência de páginas em paisagem.
+ */
+export function orientationAt(blocks, index) {
+  for (let i = Math.min(index, blocks.length) - 1; i >= 0; i -= 1) {
+    if (blocks[i].type === 'pagebreak') return blocks[i].orientation;
+  }
+  return 'portrait';
+}
+
+/** Bloco novo de um tipo; a quebra de página mantém a orientação em vigor na posição. */
+export function createBlockAt(type, blocks, index) {
+  return createBlock(type, type === 'pagebreak' ? { orientation: orientationAt(blocks, index) } : {});
+}
+
 /** Garante que um bloco (novo ou importado) tenha todos os campos com tipos válidos. */
 export function normalizeBlock(input) {
   const raw = expandIntent(input);

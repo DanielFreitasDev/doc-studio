@@ -7,7 +7,7 @@
  */
 import { $, $$, esc, clamp, debounce, moveItem, slugify, announce, isTypingTarget, downloadBlob, formatTime, formatDateTime } from './js/utils.js';
 import { createStore, createUiState } from './js/state.js';
-import { createBlock, BLOCK_TYPES, TEXT_BLOCK_TYPES, transformBlock, blockPlainText, blockSummary } from './js/schema.js';
+import { createBlock, createBlockAt, BLOCK_TYPES, TEXT_BLOCK_TYPES, transformBlock, blockPlainText, blockSummary } from './js/schema.js';
 import { createDocument, normalizeDocument, toFilePayload, parseFilePayload, cloneBlock, FILE_VERSION } from './js/model.js';
 import { TEMPLATES, TEMPLATE_CATEGORIES, SNIPPETS } from './js/templates.js';
 import { createStorage, createMemoryStorage, preferences } from './js/storage.js';
@@ -177,8 +177,8 @@ async function main() {
       announce(blocks.length === 1 ? `${BLOCK_TYPES[blocks[0].type].label} inserido.` : `${blocks.length} blocos inseridos.`);
     },
 
-    insertType(type, index) {
-      const block = createBlock(type);
+    insertType(type, index = actions.insertionIndex()) {
+      const block = createBlockAt(type, store.doc.blocks, index);
       actions.insertBlocks([block], index);
       if (type === 'image') actions.chooseImage({ blockId: block.id });
     },
@@ -192,7 +192,7 @@ async function main() {
     convertBlock(id, type) {
       const index = actions.indexOf(id);
       if (index < 0) return;
-      const block = createBlock(type);
+      const block = createBlockAt(type, store.doc.blocks, index);
       store.update((doc) => doc.blocks.splice(index, 1, block), { kind: 'structure' });
       ui.set({ selectedId: block.id, selectSource: 'insert' });
       requestAnimationFrame(() => editor.reveal(block.id, { focus: true, selectText: true }));
@@ -228,8 +228,9 @@ async function main() {
       const set = new Set(ids);
       const source = store.doc.blocks.filter((block) => set.has(block.id));
       if (!source.length) return;
-      const copies = [createBlock('pagebreak'), ...source.map(cloneBlock)];
-      actions.insertBlocks(copies, actions.indexOf(source.at(-1).id) + 1, { focus: false });
+      const at = actions.indexOf(source.at(-1).id) + 1;
+      const copies = [createBlockAt('pagebreak', store.doc.blocks, at), ...source.map(cloneBlock)];
+      actions.insertBlocks(copies, at, { focus: false });
       notify('Página duplicada (o conteúdo começa numa nova página).', 'info', { undo: true });
     },
 
