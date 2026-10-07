@@ -878,7 +878,15 @@ async function main() {
   $('#template-filter').addEventListener('change', (event) => filterTemplates(event.target.value));
 
   function renderTemplateGrid() {
-    if (templateGridReady) return;
+    if (templateGridReady) {
+      // Cada abertura começa mostrando todos os modelos (um filtro esquecido esconderia o que se procura).
+      const all = $('[name="template-category"][value="all"]');
+      if (!all.checked) {
+        all.checked = true;
+        filterTemplates('all');
+      }
+      return;
+    }
     $$('[data-template-group]').forEach((list) => {
       list.innerHTML = TEMPLATES.filter((t) => (t.group ?? 'model') === list.dataset.templateGroup).map(templateCardHtml).join('');
     });
