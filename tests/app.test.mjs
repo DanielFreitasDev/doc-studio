@@ -154,6 +154,31 @@ test('texto colado além do limite é cortado com aviso, igual ao que a importa�
   assert.ok(result.toast, 'aviso exibido');
 });
 
+/** Teclas de verdade pelo CDP (o navegador gera keydown, beforeinput e input). */
+const press = (key, { ctrl = false } = {}) => chrome.page('Input.dispatchKeyEvent', {
+  type: 'keyDown', key, code: `Key${key.toUpperCase()}`, windowsVirtualKeyCode: key.toUpperCase().charCodeAt(0), modifiers: ctrl ? 2 : 0,
+}).then(() => chrome.page('Input.dispatchKeyEvent', { type: 'keyUp', key, code: `Key${key.toUpperCase()}`, modifiers: ctrl ? 2 : 0 }));
+const type = async (text) => { for (const char of text) await chrome.page('Input.dispatchKeyEvent', { type: 'char', text: char }); };
+
+test('Ctrl+B com o cursor parado liga e desliga o negrito do que vem a seguir', { skip }, async () => {
+  await chrome.evaluate(`(async () => {
+    window.docStudio.applyOperations([{ op: 'insert', at: 'start', blocks: [{ id: 'b_pendente', type: 'paragraph', text: 'Texto' }] }]);
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    const { setRichSelection } = await import('/js/richtext.js');
+    const field = document.querySelector('[data-block-id="b_pendente"] [data-path="text"]');
+    field.focus();
+    setRichSelection(field, [5, 5]);
+  })()`);
+  await type(' ');
+  await press('b', { ctrl: true });
+  await type('ab');
+  await press('b', { ctrl: true });
+  await type(' cd');
+  const text = await chrome.evaluate(`window.docStudio.store.doc.blocks.find((b) => b.id === 'b_pendente').text`);
+  await chrome.evaluate('window.docStudio.store.undo(); window.docStudio.store.undo();');
+  assert.equal(text, 'Texto **ab** cd');
+});
+
 test('PDF tem as mesmas páginas da prévia, sem imagens rasterizadas', { skip }, async () => {
   await chrome.page('Page.navigate', { url: `http://127.0.0.1:${port}/index.html?render=${DOC_ROUTE}` });
   const state = await waitFor(chrome, 'document.documentElement.dataset.renderState');

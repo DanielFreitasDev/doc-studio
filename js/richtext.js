@@ -317,10 +317,90 @@ function commit(element, markup, selection, inputType) {
   element.dispatchEvent(new InputEvent('input', { bubbles: true, inputType }));
 }
 
+/* ------------------------------------------------------------------ formatação pendente */
+/**
+ * Com o cursor parado fora de uma palavra, Ctrl+B (ou o botão) não tem o que
+ * formatar: como no Word, a formatação fica pendente e vale para o que for
+ * digitado em seguida, naquele ponto. O texto digitado entra pelo modelo de
+ * trechos (o navegador escolheria sozinho se a letra cai dentro ou fora do
+ * <b> vizinho). Mover o cursor descarta a pendência.
+ */
+const pendingFormats = new WeakMap();
+
+/** Formatação do caractere antes da posição (a que a digitação herdaria), sem o link. */
+function formatsBefore(runs, position) {
+  let offset = 0;
+  let found = {};
+  for (const run of runs) {
+    if (offset >= position) break;
+    offset += run.text.length;
+    if (run.text !== '\n') found = run.f;
+  }
+  const { link, ...rest } = found;
+  return { ...rest };
+}
+
+function pendingAt(element, position) {
+  const pending = pendingFormats.get(element);
+  return pending && pending.at === position ? pending : null;
+}
+
+/** Digitação com formatação pendente: insere o texto como um trecho com essa formatação. */
+function typeWithPending(element, text) {
+  const selection = getRichSelection(element);
+  if (!selection || selection[0] !== selection[1]) return false;
+  const pending = pendingAt(element, selection[0]);
+  if (!pending) return false;
+  const at = selection[0];
+  // Espaço não mostra formatação: o navegador o insere (um espaço no fim redesenhado some no Firefox) e a pendência segue.
+  if (!text.trim()) {
+    pendingFormats.set(element, { at: at + text.length, f: pending.f });
+    return false;
+  }
+  const runs = splitRuns(collectRuns(element), at, at);
+  let position = 0;
+  let index = runs.findIndex((run) => { const hit = position >= at; position += run.text.length; return hit; });
+  if (index < 0) index = runs.length;
+  runs.splice(index, 0, { text, f: { ...pending.f } });
+  // A pendência acompanha o cursor enquanto a digitação continuar ali.
+  pendingFormats.set(element, { at: at + text.length, f: pending.f });
+  commit(element, runsToMarkup(runs), [at + text.length, at + text.length], 'insertText');
+  return true;
+}
+
+/**
+ * Composição (acentos por tecla morta, teclados de outros idiomas): o
+ * navegador insere o texto e o evento não pode ser cancelado. A pendência é
+ * guardada no início e aplicada ao trecho composto quando ela termina.
+ */
+function startPendingComposition(element) {
+  const selection = getRichSelection(element);
+  const pending = selection && selection[0] === selection[1] ? pendingAt(element, selection[0]) : null;
+  if (pending) pendingFormats.set(element, { ...pending, composingFrom: selection[0] });
+}
+
+function finishPendingComposition(element) {
+  const pending = pendingFormats.get(element);
+  if (pending?.composingFrom == null) return;
+  const selection = getRichSelection(element);
+  const from = pending.composingFrom;
+  const to = selection ? selection[1] : from;
+  if (to <= from) {
+    pendingFormats.set(element, { at: from, f: pending.f });
+    return;
+  }
+  const runs = splitRuns(collectRuns(element), from, to);
+  runsInRange(runs, from, to).forEach((run) => { run.f = { ...pending.f, ...(run.f.link ? { link: run.f.link } : {}) }; });
+  pendingFormats.set(element, { at: to, f: pending.f });
+  commit(element, runsToMarkup(runs), [to, to], 'insertText');
+}
+
 /** Formatação do trecho selecionado: { bold: true, link: 'https://…', … }. */
 export function richFormatState(element) {
   const selection = getRichSelection(element) ?? savedSelection.get(element);
   if (!selection) return {};
+  const pending = selection[0] === selection[1] ? pendingAt(element, selection[0]) : null;
+  if (pending) return Object.fromEntries(NESTING.map((key) => [key, Boolean(pending.f[key])]));
   const [start, end] = effectiveSelection(element, selection);
   const runs = splitRuns(collectRuns(element), start, end);
   let inside = runsInRange(runs, start, end).filter((run) => run.text.trim());
@@ -341,19 +421,18 @@ export function richFormatState(element) {
 
 /**
  * Liga/desliga uma formatação no trecho selecionado (ou na palavra sob o
- * cursor). Sem trecho, insere um texto de exemplo já formatado e selecionado.
+ * cursor). Com o cursor parado fora de uma palavra, a formatação fica
+ * pendente para o próximo texto digitado ali (ver pendingFormats).
  */
 export function toggleRichFormat(element, name) {
   const [start, end] = effectiveSelection(element, restoreRichSelection(element));
   let runs = collectRuns(element);
   if (start === end) {
-    const sample = FORMATS[name].label.toLowerCase();
-    runs = splitRuns(runs, start, start);
-    let position = 0;
-    let index = runs.findIndex((run) => { const hit = position >= start; position += run.text.length; return hit; });
-    if (index < 0) index = runs.length;
-    runs.splice(index, 0, { text: sample, f: { [name]: true } });
-    commit(element, runsToMarkup(runs), [start, start + sample.length], `format${name}`);
+    const f = { ...(pendingAt(element, start)?.f ?? formatsBefore(runs, start)) };
+    if (f[name]) delete f[name];
+    else f[name] = true;
+    pendingFormats.set(element, { at: start, f });
+    syncToolbar(element);
     return;
   }
   runs = splitRuns(runs, start, end);
@@ -516,6 +595,8 @@ export function setupRichText({ onUndo, onRedo } = {}) {
       // Atalhos nativos (Ctrl+B no Safari, menu Formatar): mesma regra dos botões.
       event.preventDefault();
       toggleRichFormat(element, FORMAT_INPUT[type]);
+    } else if (type === 'insertText' && event.data && typeWithPending(element, event.data)) {
+      event.preventDefault();
     } else if (type === 'formatRemoveFormat') {
       event.preventDefault();
       clearRichFormat(element);
@@ -568,6 +649,8 @@ export function setupRichText({ onUndo, onRedo } = {}) {
     if (!element) return;
     const offsets = getRichSelection(element);
     if (offsets) savedSelection.set(element, offsets);
+    const pending = pendingFormats.get(element);
+    if (offsets && pending && pending.composingFrom == null && !(offsets[0] === offsets[1] && pending.at === offsets[0])) pendingFormats.delete(element);
     syncToolbar(element);
   });
 
@@ -578,6 +661,24 @@ export function setupRichText({ onUndo, onRedo } = {}) {
     const canonical = richHtml(richMarkup(element));
     if (element.innerHTML !== canonical) element.innerHTML = canonical;
     syncEmptyState(element);
+  });
+
+  // Mover o cursor pelo teclado ou pelo mouse descarta a formatação pendente (o selectionchange pode juntar dois movimentos).
+  document.addEventListener('keydown', (event) => {
+    const element = richFieldOf(event.target);
+    if (element && /^(Arrow|Home$|End$|Page)/.test(event.key)) pendingFormats.delete(element);
+  }, true);
+  document.addEventListener('pointerdown', (event) => {
+    const element = richFieldOf(event.target);
+    if (element) pendingFormats.delete(element);
+  }, true);
+  document.addEventListener('compositionstart', (event) => {
+    const element = richFieldOf(event.target);
+    if (element) startPendingComposition(element);
+  });
+  document.addEventListener('compositionend', (event) => {
+    const element = richFieldOf(event.target);
+    if (element) finishPendingComposition(element);
   });
 
   // Barra de formatação: uma só parada de Tab; as setas trocam de botão (tabindex móvel).
