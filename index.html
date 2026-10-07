@@ -251,7 +251,7 @@
         <section class="panel" id="panel-document" role="tabpanel" aria-labelledby="tab-document" tabindex="-1" hidden>
           <header class="panel__header">
             <h2>Textos da capa e das páginas</h2>
-            <p>Título da capa, cabeçalho das páginas e endereço da contracapa. Dica: clicar na capa da prévia abre este painel.</p>
+            <p>Título da capa, cabeçalho das páginas e endereço da contracapa. Dica: clique duas vezes num desses textos, na prévia, para editá-lo ali mesmo.</p>
           </header>
           <form class="panel__body" id="document-form" autocomplete="off"></form>
         </section>
@@ -276,7 +276,7 @@
             <button class="btn btn--soft" type="button" data-action="insert-end"><svg class="icon"><use href="#i-plus"/></svg>Adicionar bloco</button>
             <button class="btn btn--ghost" type="button" data-action="open-templates"><svg class="icon"><use href="#i-layout"/></svg>Usar um modelo pronto</button>
           </div>
-          <p class="editor-empty__tip">Para mudar o título da capa, clique na capa na prévia ou abra <strong>Textos</strong>. Capa, cores e rodapé ficam em <strong>Design</strong>.</p>
+          <p class="editor-empty__tip">Para mudar o título da capa, clique duas vezes nele, na prévia, ou abra <strong>Textos</strong>. Capa, cores e rodapé ficam em <strong>Design</strong>.</p>
         </div>
         <button class="btn btn--soft add-block-end" type="button" data-action="insert-end"><svg class="icon"><use href="#i-plus"/></svg>Adicionar bloco</button>
       </main>
@@ -429,7 +429,8 @@
         <h3 class="help-first">Primeiros passos</h3>
         <ol class="help-steps">
           <li><strong>Comece</strong> em branco, colando um texto pronto ou por um modelo (menu ⋯ → Novo documento).</li>
-          <li><strong>Escreva</strong> no editor: cada parte (título, parágrafo, tabela, passo a passo…) é um bloco. Use <strong>Inserir</strong> para adicionar e arraste para reordenar.</li>
+          <li><strong>Escreva</strong> no editor: cada parte (título, parágrafo, tabela, passo a passo…) é um bloco. Use <strong>Inserir</strong> para adicionar e arraste para reordenar. Para formatar, selecione o texto e use a barra (negrito, itálico, sublinhado, destaque, link…).</li>
+          <li><strong>Ou edite direto na página:</strong> clique duas vezes num texto da prévia (no celular, um toque) e digite ali mesmo.</li>
           <li><strong>Personalize</strong> em <strong>Design</strong>: capa, contracapa, cores, cabeçalho e rodapé. Os títulos da capa ficam em <strong>Textos</strong>.</li>
           <li><strong>Gere o PDF</strong> no botão verde. Tudo é salvo sozinho neste navegador.</li>
         </ol>
@@ -437,11 +438,16 @@
         <dl class="shortcuts">
           <dt><kbd>Ctrl</kbd> <kbd>Z</kbd></dt><dd>Desfazer</dd>
           <dt><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd></dt><dd>Refazer</dd>
-          <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt><dd>Inserir bloco após o selecionado</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>K</kbd> fora de um texto</dt><dd>Inserir bloco após o selecionado</dd>
           <dt><kbd>/</kbd> em um parágrafo vazio</dt><dd>Transformar o parágrafo em outro tipo de bloco</dd>
           <dt><kbd>Alt</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></dt><dd>Mover o bloco selecionado</dd>
           <dt><kbd>Ctrl</kbd> <kbd>D</kbd></dt><dd>Duplicar o bloco selecionado</dd>
-          <dt><kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd></dt><dd>Negrito / itálico no texto selecionado (sem seleção, na palavra do cursor)</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd> / <kbd>U</kbd></dt><dd>Negrito / itálico / sublinhado no texto selecionado (sem seleção, na palavra do cursor)</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>K</kbd> dentro de um texto</dt><dd>Inserir ou editar link</dd>
+          <dt>Duplo clique num texto da prévia</dt><dd>Editar o texto ali mesmo, na página</dd>
+          <dt><kbd>Ctrl</kbd> + clique / <kbd>Shift</kbd> + clique</dt><dd>Selecionar vários blocos (editor, Estrutura ou prévia)</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>C</kbd> / <kbd>X</kbd> / <kbd>V</kbd> fora de um texto</dt><dd>Copiar, recortar e colar blocos inteiros (também entre documentos)</dd>
+          <dt><kbd>Delete</kbd> com bloco selecionado</dt><dd>Excluir os blocos selecionados (com “Desfazer”)</dd>
           <dt>Botão direito, <kbd>Menu</kbd> ou <kbd>Shift</kbd> <kbd>F10</kbd></dt><dd>Ações do que está sob o cursor: texto, bloco, item, célula, capa, rodapé…</dd>
           <dt><kbd>Shift</kbd> + botão direito</dt><dd>Menu do navegador (corretor ortográfico, por exemplo)</dd>
           <dt><kbd>Ctrl</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></dt><dd>Editor, lado a lado, prévia</dd>
@@ -454,7 +460,8 @@
         <h3>Dicas</h3>
         <ul class="help-list">
           <li>Cole um print com <kbd>Ctrl</kbd> <kbd>V</kbd> ou arraste imagens para o editor: vira uma figura numerada.</li>
-          <li>Clique em qualquer trecho da prévia para ir direto ao bloco correspondente.</li>
+          <li>Clique em qualquer trecho da prévia para ir direto ao bloco correspondente; clique duas vezes para editar o texto ali mesmo.</li>
+          <li>Tabela larga? Insira uma <strong>Quebra de página</strong> e escolha <strong>Paisagem</strong>: as páginas seguintes saem deitadas. Outra quebra volta ao retrato.</li>
           <li>Clique com o <strong>botão direito</strong> para ver o que dá para fazer ali: formatar o texto selecionado, transformar um parágrafo em destaque, inserir linha na tabela, trocar a capa direto na prévia… No celular, segure o dedo sobre um bloco.</li>
           <li>Cole tabelas do Excel na primeira célula de uma tabela para preenchê-la de uma vez.</li>
           <li>Os documentos ficam neste navegador. Para não depender dele, use <strong>Baixar cópia de segurança</strong> (menu ⋯) de vez em quando.</li>
