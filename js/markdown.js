@@ -7,6 +7,7 @@
  *   > texto             → destaque       > [!ATENÇÃO] → destaque com tipo
  *   | a | b |           → tabela         ---       → divisor
  *   /quebra             → quebra de página
+ *   ```título … ```     → código ou texto de tela (linhas literais)
  *   Pergunta? + R: ...  → pergunta e resposta
  *   demais linhas       → parágrafos (linha em branco separa parágrafos)
  */
@@ -54,6 +55,18 @@ export function markdownToBlocks(source) {
     const trimmed = line.trim();
 
     if (!trimmed) { flushParagraph(); i += 1; continue; }
+
+    // Bloco de código entre ``` (o texto depois das crases vira o título).
+    const fence = /^\s*```(.*)$/.exec(line);
+    if (fence) {
+      flushParagraph();
+      const code = [];
+      i += 1;
+      while (i < lines.length && !/^\s*```\s*$/.test(lines[i])) { code.push(lines[i]); i += 1; }
+      i += 1;
+      blocks.push(createBlock('code', { title: fence[1].trim(), text: code.join('\n') }));
+      continue;
+    }
 
     if (/^\/(quebra|pagina|página|newpage)$/i.test(trimmed) || trimmed === '\\newpage') {
       flushParagraph();

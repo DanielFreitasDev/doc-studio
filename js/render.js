@@ -10,7 +10,7 @@
  */
 import { esc, pad2 } from './utils.js';
 import { renderInline, stripMarkup } from './markup.js';
-import { ALTERNATE_TONES, CALLOUT_TONES } from './schema.js';
+import { ALTERNATE_TONES, CALLOUT_TONES, IMAGE_RATIOS } from './schema.js';
 import { COVERS, BACK_COVERS } from './design.js';
 import { coverArt, backArt, chapterArt, footerArt, headerArt, dividerArt, grayscaleSvg, CHECK_SVG } from './graphics.js';
 
@@ -124,7 +124,7 @@ const RENDERERS = {
   paragraph(block) {
     // Parágrafos podem ser divididos por linha entre páginas (ver js/paginate.js).
     return paragraphs(block.text).map((text) => ({
-      ...atom(block, `atom--p atom--p-${block.style}`, `<p class="b-p b-p--${block.style}"${ed('text')}>${renderInline(text)}</p>`),
+      ...atom(block, `atom--p atom--p-${block.style}`, `<p class="b-p b-p--${block.style}${block.align !== 'left' ? ` b-p--${block.align}` : ''}"${ed('text')}>${renderInline(text)}</p>`),
       splittable: true,
     }));
   },
@@ -142,6 +142,22 @@ const RENDERERS = {
   quote(block) {
     const author = block.author ? `<p class="b-quote__author"${ed('author')}>${esc(block.author)}</p>` : '';
     return [atom(block, 'atom--quote', `<blockquote class="b-quote"><p class="b-quote__text"${ed('text')}>${renderInline(block.text)}</p>${author}</blockquote>`)];
+  },
+
+  code(block) {
+    // Uma linha por átomo (caixa contínua): um código longo continua na página seguinte.
+    const lines = String(block.text ?? '').replace(/\r/g, '').replace(/\t/g, '    ').split('\n');
+    while (lines.length > 1 && !lines.at(-1).trim()) lines.pop();
+    const atoms = [];
+    if (block.title) {
+      atoms.push(atom(block, 'atom--code atom--code-title', `<p class="b-code__title"${ed('title')}>${esc(block.title)}</p>`, { keep: true, group: true }));
+    }
+    lines.forEach((line, index) => {
+      const classes = ['atom--code', index === 0 && !block.title ? 'is-first' : '', index === lines.length - 1 ? 'is-last' : ''].filter(Boolean).join(' ');
+      const number = block.numbers ? `<span class="b-code__n" aria-hidden="true">${index + 1}</span>` : '';
+      atoms.push(atom(block, classes, `<div class="b-code__line">${number}<code${ed('text')}>${esc(line) || ' '}</code></div>`, { group: true }));
+    });
+    return atoms;
   },
 
   steps(block) {
@@ -329,9 +345,12 @@ const RENDERERS = {
       caption = `<figcaption><span class="b-fig__n">Figura ${ctx.figureNo}</span> · <span${ed('caption')}>${renderInline(block.caption)}</span></figcaption>`;
     }
     const alt = block.caption ? esc(stripMarkup(block.caption)) : 'Imagem';
+    // Formato fixo: a imagem preenche (recorta, mostrando a parte escolhida) ou encaixa na proporção.
+    const ratio = IMAGE_RATIOS.find((option) => option.value === block.ratio)?.ratio;
+    const shape = ratio ? `;aspect-ratio:${ratio};object-fit:${block.fit === 'contain' ? 'contain' : 'cover'};object-position:50% ${{ top: '0%', bottom: '100%' }[block.focus] ?? '50%'}` : '';
     return [atom(block, 'atom--figure', `
-      <figure class="b-fig${block.frame ? ' b-fig--frame' : ''}">
-        <img src="${esc(asset.url)}" alt="${alt}" width="${asset.width}" height="${asset.height}" style="width:${block.width}%" decoding="async">
+      <figure class="b-fig b-fig--${block.align}${block.frame ? ' b-fig--frame' : ''}">
+        <img src="${esc(asset.url)}" alt="${alt}" width="${asset.width}" height="${asset.height}" style="width:${block.width}%${shape}" decoding="async">
         ${caption}
       </figure>`)];
   },

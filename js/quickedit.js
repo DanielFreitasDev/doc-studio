@@ -38,6 +38,7 @@ function fieldFor(block, path) {
     const sub = field.fields.find((f) => f.key === parts[2]);
     return sub && { ...sub, label: `${field.itemLabel ?? 'Item'} ${Number(parts[1]) + 1} · ${sub.label}` };
   }
+  if (field.kind === 'code') return { ...field, kind: 'lines', plain: true, mono: true };
   return ['text', 'rich', 'lines'].includes(field.kind) ? field : null;
 }
 
@@ -101,7 +102,7 @@ export function createQuickEdit({ store, ui, actions }) {
     const id = 'quick-edit-field';
     if (field.plain) {
       return field.kind === 'lines'
-        ? `<textarea class="textarea" id="${id}" rows="${field.rows ?? 2}" aria-labelledby="quick-edit-label">${esc(value)}</textarea>`
+        ? `<textarea class="textarea${field.mono ? ' textarea--mono' : ''}" id="${id}" rows="${field.rows ?? 2}" aria-labelledby="quick-edit-label"${field.mono ? ' spellcheck="false"' : ''}>${esc(value)}</textarea>`
         : `<input class="input" id="${id}" type="text" value="${esc(value)}" aria-labelledby="quick-edit-label" autocomplete="off" enterkeyhint="done">`;
     }
     const mode = field.kind === 'rich' ? 'multi' : field.kind === 'lines' ? 'lines' : 'single';

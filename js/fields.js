@@ -80,6 +80,12 @@ const RENDER = {
     return `<div class="field">${label(id, field.label)}<textarea class="textarea" id="${id}" data-path="${path}" rows="${field.rows ?? 3}"${described}>${esc(value)}</textarea>${hint(field, id)}</div>`;
   },
 
+  /** Texto literal em fonte de máquina (bloco de código): sem formatação nem correção ortográfica. */
+  code(field, value, id, path) {
+    const described = field.hint ? ` aria-describedby="${id}-hint"` : '';
+    return `<div class="field">${label(id, field.label)}<textarea class="textarea textarea--mono" id="${id}" data-path="${path}" data-plain rows="${field.rows ?? 6}" spellcheck="false" autocapitalize="off" autocomplete="off"${described}>${esc(value)}</textarea>${hint(field, id)}</div>`;
+  },
+
   /** Paleta de cores: rádios reais (setas do teclado funcionam), sem lista suspensa. */
   swatches(field, value, id, path) {
     const current = field.options.find((o) => o.value === value) ?? field.options[0];

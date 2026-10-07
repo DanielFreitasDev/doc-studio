@@ -313,6 +313,9 @@
 .b-p--lead { font-size: calc(var(--doc-p-size) + 1pt); line-height: calc(var(--doc-p-lead) + 1.8pt); color: var(--doc-navy); }
 .b-p--note { font-family: 'Kanit', sans-serif; font-weight: 300; font-size: 8.2pt; line-height: 11.5pt; color: var(--doc-muted); }
 .b-p--center { text-align: center; }
+.b-p--justify { text-align: justify; }
+/* Parágrafo justificado dividido entre páginas: a última linha da primeira parte também é justificada. */
+.is-split-head .b-p--justify { text-align-last: justify; }
 .atom--p-lead { margin-bottom: calc(var(--doc-gap) + 2pt); }
 
 /* ---------------------------------------------------------------- subtítulos */
@@ -553,6 +556,10 @@
 /* ---------------------------------------------------------------- figura */
 .atom--figure { margin-top: 2pt; margin-bottom: calc(var(--doc-gap) + 4pt); }
 .b-fig { display: grid; justify-items: center; gap: 5pt; }
+.b-fig--left { justify-items: start; }
+.b-fig--right { justify-items: end; }
+.b-fig--left figcaption { text-align: left; }
+.b-fig--right figcaption { text-align: right; }
 .b-fig img { height: auto; }
 .b-fig--frame img { padding: 0.3mm; border: 0.3mm solid var(--doc-border); border-radius: 1mm; background: #fff; }
 .b-fig figcaption { font-size: 8.2pt; font-weight: 300; line-height: 11pt; color: var(--doc-muted); text-align: center; max-width: 150mm; }
@@ -642,6 +649,20 @@
 }
 .b-quote__text { font-size: 15pt; font-weight: 300; line-height: 20pt; color: var(--doc-heading); }
 .b-quote__author { margin-top: 3mm; font-size: 8.4pt; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--doc-primary-strong); }
+
+/* ---------------------------------------------------------------- código ou texto de tela (caixa contínua, uma linha por átomo) */
+.atom--code { margin-bottom: 0; }
+.atom--code.is-last { margin-bottom: var(--doc-gap); }
+.b-code__title,
+.b-code__line { padding: 0 4.2mm; border-left: 0.9mm solid var(--doc-primary); background: var(--doc-surface); }
+.b-code__title { padding-top: 2.6mm; padding-bottom: 1.4mm; font-size: 7.2pt; font-weight: 600; line-height: 1.2; letter-spacing: 0.08em; text-transform: uppercase; color: var(--doc-primary-strong); }
+.b-code__line { display: flex; gap: 3mm; font-family: 'DejaVu Sans Mono', ui-monospace, monospace; font-size: 7.8pt; line-height: 11.6pt; color: var(--doc-heading); }
+.atom--code.is-first .b-code__line { padding-top: 2.6mm; }
+.atom--code.is-last .b-code__line { padding-bottom: 2.6mm; }
+.doc .b-code__line code { min-width: 0; font-size: inherit; color: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+.b-code__n { flex: none; min-width: 5mm; text-align: right; color: var(--doc-muted-2); }
+.seg-start :is(.b-code__title, .b-code__line) { border-top-right-radius: 1.2mm; }
+.seg-end .b-code__line { border-bottom-right-radius: 1.2mm; }
 
 /* ---------------------------------------------------------------- glossário (caixa contínua em segmentos) */
 .atom--gloss { margin-bottom: 0; }

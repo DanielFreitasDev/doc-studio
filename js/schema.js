@@ -54,6 +54,15 @@ const TABLE_TONES = [
   { value: 'minimal', label: 'Minimalista (só linhas)', swatch: 'linear-gradient(transparent 46%, #2f3b47 46% 58%, transparent 58%), #fff' },
 ];
 
+/** Formatos da imagem (proporção largura:altura). */
+export const IMAGE_RATIOS = [
+  { value: 'original', label: 'Original', ratio: null },
+  { value: 'wide', label: '16:9', ratio: '16 / 9' },
+  { value: 'standard', label: '4:3', ratio: '4 / 3' },
+  { value: 'square', label: 'Quadrado', ratio: '1 / 1' },
+  { value: 'portrait', label: 'Retrato', ratio: '3 / 4' },
+];
+
 /** Paleta usada quando um bloco está em "Alternar cores". */
 export const ALTERNATE_TONES = ['theme', 'teal', 'accent', 'navy'];
 
@@ -95,10 +104,11 @@ export const BLOCK_TYPES = {
     icon: 'paragraph',
     group: 'text',
     keywords: 'texto corpo',
-    defaults: () => ({ text: '', style: 'normal' }),
+    defaults: () => ({ text: '', style: 'normal', align: 'left' }),
     fields: [
       { key: 'text', kind: 'rich', label: 'Texto', rows: 4, placeholder: 'Escreva aqui. Digite / num parágrafo vazio para trocar o tipo de bloco.' },
       { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'normal', label: 'Normal' }, { value: 'lead', label: 'Abertura' }, { value: 'note', label: 'Nota' }] },
+      { key: 'align', kind: 'segmented', label: 'Alinhamento', options: [{ value: 'left', label: 'À esquerda' }, { value: 'justify', label: 'Justificado' }, { value: 'center', label: 'Centralizado' }] },
     ],
     summary: (b) => b.text,
   },
@@ -129,6 +139,21 @@ export const BLOCK_TYPES = {
       { key: 'author', kind: 'text', label: 'Autoria (opcional)', plain: true },
     ],
     summary: (b) => b.text,
+  },
+
+  code: {
+    label: 'Código ou texto de tela',
+    description: 'Comandos, mensagens e configurações em fonte de máquina',
+    icon: 'code',
+    group: 'text',
+    keywords: 'codigo comando terminal tela monoespacado script configuracao tecnico log',
+    defaults: () => ({ title: '', text: 'Primeira linha\nSegunda linha', numbers: false }),
+    fields: [
+      { key: 'title', kind: 'text', label: 'Título (opcional)', plain: true, placeholder: 'Ex.: Comando no terminal' },
+      { key: 'text', kind: 'code', label: 'Conteúdo', rows: 6, hint: 'Aparece exatamente como digitado, linha a linha.' },
+      { key: 'numbers', kind: 'toggle', label: 'Numerar as linhas' },
+    ],
+    summary: (b) => b.title || b.text.split('\n')[0],
   },
 
   steps: {
@@ -415,11 +440,16 @@ export const BLOCK_TYPES = {
     icon: 'image',
     group: 'media',
     keywords: 'figura print foto captura tela',
-    defaults: () => ({ assetId: '', caption: '', width: 100, frame: true }),
+    defaults: () => ({ assetId: '', caption: '', width: 100, align: 'center', ratio: 'original', fit: 'cover', focus: 'center', frame: true }),
     fields: [
       { key: 'assetId', kind: 'image', label: 'Imagem' },
       { key: 'caption', kind: 'text', label: 'Legenda', placeholder: 'Ex.: Tela de confirmação dos dados' },
       { key: 'width', kind: 'range', label: 'Largura', min: 25, max: 100, step: 5, unit: '%' },
+      { key: 'align', kind: 'segmented', label: 'Alinhamento', options: [{ value: 'left', label: 'Esquerda' }, { value: 'center', label: 'Centro' }, { value: 'right', label: 'Direita' }] },
+      // Formato fixo recorta (preencher) ou encaixa a imagem; "Original" mantém a proporção do arquivo.
+      { key: 'ratio', kind: 'segmented', label: 'Formato', options: IMAGE_RATIOS.map(({ value, label }) => ({ value, label })) },
+      { key: 'fit', kind: 'segmented', label: 'No formato escolhido', options: [{ value: 'cover', label: 'Preencher (corta as bordas)' }, { value: 'contain', label: 'Encaixar (imagem inteira)' }] },
+      { key: 'focus', kind: 'segmented', label: 'Parte que aparece ao cortar', options: [{ value: 'top', label: 'Topo' }, { value: 'center', label: 'Centro' }, { value: 'bottom', label: 'Base' }] },
       { key: 'frame', kind: 'toggle', label: 'Moldura fina' },
     ],
     summary: (b) => b.caption || (b.assetId ? 'Imagem' : 'Sem imagem'),
@@ -555,18 +585,19 @@ export function transformBlock(block, type) {
 /** Texto puro de um bloco (sem marcações), para copiar; tabelas saem com tabulação (colam no Excel). */
 export function blockPlainText(block) {
   const definition = BLOCK_TYPES[block.type];
+  // Campos simples (`plain`) e código são texto literal; os demais têm marcação a remover.
+  const clean = (value, field) => (field.plain || field.kind === 'code'
+    ? value
+    : value.split('\n').map((line) => stripMarkup(line)).join('\n'));
   const parts = [];
   for (const field of definition?.fields ?? []) {
     const value = block[field.key];
-    if (['text', 'rich', 'lines'].includes(field.kind) && value) parts.push(value);
+    if (['text', 'rich', 'lines', 'code'].includes(field.kind) && value) parts.push(clean(value, field));
     else if (field.kind === 'items') {
-      value.forEach((item) => parts.push(field.fields.map((sub) => item[sub.key]).filter(Boolean).join(' — ')));
+      value.forEach((item) => parts.push(field.fields.map((sub) => item[sub.key] && clean(item[sub.key], sub)).filter(Boolean).join(' — ')));
     } else if (field.kind === 'table') {
       parts.push([block.header, ...block.rows].map((row) => row.map((cell) => stripMarkup(cell)).join('\t')).join('\n'));
     }
   }
-  return parts
-    .map((part) => (part.includes('\t') ? part : part.split('\n').map((line) => stripMarkup(line)).join('\n')))
-    .filter(Boolean)
-    .join('\n\n');
+  return parts.filter(Boolean).join('\n\n');
 }
