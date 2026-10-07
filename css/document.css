@@ -939,8 +939,8 @@
 .cover--sign .cover__rule { background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 .cover--sign .cover__audience { top: auto; bottom: 9%; left: 137mm; right: 9mm; text-align: left; }
 .cover--sign .cover__aud-label { margin-right: 0; }
-.cover__concept { position: absolute; left: 0; width: 112mm; bottom: 13%; display: flex; justify-content: center; }
-.cover__concept .slogan { --brand-h: 56mm; font-family: 'Kanit', sans-serif; font-size: calc(var(--brand-h) * 0.142); line-height: calc(var(--brand-h) * 0.167); text-transform: uppercase; color: var(--doc-navy); }
+/* Frase da campanha na área branca da placa (MIV p. 76: Kanit Bold, centralizada sob a assinatura). */
+.cover__headline { position: absolute; left: 14mm; width: 84mm; bottom: 13%; font-size: 21pt; font-weight: 700; line-height: 25pt; text-align: center; text-wrap: balance; color: var(--doc-navy); }
 
 /* Capa "Palco" (fundo de palco e vinheta, MIV p. 62 e 104): tudo centralizado */
 .cover--stage .cover__brand { left: 0; right: 0; top: 8%; bottom: auto; display: flex; justify-content: center; }
@@ -1035,10 +1035,6 @@
 }
 .back--backdrop .back__title { margin-top: 0; }
 
-/* Sem assinatura, o conceito aparece sozinho e maior, para não sumir na página. */
-.concept { --brand-h: 32mm; }
-.concept .slogan { font-size: calc(var(--brand-h) * 0.142); line-height: calc(var(--brand-h) * 0.167); text-transform: uppercase; color: var(--doc-brand-green); }
-.concept--negative .slogan { color: #fff; }
 .back--fan .back__info { left: 20mm; bottom: auto; top: 12%; }
 
 /* Títulos extra fortes: os pesos Kanit ExtraBold e Black dos títulos do MIV. */

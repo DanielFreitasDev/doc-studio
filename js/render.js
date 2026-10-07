@@ -465,8 +465,11 @@ export function renderCover(doc, assets, idPrefix) {
        </div>`
     : '';
   const photo = cover.id === 'photo' ? assets[design.coverImage] : null;
-  // Placa de obra (MIV p. 76): o conceito do Governo ocupa o pé da área branca.
-  const concept = cover.id === 'sign' ? `<div class="cover__concept">${SLOGAN_HTML}</div>` : '';
+  // Placa de obra (MIV p. 76): a frase da campanha ("Governo trabalhando, Ceará avançando.") fica no
+  // pé da área branca, sob a assinatura; aqui é a descrição da capa. O conceito do Governo não entra
+  // solto: o MIV (p. 9) o quer sempre ao lado da marca (assinatura "Governo + conceito").
+  const headline = cover.id === 'sign' && meta.description;
+  const description = meta.description ? `<p class="cover__${headline ? 'headline' : 'desc'}"${edMeta('description')}>${esc(meta.description)}</p>` : '';
   return paint(design, `
     <section class="page page--cover cover--${cover.id}${cover.dark ? ' page--dark' : ''}" aria-label="Capa" data-target="cover">
       ${coverArt(cover.id, idPrefix, { photoUrl: photo ? esc(photo.url) : '' })}
@@ -476,10 +479,10 @@ export function renderCover(doc, assets, idPrefix) {
         <p class="cover__title"${edMeta('title')}>${esc(meta.title)}</p>
         ${meta.subtitle ? `<p class="cover__subtitle"${edMeta('subtitle')}>${esc(meta.subtitle)}</p>` : ''}
         <span class="cover__rule"></span>
-        ${meta.description ? `<p class="cover__desc"${edMeta('description')}>${esc(meta.description)}</p>` : ''}
+        ${headline ? '' : description}
       </div>
       ${audience}
-      ${concept}
+      ${headline ? description : ''}
     </section>`);
 }
 
@@ -533,11 +536,14 @@ export function renderBackCover(doc, assets, idPrefix) {
 /**
  * Assinatura + conceito do Governo: em negativo na contracapa do MIV (p. 117),
  * em cores na vinheta (p. 62). Se a assinatura escolhida já traz o conceito,
- * não o repete; sem assinatura, mostra só o conceito.
+ * não o repete. O MIV (p. 9, 62 e 117) só mostra o conceito ao lado do Governo
+ * (com ou sem a secretaria): o órgão parceiro sai desta composição, e sem
+ * assinatura o conceito também não aparece (nunca fica solto).
  */
 function conceptLockup(design, assets, { negative = true } = {}) {
-  if (design.signature === 'none') return `<div class="concept${negative ? ' concept--negative' : ''}">${SLOGAN_HTML}</div>`;
-  return brandHtml(design, assets, { negative, concept: true });
+  if (design.signature === 'none') return '';
+  const governo = { ...design, signature: withSecretaria(design) ? 'seinfra' : design.signature === 'concept' ? 'concept' : 'state' };
+  return brandHtml(governo, assets, { negative, concept: true });
 }
 
 function headerHtml(doc, assets, first, idPrefix) {
