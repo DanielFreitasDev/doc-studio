@@ -114,8 +114,11 @@ const RENDERERS = {
   },
 
   paragraph(block) {
-    return paragraphs(block.text).map((text) =>
-      atom(block, `atom--p atom--p-${block.style}`, `<p class="b-p b-p--${block.style}">${renderInline(text)}</p>`));
+    // Parágrafos podem ser divididos por linha entre páginas (ver js/paginate.js).
+    return paragraphs(block.text).map((text) => ({
+      ...atom(block, `atom--p atom--p-${block.style}`, `<p class="b-p b-p--${block.style}">${renderInline(text)}</p>`),
+      splittable: true,
+    }));
   },
 
   list(block) {

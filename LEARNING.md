@@ -13,7 +13,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Zoom "ajustar à largura" em laço](docs/learning/gotcha-zoom-em-laco-com-barra-de-rolagem.md) — barra de rolagem clássica muda a largura; `scrollbar-gutter: stable` na área rolável.
 
 ## Decisões de arquitetura
-- [Paginação por átomos e PDF pela impressão](docs/learning/decision-paginacao-por-atomos.md) — blocos medidos com o CSS real; prévia e PDF são o mesmo DOM; átomo maior que a página gera aviso.
+- [Paginação por átomos e PDF pela impressão](docs/learning/decision-paginacao-por-atomos.md) — blocos medidos com o CSS real; prévia e PDF são o mesmo DOM; parágrafos divididos por linha; outro átomo maior que a página gera aviso.
 - [Assinaturas pelas regras do MIV](docs/learning/decision-assinaturas-pelas-regras-do-miv.md) — órgão à esquerda, Governo à direita, sem fio, tamanhos mínimos, vertical e conceito em 4 linhas; difere dos dois primeiros manuais de propósito.
 - [Campos de texto com marcação em vez de contenteditable](docs/learning/decision-texto-com-marcacao-em-vez-de-contenteditable.md) — texto sempre escapado antes de `renderInline()`; nada de HTML livre.
 
