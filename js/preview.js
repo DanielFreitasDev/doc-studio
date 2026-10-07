@@ -62,6 +62,7 @@ export function createPreview({ store, ui, assets, actions }) {
    * parti-la no meio. Prévia e PDF são o mesmo DOM, então o PDF sai igual.
    */
   function fitTitles(page) {
+    if (!page.offsetWidth) return; // prévia escondida: medido quando ela aparecer
     for (const title of page.querySelectorAll('.cover__title, .chapter__title')) {
       title.style.overflowWrap = 'normal';
       const style = getComputedStyle(title);
@@ -359,7 +360,12 @@ export function createPreview({ store, ui, assets, actions }) {
     }
     if (changed.includes('zoom') || changed.includes('zoomFit')) applyZoom();
     if (changed.includes('view') || changed.includes('pane') || changed.includes('panelOpen')) {
-      requestAnimationFrame(() => { applyZoom(); if (state.selectedId) revealBlock(state.selectedId); });
+      requestAnimationFrame(() => {
+        applyZoom();
+        // Páginas desenhadas com a prévia escondida não puderam ser medidas: ajusta os títulos agora.
+        $$('.page--cover, .page--chapter', pagesEl).forEach(fitTitles);
+        if (state.selectedId) revealBlock(state.selectedId);
+      });
     }
   });
 
