@@ -436,7 +436,7 @@
 }
 .type-icon .icon { width: 18px; height: 18px; }
 .type-icon[data-group="highlight"] { background: color-mix(in srgb, #f59c00 16%, var(--surface)); color: color-mix(in srgb, #c2410c 85%, var(--text)); }
-.type-icon[data-group="data"] { background: color-mix(in srgb, #2db39e 16%, var(--surface)); color: color-mix(in srgb, #1e8576 85%, var(--text)); }
+.type-icon[data-group="data"] { background: color-mix(in srgb, #2db39e 16%, var(--surface)); color: color-mix(in srgb, #1d8475 85%, var(--text)); }
 .type-icon[data-group="page"] { background: var(--surface-3); color: var(--text-muted); }
 
 /* ---------------------------------------------------------------- editor: barra e lista */

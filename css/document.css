@@ -36,7 +36,7 @@
   --doc-brand-green: #26a737;
   --doc-brand-gold: #fccf05;
   --doc-backdrop-green: #38b53f;
-  --doc-code: #1e8576;
+  --doc-code: #1d8475;
 
   --doc-body-font: 'Maitree', Georgia, 'Times New Roman', serif;
   --doc-body-weight: 400;
@@ -57,7 +57,7 @@
   --doc-accent: #26a737; --doc-accent-strong: #008241; --doc-accent-soft: #eaf6ec;
 }
 .doc[data-doc-theme="teal"] {
-  --doc-primary: #2db39e; --doc-primary-strong: #1e8576; --doc-primary-soft: #e4f5f2;
+  --doc-primary: #2db39e; --doc-primary-strong: #1d8475; --doc-primary-soft: #e4f5f2;
   --doc-accent: #f59c00; --doc-accent-strong: #b83a0a; --doc-accent-soft: #fef2e0;
 }
 .doc[data-doc-theme="navy"] {
@@ -66,7 +66,7 @@
 }
 .doc[data-doc-theme="red"] {
   --doc-primary: #e94f0e; --doc-primary-strong: #b83a0a; --doc-primary-soft: #fdeae2;
-  --doc-accent: #2db39e; --doc-accent-strong: #1e8576; --doc-accent-soft: #e4f5f2;
+  --doc-accent: #2db39e; --doc-accent-strong: #1d8475; --doc-accent-soft: #e4f5f2;
 }
 .doc[data-doc-theme="gold"] {
   --doc-primary: #e4a500; --doc-primary-strong: #8a6400; --doc-primary-soft: #fff6d6;
@@ -75,6 +75,11 @@
 .doc[data-doc-theme="leaf"] {
   --doc-primary: #45b16e; --doc-primary-strong: #2a7050; --doc-primary-soft: #e8f6ee;
   --doc-accent: #e94f0e; --doc-accent-strong: #b83a0a; --doc-accent-soft: #fdeae2;
+}
+/* Azul do mar da assinatura (Pantone 7709 C, MIV p. 11); o tom de texto é derivado (5,8:1 no papel). */
+.doc[data-doc-theme="sky"] {
+  --doc-primary: #56a7b2; --doc-primary-strong: #2c6e77; --doc-primary-soft: #e8f3f5;
+  --doc-accent: #f59c00; --doc-accent-strong: #b83a0a; --doc-accent-soft: #fef2e0;
 }
 
 .doc[data-body-font="kanit"] { --doc-body-font: 'Kanit', sans-serif; --doc-body-weight: 400; --doc-body-bold: 600; }
@@ -85,7 +90,7 @@
 .doc .tone-theme  { --t: var(--doc-primary); --t-strong: var(--doc-primary-strong); --t-soft: var(--doc-primary-soft); }
 .doc .tone-accent { --t: var(--doc-accent); --t-strong: var(--doc-accent-strong); --t-soft: var(--doc-accent-soft); }
 .doc .tone-green  { --t: #26a737; --t-strong: #008241; --t-soft: #eaf6ec; }
-.doc .tone-teal   { --t: #2db39e; --t-strong: #1e8576; --t-soft: #e4f5f2; }
+.doc .tone-teal   { --t: #2db39e; --t-strong: #1d8475; --t-soft: #e4f5f2; }
 .doc .tone-orange { --t: #f59c00; --t-strong: #b83a0a; --t-soft: #fef2e0; }
 .doc .tone-red    { --t: #e94f0e; --t-strong: #b83a0a; --t-soft: #fdeae2; }
 .doc .tone-navy   { --t: #465564; --t-strong: #2f3b47; --t-soft: #edf0f3; }

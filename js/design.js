@@ -7,9 +7,11 @@ import { monthYear } from './utils.js';
 
 /**
  * Temas de cor. A cor principal de cada tema vem da paleta do grafismo do MIV
- * (p. 26) ou da assinatura (p. 11). O segundo tom é a versão escura usada em
- * textos: a oficial quando existe (#008241 = Pantone 348 C, #2a7050 = 555 C)
- * ou um escurecimento da cor principal para atingir contraste AA no papel.
+ * (p. 26) ou da assinatura (p. 11; o Azul é o azul do mar, Pantone 7709 C). O
+ * segundo tom é a versão escura usada em textos: a oficial quando existe
+ * (#008241 = Pantone 348 C, #2a7050 = 555 C) ou um escurecimento da cor
+ * principal para atingir contraste AA no papel. As mesmas cores precisam
+ * existir em css/document.css (`node tools/docstudio.mjs check` confere).
  */
 export const THEMES = [
   { id: 'green', label: 'Verde institucional', colors: ['#26a737', '#008241', '#f59c00'] },
@@ -19,7 +21,7 @@ export const THEMES = [
   { id: 'gold', label: 'Sol', colors: ['#e4a500', '#8a6400', '#26a737'] },
   { id: 'leaf', label: 'Folha', colors: ['#45b16e', '#2a7050', '#e94f0e'] },
   { id: 'navy', label: 'Grafite', colors: ['#465564', '#2f3b47', '#26a737'] },
-  { id: 'sky', label: 'Azul', colors: ['#4ec6e0', '#1b7389', '#f59c00'] },
+  { id: 'sky', label: 'Azul', colors: ['#56a7b2', '#2c6e77', '#f59c00'] },
 ];
 
 /**
