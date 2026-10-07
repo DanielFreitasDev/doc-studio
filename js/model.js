@@ -12,7 +12,7 @@ import { normalizeDesign, normalizeMeta } from './design.js';
 
 export const FILE_FORMAT = 'doc-studio';
 export const FILE_VERSION = 1;
-const MAX_BLOCKS = 2000;
+export const MAX_BLOCKS = 2000;
 
 export function createDocument({ name = 'Documento sem título', meta = {}, design = {}, blocks = [] } = {}) {
   const now = Date.now();
@@ -61,6 +61,26 @@ export function toFilePayload(doc, assets) {
   };
 }
 
+/**
+ * Migrações do formato: `MIGRATIONS[n]` recebe um arquivo da versão n e
+ * devolve o equivalente na versão n + 1. Ao mudar a estrutura de forma
+ * incompatível, suba FILE_VERSION e acrescente a migração aqui; arquivos
+ * antigos continuam abrindo (no app e em tools/docstudio.mjs).
+ */
+const MIGRATIONS = {};
+
+/** Leva um arquivo de qualquer versão anterior até a atual. */
+export function migratePayload(data) {
+  let version = Number.isInteger(data.version) && data.version > 0 ? data.version : 1;
+  if (version > FILE_VERSION) throw new Error('Arquivo criado por uma versão mais nova do Estúdio. Atualize o app para abri-lo.');
+  let result = data;
+  while (version < FILE_VERSION) {
+    result = MIGRATIONS[version](result);
+    version += 1;
+  }
+  return { ...result, version: FILE_VERSION };
+}
+
 /** Lê o texto de um .json exportado. Lança erro com mensagem amigável se for inválido. */
 export function parseFilePayload(text) {
   let data;
@@ -70,7 +90,7 @@ export function parseFilePayload(text) {
     throw new Error('O arquivo não é um JSON válido.');
   }
   if (data?.format !== FILE_FORMAT) throw new Error('Este arquivo não foi gerado pelo Estúdio de Documentos.');
-  if (data.version > FILE_VERSION) throw new Error('Arquivo criado por uma versão mais nova do Estúdio.');
+  data = migratePayload(data);
   return {
     doc: normalizeDocument(data.document, { keepId: false }),
     assets: data.assets && typeof data.assets === 'object' ? data.assets : {},

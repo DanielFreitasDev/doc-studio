@@ -488,6 +488,51 @@ export const BLOCK_TYPES = {
 
 export const blockTypeIds = () => Object.keys(BLOCK_TYPES);
 
+/**
+ * Intenções semânticas: o autor (pessoa ou agente de IA) diz *o que* o
+ * conteúdo é — "warning", "procedure", "screenshot" — e o sistema decide a
+ * aparência. Um bloco `{ "intent": "warning", "text": "…" }` vira o tipo e as
+ * opções abaixo; campos informados explicitamente prevalecem.
+ */
+export const BLOCK_INTENTS = {
+  'important-information': { description: 'Informação que o leitor não pode perder', block: { type: 'callout', tone: 'info', title: 'Importante' } },
+  warning: { description: 'Cuidado, condição ou exceção que pode causar erro', block: { type: 'callout', tone: 'warning', title: 'Atenção' } },
+  danger: { description: 'Risco, bloqueio, penalidade ou ação irreversível', block: { type: 'callout', tone: 'danger', title: 'Alerta' } },
+  tip: { description: 'Atalho, boa prática ou sugestão opcional', block: { type: 'callout', tone: 'tip', title: 'Dica' } },
+  success: { description: 'Confirmação de que deu certo / resultado esperado', block: { type: 'callout', tone: 'success', title: 'Pronto' } },
+  example: { description: 'Exemplo concreto que ilustra a regra', block: { type: 'callout', tone: 'tip', title: 'Exemplo' } },
+  note: { description: 'Observação secundária, em letra menor', block: { type: 'paragraph', style: 'note' } },
+  lead: { description: 'Parágrafo de abertura, maior, que resume a seção', block: { type: 'paragraph', style: 'lead' } },
+  procedure: { description: 'Sequência de ações numeradas que o leitor executa', block: { type: 'steps' } },
+  requirement: { description: 'Requisitos, documentos exigidos, condições (checklist)', block: { type: 'list', style: 'check' } },
+  comparison: { description: 'Antes × depois, opção A × opção B', block: { type: 'cards', columns: '2', marker: 'none', tone: 'alternate' } },
+  screenshot: { description: 'Print de tela com legenda (vira "Figura N")', block: { type: 'image', frame: true, ratio: 'original', width: 100 } },
+  photo: { description: 'Foto ilustrativa, sem moldura', block: { type: 'image', frame: false } },
+  'system-message': { description: 'Texto exato exibido por um sistema', block: { type: 'message', tone: 'info' } },
+  'error-message': { description: 'Mensagem de erro exata exibida por um sistema', block: { type: 'message', tone: 'danger', label: 'Mensagem de erro' } },
+  faq: { description: 'Dúvidas frequentes com resposta', block: { type: 'faq' } },
+  schedule: { description: 'Datas, prazos, marcos de implantação', block: { type: 'timeline' } },
+  process: { description: 'Visão geral de um fluxo em poucas etapas, lado a lado', block: { type: 'flow' } },
+  'key-figures': { description: 'Números que resumem o assunto', block: { type: 'stats', style: 'kpi' } },
+  definitions: { description: 'Termos, siglas e definições', block: { type: 'glossary' } },
+  command: { description: 'Comandos, códigos, configurações, texto de tela literal', block: { type: 'code' } },
+  chapter: { description: 'Início de um novo assunto (título numerado em nova página)', block: { type: 'section', newPage: true } },
+  'chapter-opener': { description: 'Página inteira de abertura de capítulo (use com moderação)', block: { type: 'section', newPage: true, opener: true } },
+  'table-of-contents': { description: 'Sumário automático com páginas', block: { type: 'toc' } },
+  'new-page': { description: 'Força o próximo conteúdo em nova página', block: { type: 'pagebreak' } },
+  'landscape-pages': { description: 'Páginas seguintes deitadas (tabelas largas, prints largos)', block: { type: 'pagebreak', orientation: 'landscape' } },
+};
+
+/** Troca `intent` pelo tipo e opções correspondentes (campos explícitos prevalecem). */
+export function expandIntent(raw) {
+  if (!raw || typeof raw !== 'object' || raw.intent == null) return raw;
+  const { intent, ...rest } = raw;
+  if (rest.type) return rest;
+  const definition = BLOCK_INTENTS[intent];
+  return definition ? { ...definition.block, ...rest } : raw;
+}
+
+
 export function createBlock(type, overrides = {}) {
   const definition = BLOCK_TYPES[type];
   if (!definition) throw new Error(`Tipo de bloco desconhecido: ${type}`);
@@ -500,8 +545,11 @@ export function blockSummary(block) {
 }
 
 /* ------------------------------------------------------------------ normalização */
+export const BLOCK_ID = /^[\w-]{1,40}$/;
 const asString = (value, fallback = '') => (typeof value === 'string' ? value : typeof value === 'number' ? String(value) : fallback);
-const MAX_TEXT = 20000;
+export const MAX_TEXT = 20000;
+/** Limites de tabela aplicados na normalização (também lidos pela validação). */
+export const TABLE_LIMITS = Object.freeze({ columns: 12, rows: 400, headerCell: 500, cell: 4000 });
 
 function normalizeField(field, value, fallback) {
   switch (field.kind) {
@@ -530,11 +578,13 @@ function normalizeField(field, value, fallback) {
 }
 
 /** Garante que um bloco (novo ou importado) tenha todos os campos com tipos válidos. */
-export function normalizeBlock(raw) {
+export function normalizeBlock(input) {
+  const raw = expandIntent(input);
   const definition = BLOCK_TYPES[raw?.type];
   if (!definition) return null;
   const defaults = definition.defaults();
-  const block = { id: typeof raw.id === 'string' && raw.id ? raw.id.slice(0, 40) : uid('b'), type: raw.type };
+  // Ids estáveis vêm de fora (arquivos, agentes de IA): só letras, números, _ e -.
+  const block = { id: typeof raw.id === 'string' && BLOCK_ID.test(raw.id) ? raw.id : uid('b'), type: raw.type };
 
   for (const field of definition.fields) {
     if (field.kind === 'table') continue;
@@ -543,11 +593,11 @@ export function normalizeBlock(raw) {
 
   if (raw.type === 'table') {
     const header = Array.isArray(raw.header) && raw.header.length ? raw.header : defaults.header;
-    const columns = clamp(header.length, 1, 12);
-    block.header = Array.from({ length: columns }, (_, i) => asString(header[i]).slice(0, 500));
+    const columns = clamp(header.length, 1, TABLE_LIMITS.columns);
+    block.header = Array.from({ length: columns }, (_, i) => asString(header[i]).slice(0, TABLE_LIMITS.headerCell));
     const rows = Array.isArray(raw.rows) ? raw.rows : defaults.rows;
-    block.rows = rows.slice(0, 400).map((row) =>
-      Array.from({ length: columns }, (_, i) => asString(Array.isArray(row) ? row[i] : '').slice(0, 4000)));
+    block.rows = rows.slice(0, TABLE_LIMITS.rows).map((row) =>
+      Array.from({ length: columns }, (_, i) => asString(Array.isArray(row) ? row[i] : '').slice(0, TABLE_LIMITS.cell)));
   }
   return block;
 }

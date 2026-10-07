@@ -6,6 +6,17 @@
 import { monthYear } from './utils.js';
 
 /**
+ * Geometria da folha A4 (mm). Margens de 20 mm como o papel timbrado do MIV
+ * (p. 34); a paginação, a validação e a documentação para agentes leem daqui.
+ */
+export const PAGE_GEOMETRY = Object.freeze({
+  pageMm: { portrait: [210, 297], landscape: [297, 210] },
+  contentWidthMm: { portrait: 170, landscape: 257 },
+  contentHeightMm: { portrait: 252, landscape: 165 },
+  letterheadOffsetMm: 31,
+});
+
+/**
  * Temas de cor. A cor principal de cada tema vem da paleta do grafismo do MIV
  * (p. 26) ou da assinatura (p. 11; o Azul é o azul do mar, Pantone 7709 C). O
  * segundo tom é a versão escura usada em textos: a oficial quando existe
@@ -15,7 +26,7 @@ import { monthYear } from './utils.js';
  */
 export const THEMES = [
   { id: 'green', label: 'Verde institucional', colors: ['#26a737', '#008241', '#f59c00'] },
-  { id: 'teal', label: 'Água-marinha', colors: ['#2db39e', '#1e8576', '#f59c00'] },
+  { id: 'teal', label: 'Água-marinha', colors: ['#2db39e', '#1d8475', '#f59c00'] },
   { id: 'orange', label: 'Laranja', colors: ['#e06a0c', '#b4500a', '#26a737'] },
   { id: 'red', label: 'Urucum', colors: ['#e94f0e', '#b83a0a', '#2db39e'] },
   { id: 'gold', label: 'Sol', colors: ['#e4a500', '#8a6400', '#26a737'] },
@@ -129,6 +140,24 @@ export const DESIGN_OPTIONS = {
     { value: 'arcs', label: 'Arcos' },
   ],
 };
+
+/** Nome de cada opção de design para pessoas (revisão de alterações, mensagens). */
+export const DESIGN_LABELS = Object.freeze({
+  theme: 'Tema de cores', cover: 'Capa', backCover: 'Contracapa', header: 'Cabeçalho', footer: 'Rodapé',
+  pageNumber: 'Numeração', sectionStyle: 'Títulos de seção', cardStyle: 'Cartões', bodyFont: 'Fonte do texto',
+  headingWeight: 'Peso dos títulos', density: 'Espaçamento', signature: 'Assinatura', colorMode: 'Impressão',
+  chapterStyle: 'Abertura de capítulo', numberSections: 'Numerar seções', countCover: 'Capa conta como página',
+  customLogo: 'Logo próprio', coverImage: 'Foto da capa',
+});
+
+/** Nome legível do valor de uma opção de design ("sky" → "Azul"). */
+export function designValueLabel(key, value) {
+  const options = { theme: THEMES, cover: COVERS, backCover: BACK_COVERS }[key] ?? DESIGN_OPTIONS[key];
+  const option = options?.find((o) => (o.id ?? o.value) === value);
+  if (option) return option.label;
+  if (typeof value === 'boolean') return value ? 'sim' : 'não';
+  return value ? String(value) : '—';
+}
 
 export const DEFAULT_DESIGN = Object.freeze({
   theme: 'green',

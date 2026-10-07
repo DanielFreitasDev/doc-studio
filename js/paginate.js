@@ -18,12 +18,16 @@
  */
 import { createRenderContext, renderBlock, renderCover, renderBackCover, renderContentPage } from './render.js';
 import { renderInline } from './markup.js';
+import { PAGE_GEOMETRY } from './design.js';
 
 const PX_PER_MM = 96 / 25.4;
 // Altura útil do corpo da página: A4 em pé e deitado (uma quebra de página escolhe a orientação das seguintes).
-const CONTENT_HEIGHT = { portrait: 252 * PX_PER_MM, landscape: 165 * PX_PER_MM };
+const CONTENT_HEIGHT = {
+  portrait: PAGE_GEOMETRY.contentHeightMm.portrait * PX_PER_MM,
+  landscape: PAGE_GEOMETRY.contentHeightMm.landscape * PX_PER_MM,
+};
 // Cabeçalho "timbrado" (assinatura centralizada do MIV) ocupa o topo da primeira página.
-const LETTERHEAD_OFFSET = 31 * PX_PER_MM;
+const LETTERHEAD_OFFSET = PAGE_GEOMETRY.letterheadOffsetMm * PX_PER_MM;
 const TOLERANCE = 0.75;
 // Controle de linhas viúvas e órfãs: um parágrafo dividido deixa ao menos 2 linhas em cada página.
 const MIN_LINES = 2;
