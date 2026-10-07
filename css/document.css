@@ -150,12 +150,12 @@
 .page__header--logo::after { top: calc(100% + 1.4mm); }
 
 /* Papel timbrado (MIV p. 34–36): assinatura centralizada no alto da primeira folha. */
-/* Vertical sem secretaria com 37 mm de largura; com secretaria, 40 mm (mínimo do MIV, p. 21).
+/* Vertical sem secretaria com 37 mm de largura; com secretaria, 40,5 mm (mínimo do MIV, p. 21).
    O corpo da primeira folha desce 31 mm (LETTERHEAD_OFFSET em js/paginate.js). */
 .page__letterhead { position: absolute; top: 8mm; left: 20mm; right: 20mm; display: flex; justify-content: center; }
 .page__letterhead .brand { --brand-h: 17.8mm; }
-.page__letterhead .brand--vertical { --brand-h: 31.9mm; }
-.page__letterhead .brand--vertical:has(.brand__state--secretaria) { --brand-h: 34.5mm; }
+.page__letterhead .brand--vertical { --brand-h: 29.6mm; }
+.page__letterhead .brand--vertical:has(.brand__state--secretaria) { --brand-h: 32.4mm; }
 .page--letterhead .page__body { top: 52mm; height: 221mm; }
 
 /* Endereço do papel timbrado, acima da faixa do rodapé (MIV p. 34). */
@@ -679,16 +679,17 @@
 .brand .brand__partner { height: calc(var(--brand-h) * 0.8); max-width: calc(var(--brand-h) * 3.2); margin: calc(var(--brand-h) * 0.184) calc(var(--brand-h) * 0.746) 0 0; object-fit: contain; }
 
 /* Vertical (MIV p. 20): --brand-h = altura do escudo + nome. Com secretaria, o
-   nome dela fica centralizado embaixo e a imagem cresce 10,5% (812/735 px). */
+   nome dela fica centralizado embaixo e a imagem cresce 11,4% (141,9/127,4 pt). */
 .brand--vertical, .brand--joint-vertical { --brand-h: 30mm; height: auto; }
 .brand .brand__state--vertical { height: var(--brand-h); }
-.brand .brand__state--secretaria { height: calc(var(--brand-h) * 1.1048); }
+.brand .brand__state--secretaria { height: calc(var(--brand-h) * 1.1138); }
 /* Conjunta vertical lado a lado (MIV p. 17): órgão do topo do escudo, sem a
-   coroa (9% da altura), até a base do nome; afastado pela largura do escudo. */
+   coroa (9,8% da altura), até a base do nome; afastado pela largura do escudo
+   (41,5% da altura na vertical oficial do MIV, p. 20). */
 .brand--joint-vertical .brand__partner {
-  height: calc(var(--brand-h) * 0.91);
+  height: calc(var(--brand-h) * 0.902);
   max-width: calc(var(--brand-h) * 1.6);
-  margin: calc(var(--brand-h) * 0.09) calc(var(--brand-h) * 0.385) 0 0;
+  margin: calc(var(--brand-h) * 0.098) calc(var(--brand-h) * 0.415) 0 0;
   object-position: center bottom;
 }
 
@@ -723,8 +724,8 @@
 /* Capa "Pasta oficial": assinatura vertical centralizada na faixa branca (com órgão: conjunta vertical, MIV p. 17), título embaixo à direita */
 .cover--official .cover__brand { left: 0; right: 0; top: 31%; bottom: auto; display: flex; justify-content: center; }
 .cover--official .brand { --brand-h: 21mm; }
-.cover--official .brand--vertical { --brand-h: 46mm; }
-.cover--official .brand--joint-vertical { --brand-h: 38mm; }
+.cover--official .brand--vertical { --brand-h: 43mm; }
+.cover--official .brand--joint-vertical { --brand-h: 36mm; }
 .cover--official .cover__heading { top: 55%; left: auto; width: 112mm; text-align: right; }
 .cover--official .cover__rule { margin-left: auto; }
 .cover--official .cover__audience { top: auto; bottom: 9%; }

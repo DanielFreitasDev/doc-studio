@@ -364,12 +364,12 @@ const withSecretaria = (design) => design.signature === 'joint' || design.signat
 function stateLogo(design, { negative, vertical }) {
   if (vertical) {
     return withSecretaria(design)
-      ? `<img class="brand__state brand__state--vertical brand__state--secretaria" src="assets/img/ceara-vertical-secretaria.png" alt="${STATE_ALT}" width="853" height="812">`
-      : `<img class="brand__state brand__state--vertical" src="assets/img/ceara-vertical.png" alt="${STATE_ALT}" width="853" height="735">`;
+      ? `<img class="brand__state brand__state--vertical brand__state--secretaria" src="assets/img/ceara-vertical-secretaria.svg" alt="${STATE_ALT}" width="1123" height="1000">`
+      : `<img class="brand__state brand__state--vertical" src="assets/img/ceara-vertical.svg" alt="${STATE_ALT}" width="1251" height="1000">`;
   }
   const suffix = negative ? '-negative' : '';
   const file = withSecretaria(design) ? 'ceara' : 'ceara-state';
-  return `<img class="brand__state" src="assets/img/${file}${suffix}.png" alt="${STATE_ALT}" width="1200" height="382">`;
+  return `<img class="brand__state" src="assets/img/${file}${suffix}.svg" alt="${STATE_ALT}" width="1258" height="400">`;
 }
 
 /**
@@ -381,7 +381,7 @@ export const SLOGAN_HTML = '<p class="slogan"><strong>Cuidar</strong><br>das pes
 
 function partnerLogo(design, assets, negative) {
   if (design.signature === 'joint') {
-    return `<img class="brand__partner" src="assets/img/detran${negative ? '-negative' : ''}.png" alt="DETRAN/CE" width="370" height="416">`;
+    return `<img class="brand__partner" src="assets/img/detran${negative ? '-negative' : ''}.svg" alt="DETRAN/CE" width="370" height="416">`;
   }
   const logo = design.signature === 'custom' ? assets[design.customLogo] : null;
   return logo ? `<img class="brand__partner" src="${esc(logo.url)}" alt="Logo do órgão" width="${logo.width}" height="${logo.height}">` : '';
@@ -472,7 +472,7 @@ function headerHtml(doc, assets, first) {
   }
   // Assinatura no cabeçalho: sem secretaria e com 30 mm de largura (mínimo do MIV, p. 21).
   const right = design.header === 'logo'
-    ? `<img src="assets/img/ceara-state.png" alt="${STATE_ALT}" width="1200" height="382">`
+    ? `<img src="assets/img/ceara-state.svg" alt="${STATE_ALT}" width="1258" height="400">`
     : esc(meta.headerRight);
   return `
     <header class="page__header page__header--${design.header}">
