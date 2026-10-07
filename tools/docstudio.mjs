@@ -15,7 +15,7 @@ import { createDocument, normalizeDocument, toFilePayload } from '../js/model.js
 import { BLOCK_TYPES, blockSummary } from '../js/schema.js';
 import { THEMES, DESIGN_PRESETS } from '../js/design.js';
 import { TEMPLATES } from '../js/templates.js';
-import { validateDocument, brandReport, contentAdvice } from '../js/validate.js';
+import { validateDocument, brandReport, contentAdvice, effectivePpi, maxImageWidth } from '../js/validate.js';
 import { applyOperations, diffDocuments, parseOperationsPayload } from '../js/operations.js';
 import { buildCatalog, COMPONENT_GUIDE } from '../js/catalog.js';
 import { GRAPHIC_PALETTE, SIGNATURE_COLORS, DERIVED_COLORS, contrastRatio } from '../js/brand.js';
@@ -169,7 +169,15 @@ const commands = {
     const file = need(positional[0], 'Informe o arquivo: inspect <arquivo>');
     const { document, assets } = await loadDocumentFile(file);
     const doc = normalizeDocument(document);
-    const rows = doc.blocks.map((block, index) => ({ index, id: block.id, type: block.type, label: BLOCK_TYPES[block.type].label, summary: blockSummary(block) }));
+    const dims = assetDimensions(assets);
+    // Imagens: tamanho do arquivo, resolução impressa e a maior largura que mantém 150 ppi.
+    const imageInfo = (block) => {
+      const asset = dims[block.assetId];
+      if (block.type !== 'image' || !asset) return '';
+      if (asset.svg) return ' [SVG vetorial]';
+      return ` [${asset.width} px · ${effectivePpi(asset.width, (170 * block.width) / 100)} ppi a ${block.width}% · máx. ${maxImageWidth(asset.width)}%]`;
+    };
+    const rows = doc.blocks.map((block, index) => ({ index, id: block.id, type: block.type, label: BLOCK_TYPES[block.type].label, summary: blockSummary(block), image: imageInfo(block) }));
     if (options.json) {
       console.log(JSON.stringify({ id: doc.id, name: doc.name, design: doc.design, meta: doc.meta, assets: Object.keys(assets), blocks: rows }, null, 2));
       return;
@@ -181,7 +189,7 @@ const commands = {
     for (const row of rows) {
       if (row.type === 'section') section += 1;
       const indent = row.type === 'section' ? '' : '   ';
-      console.log(`${String(row.index + 1).padStart(3)} ${indent}${row.id.padEnd(18)} ${row.type.padEnd(10)} ${row.type === 'section' ? `${String(section).padStart(2, '0')} ` : ''}${row.summary.slice(0, 80)}`);
+      console.log(`${String(row.index + 1).padStart(3)} ${indent}${row.id.padEnd(18)} ${row.type.padEnd(10)} ${row.type === 'section' ? `${String(section).padStart(2, '0')} ` : ''}${row.summary.slice(0, 80)}${row.image}`);
     }
   },
 
@@ -248,7 +256,12 @@ const commands = {
       console.log(`${report.name}: ${report.pageCount} página(s)`);
       for (const page of report.pages) {
         const fill = page.fill == null ? '' : ` ${String(Math.round(page.fill * 100)).padStart(3)}% ocupada`;
-        console.log(`  p. ${String(page.number).padStart(2)} ${page.kind.padEnd(7)} ${page.orientation === 'landscape' ? 'paisagem' : 'retrato '}${fill} ${String(page.words).padStart(4)} palavras${page.overflowing ? '  ✖ ESTOURA' : page.fill > 1.005 ? '  ⚠ passa da área útil' : ''}  ${page.blocks.join(' ')}`);
+        const contentPages = report.pages.filter((p) => p.kind === 'content').length;
+        const flag = page.overflowing ? '  ✖ ESTOURA'
+          : page.fill > 1.005 ? '  ⚠ passa da área útil'
+            : page.kind === 'content' && contentPages > 1 && page.fill != null && page.fill < 0.2 ? '  ⚠ quase vazia'
+              : page.words > 700 ? '  ⚠ densa' : '';
+        console.log(`  p. ${String(page.number).padStart(2)} ${page.kind.padEnd(7)} ${page.orientation === 'landscape' ? 'paisagem' : 'retrato '}${fill} ${String(page.words).padStart(4)} palavras${flag}  ${page.blocks.join(' ')}`);
       }
       const layoutIssues = appCheck.issues.filter((i) => /Página \d+|passa do tamanho/.test(i.message));
       printIssues('Paginação', layoutIssues);

@@ -23,7 +23,7 @@ Fonte: Manual de Identidade Visual do Governo do Estado do Ceará 2023–2026 (M
 | `signature-horizontal-first` | p. 19 | o app aplica sozinho (não há como errar pelo documento) | A versão horizontal é a preferida; a vertical só quando o layout não comporta a horizontal. |
 | `concept-four-lines` | p. 9 | o app aplica sozinho (não há como errar pelo documento) | O conceito “Cuidar das pessoas, avançar o Ceará.” fica sempre ao lado da marca, em quatro linhas, separado por uma linha verde. |
 | `colors-official` | p. 26 | conferido por `docstudio validate` e “Verificar documento” | Cores só da paleta do grafismo (p. 26), da assinatura (p. 11) ou dos tons derivados documentados. Documentos escolhem tons por nome (tema, tom do bloco), nunca por código. |
-| `typography` | p. 10 | conferido por `docstudio validate` e “Verificar documento” | Somente Kanit (títulos) e Maitree (texto corrido); o corpo pode usar Kanit. |
+| `typography` | p. 10 | conferido por `docstudio validate` e “Verificar documento” | Somente Kanit (títulos) e Maitree (texto corrido); o corpo pode usar Kanit. Exceção funcional: fonte monoespaçada do sistema em comandos e textos de tela (o MIV não define fonte de máquina). |
 | `grayscale` | p. 12 | o app aplica sozinho (não há como errar pelo documento) | Para impressão P&B use a escala de cinza do MIV (tabela de correspondência da p. 12), nunca um filtro sobre a página. |
 | `monochrome-last-resort` | p. 13 | conferência humana | A versão monocromática é último caso; prefira cores ou escala de cinza. |
 | `text-contrast` | — | conferido por `docstudio validate` e “Verificar documento” | Texto em cor sobre o papel precisa de contraste mínimo de 4,5:1 (WCAG AA); por isso os títulos usam os tons escuros. |
@@ -35,6 +35,7 @@ Fonte: Manual de Identidade Visual do Governo do Estado do Ceará 2023–2026 (M
 | --- | --- | --- |
 | Títulos e elementos gráficos | Kanit | Kanit (geométrica sem serifa) em títulos, números e elementos gráficos. (MIV p. 10) |
 | Texto corrido | Maitree | Maitree no texto corrido, pela legibilidade no digital e no impresso. (MIV p. 10). Opção: `design.bodyFont: "kanit"`. |
+| Comandos e textos de tela | DejaVu Sans Mono (ou a monoespaçada do sistema) | Exceção funcional, fora do MIV: só no bloco “Código ou texto de tela” e na formatação `texto de tela`, para comandos, códigos e textos literais. |
 | Conceito | Kanit | “Cuidar das pessoas, avançar o Ceará.” em quatro linhas; verbos em Kanit Bold, o resto em Kanit Regular. (MIV p. 9) |
 
 ## Paleta do grafismo (MIV p. 26)

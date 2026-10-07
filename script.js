@@ -1001,8 +1001,10 @@ async function main() {
     contentPages.forEach((page, index) => {
       if (page.words > DENSE_PAGE_WORDS) add('info', `Página ${page.number}: ${page.words} palavras, muito densa. Considere listas, passo a passo ou dividir o texto.`, { blockId: page.blocks[0] });
       const last = index === contentPages.length - 1;
-      if (!last && page.blocks.length && page.fill != null && page.fill < SPARSE_PAGE_FILL) {
-        add('info', `Página ${page.number}: quase vazia (${Math.round(page.fill * 100)}% ocupada) antes de uma nova página. Confira as quebras de página e “Começar em nova página”.`, { blockId: page.blocks.at(-1) });
+      if (contentPages.length > 1 && page.blocks.length && page.fill != null && page.fill < SPARSE_PAGE_FILL) {
+        add('info', last
+          ? `Página ${page.number}: a última página tem pouco conteúdo (${Math.round(page.fill * 100)}% ocupada). Enxugue o texto, reduza uma imagem ou leve esse trecho para outra parte.`
+          : `Página ${page.number}: quase vazia (${Math.round(page.fill * 100)}% ocupada) antes de uma nova página. Confira as quebras de página e “Começar em nova página”.`, { blockId: page.blocks.at(-1) });
       }
     });
 

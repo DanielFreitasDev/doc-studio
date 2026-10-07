@@ -287,6 +287,13 @@ function printedWidthMm(block, orientation) {
   return (PAGE_GEOMETRY.contentWidthMm[orientation] * block.width) / 100;
 }
 
+/** Maior largura do bloco de imagem (%, em passos de 5) que mantém a resolução mínima. */
+export function maxImageWidth(pixelWidth, orientation = 'portrait') {
+  const widthMm = (pixelWidth / IMAGE_PPI.minimum) * MM_PER_INCH;
+  const percent = Math.floor(((widthMm / PAGE_GEOMETRY.contentWidthMm[orientation]) * 100) / 5) * 5;
+  return Math.max(25, Math.min(100, percent));
+}
+
 /** Resolução efetiva (ppi) de uma imagem no tamanho impresso. */
 export function effectivePpi(pixelWidth, widthMm) {
   return Math.round(pixelWidth / (widthMm / MM_PER_INCH));
@@ -295,7 +302,7 @@ export function effectivePpi(pixelWidth, widthMm) {
 /**
  * Conformidade com o MIV de um documento já normalizado. `assets`: mapa
  * id → { width, height } (pode faltar; aí a resolução não é verificada).
- * Cada item: { status: 'ok' | 'warning' | 'error', rule, message }.
+ * Cada item: { status: 'ok' | 'info' | 'warning' | 'error', rule, message }.
  */
 export function brandReport(doc, assets = null) {
   const items = [];
@@ -322,6 +329,9 @@ export function brandReport(doc, assets = null) {
 
   const body = design.bodyFont === 'kanit' ? 'Kanit' : 'Maitree';
   if (TYPOGRAPHY.allowedFamilies.includes(body)) add('ok', 'typography', `Tipografia do MIV: Kanit nos títulos e ${body} no texto.`);
+  // Texto de tela e código usam a monoespaçada do sistema (exceção funcional, fora do MIV).
+  const monospace = doc.blocks.some((block) => block.type === 'code' || /`[^`\n]+`/.test(JSON.stringify(block)));
+  if (monospace) add('info', 'typography', 'Comandos e textos de tela usam fonte monoespaçada do sistema, fora das fontes do MIV (exceção funcional): use só para textos literais; para destacar palavras comuns, prefira negrito.');
 
   const cover = COVERS.find((c) => c.id === design.cover);
   const back = BACK_COVERS.find((c) => c.id === design.backCover);
@@ -342,7 +352,8 @@ export function brandReport(doc, assets = null) {
       const ppi = effectivePpi(asset.width, printedWidthMm(block, orientation));
       const label = block.caption ? `“${stripMarkup(block.caption).slice(0, 50)}”` : 'sem legenda';
       if (ppi < IMAGE_PPI.minimum) {
-        add('warning', 'image-resolution', `Imagem ${label}: ${ppi} ppi no tamanho impresso (mínimo ${IMAGE_PPI.minimum}). Pode pixelar no PDF: use um arquivo maior ou diminua a largura.`, { blockId: block.id });
+        const maxWidth = maxImageWidth(asset.width, orientation);
+        add('warning', 'image-resolution', `Imagem ${label}: ${ppi} ppi no tamanho impresso (mínimo ${IMAGE_PPI.minimum}). Pode pixelar no PDF: use um arquivo maior ou diminua a largura para até ${maxWidth}%.`, { blockId: block.id });
       }
     }
     if (design.cover === 'photo' && design.coverImage && assets[design.coverImage] && !assets[design.coverImage].svg) {

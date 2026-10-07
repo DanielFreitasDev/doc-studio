@@ -66,6 +66,8 @@ export const TYPOGRAPHY = {
   headings: { family: 'Kanit', weights: [300, 400, 500, 600, 700, 800, 900], page: 10, rule: 'Kanit (geométrica sem serifa) em títulos, números e elementos gráficos.' },
   body: { family: 'Maitree', weights: [400, 600, 700], page: 10, rule: 'Maitree no texto corrido, pela legibilidade no digital e no impresso.' },
   concept: { family: 'Kanit', page: 9, rule: '“Cuidar das pessoas, avançar o Ceará.” em quatro linhas; verbos em Kanit Bold, o resto em Kanit Regular.' },
+  // O MIV não define fonte de máquina: comandos e textos de tela usam a monoespaçada do sistema.
+  monospace: { family: 'DejaVu Sans Mono (ou a monoespaçada do sistema)', rule: 'Exceção funcional, fora do MIV: só no bloco “Código ou texto de tela” e na formatação `texto de tela`, para comandos, códigos e textos literais.' },
   allowedFamilies: ['Kanit', 'Maitree'],
 };
 
@@ -92,7 +94,7 @@ export const BRAND_RULES = [
   { id: 'signature-horizontal-first', page: 19, enforcedBy: 'renderer', text: 'A versão horizontal é a preferida; a vertical só quando o layout não comporta a horizontal.' },
   { id: 'concept-four-lines', page: 9, enforcedBy: 'renderer', text: 'O conceito “Cuidar das pessoas, avançar o Ceará.” fica sempre ao lado da marca, em quatro linhas, separado por uma linha verde.' },
   { id: 'colors-official', page: 26, enforcedBy: 'validator', text: 'Cores só da paleta do grafismo (p. 26), da assinatura (p. 11) ou dos tons derivados documentados. Documentos escolhem tons por nome (tema, tom do bloco), nunca por código.' },
-  { id: 'typography', page: 10, enforcedBy: 'validator', text: 'Somente Kanit (títulos) e Maitree (texto corrido); o corpo pode usar Kanit.' },
+  { id: 'typography', page: 10, enforcedBy: 'validator', text: 'Somente Kanit (títulos) e Maitree (texto corrido); o corpo pode usar Kanit. Exceção funcional: fonte monoespaçada do sistema em comandos e textos de tela (o MIV não define fonte de máquina).' },
   { id: 'grayscale', page: 12, enforcedBy: 'renderer', text: 'Para impressão P&B use a escala de cinza do MIV (tabela de correspondência da p. 12), nunca um filtro sobre a página.' },
   { id: 'monochrome-last-resort', page: 13, enforcedBy: 'manual', text: 'A versão monocromática é último caso; prefira cores ou escala de cinza.' },
   { id: 'text-contrast', page: null, enforcedBy: 'validator', text: 'Texto em cor sobre o papel precisa de contraste mínimo de 4,5:1 (WCAG AA); por isso os títulos usam os tons escuros.' },

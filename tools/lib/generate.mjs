@@ -267,6 +267,7 @@ export function brandMarkdown() {
     table(['uso', 'família', 'regra'], [
       ['Títulos e elementos gráficos', brand.typography.headings.family, `${brand.typography.headings.rule} (MIV p. ${brand.typography.headings.page})`],
       ['Texto corrido', brand.typography.body.family, `${brand.typography.body.rule} (MIV p. ${brand.typography.body.page}). Opção: \`design.bodyFont: "kanit"\`.`],
+      ['Comandos e textos de tela', brand.typography.monospace.family, brand.typography.monospace.rule],
       ['Conceito', brand.typography.concept.family, `${brand.typography.concept.rule} (MIV p. ${brand.typography.concept.page})`],
     ]),
     '',

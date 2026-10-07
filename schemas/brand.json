@@ -39,6 +39,10 @@
       "page": 9,
       "rule": "“Cuidar das pessoas, avançar o Ceará.” em quatro linhas; verbos em Kanit Bold, o resto em Kanit Regular."
     },
+    "monospace": {
+      "family": "DejaVu Sans Mono (ou a monoespaçada do sistema)",
+      "rule": "Exceção funcional, fora do MIV: só no bloco “Código ou texto de tela” e na formatação `texto de tela`, para comandos, códigos e textos literais."
+    },
     "allowedFamilies": [
       "Kanit",
       "Maitree"
@@ -403,7 +407,7 @@
       "id": "typography",
       "page": 10,
       "enforcedBy": "validator",
-      "text": "Somente Kanit (títulos) e Maitree (texto corrido); o corpo pode usar Kanit."
+      "text": "Somente Kanit (títulos) e Maitree (texto corrido); o corpo pode usar Kanit. Exceção funcional: fonte monoespaçada do sistema em comandos e textos de tela (o MIV não define fonte de máquina)."
     },
     {
       "id": "grayscale",
