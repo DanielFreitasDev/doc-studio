@@ -67,7 +67,7 @@ export const BLOCK_TYPES = {
     defaults: () => ({ title: 'Nova seção', kicker: '', intro: '', newPage: false, opener: false }),
     fields: [
       { key: 'title', kind: 'text', label: 'Título da seção', big: true, placeholder: 'Ex.: Visão geral' },
-      { key: 'kicker', kind: 'text', label: 'Chamada acima do título (opcional)', placeholder: 'Ex.: Contexto' },
+      { key: 'kicker', kind: 'text', label: 'Chamada acima do título (opcional)', placeholder: 'Ex.: Contexto', plain: true },
       { key: 'intro', kind: 'rich', label: 'Introdução (opcional)', rows: 2 },
       { key: 'newPage', kind: 'toggle', label: 'Começar em nova página' },
       { key: 'opener', kind: 'toggle', label: 'Página inteira de abertura de capítulo' },
@@ -126,7 +126,7 @@ export const BLOCK_TYPES = {
     defaults: () => ({ text: 'Uma frase curta que resume a ideia principal.', author: '' }),
     fields: [
       { key: 'text', kind: 'rich', label: 'Frase', rows: 2 },
-      { key: 'author', kind: 'text', label: 'Autoria (opcional)' },
+      { key: 'author', kind: 'text', label: 'Autoria (opcional)', plain: true },
     ],
     summary: (b) => b.text,
   },
@@ -203,7 +203,7 @@ export const BLOCK_TYPES = {
       ],
     }),
     fields: [
-      { key: 'label', kind: 'text', label: 'Rótulo das etapas', placeholder: 'Ex.: Etapa, Fase' },
+      { key: 'label', kind: 'text', label: 'Rótulo das etapas', placeholder: 'Ex.: Etapa, Fase', plain: true },
       { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_WITH_ALTERNATE },
       {
         key: 'items', kind: 'items', label: 'Etapas', itemLabel: 'Etapa', max: 16, split: true,
@@ -235,7 +235,7 @@ export const BLOCK_TYPES = {
       {
         key: 'items', kind: 'items', label: 'Marcos', itemLabel: 'Marco', max: 24,
         fields: [
-          { key: 'date', kind: 'text', label: 'Data' },
+          { key: 'date', kind: 'text', label: 'Data', plain: true },
           { key: 'title', kind: 'text', label: 'Título' },
           { key: 'text', kind: 'rich', label: 'Texto', rows: 2 },
         ],
@@ -253,7 +253,7 @@ export const BLOCK_TYPES = {
     keywords: 'indice sumario neste manual',
     defaults: () => ({ title: 'Neste documento', columns: '2', style: 'lines' }),
     fields: [
-      { key: 'title', kind: 'text', label: 'Título' },
+      { key: 'title', kind: 'text', label: 'Título', plain: true },
       { key: 'columns', kind: 'segmented', label: 'Colunas', options: [{ value: '1', label: '1' }, { value: '2', label: '2' }] },
       // "Pontilhado" reproduz o sumário do próprio MIV (p. 4): título, pontos e número da página.
       { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'lines', label: 'Linhas' }, { value: 'dots', label: 'Pontilhado (MIV)' }] },
@@ -284,7 +284,7 @@ export const BLOCK_TYPES = {
     keywords: 'erro tela aviso sistema mensagem',
     defaults: () => ({ label: 'Mensagem do sistema', text: 'Texto exatamente como aparece na tela.', tone: 'info' }),
     fields: [
-      { key: 'label', kind: 'text', label: 'Rótulo', placeholder: 'Ex.: Mensagem na tela' },
+      { key: 'label', kind: 'text', label: 'Rótulo', placeholder: 'Ex.: Mensagem na tela', plain: true },
       { key: 'text', kind: 'rich', label: 'Mensagem', rows: 2 },
       { key: 'tone', kind: 'segmented', label: 'Tipo', options: CALLOUT_TONES },
     ],
@@ -304,8 +304,8 @@ export const BLOCK_TYPES = {
       items: [{ question: 'Qual é a dúvida mais frequente?', answer: 'Responda de forma direta, indicando onde conferir.' }],
     }),
     fields: [
-      { key: 'questionLabel', kind: 'text', label: 'Rótulo da pergunta' },
-      { key: 'answerLabel', kind: 'text', label: 'Rótulo da resposta' },
+      { key: 'questionLabel', kind: 'text', label: 'Rótulo da pergunta', plain: true },
+      { key: 'answerLabel', kind: 'text', label: 'Rótulo da resposta', plain: true },
       { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_OPTIONS },
       {
         key: 'items', kind: 'items', label: 'Perguntas', itemLabel: 'Pergunta', max: 40, split: true,
@@ -398,11 +398,11 @@ export const BLOCK_TYPES = {
       items: [{ term: 'Termo', definition: 'Definição curta e objetiva.' }],
     }),
     fields: [
-      { key: 'title', kind: 'text', label: 'Título' },
+      { key: 'title', kind: 'text', label: 'Título', plain: true },
       { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_OPTIONS },
       {
         key: 'items', kind: 'items', label: 'Termos', itemLabel: 'Termo', max: 80, split: true,
-        fields: [{ key: 'term', kind: 'text', label: 'Termo' }, { key: 'definition', kind: 'rich', label: 'Definição', rows: 2 }],
+        fields: [{ key: 'term', kind: 'text', label: 'Termo', plain: true }, { key: 'definition', kind: 'rich', label: 'Definição', rows: 2 }],
         newItem: () => ({ term: '', definition: '' }),
       },
     ],
@@ -514,4 +514,59 @@ export function normalizeBlock(raw) {
       Array.from({ length: columns }, (_, i) => asString(Array.isArray(row) ? row[i] : '').slice(0, 4000)));
   }
   return block;
+}
+
+/* ------------------------------------------------------------------ transformar e copiar */
+/** Tipos de texto entre os quais um bloco pode ser transformado sem perder o conteúdo. */
+export const TEXT_BLOCK_TYPES = ['paragraph', 'heading', 'section', 'list', 'quote', 'callout', 'message'];
+
+/** Título e corpo de um bloco de texto, para levá-los a outro tipo. */
+function textParts(block) {
+  switch (block.type) {
+    case 'heading': return { title: block.text, body: '' };
+    case 'section': return { title: block.title, body: block.intro };
+    case 'list': return { title: '', body: block.items };
+    case 'callout': return { title: block.title, body: block.text };
+    default: return { title: '', body: block.text ?? '' };
+  }
+}
+
+/**
+ * Transforma um bloco de texto em outro tipo (ex.: parágrafo → destaque),
+ * mantendo o texto e o identificador. Retorna null se a troca não se aplica.
+ */
+export function transformBlock(block, type) {
+  if (!TEXT_BLOCK_TYPES.includes(block.type) || !TEXT_BLOCK_TYPES.includes(type) || block.type === type) return null;
+  const { title, body } = textParts(block);
+  const all = [title, body].filter((part) => part.trim()).join('\n');
+  const [first = '', ...rest] = all.split('\n');
+  const props = {
+    paragraph: () => ({ text: all }),
+    heading: () => ({ text: all.replace(/\s*\n\s*/g, ' ') }),
+    section: () => (title ? { title, intro: body } : { title: first, intro: rest.join('\n').trim() }),
+    list: () => ({ items: all }),
+    quote: () => ({ text: all }),
+    callout: () => (body.trim() ? { title, text: body } : { title: '', text: title }),
+    message: () => ({ text: all }),
+  }[type]();
+  return { ...createBlock(type, props), id: block.id };
+}
+
+/** Texto puro de um bloco (sem marcações), para copiar; tabelas saem com tabulação (colam no Excel). */
+export function blockPlainText(block) {
+  const definition = BLOCK_TYPES[block.type];
+  const parts = [];
+  for (const field of definition?.fields ?? []) {
+    const value = block[field.key];
+    if (['text', 'rich', 'lines'].includes(field.kind) && value) parts.push(value);
+    else if (field.kind === 'items') {
+      value.forEach((item) => parts.push(field.fields.map((sub) => item[sub.key]).filter(Boolean).join(' — ')));
+    } else if (field.kind === 'table') {
+      parts.push([block.header, ...block.rows].map((row) => row.map((cell) => stripMarkup(cell)).join('\t')).join('\n'));
+    }
+  }
+  return parts
+    .map((part) => (part.includes('\t') ? part : part.split('\n').map((line) => stripMarkup(line)).join('\n')))
+    .filter(Boolean)
+    .join('\n\n');
 }

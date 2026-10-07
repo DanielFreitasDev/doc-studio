@@ -309,11 +309,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
   designRoot.addEventListener('input', (event) => {
     const control = event.target.closest('[data-design-key]');
     if (!control || (control.type === 'radio' && !control.checked)) return;
-    const key = control.dataset.designKey;
-    const value = readControlValue(control);
-    store.update((doc) => { doc.design[key] = value; }, { kind: 'design' });
-    if (key === 'signature' && value === 'custom' && !store.doc.design.customLogo) actions.chooseLogo();
-    if (key === 'cover' && value === 'photo' && !store.doc.design.coverImage) actions.chooseCoverPhoto();
+    actions.setDesign(control.dataset.designKey, readControlValue(control));
   });
 
   designRoot.addEventListener('click', (event) => {
@@ -364,6 +360,58 @@ export function createPanels({ store, ui, assets, actions, drag }) {
   documentForm.addEventListener('submit', (event) => event.preventDefault());
   documentForm.addEventListener('focusout', () => store.breakCoalescing());
 
+  /* ================================================================ menu de contexto */
+  /**
+   * Provedor do menu de contexto do painel: item da Estrutura (ações do
+   * bloco), item da paleta Inserir (onde inserir) e as imagens da capa e do logo.
+   */
+  function contextMenu(target, { touch }) {
+    const outlineItem = target.closest('.outline__item');
+    if (outlineItem && outline.contains(outlineItem)) {
+      const id = outlineItem.dataset.blockId;
+      const def = BLOCK_TYPES[outlineItem.dataset.type];
+      actions.select(id, { source: 'outline' });
+      return { title: def.label, icon: def.icon, items: actions.blockMenuItems(id, { anchor: outlineItem, origin: 'outline' }) };
+    }
+
+    // No toque, segurar um item da paleta é arrastar: o menu fica só para mouse e teclado.
+    const typeButton = target.closest('[data-insert-type]');
+    const snippetButton = target.closest('[data-insert-snippet]');
+    if ((typeButton || snippetButton) && palette.contains(target) && !touch) {
+      const insert = typeButton
+        ? (index) => actions.insertType(typeButton.dataset.insertType, index)
+        : (index) => actions.insertSnippet(snippetButton.dataset.insertSnippet, index);
+      const def = typeButton && BLOCK_TYPES[typeButton.dataset.insertType];
+      const selected = actions.indexOf(ui.get('selectedId'));
+      return {
+        title: def ? def.label : SNIPPETS.find((s) => s.id === snippetButton.dataset.insertSnippet)?.name,
+        icon: def ? def.icon : 'blocks',
+        items: [
+          selected >= 0 && { label: 'Inserir abaixo do bloco selecionado', icon: 'row-below', run: () => insert(selected + 1) },
+          selected >= 0 && { label: 'Inserir acima do bloco selecionado', icon: 'row-above', run: () => insert(selected) },
+          { separator: true },
+          { label: 'Inserir no início do documento', icon: 'chevron-up', run: () => insert(0) },
+          { label: 'Inserir no fim do documento', icon: 'chevron-down', run: () => insert(store.doc.blocks.length) },
+        ],
+      };
+    }
+
+    if (target.closest('#cover-photo-upload') && store.doc.design.coverImage) {
+      return {
+        title: 'Foto da capa',
+        icon: 'image',
+        items: [
+          { label: 'Trocar foto da capa…', icon: 'image', run: () => actions.chooseCoverPhoto() },
+          { label: 'Remover foto', icon: 'trash', run: () => store.update((doc) => { doc.design.coverImage = ''; }, { kind: 'design' }) },
+        ],
+      };
+    }
+    if (target.closest('#logo-upload') && store.doc.design.customLogo) {
+      return { title: 'Logo do órgão', icon: 'image', items: [{ label: 'Trocar logo…', icon: 'upload', run: () => actions.chooseLogo() }] };
+    }
+    return null;
+  }
+
   /* ================================================================ reações */
   store.subscribe((doc, change) => {
     if (change.kind === 'replace') {
@@ -394,5 +442,5 @@ export function createPanels({ store, ui, assets, actions, drag }) {
   renderDocumentForm();
   showTab(ui.get('tab'));
 
-  return { refreshThumbnails, syncDesign, thumbHtml };
+  return { refreshThumbnails, syncDesign, thumbHtml, contextMenu };
 }

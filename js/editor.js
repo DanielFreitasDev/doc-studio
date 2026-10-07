@@ -6,12 +6,14 @@
  * documento é atualizado e a prévia se refaz. O editor só é redesenhado
  * quando a estrutura muda (inclusão, remoção, reordenação, desfazer).
  */
-import { $, $$, esc, icon, getByPath, setByPath, moveItem, clamp, isTypingTarget } from './utils.js';
+import { $, $$, esc, icon, getByPath, setByPath, moveItem, clamp } from './utils.js';
 import { BLOCK_TYPES, blockSummary } from './schema.js';
 import { fieldHtml, readControlValue } from './fields.js';
 import { toggleFormat, FORMATS } from './markup.js';
 import { setupMenu } from './dialogs.js';
 import { isAcceptedImage } from './images.js';
+import { isTextField } from './contextmenu.js';
+import { textFieldItems, textMenuTitle } from './textmenu.js';
 
 export function createEditor({ store, ui, assets, actions, drag }) {
   const list = $('#editor-list');
@@ -167,33 +169,43 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     return BLOCK_TYPES[block.type].fields.find((field) => field.key === key);
   }
 
-  function handleItemAction(button, id) {
-    const action = button.dataset.itemAction;
-    const key = button.dataset.itemsKey;
-    const index = Number(button.dataset.index);
+  /** Ações dos itens (passos, cartões…): botões do cartão e menu de contexto usam a mesma função. */
+  function itemAction(id, key, action, index) {
+    const block = findBlock(store.doc, id);
+    const items = getByPath(block, key);
+    const max = itemFieldDefinition(block, key).max ?? 100;
+    if ((action === 'add' || action === 'insert-below') && items.length >= max) return;
     let focusSelector = null;
 
     store.update((doc) => {
-      const block = findBlock(doc, id);
-      const items = getByPath(block, key);
+      const target = findBlock(doc, id);
+      const list = getByPath(target, key);
       if (action === 'add') {
-        items.push(itemFieldDefinition(block, key).newItem());
-        focusSelector = `.item[data-index="${items.length - 1}"] [data-path]`;
+        list.push(itemFieldDefinition(target, key).newItem());
+        focusSelector = `.item[data-index="${list.length - 1}"] [data-path]`;
+      } else if (action === 'insert-below') {
+        list.splice(index + 1, 0, itemFieldDefinition(target, key).newItem());
+        focusSelector = `.item[data-index="${index + 1}"] [data-path]`;
       } else if (action === 'remove') {
-        items.splice(index, 1);
-        focusSelector = items.length ? `.item[data-index="${Math.min(index, items.length - 1)}"] [data-path]` : '[data-item-action="add"]';
+        list.splice(index, 1);
+        focusSelector = list.length ? `.item[data-index="${Math.min(index, list.length - 1)}"] [data-path]` : '[data-item-action="add"]';
       } else {
         const to = action === 'up' ? index - 1 : index + 1;
-        moveItem(items, index, to);
+        moveItem(list, index, to);
         focusSelector = `[data-item-action="${action}"][data-index="${to}"]:not(:disabled)`;
       }
     }, { kind: 'block', blockId: id });
     renderCard(id, focusSelector);
   }
 
-  function handleTableAction(button, id) {
-    const action = button.dataset.tableAction;
-    const index = Number(button.dataset.index);
+  const handleItemAction = (button, id) =>
+    itemAction(id, button.dataset.itemsKey, button.dataset.itemAction, Number(button.dataset.index));
+
+  /**
+   * Ações da tabela. `index` é a linha ou a coluna; `column` é a coluna a
+   * focar depois (para o cursor continuar na mesma coluna ao inserir linhas).
+   */
+  function tableAction(id, action, index, column = 0) {
     let focusSelector = null;
     store.update((doc) => {
       const block = findBlock(doc, id);
@@ -201,21 +213,31 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       if (action === 'add-row') {
         block.rows.push(Array(columns).fill(''));
         focusSelector = `[data-path="rows.${block.rows.length - 1}.0"]`;
+      } else if (action === 'insert-row' && block.rows.length < 400) {
+        block.rows.splice(index, 0, Array(columns).fill(''));
+        focusSelector = `[data-path="rows.${index}.${column}"]`;
       } else if (action === 'add-col' && columns < 12) {
         block.header.push(`Coluna ${columns + 1}`);
         block.rows.forEach((row) => row.push(''));
         focusSelector = `[data-path="header.${columns}"]`;
+      } else if (action === 'insert-col' && columns < 12) {
+        block.header.splice(index, 0, `Coluna ${index + 1}`);
+        block.rows.forEach((row) => row.splice(index, 0, ''));
+        focusSelector = `[data-path="header.${index}"]`;
       } else if (action === 'remove-row' && block.rows.length > 1) {
         block.rows.splice(index, 1);
-        focusSelector = '[data-table-action="add-row"]';
+        focusSelector = column === null ? '[data-table-action="add-row"]' : `[data-path="rows.${Math.min(index, block.rows.length - 1)}.${column}"]`;
       } else if (action === 'remove-col' && columns > 1) {
         block.header.splice(index, 1);
         block.rows.forEach((row) => row.splice(index, 1));
-        focusSelector = '[data-table-action="add-col"]';
+        focusSelector = column === null ? '[data-table-action="add-col"]' : `[data-path="header.${Math.min(index, columns - 2)}"]`;
       }
     }, { kind: 'block', blockId: id });
     renderCard(id, focusSelector);
   }
+
+  const handleTableAction = (button, id) =>
+    tableAction(id, button.dataset.tableAction, Number(button.dataset.index), null);
 
   /** Colar várias células (Excel, Word, Planilhas) preenche a tabela a partir da célula atual. */
   list.addEventListener('paste', (event) => {
@@ -330,8 +352,8 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       return;
     }
 
-    // Ctrl+B / Ctrl+I em qualquer campo de texto.
-    if ((event.ctrlKey || event.metaKey) && !event.altKey && isTypingTarget(event.target) && event.target.matches('input[type="text"], textarea')) {
+    // Ctrl+B / Ctrl+I nos campos que aceitam formatação (os "data-plain" mostrariam os asteriscos).
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && isTextField(event.target) && !event.target.matches('[data-plain]')) {
       const format = Object.entries(FORMATS).find(([, f]) => f.key === event.key.toLowerCase());
       if (format) {
         event.preventDefault();
@@ -380,6 +402,97 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     if (file) actions.setBlockImage(zone.closest('.block-card').dataset.blockId, file);
     else actions.notify('Solte um arquivo PNG, JPG, WEBP, GIF ou SVG.', 'error');
   });
+
+  /* ---------------------------------------------------------------- menu de contexto */
+  /** Itens da linha/coluna da célula de tabela. */
+  function tableItems(id, cell) {
+    const block = findBlock(store.doc, id);
+    const [area, first, second] = cell.dataset.path.split('.');
+    const isHeader = area === 'header';
+    const row = isHeader ? -1 : Number(first);
+    const col = Number(isHeader ? first : second);
+    const columns = block.header.length;
+    return [
+      {
+        label: isHeader ? 'Linha do cabeçalho' : `Linha ${row + 1}`,
+        icon: 'row-below',
+        submenu: [
+          { label: 'Inserir linha acima', icon: 'row-above', disabled: isHeader || block.rows.length >= 400, run: () => tableAction(id, 'insert-row', row, col) },
+          { label: 'Inserir linha abaixo', icon: 'row-below', disabled: block.rows.length >= 400, run: () => tableAction(id, 'insert-row', row + 1, col) },
+          { separator: true },
+          { label: 'Excluir linha', icon: 'row-remove', danger: true, disabled: isHeader || block.rows.length <= 1, run: () => tableAction(id, 'remove-row', row, col) },
+        ],
+      },
+      {
+        label: `Coluna ${col + 1}`,
+        icon: 'col-right',
+        submenu: [
+          { label: 'Inserir coluna à esquerda', icon: 'col-left', disabled: columns >= 12, run: () => tableAction(id, 'insert-col', col) },
+          { label: 'Inserir coluna à direita', icon: 'col-right', disabled: columns >= 12, run: () => tableAction(id, 'insert-col', col + 1) },
+          { separator: true },
+          { label: 'Excluir coluna', icon: 'col-remove', danger: true, disabled: columns <= 1, run: () => tableAction(id, 'remove-col', col, col) },
+        ],
+      },
+    ];
+  }
+
+  /** Itens de um item da lista (passo, cartão, pergunta…): os mesmos botões do cabeçalho do item. */
+  function itemItems(id, itemEl) {
+    const button = itemEl.querySelector('[data-items-key]');
+    const key = button.dataset.itemsKey;
+    const index = Number(itemEl.dataset.index);
+    const block = findBlock(store.doc, id);
+    const count = getByPath(block, key).length;
+    const max = itemFieldDefinition(block, key).max ?? 100;
+    const name = itemEl.querySelector('.item__title')?.textContent ?? 'Item';
+    const singular = (itemFieldDefinition(block, key).itemLabel ?? 'item').toLowerCase();
+    return {
+      name,
+      items: [
+        { label: `Inserir ${singular} abaixo`, icon: 'plus', disabled: count >= max, run: () => itemAction(id, key, 'insert-below', index) },
+        { label: 'Mover para cima', icon: 'chevron-up', disabled: index === 0, run: () => itemAction(id, key, 'up', index) },
+        { label: 'Mover para baixo', icon: 'chevron-down', disabled: index >= count - 1, run: () => itemAction(id, key, 'down', index) },
+        { separator: true },
+        { label: `Remover ${name.toLowerCase()}`, icon: 'trash', danger: true, run: () => itemAction(id, key, 'remove', index) },
+      ],
+    };
+  }
+
+  /**
+   * Provedor do menu de contexto do editor: texto do campo, item da lista,
+   * célula da tabela e o próprio bloco, conforme onde foi o clique.
+   */
+  function contextMenu(target) {
+    const card = target.closest('.block-card');
+    if (!card || !list.contains(card)) return null;
+    const id = card.dataset.blockId;
+    const block = findBlock(store.doc, id);
+    if (!block) return null;
+    const definition = BLOCK_TYPES[block.type];
+    const field = isTextField(target) && target.matches('[data-path]') ? target : null;
+    const cell = target.closest('.table-editor td, .table-editor th')?.querySelector('input[data-path]') ?? null;
+    const itemEl = target.closest('.item');
+    const blockItems = actions.blockMenuItems(id, { anchor: card.querySelector('.block-card__head'), origin: 'editor' });
+    const items = [];
+
+    if (field) items.push(...textFieldItems(field, { formats: !field.matches('[data-plain]'), notify: actions.notify }));
+    if (cell) items.push({ separator: true }, ...tableItems(id, cell));
+    if (itemEl) {
+      const item = itemItems(id, itemEl);
+      if (field) items.push({ separator: true }, { label: item.name, icon: 'blocks', submenu: item.items });
+      else items.push(...item.items);
+    }
+    // Dentro de um campo, célula ou item, as ações do bloco ficam num submenu (menu curto).
+    if (field || cell || itemEl) items.push({ separator: true }, { label: `Bloco: ${definition.label}`, icon: definition.icon, submenu: blockItems });
+    else items.push(...blockItems);
+
+    return {
+      title: field ? textMenuTitle(field) : itemEl ? itemEl.querySelector('.item__title')?.textContent : definition.label,
+      icon: field ? 'pen' : definition.icon,
+      items,
+      footer: field ? 'Shift + botão direito abre o menu do navegador' : '',
+    };
+  }
 
   /* ---------------------------------------------------------------- reações ao estado */
   store.subscribe((doc, change) => {
@@ -437,6 +550,8 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       card.classList.add('is-entering');
       card.addEventListener('animationend', () => card.classList.remove('is-entering'), { once: true });
     },
+    toggleCollapse,
+    contextMenu,
     collapseAll(collapse) {
       ui.set({ collapsed: collapse ? new Set(store.doc.blocks.map((b) => b.id)) : new Set() });
     },

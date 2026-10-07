@@ -16,7 +16,7 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - 20 tipos de bloco: seção numerada, subtítulo, parágrafo, lista (marcadores, números ou checklist), citação, passo a passo, cartões, fluxo com setas, linha do tempo, sumário automático com página (em linhas ou pontilhado como o do MIV, p. 4), destaque (informação, sucesso, atenção, alerta, dica), mensagem do sistema, pergunta e resposta, etiquetas, tabela, indicadores (números grandes ou fichas), glossário, imagem com figura numerada, divisor e quebra de página.
 - **Escrever com texto livre**: cole ou digite texto (Markdown simples ou texto do Word) e ele vira blocos — `#` vira seção, `1.` vira passo a passo, `> [!ATENÇÃO]` vira destaque, tabelas `| a | b |` viram tabela, "Pergunta?" + "R: resposta" vira pergunta e resposta.
 - **Parágrafos longos continuam na página seguinte**, linha a linha, como no Word: o que couber fica na página e o resto segue na próxima, sempre com pelo menos duas linhas de cada lado (controle de linhas viúvas e órfãs). Nada de buraco no pé da página nem parágrafo cortado.
-- Formatação no texto: `**negrito**`, `*itálico*`, `` `código` ``, `==destaque==`, `~~riscado~~` (com barra de botões e Ctrl+B / Ctrl+I).
+- Formatação no texto: `**negrito**`, `*itálico*`, `` `código` ``, `==destaque==`, `~~riscado~~` (com barra de botões, Ctrl+B / Ctrl+I e botão direito). Sem seleção, a formatação vale para a palavra sob o cursor.
 - Comando **`/`** num parágrafo vazio e **Ctrl+K** abrem o seletor de blocos com busca.
 - 8 **combinações prontas** (ex.: "Seção com passo a passo", "Dúvidas comuns", "Como era × como fica").
 - Tabelas aceitam **colar células do Excel/Word** de uma vez.
@@ -28,6 +28,18 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - Painel Estrutura com estatísticas (páginas, blocos, palavras).
 - Clicar num trecho da prévia leva ao bloco no editor (duplo clique já posiciona o cursor).
 - Desfazer/refazer ilimitado (até 150 passos), duplicar, recolher/expandir blocos.
+
+**Menu do botão direito (menu de contexto)**
+- Clique com o botão direito (ou tecla Menu / Shift+F10) e aparecem as ações **daquilo que está sob o cursor**, em vez do menu do navegador:
+  - **texto selecionado**: negrito, itálico, texto de tela, destaque e riscado (com o estado atual marcado), remover formatação, recortar, copiar, colar e selecionar tudo — a formatação só aparece nos campos em que ela sai no documento;
+  - **"Escrever texto"**: "Transformar a linha em" seção (`#`), subtítulo (`##`), lista (`-`), passo a passo (`1.`), destaque (`>`), atenção, dica, alerta ou sucesso, e "Inserir" tabela, pergunta e resposta, divisor ou quebra de página — sem decorar a marcação;
+  - **bloco** (no editor, na prévia ou na Estrutura): editar ou mostrar na prévia, opções do bloco (cor, tipo, estilo, interruptores), **transformar em** outro tipo de texto sem perder o conteúdo (parágrafo → destaque, lista, citação…), inserir acima/abaixo, mover, duplicar, copiar o texto (tabelas saem prontas para colar no Excel), recolher e excluir (com "Desfazer");
+  - **célula de tabela**: inserir linha acima/abaixo, coluna à esquerda/direita, excluir linha ou coluna;
+  - **item** (passo, cartão, pergunta…): inserir abaixo, mover, remover;
+  - **capa, contracapa, cabeçalho e rodapé na prévia**: editar os textos e trocar estilo, assinatura, tema de cores e numeração ali mesmo;
+  - **paleta Inserir**: inserir no início, no fim ou acima/abaixo do bloco selecionado; **Meus documentos**: abrir, renomear, duplicar, baixar cópia e excluir (com confirmação); **fundo da prévia**: zoom e PDF.
+- Onde o app não tem ação útil (botões, nome do documento, painel Textos), o menu do navegador continua. **Shift + botão direito** sempre abre o menu do navegador (corretor ortográfico, por exemplo).
+- No celular, segurar o dedo sobre um bloco ou sobre a capa abre o menu como folha inferior; nos campos de texto fica o menu do próprio sistema (copiar/colar).
 
 **Começar**
 - **Começar do zero**: Documento em branco (capa, contracapa e páginas, sem texto de exemplo), Papel timbrado (o do MIV, sem capa), Folha simples (sem capa nem contracapa) ou "Já tenho o texto" (cola o texto e ele vira o documento).
@@ -94,6 +106,8 @@ doc-studio/
 │   ├── picker.js          Seletor de bloco (botão +, Ctrl+K, comando /)
 │   ├── dnd.js             Arrastar e soltar com Pointer Events (mouse e toque)
 │   ├── dialogs.js         Diálogos nativos, menus (Popover API) e avisos
+│   ├── contextmenu.js     Menu do botão direito: provedores por elemento, teclado, submenus, folha inferior
+│   ├── textmenu.js        Ações de texto do menu: formatação, área de transferência, marcações de linha
 │   ├── controls.js        Comportamento dos controles próprios (−/+, deslizante, paleta, busca)
 │   ├── tooltip.js         Dica de ferramenta própria (substitui o title nativo)
 │   ├── images.js          Imagens: validação, redução e registro
@@ -113,7 +127,7 @@ doc-studio/
 
 ## 4. Tecnologias utilizadas
 
-HTML5, CSS3 e JavaScript (ES2023) puros, sem bibliotecas, frameworks ou etapa de build. Recursos nativos usados: módulos ES, `<dialog>`, Popover API, Pointer Events, IndexedDB, `structuredClone`, `ResizeObserver`, `IntersectionObserver`, View Transitions (quando há suporte), CSS Grid/Flexbox, Container Queries, `color-mix()`, `:has()`, `zoom`, `scrollbar-gutter`, `::-webkit-scrollbar`/`scrollbar-color`, `field-sizing` (com alternativa em JS), `@page`, SVG (grafismo, assinaturas e capa com foto).
+HTML5, CSS3 e JavaScript (ES2023) puros, sem bibliotecas, frameworks ou etapa de build. Recursos nativos usados: módulos ES, `<dialog>`, Popover API (menus e menu de contexto), Clipboard API, Pointer Events, IndexedDB, `structuredClone`, `ResizeObserver`, `IntersectionObserver`, View Transitions (quando há suporte), CSS Grid/Flexbox, Container Queries, `color-mix()`, `:has()`, `zoom`, `scrollbar-gutter`, `::-webkit-scrollbar`/`scrollbar-color`, `field-sizing` (com alternativa em JS), `@page`, SVG (grafismo, assinaturas e capa com foto).
 
 ## 5. Como executar
 
@@ -138,7 +152,9 @@ Navegadores recomendados: Chrome/Edge 120+, Firefox 126+ e Safari 17+.
 5. Clique em **Exportar PDF**: revise os avisos (se houver), clique em "Abrir janela de impressão" e escolha "Salvar como PDF".
 6. Para levar o trabalho a outro computador: menu **⋯ → Baixar cópia de segurança** (arquivo `.docstudio.json`); no outro, **Abrir cópia de segurança**.
 
-Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `Alt+↑/↓` mover bloco · `Ctrl+D` duplicar · `Ctrl+B`/`Ctrl+I` negrito/itálico · `Ctrl+1/2/3` modos de visualização · `Ctrl+S` salvar · `Ctrl+P` PDF · `?` ajuda.
+Botão direito em qualquer texto, bloco, célula, item, capa ou rodapé mostra as ações daquele objeto (Shift + botão direito: menu do navegador).
+
+Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `Alt+↑/↓` mover bloco · `Ctrl+D` duplicar · `Ctrl+B`/`Ctrl+I` negrito/itálico · `Ctrl+1/2/3` modos de visualização · `Ctrl+S` salvar · `Ctrl+P` PDF · tecla `Menu` ou `Shift+F10` menu de contexto · `?` ajuda.
 
 ## 7. Validação e testes
 
@@ -182,6 +198,14 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 | 23 | Exportar o PDF de um manual com abertura de capítulo | Mesmo número de páginas da prévia, sem conteúdo invadindo o rodapé | Uma página a menos e texto sobre a faixa |
 | 24 | Design → Contracapa "Backdrop" com "DETRAN/CE + Governo"; depois "Governo do Ceará" | Quadros verdes com o Governo em negativo alternados com quadros brancos com o DETRAN/CE (depois, com o Governo em cores), como a p. 116; endereço centralizado abaixo | Assinatura cortada ou quadros desalinhados |
 | 25 | Design → Impressão "Escala de cinza (P&B)" e exportar o PDF | Capa, faixas, assinaturas (brasão em tons de cinza, nome em preto, como a p. 12) e textos em cinza; `pdfimages -list` sem imagens (exceto fotos) e texto selecionável | Algo colorido sobrando ou o PDF virou imagem |
+| 26 | Selecionar uma palavra num parágrafo, botão direito → **B** | Menu próprio (não o do navegador) com a fila de formatação; a palavra vira `**palavra**` e fica em negrito na prévia; reabrindo o menu, o **B** aparece marcado | Menu do navegador ou asteriscos na prévia |
+| 27 | Botão direito no título de um bloco de Destaque → Tipo → Atenção; depois Transformar em → Parágrafo; clicar "Desfazer" no aviso | O destaque fica laranja; vira parágrafo com o mesmo texto; "Desfazer" devolve o destaque | Texto perdido ou o editor não atualiza |
+| 28 | Botão direito numa célula de tabela → Linha 1 → Inserir linha abaixo; Coluna 2 → Inserir coluna à esquerda | Linha vazia logo abaixo, com o cursor nela; coluna nova no lugar certo; Ctrl+Z desfaz | Linha no fim da tabela |
+| 29 | "Escrever texto": selecionar duas linhas, botão direito → Transformar as linhas em → Passo a passo | As linhas ganham `1.` e `2.`; Ctrl+Z dentro do campo desfaz; ao inserir, vira um passo a passo | Menu atrás do diálogo ou sem efeito |
+| 30 | Botão direito na capa da prévia → Estilo da capa → Arcos | A capa troca na hora; o menu mostra o estilo atual marcado | Painel Design abre em vez de trocar |
+| 31 | Botão direito num botão da barra superior; Shift + botão direito num bloco; tecla Menu com a alça ⋮⋮ focada | Menu do navegador nos dois primeiros; menu do bloco no terceiro, com o primeiro item focado; setas, Enter e Esc funcionam e Esc devolve o foco à alça | Menu do app bloqueando o do navegador ou foco perdido |
+| 32 | Janela com 390 px: botão direito (ou toque longo) num bloco → Tipo | Folha inferior com fundo escurecido; "Tipo" abre dentro dela com "Voltar"; tocar fora fecha | Menu cortado fora da tela |
+| 33 | Meus documentos → botão direito num documento → Excluir… | Aparece a mesma confirmação do botão de lixeira; "Cancelar" mantém o documento | Exclusão sem confirmação |
 
 ### Edge cases
 
@@ -200,7 +224,13 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 
 ### O que foi verificado no desenvolvimento
 
-Última rodada em 07/10/2026 (quarta auditoria), com Playwright:
+Menu do botão direito (07/10/2026), com Playwright:
+- **Chromium** (1440, 1280 e 390 px, temas claro e escuro): menus de texto, bloco (editor, prévia e Estrutura), célula, item, capa, rodapé, paleta, "Escrever texto" e Meus documentos; cada ação conferida no documento (formatação e prévia, recortar/copiar/colar com a área de transferência real, tipo do destaque, transformar + "Desfazer", linha e coluna da tabela + Ctrl+Z, linhas viram passo a passo + Ctrl+Z nativo do campo, confirmação ao excluir documento, download da cópia); menu e submenu dentro da tela nas bordas; teclado (Shift+F10, setas, Esc devolvendo o foco); folha inferior com "Voltar"; Shift + botão direito, botões da barra e nome do documento mantêm o menu do navegador; toque longo simulado: campo de texto mantém o menu do sistema e bloco abre a folha;
+- **Firefox e WebKit**: menu de texto (seleção preservada e itálico aplicado), menu do bloco com submenu e menu da capa, todos dentro da tela, fechando ao clicar fora, sem erros;
+- **axe-core** (WCAG 2.0/2.1/2.2 A/AA + boas práticas) nos menus abertos (texto, bloco e submenu), temas claro e escuro: sem violações;
+- regressões: barra de formatação, Ctrl+B (agora também nas células de tabela e sem efeito nos campos que não aceitam formatação) e painel Design.
+
+Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - **Chromium**: os 11 modelos e "começar do zero" e o "Manual operacional" com os 14 estilos prontos, mais escala de cinza com Backdrop (26 combinações): sem páginas cortadas, sem imagens quebradas e sem erros no console; todas as capas, contracapas, cabeçalhos, rodapés e aberturas conferidos lado a lado com as páginas citadas do MIV;
 - **PDF** (`page.pdf()` do Chromium) nas 26 combinações: A4, mesmo número de páginas da prévia, **nenhuma imagem rasterizada** (`pdfimages`), fontes Kanit e Maitree embutidas (`pdffonts`); recorte a 600 dpi do Backdrop com o brasão nítido. Com foto na capa em escala de cinza, só a foto vira imagem (300 dpi);
 - **parágrafo dividido entre páginas** em Chromium, Firefox e WebKit: mesma paginação nos três (9 páginas), texto íntegro (as partes juntas são iguais ao original) e o PDF com o mesmo número de páginas da prévia, inclusive com o cabeçalho timbrado e forçando o recálculo com a mídia de impressão ativa. Custo medido: 66 ms para paginar 31 páginas com 25 divisões;
@@ -208,7 +238,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 - axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) no painel Design, editor, galeria de modelos e tema escuro (terceira auditoria): sem violações na interface. A única ocorrência é o contraste da "chamada" verde (#26a737) dentro das páginas do documento, cor prescrita pelo MIV e mantida;
 - **Firefox e WebKit** (motor do Safari), pelo Playwright: abertura, modelo "Manual operacional" com parágrafo dividido, contracapa Backdrop e escala de cinza, nenhuma imagem quebrada, sem erros (o WebKit só avisa que ignora `interactive-widget` da meta viewport).
 
-**Não validados neste ambiente:** Safari e Chrome em aparelhos reais (iOS/Android), arraste por toque em aparelho real e a janela de impressão do Firefox/Safari (o PDF foi conferido pelo Chromium).
+**Não validados neste ambiente:** Safari e Chrome em aparelhos reais (iOS/Android), arraste por toque e toque longo (menu de contexto) em aparelho real, "Colar" pelo menu no Firefox e Safari (pedem confirmação própria do navegador) e a janela de impressão do Firefox/Safari (o PDF foi conferido pelo Chromium).
 
 ## 8. Decisões técnicas principais
 
@@ -227,6 +257,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 - **Controles próprios em vez dos nativos.** Pedido explícito: nada com a aparência padrão do navegador. Os controles continuam sendo `<input>` reais (rádios, número, deslizante, interruptor) com a aparência redesenhada em CSS, então teclado e leitores de tela funcionam como antes; só a lista suspensa de cores foi trocada por uma paleta de rádios, mais fácil para leigos. A dica de ferramenta própria lê os atributos `title` existentes, então não há duas fontes de texto. *Impacto:* nenhum controle novo exige JavaScript para funcionar com o teclado.
 - **Escala de cinza com cores reais, não com filtro.** `filter: grayscale(1)` no CSS faria o Chromium transformar cada página do PDF em imagem de 300 dpi (testado: texto deixa de ser selecionável e as fontes somem do PDF). Por isso as cores do documento viram tokens CSS com versão em cinza, o grafismo SVG troca cada cor pelo cinza de mesma luminância e as assinaturas usam arquivos `-gray.svg` gerados com a tabela de correspondência da p. 12 do MIV (o nome "CEARÁ" em preto, o brasão nos cinzas da tabela). *Impacto:* o PDF continua vetorial; fotos do usuário (que já são imagens) recebem o filtro.
 - **Medição sempre válida na impressão.** A área invisível de medição continua com largura no CSS de impressão e a paginação ignora medições com largura zero; antes, um recálculo durante a impressão juntava páginas no PDF.
+- **Menu de contexto por provedores, sem bloquear o do navegador.** Cada módulo registra uma função que reconhece "seus" elementos e devolve as ações (editor: texto, item, célula, bloco; prévia: bloco, capa, rodapé; painel: Estrutura e paleta). O primeiro que reconhecer monta o menu; se nenhum reconhecer, o menu do navegador fica. As ações chamam as mesmas funções dos botões (mesmas condições, "Desfazer" e confirmações). Shift + botão direito é a saída para o menu do navegador (corretor ortográfico). No toque longo em campo de texto o app não intervém, para não quebrar copiar/colar do celular. O texto é alterado com `execCommand('insertText')`, que mantém o Ctrl+Z nativo do campo (com `setRangeText` como alternativa). *Impacto:* um novo componente ganha menu registrando um provedor; o menu mora dentro do diálogo aberto, porque um diálogo modal deixa inerte tudo o que está fora dele.
 - **Sem PWA/instalação.** Não foi pedido; marcado como *não aplicável*. O app já funciona sem internet depois de carregado, porque não depende de rede.
 
 ## 9. Boas práticas adotadas

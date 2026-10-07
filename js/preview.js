@@ -8,6 +8,8 @@
 import { $, $$, debounce, clamp, prefersReducedMotion } from './utils.js';
 import { applyDocAttributes } from './design.js';
 import { layoutDocument } from './paginate.js';
+import { BLOCK_TYPES } from './schema.js';
+import { keys, writeClipboard } from './textmenu.js';
 
 const PAGE_WIDTH_PX = (210 * 96) / 25.4;
 const ZOOM_STEPS = [0.25, 0.33, 0.4, 0.5, 0.6, 0.75, 0.9, 1, 1.25, 1.5, 2];
@@ -161,6 +163,59 @@ export function createPreview({ store, ui, assets, actions }) {
     renderNow();
   });
 
+  /* ---------------------------------------------------------------- menu de contexto */
+  function viewItems() {
+    const fit = ui.get('zoomFit');
+    return [
+      { label: 'Aumentar zoom', icon: 'zoom-in', run: () => stepZoom(1) },
+      { label: 'Diminuir zoom', icon: 'zoom-out', run: () => stepZoom(-1) },
+      { label: 'Ajustar à largura', icon: 'fit', checked: fit, run: () => ui.set({ zoomFit: !fit }) },
+      { separator: true },
+      { label: 'Exportar PDF', icon: 'printer', shortcut: keys('Ctrl+P'), run: () => actions.exportPdf() },
+    ];
+  }
+
+  /** Parte da página que foi clicada: capa, contracapa, cabeçalho ou rodapé. */
+  function regionOf(target) {
+    if (target.closest('.page--cover')) return 'cover';
+    if (target.closest('.page--back')) return 'back';
+    if (target.closest('.page__header, .page__header-art')) return 'header';
+    if (target.closest('.page__footer, .page__number')) return 'footer';
+    return null;
+  }
+
+  /**
+   * Provedor do menu de contexto da prévia: o bloco clicado (com "Copiar" se
+   * houver texto selecionado), as partes fixas da página e o zoom.
+   */
+  function contextMenu(target) {
+    if (!scroller.contains(target)) return null;
+    const selection = window.getSelection();
+    const selected = selection && !selection.isCollapsed && pagesEl.contains(selection.anchorNode) ? selection.toString().trim() : '';
+    const copy = selected
+      ? [{ label: 'Copiar', icon: 'copy', shortcut: keys('Ctrl+C'), run: () => writeClipboard(selected) }, { separator: true }]
+      : [];
+
+    const atom = target.closest('.atom[data-block-id]');
+    const block = atom && store.doc.blocks.find((b) => b.id === atom.dataset.blockId);
+    if (block) {
+      const definition = BLOCK_TYPES[block.type];
+      actions.select(block.id, { source: 'preview' });
+      return { title: definition.label, icon: definition.icon, items: [...copy, ...actions.blockMenuItems(block.id, { anchor: atom, origin: 'preview' })] };
+    }
+
+    const region = regionOf(target);
+    const part = region && actions.designMenu(region);
+    if (part) return { ...part, items: [...copy, ...part.items] };
+
+    const page = target.closest('.page[data-index]');
+    return {
+      title: page ? `Página ${Number(page.dataset.index) + 1} de ${pageHtml.length}` : 'Prévia',
+      icon: 'eye',
+      items: [...copy, ...viewItems()],
+    };
+  }
+
   /* ---------------------------------------------------------------- assinaturas */
   store.subscribe((doc, change) => {
     if (change.kind === 'name') return;
@@ -191,6 +246,7 @@ export function createPreview({ store, ui, assets, actions }) {
     zoomOut: () => stepZoom(-1),
     zoomFit: () => ui.set({ zoomFit: true }),
     revealBlock,
+    contextMenu,
     get layout() { return layout; },
   };
 }

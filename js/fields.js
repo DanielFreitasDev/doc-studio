@@ -29,7 +29,7 @@ function richToolbar(id, labelText) {
 
 const RENDER = {
   text(field, value, id, path) {
-    return `<div class="field">${label(id, field.label)}<input class="input${field.big ? ' input--title' : ''}" id="${id}" type="text" data-path="${path}" value="${esc(value)}"${field.placeholder ? ` placeholder="${esc(field.placeholder)}"` : ''} autocomplete="off" enterkeyhint="next"></div>`;
+    return `<div class="field">${label(id, field.label)}<input class="input${field.big ? ' input--title' : ''}" id="${id}" type="text" data-path="${path}" value="${esc(value)}"${field.placeholder ? ` placeholder="${esc(field.placeholder)}"` : ''}${field.plain ? ' data-plain' : ''} autocomplete="off" enterkeyhint="next"></div>`;
   },
 
   rich(field, value, id, path) {

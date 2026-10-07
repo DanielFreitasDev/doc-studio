@@ -100,6 +100,18 @@
       <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
       <symbol id="i-toc" viewBox="0 0 24 24"><path d="M4 6h10M4 12h10M4 18h10M18 6h2M18 12h2M18 18h2"/></symbol>
       <symbol id="i-divider" viewBox="0 0 24 24"><path d="M3 12h18M8 6h8M8 18h8"/></symbol>
+      <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+      <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.1 8.1L20 20M8.1 15.9L20 4"/></symbol>
+      <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 2.5h6v3H9z"/></symbol>
+      <symbol id="i-select-all" viewBox="0 0 24 24"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2M11 4h2M11 20h2M4 11v2M20 11v2M8 9h8M8 12h8M8 15h5"/></symbol>
+      <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M8 20h12M5.5 14.5l8-8.5a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11 18.5a2 2 0 0 1-1.4.5H8a2 2 0 0 1-1.4-.6l-1.1-1.1a2 2 0 0 1 0-2.8zM9.5 10.5l5 5"/></symbol>
+      <symbol id="i-convert" viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></symbol>
+      <symbol id="i-row-above" viewBox="0 0 24 24"><rect x="3" y="12" width="18" height="8" rx="2"/><path d="M12 3v6M9 6h6"/></symbol>
+      <symbol id="i-row-below" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="8" rx="2"/><path d="M12 15v6M9 18h6"/></symbol>
+      <symbol id="i-col-left" viewBox="0 0 24 24"><rect x="12" y="3" width="8" height="18" rx="2"/><path d="M3 12h6M6 9v6"/></symbol>
+      <symbol id="i-col-right" viewBox="0 0 24 24"><rect x="4" y="3" width="8" height="18" rx="2"/><path d="M15 12h6M18 9v6"/></symbol>
+      <symbol id="i-row-remove" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="2"/><path d="M10 10l4 4M14 10l-4 4"/></symbol>
+      <symbol id="i-col-remove" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="18" rx="2"/><path d="M10 10l4 4M14 10l-4 4"/></symbol>
       <symbol id="i-pagebreak" viewBox="0 0 24 24"><path d="M5 3v5h14V3M5 21v-5h14v5M3 12h2M9 12h2M13 12h2M19 12h2"/></symbol>
     </defs>
   </svg>
@@ -400,7 +412,9 @@
           <dt><kbd>/</kbd> em um parágrafo vazio</dt><dd>Transformar o parágrafo em outro tipo de bloco</dd>
           <dt><kbd>Alt</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></dt><dd>Mover o bloco selecionado</dd>
           <dt><kbd>Ctrl</kbd> <kbd>D</kbd></dt><dd>Duplicar o bloco selecionado</dd>
-          <dt><kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd></dt><dd>Negrito / itálico no texto selecionado</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd></dt><dd>Negrito / itálico no texto selecionado (sem seleção, na palavra do cursor)</dd>
+          <dt>Botão direito, <kbd>Menu</kbd> ou <kbd>Shift</kbd> <kbd>F10</kbd></dt><dd>Ações do que está sob o cursor: texto, bloco, item, célula, capa, rodapé…</dd>
+          <dt><kbd>Shift</kbd> + botão direito</dt><dd>Menu do navegador (corretor ortográfico, por exemplo)</dd>
           <dt><kbd>Ctrl</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></dt><dd>Editor, lado a lado, prévia</dd>
           <dt><kbd>Ctrl</kbd> <kbd>S</kbd></dt><dd>Salvar agora (o salvamento já é automático)</dd>
           <dt><kbd>Ctrl</kbd> <kbd>P</kbd></dt><dd>Exportar PDF</dd>
@@ -412,6 +426,7 @@
         <ul class="help-list">
           <li>Cole um print com <kbd>Ctrl</kbd> <kbd>V</kbd> ou arraste imagens para o editor: vira uma figura numerada.</li>
           <li>Clique em qualquer trecho da prévia para ir direto ao bloco correspondente.</li>
+          <li>Clique com o <strong>botão direito</strong> para ver o que dá para fazer ali: formatar o texto selecionado, transformar um parágrafo em destaque, inserir linha na tabela, trocar a capa direto na prévia… No celular, segure o dedo sobre um bloco.</li>
           <li>Cole tabelas do Excel na primeira célula de uma tabela para preenchê-la de uma vez.</li>
           <li>Os documentos ficam neste navegador. Para não depender dele, use <strong>Baixar cópia de segurança</strong> (menu ⋯) de vez em quando.</li>
         </ul>

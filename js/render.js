@@ -9,7 +9,7 @@
  * escapam o conteúdo antes de qualquer marcação ser aplicada.
  */
 import { esc, pad2 } from './utils.js';
-import { renderInline } from './markup.js';
+import { renderInline, stripMarkup } from './markup.js';
 import { ALTERNATE_TONES, CALLOUT_TONES } from './schema.js';
 import { COVERS, BACK_COVERS } from './design.js';
 import { coverArt, backArt, chapterArt, footerArt, headerArt, dividerArt, grayscaleSvg, CHECK_SVG } from './graphics.js';
@@ -289,8 +289,8 @@ const RENDERERS = {
       const items = row.map((item, i) => {
         const tone = toneClass(block.tone, rowIndex * columns + i);
         return block.style === 'sheet'
-          ? `<div class="b-sheet ${tone}"><p class="b-sheet__l">${esc(item.label)}</p><p class="b-sheet__v">${renderInline(item.value)}</p><p class="b-sheet__s">${renderInline(item.sub)}</p></div>`
-          : `<div class="b-kpi ${tone}"><p class="b-kpi__v">${esc(item.value)}</p><p class="b-kpi__l">${renderInline(item.label)}</p><p class="b-kpi__s">${renderInline(item.sub)}</p></div>`;
+          ? `<div class="b-sheet ${tone}"><p class="b-sheet__l">${renderInline(item.label)}</p><p class="b-sheet__v">${renderInline(item.value)}</p><p class="b-sheet__s">${renderInline(item.sub)}</p></div>`
+          : `<div class="b-kpi ${tone}"><p class="b-kpi__v">${renderInline(item.value)}</p><p class="b-kpi__l">${renderInline(item.label)}</p><p class="b-kpi__s">${renderInline(item.sub)}</p></div>`;
       }).join('');
       return atom(block, 'atom--stats', `<div class="b-stats" style="--cols:${columns}">${items}</div>`);
     });
@@ -320,7 +320,7 @@ const RENDERERS = {
       ctx.figureNo += 1;
       caption = `<figcaption><span class="b-fig__n">Figura ${ctx.figureNo}</span> · ${renderInline(block.caption)}</figcaption>`;
     }
-    const alt = block.caption ? esc(block.caption) : 'Imagem';
+    const alt = block.caption ? esc(stripMarkup(block.caption)) : 'Imagem';
     return [atom(block, 'atom--figure', `
       <figure class="b-fig${block.frame ? ' b-fig--frame' : ''}">
         <img src="${esc(asset.url)}" alt="${alt}" width="${asset.width}" height="${asset.height}" style="width:${block.width}%" decoding="async">
@@ -351,7 +351,7 @@ export function createRenderContext(doc, assets, tableColumns = () => null) {
     counter += 1;
     const number = doc.design.numberSections ? counter : 0;
     sectionNumbers.set(block.id, number);
-    sections.push({ id: block.id, number, title: block.title.replace(/\*\*|==|~~|`/g, '') });
+    sections.push({ id: block.id, number, title: stripMarkup(block.title) });
   }
   return { design: doc.design, meta: doc.meta, assets, sections, sectionNumbers, figureNo: 0, tableColumns };
 }

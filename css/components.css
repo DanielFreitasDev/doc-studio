@@ -141,6 +141,226 @@
 .menu .menu__danger { color: var(--danger); }
 .menu .menu__danger .icon { color: currentColor; }
 
+/* ---------------------------------------------------------------- menu de contexto (botão direito)
+   Mesmo visual dos menus ⋯ (.menu), com título do objeto, fila de formatação,
+   atalhos à direita e submenus. Em telas estreitas e no toque longo vira uma
+   folha inferior. O realce segue o foco, que acompanha o mouse e o teclado. */
+.context-menu {
+  position: fixed;
+  z-index: 90;
+  display: none;
+  flex-direction: column;
+  min-width: 252px;
+  max-width: min(320px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+  padding: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  outline: none;
+}
+.context-menu:popover-open, .context-menu:not([popover]):not([hidden]) { display: flex; }
+.menu.context-menu:popover-open { transform-origin: var(--menu-origin, top left); }
+
+.context-menu__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-2) var(--space-3) 0;
+}
+.context-menu__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.context-menu__title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.context-menu__list { display: flex; flex-direction: column; padding: var(--space-1); }
+.context-menu hr { width: auto; margin: var(--space-1) var(--space-2); }
+
+.context-menu .context-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 34px;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: default;
+}
+.context-menu .context-menu__item:focus { background: var(--surface-3); outline: none; }
+.context-menu__item > .icon { width: 18px; height: 18px; color: var(--text-muted); }
+.context-menu__item[aria-expanded="true"] { background: var(--surface-3); }
+.context-menu__label {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.context-menu__label small {
+  max-width: 50%;
+  margin-left: auto;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.context-menu .context-menu__key {
+  min-width: 0;
+  margin-left: var(--space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.context-menu__chevron { margin-left: auto; color: var(--text-muted); }
+.context-menu__mark {
+  margin-left: var(--space-2);
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+.context-menu__blank { width: 18px; flex: none; }
+.context-menu__check {
+  display: inline-flex;
+  flex: none;
+  justify-content: center;
+  width: 18px;
+  color: var(--primary-soft-text);
+  visibility: hidden;
+}
+.context-menu__check .icon { stroke-width: 2.6; }
+[aria-checked="true"] > .context-menu__check { visibility: visible; }
+.context-menu [aria-checked="true"] .context-menu__label { font-weight: 600; }
+.context-menu__swatch {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+}
+.context-menu [aria-disabled="true"] { opacity: 0.42; }
+.context-menu .context-menu__item[aria-disabled="true"]:focus { background: var(--surface-2); }
+.context-menu [data-danger] { color: var(--danger); }
+.context-menu [data-danger] > .icon { color: currentColor; }
+.context-menu .context-menu__item[data-danger]:focus { background: var(--danger-soft); }
+
+.context-menu__heading {
+  margin: var(--space-2) var(--space-3) 2px;
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Fila de formatação: botões só com ícone, como a barra do campo. */
+.context-menu__row {
+  display: flex;
+  gap: 2px;
+  margin-bottom: var(--space-1);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.context-menu .context-menu__tool {
+  display: inline-grid;
+  flex: 1;
+  place-items: center;
+  height: 36px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--text-muted);
+  transition: background-color var(--dur-fast), color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.context-menu .context-menu__tool:focus { outline: none; background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+.context-menu .context-menu__tool:focus-visible { box-shadow: 0 0 0 2px var(--focus); }
+.context-menu .context-menu__tool[aria-checked="true"] { background: var(--primary-soft); color: var(--primary-soft-text); }
+
+.context-menu__footer {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+}
+.context-menu .context-menu__back {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  min-height: 32px;
+  padding: 0 var(--space-2) 0 var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+.context-menu .context-menu__back:focus { outline: none; background: var(--surface-3); }
+.context-menu .context-menu__back:focus-visible { box-shadow: 0 0 0 2px var(--focus); }
+
+@media (pointer: coarse) {
+  .context-menu .context-menu__item { min-height: var(--touch); }
+  .context-menu .context-menu__tool { height: var(--touch); }
+}
+
+/* Folha inferior (celular e toque longo): largura total, presa ao pé da tela. */
+.menu.context-menu--sheet {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  max-height: min(80dvh, 640px);
+  border-bottom: 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.context-menu--sheet::before {
+  content: "";
+  flex: none;
+  width: 36px;
+  height: 4px;
+  margin: var(--space-2) auto 0;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+}
+.context-menu--sheet::backdrop { background: rgb(10 16 20 / 0.32); }
+.context-menu--sheet .context-menu__header { padding: var(--space-2) var(--space-4) 0; }
+.context-menu--sheet .context-menu__title { font-size: var(--text-sm); }
+.context-menu--sheet .context-menu__list { padding: var(--space-2); }
+.context-menu.context-menu--sheet .context-menu__item { min-height: 48px; padding-inline: var(--space-3); font-size: 1rem; }
+.context-menu.context-menu--sheet .context-menu__tool { height: 48px; }
+
 /* ---------------------------------------------------------------- seletor de bloco */
 .block-picker {
   margin: 0;
@@ -1209,9 +1429,13 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 @keyframes card-in { from { opacity: 0; transform: translateY(-8px) scale(0.985); } }
 @keyframes toast-out { to { opacity: 0; transform: translateY(6px) scale(0.98); } }
 @keyframes page-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(32px); } }
 
 /* Menus, seletor de bloco e fundo dos diálogos entram com suavidade. */
 .menu:popover-open, .block-picker:popover-open { animation: pop-in var(--dur-med) var(--ease); transform-origin: top; }
+.menu.context-menu:popover-open { animation-duration: var(--dur-fast); transform-origin: var(--menu-origin, top left); }
+.menu.context-menu--sheet:popover-open { animation: sheet-in var(--dur-med) var(--ease); }
+.context-menu--sheet:popover-open::backdrop { animation: fade-in var(--dur-med) var(--ease); }
 .dialog[open]::backdrop { animation: fade-in var(--dur-med) var(--ease); }
 
 /* Botão principal com leve brilho e sombra colorida ao passar o mouse. */

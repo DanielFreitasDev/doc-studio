@@ -7,7 +7,7 @@
  */
 import { $, $$, esc, clamp, debounce, moveItem, slugify, announce, isTypingTarget, downloadBlob, formatTime, formatDateTime } from './js/utils.js';
 import { createStore, createUiState } from './js/state.js';
-import { createBlock, BLOCK_TYPES } from './js/schema.js';
+import { createBlock, BLOCK_TYPES, TEXT_BLOCK_TYPES, transformBlock, blockPlainText } from './js/schema.js';
 import { createDocument, normalizeDocument, toFilePayload, parseFilePayload, cloneBlock } from './js/model.js';
 import { TEMPLATES, SNIPPETS } from './js/templates.js';
 import { createStorage, preferences } from './js/storage.js';
@@ -21,9 +21,11 @@ import { toast, openDialog, enableBackdropClose, confirmDialog, setupMenu } from
 import { markdownToBlocks } from './js/markdown.js';
 import { layoutDocument } from './js/paginate.js';
 import { renderCover, renderBackCover } from './js/render.js';
-import { applyDocAttributes, docAttributesHtml, DEFAULT_META, THEMES } from './js/design.js';
+import { applyDocAttributes, docAttributesHtml, DEFAULT_META, THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS } from './js/design.js';
 import { setupTooltips } from './js/tooltip.js';
 import { setupControls } from './js/controls.js';
+import { createContextMenu } from './js/contextmenu.js';
+import { textFieldItems, textMenuTitle, keys, writeClipboard } from './js/textmenu.js';
 
 const appEl = $('#app');
 const isCompact = () => !matchMedia('(min-width: 760px)').matches;
@@ -195,6 +197,8 @@ async function main() {
       requestAnimationFrame(() => editor.reveal(id, { focus }));
     },
 
+    exportPdf: () => exportPdf(),
+
     openPicker(anchor, context) {
       picker.open(anchor, context);
     },
@@ -257,6 +261,186 @@ async function main() {
       }
       actions.insertBlocks(blocks, index, { focus: false });
       if (blocks.length) notify(blocks.length === 1 ? 'Imagem inserida. Escreva uma legenda para numerá-la.' : `${blocks.length} imagens inseridas.`);
+    },
+
+    /** Muda uma opção de design (painel Design e menu de contexto da prévia usam a mesma regra). */
+    setDesign(key, value) {
+      if (store.doc.design[key] === value) return;
+      store.update((doc) => { doc.design[key] = value; }, { kind: 'design' });
+      if (key === 'signature' && value === 'custom' && !store.doc.design.customLogo) actions.chooseLogo();
+      if (key === 'cover' && value === 'photo' && !store.doc.design.coverImage) actions.chooseCoverPhoto();
+    },
+
+    /** Muda um campo simples do bloco (cor, estilo, interruptor) fora do formulário dele. */
+    setBlockField(id, key, value) {
+      store.update((doc) => {
+        const block = doc.blocks.find((b) => b.id === id);
+        if (block) block[key] = value;
+      }, { kind: 'block', blockId: id, external: true });
+    },
+
+    /** Transforma um bloco de texto em outro tipo, mantendo o texto (ex.: parágrafo → destaque). */
+    transformBlock(id, type) {
+      const index = actions.indexOf(id);
+      const next = index >= 0 ? transformBlock(store.doc.blocks[index], type) : null;
+      if (!next) return;
+      store.update((doc) => doc.blocks.splice(index, 1, next), { kind: 'structure' });
+      notify(`Bloco transformado em ${BLOCK_TYPES[type].label}.`, 'info', { undo: true });
+    },
+
+    async copyBlockText(id) {
+      const block = store.doc.blocks.find((b) => b.id === id);
+      const ok = block ? await writeClipboard(blockPlainText(block)) : false;
+      notify(ok ? 'Texto do bloco copiado.' : 'Não foi possível copiar o texto.', ok ? 'info' : 'error');
+    },
+
+    /** Mostra o bloco na prévia (abre a prévia se ela estiver escondida). */
+    revealInPreview(id) {
+      ui.set({ selectedId: id, selectSource: 'menu' });
+      if (isCompact()) withTransition(() => ui.set({ pane: 'preview' }));
+      else if (ui.get('view') === 'editor') withTransition(() => ui.set({ view: 'split' }));
+      requestAnimationFrame(() => preview.revealBlock(id));
+    },
+
+    /** Abre o painel Design já na seção pedida (capa, rodapé...). */
+    openDesignSection(sectionId) {
+      actions.openPanel('design');
+      requestAnimationFrame(() => {
+        const target = document.getElementById(sectionId);
+        if (!target) return;
+        if (target.tagName === 'DETAILS') target.open = true;
+        target.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        target.querySelector('input:checked, input, button')?.focus({ preventScroll: true });
+      });
+    },
+
+    /**
+     * Ações de um bloco para o menu de contexto (editor, prévia e Estrutura).
+     * Reúne as do menu ⋯ do cartão e as opções do formulário do bloco; cada
+     * item chama a mesma ação dos botões, com as mesmas condições.
+     */
+    blockMenuItems(id, { anchor, origin }) {
+      const index = actions.indexOf(id);
+      const block = store.doc.blocks[index];
+      if (!block) return [];
+      const definition = BLOCK_TYPES[block.type];
+      const last = store.doc.blocks.length - 1;
+      const collapsed = ui.get('collapsed').has(id);
+
+      const properties = definition.fields.flatMap((field) => {
+        if (field.kind === 'toggle') {
+          return [{ label: field.label, checked: Boolean(block[field.key]), run: () => actions.setBlockField(id, field.key, !block[field.key]) }];
+        }
+        if (field.kind !== 'segmented' && field.kind !== 'swatches') return [];
+        const current = field.options.find((option) => option.value === block[field.key]);
+        return [{
+          label: field.label,
+          hint: current?.label,
+          icon: field.kind === 'swatches' ? 'palette' : 'layout',
+          submenu: field.options.map((option) => ({
+            label: option.label,
+            radio: true,
+            checked: option.value === block[field.key],
+            swatch: field.kind === 'swatches' ? option.swatch : undefined,
+            run: () => actions.setBlockField(id, field.key, option.value),
+          })),
+        }];
+      });
+
+      const transform = TEXT_BLOCK_TYPES.includes(block.type) && {
+        label: 'Transformar em',
+        icon: 'convert',
+        submenu: TEXT_BLOCK_TYPES.filter((type) => type !== block.type).map((type) => ({
+          label: BLOCK_TYPES[type].label, icon: BLOCK_TYPES[type].icon, run: () => actions.transformBlock(id, type),
+        })),
+      };
+
+      const image = block.type === 'image' ? [
+        { label: block.assetId ? 'Trocar imagem…' : 'Escolher imagem…', icon: 'upload', run: () => actions.chooseImage({ blockId: id }) },
+        block.assetId && { label: 'Remover imagem', icon: 'trash', run: () => actions.setBlockField(id, 'assetId', '') },
+      ] : [];
+
+      return [
+        origin === 'preview'
+          ? { label: 'Editar no editor', icon: 'edit', run: () => actions.select(id, { source: 'preview', revealEditor: true, focus: true }) }
+          : { label: 'Mostrar na prévia', icon: 'eye', run: () => actions.revealInPreview(id) },
+        { separator: true },
+        ...properties,
+        transform,
+        ...image,
+        { separator: true },
+        { label: 'Inserir bloco acima', icon: 'row-above', run: () => actions.openPicker(anchor, { index }) },
+        { label: 'Inserir bloco abaixo', icon: 'row-below', shortcut: keys('Ctrl+K'), run: () => actions.openPicker(anchor, { index: index + 1 }) },
+        { label: 'Mover para cima', icon: 'chevron-up', shortcut: keys('Alt+↑'), disabled: index === 0, run: () => actions.moveBlockBy(id, -1) },
+        { label: 'Mover para baixo', icon: 'chevron-down', shortcut: keys('Alt+↓'), disabled: index === last, run: () => actions.moveBlockBy(id, 1) },
+        { label: 'Duplicar', icon: 'copy', shortcut: keys('Ctrl+D'), run: () => actions.duplicateBlock(id) },
+        { label: 'Copiar texto', icon: 'clipboard', disabled: !blockPlainText(block), run: () => actions.copyBlockText(id) },
+        origin !== 'preview' && { label: collapsed ? 'Expandir no editor' : 'Recolher no editor', icon: collapsed ? 'expand' : 'collapse', run: () => editor.toggleCollapse(id) },
+        { separator: true },
+        { label: 'Excluir bloco', icon: 'trash', danger: true, run: () => actions.removeBlock(id) },
+      ];
+    },
+
+    /** Menu da capa, contracapa, cabeçalho e rodapé na prévia: as mesmas opções do painel Design. */
+    designMenu(region) {
+      const { design } = store.doc;
+      const valueOf = (option) => option.id ?? option.value;
+      const choices = (key, options) => options.map((option) => ({
+        label: option.label, radio: true, checked: design[key] === valueOf(option), run: () => actions.setDesign(key, valueOf(option)),
+      }));
+      const currentLabel = (key, options) => options.find((option) => valueOf(option) === design[key])?.label;
+      const choice = (label, icon, key, options) => ({ label, icon, hint: currentLabel(key, options), submenu: choices(key, options) });
+      const texts = (label) => ({ label, icon: 'file-text', run: () => actions.openPanel('document') });
+      const more = (section) => ({ label: 'Mais opções no painel Design', icon: 'palette', run: () => actions.openDesignSection(section) });
+      const theme = {
+        label: 'Tema de cores',
+        icon: 'palette',
+        hint: THEMES.find((t) => t.id === design.theme)?.label,
+        submenu: THEMES.map((t) => ({
+          label: t.label, radio: true, checked: design.theme === t.id,
+          swatch: `linear-gradient(135deg, ${t.colors[0]} 0 50%, ${t.colors[2]} 50%)`,
+          run: () => actions.setDesign('theme', t.id),
+        })),
+      };
+      const signature = choice('Assinatura', 'tag', 'signature', DESIGN_OPTIONS.signature);
+
+      switch (region) {
+        case 'cover':
+          return {
+            title: 'Capa',
+            icon: 'layout',
+            items: [
+              texts('Editar textos da capa'),
+              { separator: true },
+              choice('Estilo da capa', 'layout', 'cover', COVERS),
+              design.cover === 'photo' && { label: design.coverImage ? 'Trocar foto da capa…' : 'Escolher foto da capa…', icon: 'image', run: () => actions.chooseCoverPhoto() },
+              signature,
+              theme,
+              { separator: true },
+              more('design-cover'),
+            ],
+          };
+        case 'back':
+          return {
+            title: 'Contracapa',
+            icon: 'layout',
+            items: [texts('Editar textos da contracapa'), { separator: true }, choice('Estilo da contracapa', 'layout', 'backCover', BACK_COVERS), signature, theme, { separator: true }, more('design-back')],
+          };
+        case 'header':
+          return {
+            title: 'Cabeçalho das páginas',
+            icon: 'layout',
+            items: [texts('Editar textos do cabeçalho'), { separator: true }, choice('Estilo do cabeçalho', 'layout', 'header', DESIGN_OPTIONS.header), { separator: true }, more('design-header')],
+          };
+        case 'footer':
+          return {
+            title: 'Rodapé das páginas',
+            icon: 'layout',
+            items: [choice('Estilo do rodapé', 'layout', 'footer', DESIGN_OPTIONS.footer), choice('Numeração', 'outline', 'pageNumber', DESIGN_OPTIONS.pageNumber), { separator: true }, more('design-footer')],
+          };
+        default:
+          return null;
+      }
     },
 
     async setLogo(file) {
@@ -627,9 +811,15 @@ async function main() {
   });
 
   /* ================================================================ arquivos e PDF */
-  function exportJson() {
-    const doc = store.doc;
-    const payload = toFilePayload(doc, assets.serialize(usedAssetIds(doc)));
+  async function exportJson(id = store.doc.id) {
+    const current = id === store.doc.id;
+    const record = current ? { doc: store.doc, assets: assets.serialize(usedAssetIds(store.doc)) } : await storage.load(id).catch(() => null);
+    if (!record) {
+      notify('Documento não encontrado neste navegador.', 'error');
+      return;
+    }
+    const doc = current ? record.doc : normalizeDocument(record.doc);
+    const payload = toFilePayload(doc, record.assets);
     downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), `${slugify(doc.name)}.docstudio.json`);
     notify('Cópia de segurança baixada. Para abri-la em outro computador: menu ⋯ → “Abrir cópia de segurança”.');
   }
@@ -723,7 +913,7 @@ async function main() {
       openDialog(templatesDialog);
     },
     'open-import-text': () => openImportText(),
-    'export-json': exportJson,
+    'export-json': () => exportJson(),
     'import-json': () => $('#json-file-input').click(),
     'cycle-app-theme': () => {
       const next = THEME_ORDER[(THEME_ORDER.indexOf(savedAppTheme()) + 1) % THEME_ORDER.length];
@@ -752,6 +942,46 @@ async function main() {
       event.preventDefault();
       command(button);
     }
+  });
+
+  /* ================================================================ menu de contexto (botão direito) */
+  // Ordem: o primeiro provedor que reconhecer o elemento monta o menu. Onde
+  // nenhum reconhece, fica o menu do navegador (e Shift + botão direito sempre o abre).
+  const contextMenu = createContextMenu({ isBusy: () => drag.dragging });
+  contextMenu.register((target) => editor.contextMenu(target));
+  contextMenu.register((target) => preview.contextMenu(target));
+  contextMenu.register((target, context) => panels.contextMenu(target, context));
+
+  // "Escrever texto": formatação e as marcações de linha que viram blocos (# seção, - lista, > destaque...).
+  contextMenu.register((target) => {
+    if (target.id !== 'import-text-input') return null;
+    return {
+      title: textMenuTitle(target),
+      icon: 'pen',
+      items: textFieldItems(target, { formats: true, markdown: true, notify }),
+      footer: 'Shift + botão direito abre o menu do navegador',
+    };
+  });
+
+  // "Meus documentos": as ações da linha (as mesmas dos botões, com a mesma confirmação ao excluir).
+  contextMenu.register((target) => {
+    const row = target.closest('#document-list .document-row');
+    if (!row) return null;
+    const id = row.dataset.id;
+    const name = row.querySelector('strong').textContent;
+    const current = id === store.doc.id;
+    return {
+      title: name,
+      icon: 'file-text',
+      items: [
+        !current && { label: 'Abrir', icon: 'folder', run: async () => { documentsDialog.close('open'); await openDocument(id); } },
+        current && { label: 'Renomear', icon: 'edit', run: () => { documentsDialog.close(); nameInput.focus(); nameInput.select(); } },
+        { label: 'Duplicar', icon: 'copy', run: async () => { await duplicateDocument(id); renderDocumentList(); } },
+        { label: 'Baixar cópia de segurança', icon: 'download', run: () => exportJson(id) },
+        { separator: true },
+        { label: 'Excluir…', icon: 'trash', danger: true, run: async () => { if (await deleteDocument(id, name)) renderDocumentList(); } },
+      ],
+    };
   });
 
   /* ================================================================ atalhos de teclado */
