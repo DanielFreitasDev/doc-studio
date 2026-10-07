@@ -45,8 +45,8 @@ const setOrientation = (measureBody, orientation) => measureBody.classList.toggl
  * mesmo quando a tabela é dividida entre páginas.
  */
 function measureTableColumns(block, measureBody, cache, orientation) {
-  // A largura útil muda com a margem lateral escolhida (data-margins no .doc da medição).
-  const key = JSON.stringify([block.header, block.rows, block.keyColumn, orientation, measureBody.closest('.doc')?.dataset.margins]);
+  // As larguras mudam com a margem, a fonte do texto e outras opções do design (atributos data-* do .doc da medição).
+  const key = JSON.stringify([block.header, block.rows, block.keyColumn, orientation, { ...measureBody.closest('.doc')?.dataset }]);
   if (cache.has(key)) return cache.get(key);
   setOrientation(measureBody, orientation);
 
