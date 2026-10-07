@@ -127,8 +127,14 @@ export function setupTooltips() {
 
   document.addEventListener('focusin', (event) => {
     const element = targetOf(event.target);
-    if (element && element.matches(':focus-visible')) show(element);
-    else hide();
+    if (!element || !element.matches(':focus-visible')) {
+      hide();
+      return;
+    }
+    // O foco pode chegar enquanto outro popover fecha (menu devolvendo o foco ao
+    // botão); o Safari não deixa abrir um popover nesse instante. Abre no próximo quadro.
+    clearTimeout(timer);
+    timer = setTimeout(() => { if (document.activeElement === element) show(element); }, 0);
   });
   document.addEventListener('focusout', () => hide());
   document.addEventListener('pointerdown', () => hide(), true);
