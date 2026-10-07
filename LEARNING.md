@@ -7,6 +7,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Respiro de segmento fora da medição](docs/learning/bug-respiro-de-segmento-fora-da-medicao.md) — `seg-start/seg-end` entram depois da paginação; só cantos, respiro em `is-first/is-last`.
 - [Tema declarado no JS sem tokens no CSS](docs/learning/bug-tema-sem-tokens-no-css.md) — tema Azul existia só em `design.js`; `docstudio check` confere temas, paleta e contraste.
 - [Paginação recalculada durante a impressão](docs/learning/bug-medicao-escondida-na-impressao.md) — a área de medição não pode sumir no CSS de impressão; senão o PDF junta páginas.
+- [Caminho de operação chegava ao protótipo](docs/learning/bug-caminho-de-operacao-no-prototipo.md) — `__proto__.x` num update contaminava objetos antes da validação; caminhos externos passam por `isSafeKey`.
 
 ## Pegadinhas de ambiente, dependências e bibliotecas
 - [Utilitários de visibilidade perdem para os componentes](docs/learning/gotcha-especificidade-dos-utilitarios-de-visibilidade.md) — `components.css` carrega depois; use `.topbar .hide-compact` e similares.
@@ -15,6 +16,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Popover fora do diálogo modal fica inerte](docs/learning/gotcha-popover-fora-do-dialogo-modal.md) — menu aberto com `<dialog>` modal precisa morar dentro do diálogo; fora dele não recebe clique nem foco.
 - [Zoom "ajustar à largura" em laço](docs/learning/gotcha-zoom-em-laco-com-barra-de-rolagem.md) — barra de rolagem clássica muda a largura; `scrollbar-gutter: stable` na área rolável.
 - [display próprio anula o popover fechado](docs/learning/gotcha-display-de-popover-fechado.md) — declare `display` só em `:popover-open`; no seletor base o popover fechado fica na tela.
+- [Testes com node --test e scripts sob CSP](docs/learning/gotcha-testes-automaticos-node-e-csp.md) — `node --test tests/` falha no Node 24; com a CSP, injete axe e afins por `evaluate`, não `<script>`.
 
 ## Decisões de arquitetura
 - [Paginação por átomos e PDF pela impressão](docs/learning/decision-paginacao-por-atomos.md) — blocos medidos com o CSS real; prévia e PDF são o mesmo DOM; parágrafos divididos por linha; outro átomo maior que a página gera aviso.
@@ -24,6 +26,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Edição na página por campo flutuante](docs/learning/decision-edicao-na-pagina-por-campo-flutuante.md) — duplo clique abre campo sobre o trecho (`data-edit`); as páginas não ficam editáveis.
 - [Contrato para agentes de IA](docs/learning/decision-contrato-para-agentes-de-ia.md) — mesmo modelo do editor, operações por id, PDF pelo próprio app; nada de HTML gerado nem renderizador paralelo.
 - [Paisagem pela quebra de página](docs/learning/decision-paisagem-por-quebra-de-pagina.md) — A4 deitado só no conteúdo, a partir de uma quebra; capas do MIV ficam em retrato.
+- [Formatação pendente com o cursor parado](docs/learning/decision-formatacao-pendente-no-cursor.md) — Ctrl+B sem seleção vale para o próximo texto digitado; IME recebe o formato no `compositionend`.
 
 ## Abordagens que NÃO funcionaram
 - [Filtro CSS de cinza transforma o PDF em imagem](docs/learning/failed-filtro-css-cinza-rasteriza-pdf.md) — `filter` no documento rasteriza a página no Chromium; use cores cinza reais.
