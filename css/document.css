@@ -192,11 +192,12 @@
   height: 0.35mm;
   background: var(--doc-brand-rule);
 }
-.page__header--logo { top: 6.2mm; }
+.page__header--logo { top: 5mm; }
 /* Cabeçalho "Faixa no topo": faixa fina e inclinada do certificado do MIV (p. 52). */
 .page__header-art { position: absolute; top: 0; left: 0; right: 0; height: 4mm; }
 .page__header-art svg { display: block; width: 100%; height: 100%; }
-.page__header--logo::after { top: calc(100% + 1.4mm); }
+/* Área de proteção do MIV (p. 15): 2 × a distância brasão–nome (≈ 3,2 mm nesta altura) entre a marca e o fio. */
+.page__header--logo::after { top: calc(100% + 3.2mm); }
 
 /* Papel timbrado (MIV p. 34–36): assinatura centralizada no alto da primeira folha. */
 /* Vertical sem secretaria com 37 mm de largura; com secretaria, 40,5 mm (mínimo do MIV, p. 21).
