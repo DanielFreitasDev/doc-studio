@@ -19,7 +19,8 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - Comando **`/`** num parágrafo vazio e **Ctrl+K** abrem o seletor de blocos com busca.
 - 8 **combinações prontas** (ex.: "Seção com passo a passo", "Dúvidas comuns", "Como era × como fica").
 - Tabelas aceitam **colar células do Excel/Word** de uma vez.
-- Imagens: **cole um print (Ctrl+V)**, arraste arquivos para o editor ou para a página, ou escolha o arquivo. Com legenda, vira "Figura N".
+- Imagens: **cole um print (Ctrl+V)**, arraste arquivos para o editor ou para a página, ou escolha o arquivo (PNG, JPG, WEBP, GIF ou **SVG vetorial**). Com legenda, vira "Figura N". Fotos são mantidas até 3508 px (A4 a 300 dpi).
+- Cores dos blocos escolhidas numa **paleta de amostras** (com o nome da cor), não numa lista.
 
 **Organização**
 - **Arrastar e soltar** blocos no editor, no painel Estrutura e **direto na página da prévia** (onde soltar, entra). Também por teclado (setas na alça) e por menu.
@@ -28,19 +29,20 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - Desfazer/refazer ilimitado (até 150 passos), duplicar, recolher/expandir blocos.
 
 **Começar**
-- **Começar do zero**: Documento em branco (capa, contracapa e página timbrada, sem texto de exemplo), Papel timbrado (o do MIV, sem capa) ou "Já tenho o texto" (cola o texto e ele vira o documento).
-- 5 **modelos prontos** com textos de exemplo: Manual operacional, Guia rápido, Procedimento (POP), Relatório de resultados e Comunicado (em papel timbrado).
+- **Começar do zero**: Documento em branco (capa, contracapa e páginas, sem texto de exemplo), Papel timbrado (o do MIV, sem capa), Folha simples (sem capa nem contracapa) ou "Já tenho o texto" (cola o texto e ele vira o documento).
+- 8 **modelos prontos** com textos de exemplo: Manual operacional, Guia rápido, Procedimento (POP), Relatório de resultados, Comunicado, Apresentação de projeto (capa de placa de obra), Cartilha para o cidadão (capa de totem) e Ofício (papel timbrado).
 - Na primeira visita, fechar a galeria deixa um documento em branco; escolher um modelo descarta esse documento se ele não foi editado.
 
 **Design (tudo do MIV)**
-- 9 **estilos prontos** que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Papel timbrado, Identidade do MIV, Apresentação, Evento e Sol do sertão.
-- 9 **capas**, cada uma baseada numa peça do MIV: Pasta (a dos manuais aprovados), Pasta oficial (assinatura vertical centralizada), Arcos (capa do próprio MIV), Painel verde (slide de abertura), Convite, Envelope (verso), Leque (elemento base), Verde pleno (contracapa do MIV) e Minimalista — ou sem capa.
-- 5 **contracapas**: Pasta (verso), Conceito (assinatura em negativo + slogan, como a contracapa do MIV), Verde pleno, Leque e Minimalista — ou sem contracapa.
-- **Cabeçalhos**: texto, texto e linha, texto e assinatura (30 mm, mínimo do MIV), **timbrado** (assinatura centralizada no alto da primeira folha, como o papel timbrado do MIV: vertical, com a secretaria embaixo quando houver, p. 34–35; com órgão parceiro, o par horizontal da p. 36) ou nenhum.
-- **Rodapés**: faixa do papel timbrado, faixa com endereço (papel timbrado completo), **meia faixa** (o rodapé das páginas do próprio MIV, espelhado nas páginas pares), linha fina ou nenhum.
+- 14 **estilos prontos**, com miniatura da capa, que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Papel timbrado, Identidade do MIV, Apresentação, Evento, Sol do sertão, Evento (palco), Obras e projetos, Com foto, Clássico e Campanha (totem).
+- 14 **capas**, cada uma baseada numa peça do MIV: Pasta (a dos manuais aprovados), Pasta oficial (assinatura vertical centralizada), Arcos (capa do próprio MIV), Painel verde (slide de abertura), Convite, Envelope (verso), Leque (elemento base), Verde pleno (contracapa do MIV), Minimalista, **Foto** (sua foto recortada pelas faixas, como o slide da p. 56), **Totem** (p. 115), **Placa** (placa de obra, p. 76, com o conceito do Governo), **Palco** (fundo de palco, p. 104) e **Certificado** (p. 52) — ou sem capa.
+- 9 **contracapas**: Pasta (verso), Conceito (assinatura em negativo + slogan, como a contracapa do MIV), Verde pleno, Leque, Minimalista, **Vinheta** (assinatura e conceito em cores, p. 62), **Arcos**, **Palco** e **Certificado** — ou sem contracapa. Todas mostram site e redes sociais, como a p. 117.
+- **Cabeçalhos**: texto, texto e linha, texto e assinatura (30 mm, mínimo do MIV), **timbrado** (assinatura centralizada no alto da primeira folha, como o papel timbrado do MIV: vertical, com a secretaria embaixo quando houver, p. 34–35; com órgão parceiro, o par horizontal da p. 36), **faixa no topo** (certificado, p. 52) ou nenhum.
+- **Rodapés**: faixa do papel timbrado, faixa com endereço (papel timbrado completo), **meia faixa** (o rodapé das páginas do próprio MIV, espelhado nas páginas pares), linha fina, **camadas** (fundo de palco e vinheta) ou nenhum.
 - **Assinaturas** na ordem do MIV (órgão à esquerda, Governo à direita, sem fio separador, afastados pela largura do escudo): DETRAN/CE + Governo (Infraestrutura), Governo + Secretaria da Infraestrutura, somente Governo do Ceará, **Governo + conceito** "Cuidar das pessoas, avançar o Ceará." (p. 9), logo próprio + Governo, ou nenhuma. Na capa "Pasta oficial" a assinatura vira **vertical** — com órgão parceiro, a conjunta vertical lado a lado da p. 17.
-- **Página de abertura de capítulo** opcional por seção, em dois estilos: faixas da pasta ou **verde pleno** (degradê e texto em branco, como as p. 2–3 do MIV).
-- 7 **temas de cor** da paleta do grafismo, 3 estilos de título de seção, 3 estilos de cartão, 3 numerações, 2 fontes de texto e 3 espaçamentos (em "Mais ajustes", para não sobrecarregar o painel).
+- **Página de abertura de capítulo** opcional por seção, em quatro estilos: faixas da pasta, **verde pleno** (degradê e texto em branco, como as p. 2–3 do MIV), palco e arcos.
+- 8 **temas de cor** da paleta do grafismo (inclusive Azul), 3 estilos de título de seção, 3 estilos de cartão, 3 numerações, **peso dos títulos** (padrão dos manuais aprovados ou Kanit ExtraBold/Black como o MIV), 2 fontes de texto e 3 espaçamentos (em "Mais ajustes", para não sobrecarregar o painel).
+- **Assinaturas em vetor (SVG) extraídas do próprio MIV**: nítidas em qualquer tamanho; o PDF não tem nenhuma imagem rasterizada (exceto fotos e prints do usuário).
 - Divisor com o **grafismo** do MIV.
 - Painel Design pensado para leigos: **atalhos no topo** (Estilos, Capa, Cabeçalho, Rodapé, Contracapa, Assinatura, Cores) e **miniaturas** para capa, cabeçalho, rodapé, contracapa e assinatura, todas com os textos, cores e marcas do próprio documento.
 
@@ -54,6 +56,8 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - Tablet: editor e prévia lado a lado, painel lateral como gaveta.
 - Desktop: painel fixo + editor + prévia; modos "só editor", "lado a lado" e "só prévia" (Ctrl+1/2/3).
 - Tema do app **claro por padrão**; escuro ou automático (segue o sistema) no menu ⋯. O documento é sempre papel branco.
+- **Nenhum controle com a aparência padrão do navegador**: barras de rolagem, paleta de cores, contador numérico com − e +, controle deslizante, interruptores, campo de busca e dicas de ferramenta (pelo mouse e pelo teclado) são componentes próprios do projeto.
+- Efeitos visuais discretos: tela de abertura com a marca, menus e diálogos que entram com suavidade, cartão novo deslizando para o lugar, páginas que entram em sequência, transição ao trocar o modo de visualização. Tudo desligado com "reduzir movimento" no sistema.
 - **Gerar o PDF** abre um passo a passo e avisa antes de imprimir se há bloco cortado, texto marcado como "(exemplo)", capa com o título padrão ou documento vazio.
 - Status de salvamento sempre visível (no celular, um ponto colorido); se o salvamento falhar, aparece o botão "Baixar cópia".
 - Botão de **Ajuda** com primeiros passos; avisos com "Desfazer" ficam 10 s na tela.
@@ -88,12 +92,14 @@ doc-studio/
 │   ├── picker.js          Seletor de bloco (botão +, Ctrl+K, comando /)
 │   ├── dnd.js             Arrastar e soltar com Pointer Events (mouse e toque)
 │   ├── dialogs.js         Diálogos nativos, menus (Popover API) e avisos
+│   ├── controls.js        Comportamento dos controles próprios (−/+, deslizante, paleta, busca)
+│   ├── tooltip.js         Dica de ferramenta própria (substitui o title nativo)
 │   ├── images.js          Imagens: validação, redução e registro
 │   ├── storage.js         IndexedDB (documentos) e preferências (localStorage)
 │   └── utils.js           Utilitários pequenos e puros
 └── assets/
     ├── favicon.svg
-    ├── fonts/             Kanit e Maitree (WOFF, subconjunto latino) + LICENSE.md
+    ├── fonts/             Kanit (Light a Black) e Maitree (WOFF, subconjunto latino) + LICENSE.md
     └── img/               Assinaturas em SVG vetorial: Governo com Secretaria da
                            Infraestrutura (ceara), Governo sem secretaria (ceara-state),
                            vertical sem e com secretaria (ceara-vertical,
@@ -105,7 +111,7 @@ doc-studio/
 
 ## 4. Tecnologias utilizadas
 
-HTML5, CSS3 e JavaScript (ES2023) puros, sem bibliotecas, frameworks ou etapa de build. Recursos nativos usados: módulos ES, `<dialog>`, Popover API, Pointer Events, IndexedDB, `structuredClone`, `ResizeObserver`, `IntersectionObserver`, CSS Grid/Flexbox, Container Queries, `color-mix()`, `:has()`, `zoom`, `field-sizing` (com alternativa em JS), `@page`.
+HTML5, CSS3 e JavaScript (ES2023) puros, sem bibliotecas, frameworks ou etapa de build. Recursos nativos usados: módulos ES, `<dialog>`, Popover API, Pointer Events, IndexedDB, `structuredClone`, `ResizeObserver`, `IntersectionObserver`, View Transitions (quando há suporte), CSS Grid/Flexbox, Container Queries, `color-mix()`, `:has()`, `zoom`, `scrollbar-gutter`, `::-webkit-scrollbar`/`scrollbar-color`, `field-sizing` (com alternativa em JS), `@page`, SVG (grafismo, assinaturas e capa com foto).
 
 ## 5. Como executar
 
@@ -126,7 +132,7 @@ Navegadores recomendados: Chrome/Edge 120+, Firefox 126+ e Safari 17+.
 1. Na primeira abertura, escolha como começar: **em branco**, **papel timbrado**, **colando um texto** ou por um **modelo pronto** (fechar a galeria = documento em branco).
 2. Em **Textos** (painel lateral), preencha capa, cabeçalho e contracapa.
 3. No editor, edite os blocos. Para adicionar: painel **Inserir** (clique ou arraste), botão **+** entre blocos, **Ctrl+K**, ou `/` num parágrafo vazio. Para escrever de uma vez: **Escrever texto**.
-4. Em **Design**, troque capa, contracapa, cores e estilos — a prévia muda na hora.
+4. Em **Design**, troque capa, contracapa, cores e estilos — a prévia muda na hora. Na capa **Foto**, o app pede a imagem (depois, "Trocar foto da capa").
 5. Clique em **Exportar PDF**: revise os avisos (se houver), clique em "Abrir janela de impressão" e escolha "Salvar como PDF".
 6. Para levar o trabalho a outro computador: menu **⋯ → Baixar cópia de segurança** (arquivo `.docstudio.json`); no outro, **Abrir cópia de segurança**.
 
@@ -164,7 +170,13 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 | 14 | Recarregar a página (F5) | O mesmo documento reabre, com as imagens | Documento volta ao modelo |
 | 15 | Salvar `.json`, abrir em outra aba com "Abrir arquivo" | Abre como novo documento idêntico | Mensagem de arquivo inválido |
 | 16 | Redimensionar a janela até 320 px de largura | Navegação inferior; nenhuma barra de rolagem horizontal na página | Conteúdo cortado ou rolagem lateral |
-| 17 | Navegar só com Tab/Shift+Tab/Enter/Esc/setas | Todos os controles alcançáveis, foco visível, menus fecham com Esc | Foco preso ou invisível |
+| 17 | Navegar só com Tab/Shift+Tab/Enter/Esc/setas | Todos os controles alcançáveis, foco visível, menus fecham com Esc; ao focar um botão de ícone, aparece a dica própria | Foco preso ou invisível |
+| 18 | Design → capa **Foto** e escolher uma imagem | A foto aparece no alto da capa, recortada pela diagonal, com as faixas verde, água-marinha e laranja por cima | Foto distorcida ou fora do recorte |
+| 19 | Design → capas Totem, Placa, Palco e Certificado; contracapa Vinheta | Cada uma igual à peça citada do MIV (p. 115, 76, 104, 52 e 62); na Placa, o conceito em quatro linhas na área branca | Texto sobre faixa ilegível ou cortado |
+| 20 | Num bloco Passo a passo, clicar numa cor da paleta e no + de "Começar a numeração em" | O nome da cor aparece na legenda; o número sobe e a prévia muda | Lista suspensa ou setas nativas |
+| 21 | Passar o mouse sobre Desfazer e rolar painéis | Dica escura própria (sem a amarela do sistema); barras de rolagem finas e arredondadas | Dica ou barra com a aparência do navegador |
+| 22 | Documento de uma página (modelo Ofício) com "Ajustar à largura" | O zoom fica parado | O zoom fica oscilando e a prévia "treme" |
+| 23 | Exportar o PDF de um manual com abertura de capítulo | Mesmo número de páginas da prévia, sem conteúdo invadindo o rodapé | Uma página a menos e texto sobre a faixa |
 
 ### Edge cases
 
@@ -183,15 +195,14 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 
 ### O que foi verificado no desenvolvimento
 
-Executado com Playwright (Chromium), última rodada em 07/10/2026 (depois da segunda auditoria do MIV):
-- todos os modelos e os três "começar do zero" sem páginas cortadas, sem imagens quebradas e sem erros no console;
-- novas assinaturas (conceito, conjunta vertical, vertical com secretaria no timbrado), abertura "Verde pleno" e sumário pontilhado conferidos lado a lado com as p. 3, 4, 9, 17 e 35 do MIV; PDF do Chromium do "Manual operacional" com capa "Pasta oficial", abertura verde e contracapa "Conceito" com 8 páginas, iguais à prévia;
-- painel Design reorganizado sem rolagem horizontal em 320, 390, 759/760, 1024, 1179/1180, 1280 e 1920 px; axe-core sem violações no painel, nos temas claro e escuro;
-- PDF gerado pelo Chromium: Manual operacional (capa Arcos, contracapa Conceito, meia faixa) com 7 páginas e Comunicado em papel timbrado com 1 página, iguais à prévia, fontes Kanit/Maitree embutidas;
-- larguras 320, 360, 390, 559/560, 759/760, 1024, 1179/1180, 1279/1280 e 1920 px sem rolagem horizontal;
-- varredura axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) na tela principal, Design, diálogos (modelos, PDF, ajuda), tema escuro e celular: sem violações na interface. A única ocorrência é o contraste da "chamada" verde (#26a737) dentro das páginas do documento, que é a cor prescrita pelo MIV e foi mantida.
+Última rodada em 07/10/2026 (terceira auditoria do MIV), com Playwright:
+- **Chromium**: os 11 modelos e "começar do zero" sem páginas cortadas, sem imagens quebradas e sem erros no console; todas as capas, contracapas, cabeçalhos, rodapés e aberturas conferidos lado a lado com as páginas citadas do MIV;
+- **PDF** (`page.pdf()` do Chromium) em seis estilos prontos com abertura de capítulo: A4, mesmo número de páginas da prévia (8 = 8), inclusive forçando um recálculo com a mídia de impressão ativa; **nenhuma imagem rasterizada** (`pdfimages`), fontes Kanit (Light a Black) e Maitree embutidas (`pdffonts`); recorte a 600 dpi do brasão nítido;
+- larguras 320, 360, 390, 559/560, 759/760, 1024, 1179/1180, 1279/1280, 1440 e 1920 px sem rolagem horizontal; celular (390 px) com galeria, editor, Design e prévia;
+- axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) no painel Design, editor, galeria de modelos e tema escuro: sem violações na interface. A única ocorrência é o contraste da "chamada" verde (#26a737) dentro das páginas do documento, cor prescrita pelo MIV e mantida;
+- **Firefox e WebKit** (motor do Safari), pelo Playwright: abertura, galeria, modelo "Manual operacional" com 7 páginas, controles próprios e nenhuma imagem quebrada, sem erros (o WebKit só avisa que ignora `interactive-widget` da meta viewport).
 
-**Não validados neste ambiente:** Firefox, Safari/WebKit, arraste por toque em aparelho real e impressão pelo diálogo do Firefox/Safari.
+**Não validados neste ambiente:** Safari e Chrome em aparelhos reais (iOS/Android), arraste por toque em aparelho real e a janela de impressão do Firefox/Safari (o PDF foi conferido pelo Chromium).
 
 ## 8. Decisões técnicas principais
 
@@ -207,6 +218,8 @@ Executado com Playwright (Chromium), última rodada em 07/10/2026 (depois da seg
 - **Imagens fora do histórico.** O bloco guarda só o id da imagem; o registro converte para URLs `blob:` curtas. Desfazer não copia megabytes e a prévia não repete base64 no HTML.
 - **IndexedDB em vez de localStorage.** Documentos com prints passam facilmente dos ~5 MB do localStorage.
 - **Arrastar com Pointer Events.** O drag-and-drop nativo do HTML não funciona com toque na maioria dos celulares. No toque, itens da paleta exigem toque longo (para não brigar com a rolagem); sempre há alternativa por clique e teclado.
+- **Controles próprios em vez dos nativos.** Pedido explícito: nada com a aparência padrão do navegador. Os controles continuam sendo `<input>` reais (rádios, número, deslizante, interruptor) com a aparência redesenhada em CSS, então teclado e leitores de tela funcionam como antes; só a lista suspensa de cores foi trocada por uma paleta de rádios, mais fácil para leigos. A dica de ferramenta própria lê os atributos `title` existentes, então não há duas fontes de texto. *Impacto:* nenhum controle novo exige JavaScript para funcionar com o teclado.
+- **Medição sempre válida na impressão.** A área invisível de medição continua com largura no CSS de impressão e a paginação ignora medições com largura zero; antes, um recálculo durante a impressão juntava páginas no PDF.
 - **Sem PWA/instalação.** Não foi pedido; marcado como *não aplicável*. O app já funciona sem internet depois de carregado, porque não depende de rede.
 
 ## 9. Boas práticas adotadas
@@ -218,16 +231,17 @@ Executado com Playwright (Chromium), última rodada em 07/10/2026 (depois da seg
 - Mobile-first, sem rolagem horizontal acidental, áreas seguras (`env(safe-area-inset-*)`), `100dvh`, container queries nos cartões de bloco.
 - Toda entrada externa validada: arquivos `.json` reconstruídos campo a campo, imagens com tipo/tamanho verificados, texto sempre escapado.
 - Tokens de design (cores, espaçamentos, raios, movimento) em variáveis CSS; o documento usa os tokens do MIV.
+- Controles com aparência própria, mas semântica nativa (`input` real por trás de cada um), e efeitos só com `transform`/`opacity`, desligados em `prefers-reduced-motion`.
 
 ## 10. Possíveis melhorias futuras
 
 - Exportar `.docx` para quem precisa editar no Word.
 - Biblioteca compartilhada de modelos e blocos da equipe (exigiria um back-end).
 - Dividir parágrafos muito longos entre páginas por linha (hoje o app avisa para dividir).
-- Mais variações de grafismo (ex.: capas em paisagem para apresentações).
+- Documentos em paisagem (apresentações e fundos de palco no formato original do MIV).
+- Edição direta do texto na prévia (hoje a prévia leva ao bloco no editor).
 - Comentários e revisão entre colegas.
 - Testes automatizados versionados (Playwright) no repositório.
-- Carregar Kanit ExtraBold/Black (usadas nos títulos do próprio MIV) se a chefia aprovar títulos mais pesados.
 - Versões em tons de cinza/monocromáticas da assinatura (MIV p. 12–13) para impressão em uma cor.
 - PWA instalável com funcionamento offline garantido por service worker, se houver demanda.
 
