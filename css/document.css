@@ -28,6 +28,15 @@
 
   /* Faixa em degradê usada em filetes (verde → água → laranja) */
   --doc-brand-rule: linear-gradient(90deg, #26a737, #2db39e 50%, #f59c00);
+  --doc-brand-divider: linear-gradient(90deg, #26a737, #2db39e 45%, #f59c00 75%, #e94f0e);
+
+  /* Cores fixas da marca (não mudam com o tema): verde do conceito (p. 9),
+     amarelo dos filetes sobre fundo escuro, quadro do backdrop (C80 Y100, p. 116)
+     e cor do `código` no texto. */
+  --doc-brand-green: #26a737;
+  --doc-brand-gold: #fccf05;
+  --doc-backdrop-green: #38b53f;
+  --doc-code: #1e8576;
 
   --doc-body-font: 'Maitree', Georgia, 'Times New Roman', serif;
   --doc-body-weight: 400;
@@ -81,6 +90,33 @@
 .doc .tone-red    { --t: #e94f0e; --t-strong: #b83a0a; --t-soft: #fdeae2; }
 .doc .tone-navy   { --t: #465564; --t-strong: #2f3b47; --t-soft: #edf0f3; }
 .doc .tone-gold   { --t: #e4a500; --t-strong: #8a6400; --t-soft: #fff6d6; }
+
+/* ---------------------------------------------------------------- escala de cinza (MIV p. 12) */
+/* Para impressoras preto e branco. Cada cor vira o cinza de mesma luminância
+   (Rec. 601), em cores sólidas: um filtro CSS (filter: grayscale) faria o
+   Chromium rasterizar a página inteira no PDF. As assinaturas usam arquivos
+   *-gray.svg gerados pela tabela de correspondência da p. 12 e o grafismo
+   SVG é convertido em js/graphics.js (grayscaleSvg). */
+.doc[data-color-mode="gray"] {
+  --doc-primary: #747474; --doc-primary-strong: #545454; --doc-primary-soft: #f1f1f1;
+  --doc-accent: #a5a5a5; --doc-accent-strong: #5a5a5a; --doc-accent-soft: #f4f4f4;
+  --doc-navy: #525252; --doc-heading: #393939; --doc-text: #333333;
+  --doc-muted: #747474; --doc-muted-2: #a2a2a2; --doc-border: #e1e1e1; --doc-surface: #f5f5f5;
+  --doc-brand-rule: linear-gradient(90deg, #747474, #898989 50%, #a5a5a5);
+  --doc-brand-divider: linear-gradient(90deg, #747474, #898989 45%, #a5a5a5 75%, #767676);
+  --doc-brand-green: #747474;
+  --doc-brand-gold: #c5c5c5;
+  --doc-backdrop-green: #828282;
+  --doc-code: #646464;
+}
+.doc[data-color-mode="gray"] .tone-green  { --t: #747474; --t-strong: #545454; --t-soft: #f1f1f1; }
+.doc[data-color-mode="gray"] .tone-teal   { --t: #898989; --t-strong: #646464; --t-soft: #f0f0f0; }
+.doc[data-color-mode="gray"] .tone-orange { --t: #a5a5a5; --t-strong: #5a5a5a; --t-soft: #f4f4f4; }
+.doc[data-color-mode="gray"] .tone-red    { --t: #767676; --t-strong: #5a5a5a; --t-soft: #efefef; }
+.doc[data-color-mode="gray"] .tone-navy   { --t: #525252; --t-strong: #393939; --t-soft: #efefef; }
+.doc[data-color-mode="gray"] .tone-gold   { --t: #a5a5a5; --t-strong: #646464; --t-soft: #f5f5f5; }
+/* Fotos e prints do usuário já são imagens; o filtro só vale para elas. */
+.doc[data-color-mode="gray"] :is(.b-fig img, .cover__art image) { filter: grayscale(1); }
 
 /* ---------------------------------------------------------------- área das páginas na prévia */
 .pages {
@@ -254,7 +290,7 @@
 .doc strong { font-weight: 600; color: var(--doc-heading); }
 .doc .b-p strong, .doc .b-li strong, .doc .b-step__b strong { font-weight: var(--doc-body-bold); }
 .doc em { font-style: italic; }
-.doc code { font-family: 'DejaVu Sans Mono', ui-monospace, monospace; font-size: 0.82em; color: #1e8576; background: none; padding: 0; }
+.doc code { font-family: 'DejaVu Sans Mono', ui-monospace, monospace; font-size: 0.82em; color: var(--doc-code); background: none; padding: 0; }
 .doc mark { background: var(--doc-accent-soft); color: var(--doc-accent-strong); padding: 0 0.6mm; border-radius: 0.6mm; }
 .doc s { text-decoration-thickness: 0.25mm; }
 
@@ -644,7 +680,7 @@
 .b-div { display: block; }
 .b-div--line { height: 0.3mm; background: var(--doc-border); }
 .b-div--accent { width: 34mm; height: 1.1mm; background: var(--doc-brand-rule); }
-.b-div--brand { height: 0.7mm; background: linear-gradient(90deg, #26a737, #2db39e 45%, #f59c00 75%, #e94f0e); }
+.b-div--brand { height: 0.7mm; background: var(--doc-brand-divider); }
 .b-div--space { height: 6mm; }
 .b-div--wedge { height: 3.2mm; }
 .b-div--wedge svg { display: block; width: 100%; height: 100%; }
@@ -705,7 +741,7 @@
   width: max(0.25mm, calc(var(--brand-h) * 0.014));
   height: calc(var(--brand-h) * 0.64);
   margin: calc(var(--brand-h) * 0.16) calc(var(--brand-h) * 0.162) 0;
-  background: #26a737;
+  background: var(--doc-brand-green);
 }
 .brand .slogan {
   flex: none;
@@ -717,7 +753,7 @@
   text-align: left;
   text-transform: uppercase;
   white-space: nowrap;
-  color: #26a737;
+  color: var(--doc-brand-green);
 }
 .slogan strong { font-weight: 700; color: inherit; }
 .brand--negative .brand__rule { background: #fff; }
@@ -748,7 +784,7 @@
 .cover--panel .cover__aud-label { margin-right: 0; }
 .cover--panel :is(.cover__kicker, .cover__title, .cover__aud-label, .cover__aud-text) { color: #fff; }
 .cover--panel :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.9); }
-.cover--panel .cover__rule { background: linear-gradient(90deg, #fff, #fccf05); }
+.cover--panel .cover__rule { background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 
 /* Capa "Convite": coluna de texto à direita da faixa vertical */
 .cover--invite .cover__brand { top: 11%; bottom: auto; left: 80mm; right: auto; }
@@ -791,7 +827,7 @@
 .page--dark :is(.cover__kicker, .cover__aud-label, .chapter__kicker) { color: #fff; }
 .page--dark :is(.cover__title, .cover__aud-text, .back__title, .back__text) { color: #fff; }
 .page--dark :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.88); }
-.page--dark .cover__rule { background: linear-gradient(90deg, #fff, #fccf05); }
+.page--dark .cover__rule { background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 
 /* Abertura de capítulo */
 .chapter__content { position: absolute; left: 20mm; right: 34mm; top: 38%; }
@@ -810,7 +846,7 @@
 .chapter--solid .chapter__content { left: 92mm; right: 18mm; top: 34%; }
 .chapter--solid .chapter__num { font-size: 72pt; color: rgb(255 255 255 / 0.35); }
 .chapter--solid .chapter__title { font-weight: 700; color: #fff; }
-.chapter--solid .chapter__rule { background: linear-gradient(90deg, #fff, #fccf05); }
+.chapter--solid .chapter__rule { background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 .chapter--solid .chapter__intro, .chapter--solid .chapter__intro strong { color: #fff; }
 .chapter--solid .chapter__intro { font-family: 'Kanit', sans-serif; font-weight: 400; }
 
@@ -825,7 +861,7 @@
 .cover--totem .cover__heading { top: 8.5%; }
 .cover--totem :is(.cover__kicker, .cover__title) { color: #fff; }
 .cover--totem :is(.cover__subtitle, .cover__desc) { color: rgb(255 255 255 / 0.92); }
-.cover--totem .cover__rule { margin-inline: auto; background: linear-gradient(90deg, #fff, #fccf05); }
+.cover--totem .cover__rule { margin-inline: auto; background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 .cover--totem .cover__audience { top: 42%; }
 .cover--totem .cover__aud-label { margin-right: -0.55em; }
 .cover--totem .cover__aud-text { font-style: italic; font-weight: 300; font-size: 14pt; line-height: 18pt; }
@@ -844,7 +880,7 @@
 .cover--sign .cover__title { font-size: 25pt; line-height: 29pt; text-transform: uppercase; }
 .cover--sign :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.92); }
 .cover--sign .cover__subtitle { font-size: 14pt; line-height: 18pt; }
-.cover--sign .cover__rule { background: linear-gradient(90deg, #fff, #fccf05); }
+.cover--sign .cover__rule { background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 .cover--sign .cover__audience { top: auto; bottom: 9%; left: 137mm; right: 9mm; text-align: left; }
 .cover--sign .cover__aud-label { margin-right: 0; }
 .cover__concept { position: absolute; left: 0; width: 112mm; bottom: 13%; display: flex; justify-content: center; }
@@ -917,9 +953,35 @@
 .back__web { margin-top: 2.6mm; font-size: 9pt; font-weight: 500; letter-spacing: 0.06em; color: var(--doc-primary-strong); }
 .page--dark .back__web { color: #fff; }
 
+/* Contracapa "Backdrop" (MIV p. 116): quadros alternados verde (C80 Y100) e branco,
+   cada um com a assinatura centralizada; endereço centralizado abaixo. */
+.backdrop {
+  position: absolute;
+  inset: 9mm 9mm auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 27mm;
+  gap: 2mm;
+}
+.backdrop__tile { display: grid; place-items: center; border-radius: 2.4mm; }
+.backdrop__tile--green { background: var(--doc-backdrop-green); }
+.backdrop__tile .brand__state { width: 40mm; height: auto; }
+.backdrop__tile .brand__partner { height: 17mm; width: auto; max-width: 48mm; object-fit: contain; }
+.back--backdrop .back__info {
+  left: 20mm;
+  right: 20mm;
+  top: 224mm;
+  bottom: auto;
+  max-width: none;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+.back--backdrop .back__title { margin-top: 0; }
+
 /* Sem assinatura, o conceito aparece sozinho e maior, para não sumir na página. */
 .concept { --brand-h: 32mm; }
-.concept .slogan { font-size: calc(var(--brand-h) * 0.142); line-height: calc(var(--brand-h) * 0.167); text-transform: uppercase; color: #26a737; }
+.concept .slogan { font-size: calc(var(--brand-h) * 0.142); line-height: calc(var(--brand-h) * 0.167); text-transform: uppercase; color: var(--doc-brand-green); }
 .concept--negative .slogan { color: #fff; }
 .back--fan .back__info { left: 20mm; bottom: auto; top: 12%; }
 

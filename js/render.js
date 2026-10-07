@@ -12,13 +12,18 @@ import { esc, pad2 } from './utils.js';
 import { renderInline } from './markup.js';
 import { ALTERNATE_TONES, CALLOUT_TONES } from './schema.js';
 import { COVERS, BACK_COVERS } from './design.js';
-import { coverArt, backArt, chapterArt, footerArt, headerArt, dividerArt, CHECK_SVG } from './graphics.js';
+import { coverArt, backArt, chapterArt, footerArt, headerArt, dividerArt, grayscaleSvg, CHECK_SVG } from './graphics.js';
 
 /* ------------------------------------------------------------------ auxiliares */
 const toneClass = (tone, index = 0) => `tone-${tone === 'alternate' ? ALTERNATE_TONES[index % ALTERNATE_TONES.length] : tone}`;
 const calloutTone = (value) => CALLOUT_TONES.find((t) => t.value === value)?.tone ?? 'navy';
 const nonEmptyLines = (text) => String(text ?? '').split('\n').map((line) => line.trim()).filter(Boolean);
 const paragraphs = (text) => String(text ?? '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+
+/** Escala de cinza (MIV p. 12): sufixo dos arquivos de assinatura e cores do grafismo. */
+const isGray = (design) => design.colorMode === 'gray';
+const graySuffix = (design) => (isGray(design) ? '-gray' : '');
+const paint = (design, html) => (isGray(design) ? grayscaleSvg(html) : html);
 
 function chunk(list, size) {
   const rows = [];
@@ -78,7 +83,7 @@ const RENDERERS = {
       return [{
         kind: 'chapter',
         blockId: block.id,
-        build: (idPrefix) => `
+        build: (idPrefix) => paint(ctx.design, `
           <section class="page page--chapter chapter--${style}${dark ? ' page--dark' : ''}" aria-label="Abertura: ${esc(block.title)}">
             ${chapterArt(idPrefix, style)}
             <div class="chapter__content atom" data-block-id="${esc(block.id)}">
@@ -88,7 +93,7 @@ const RENDERERS = {
               <span class="chapter__rule"></span>
               ${intro.replaceAll('b-section__intro', 'chapter__intro')}
             </div>
-          </section>`,
+          </section>`),
       }];
     }
 
@@ -368,10 +373,10 @@ const withSecretaria = (design) => design.signature === 'joint' || design.signat
 function stateLogo(design, { negative, vertical }) {
   if (vertical) {
     return withSecretaria(design)
-      ? `<img class="brand__state brand__state--vertical brand__state--secretaria" src="assets/img/ceara-vertical-secretaria.svg" alt="${STATE_ALT}" width="1123" height="1000">`
-      : `<img class="brand__state brand__state--vertical" src="assets/img/ceara-vertical.svg" alt="${STATE_ALT}" width="1251" height="1000">`;
+      ? `<img class="brand__state brand__state--vertical brand__state--secretaria" src="assets/img/ceara-vertical-secretaria${graySuffix(design)}.svg" alt="${STATE_ALT}" width="1123" height="1000">`
+      : `<img class="brand__state brand__state--vertical" src="assets/img/ceara-vertical${graySuffix(design)}.svg" alt="${STATE_ALT}" width="1251" height="1000">`;
   }
-  const suffix = negative ? '-negative' : '';
+  const suffix = `${negative ? '-negative' : ''}${graySuffix(design)}`;
   const file = withSecretaria(design) ? 'ceara' : 'ceara-state';
   return `<img class="brand__state" src="assets/img/${file}${suffix}.svg" alt="${STATE_ALT}" width="1258" height="400">`;
 }
@@ -385,7 +390,7 @@ export const SLOGAN_HTML = '<p class="slogan"><strong>Cuidar</strong><br>das pes
 
 function partnerLogo(design, assets, negative) {
   if (design.signature === 'joint') {
-    return `<img class="brand__partner" src="assets/img/detran${negative ? '-negative' : ''}.svg" alt="DETRAN/CE" width="370" height="416">`;
+    return `<img class="brand__partner" src="assets/img/detran${negative ? '-negative' : ''}${graySuffix(design)}.svg" alt="DETRAN/CE" width="370" height="416">`;
   }
   const logo = design.signature === 'custom' ? assets[design.customLogo] : null;
   return logo ? `<img class="brand__partner" src="${esc(logo.url)}" alt="Logo do órgão" width="${logo.width}" height="${logo.height}">` : '';
@@ -432,7 +437,7 @@ export function renderCover(doc, assets, idPrefix) {
   const photo = cover.id === 'photo' ? assets[design.coverImage] : null;
   // Placa de obra (MIV p. 76): o conceito do Governo ocupa o pé da área branca.
   const concept = cover.id === 'sign' ? `<div class="cover__concept">${SLOGAN_HTML}</div>` : '';
-  return `
+  return paint(design, `
     <section class="page page--cover cover--${cover.id}${cover.dark ? ' page--dark' : ''}" aria-label="Capa" data-target="cover">
       ${coverArt(cover.id, idPrefix, { photoUrl: photo ? esc(photo.url) : '' })}
       <div class="cover__brand">${brandHtml(design, assets, { negative: cover.dark, vertical: VERTICAL_BRAND_COVERS.has(cover.id) })}</div>
@@ -445,23 +450,54 @@ export function renderCover(doc, assets, idPrefix) {
       </div>
       ${audience}
       ${concept}
-    </section>`;
+    </section>`);
+}
+
+/**
+ * Backdrop de eventos (MIV p. 116): quadros verdes (C80 Y100) com a
+ * assinatura do Governo em negativo, alternados com quadros brancos. No
+ * backdrop "institucional" os brancos levam o Governo em cores; no de
+ * "vinculadas e autarquias", o órgão vinculado (ex.: DETRAN/CE).
+ */
+const BACKDROP = { columns: 3, rows: 7 };
+
+function backdropHtml(design, assets) {
+  const mark = (green) => {
+    if (design.signature === 'none') return '';
+    if (green) return stateLogo(design, { negative: true });
+    return partnerLogo(design, assets, false) || stateLogo(design, { negative: false });
+  };
+  const tiles = [];
+  for (let row = 0; row < BACKDROP.rows; row += 1) {
+    for (let column = 0; column < BACKDROP.columns; column += 1) {
+      const green = (row + column) % 2 === 0;
+      tiles.push(`<span class="backdrop__tile${green ? ' backdrop__tile--green' : ''}">${mark(green)}</span>`);
+    }
+  }
+  return `<div class="backdrop" aria-hidden="true">${tiles.join('')}</div>`;
+}
+
+function backBrandHtml(back, design, assets) {
+  if (back.id === 'backdrop') return '';
+  if (back.id === 'concept' || back.id === 'vignette') return conceptLockup(design, assets, { negative: Boolean(back.dark) });
+  return brandHtml(design, assets, { negative: back.dark });
 }
 
 export function renderBackCover(doc, assets, idPrefix) {
   const { design, meta } = doc;
   const back = BACK_COVERS.find((c) => c.id === design.backCover);
   if (!back || back.id === 'none') return '';
-  return `
+  return paint(design, `
     <section class="page page--back back--${back.id}${back.dark ? ' page--dark' : ''}" aria-label="Contracapa" data-target="back">
       ${backArt(back.id, idPrefix)}
+      ${back.id === 'backdrop' ? backdropHtml(design, assets) : ''}
       <div class="back__info">
-        ${back.id === 'concept' || back.id === 'vignette' ? conceptLockup(design, assets, { negative: Boolean(back.dark) }) : brandHtml(design, assets, { negative: back.dark })}
+        ${backBrandHtml(back, design, assets)}
         ${meta.backTitle ? `<p class="back__title">${esc(meta.backTitle)}</p>` : ''}
         ${meta.backText ? `<p class="back__text">${esc(meta.backText)}</p>` : ''}
         ${meta.backWeb ? `<p class="back__web">${esc(meta.backWeb)}</p>` : ''}
       </div>
-    </section>`;
+    </section>`);
 }
 
 /**
@@ -484,7 +520,7 @@ function headerHtml(doc, assets, first, idPrefix) {
   }
   // Assinatura no cabeçalho: sem secretaria e com 30 mm de largura (mínimo do MIV, p. 21).
   const right = design.header === 'logo'
-    ? `<img src="assets/img/ceara-state.svg" alt="${STATE_ALT}" width="1258" height="400">`
+    ? `<img src="assets/img/ceara-state${graySuffix(design)}.svg" alt="${STATE_ALT}" width="1258" height="400">`
     : esc(meta.headerRight);
   return `
     ${design.header === 'band' ? `<div class="page__header-art">${headerArt('band', `${idPrefix}-h`)}</div>` : ''}
@@ -522,12 +558,12 @@ export function renderContentPage(doc, assets, { bodyHtml, first, number, total,
     design.header === 'letterhead' && first ? 'page--letterhead' : '',
     overflowing ? 'is-overflowing' : '',
   ].filter(Boolean).join(' ');
-  return `
+  return paint(design, `
     <section class="${classes}" aria-label="Página ${number}">
       ${headerHtml(doc, assets, first, idPrefix)}
       <div class="page__body">${bodyHtml}</div>
       ${design.footer === 'address' ? addressHtml(doc.meta) : ''}
       ${footer}
       ${pageNumberHtml(design, number, total)}
-    </section>`;
+    </section>`);
 }

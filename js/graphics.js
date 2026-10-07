@@ -382,6 +382,8 @@ const BACK_LAYERS = {
     ...stageLayers(PAGE_H, 62, { x1: 70, x2: 140 }),
   ],
   certificate: COVER_LAYERS.certificate,
+  // Backdrop (MIV p. 116): os quadros são HTML (js/render.js); aqui só a faixa do timbrado no pé.
+  backdrop: () => footerBarLayers(PAGE_H),
 };
 
 const CHAPTER_LAYERS = () => [
@@ -450,6 +452,22 @@ const CHAPTER_STYLES = {
 
 export function chapterArt(idPrefix, style = 'folder') {
   return svg('chapter__art', (CHAPTER_STYLES[style] ?? CHAPTER_LAYERS)(), idPrefix);
+}
+
+/* ------------------------------------------------------------------ escala de cinza (MIV p. 12) */
+const hexToGray = (hex) => {
+  const value = Number.parseInt(hex, 16);
+  const luma = Math.round(0.299 * (value >> 16) + 0.587 * ((value >> 8) & 255) + 0.114 * (value & 255));
+  return `#${luma.toString(16).padStart(2, '0').repeat(3)}`;
+};
+
+/**
+ * Troca as cores do grafismo SVG (fill e stop-color) pelo cinza de mesma
+ * luminância. Atua só em atributos gerados aqui: o texto do usuário chega
+ * escapado (aspas viram &quot;) e não casa com o padrão.
+ */
+export function grayscaleSvg(html) {
+  return html.replace(/(fill|stop-color)="#([0-9a-fA-F]{6})"/g, (_, attribute, hex) => `${attribute}="${hexToGray(hex)}"`);
 }
 
 /** Ícone de "check" usado em cartões e listas do documento. */

@@ -18,8 +18,9 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Campos de texto com marcação em vez de contenteditable](docs/learning/decision-texto-com-marcacao-em-vez-de-contenteditable.md) — texto sempre escapado antes de `renderInline()`; nada de HTML livre.
 
 ## Abordagens que NÃO funcionaram
+- [Filtro CSS de cinza transforma o PDF em imagem](docs/learning/failed-filtro-css-cinza-rasteriza-pdf.md) — `filter` no documento rasteriza a página no Chromium; use cores cinza reais.
 
 ## Notas de performance
 
 ## Referências externas
-- [Fontes do padrão visual](docs/learning/reference-manual-de-identidade-visual.md) — MIV, manuais aprovados, página de origem de cada capa, erratas de cor do MIV e como os logos foram gerados.
+- [Fontes do padrão visual](docs/learning/reference-manual-de-identidade-visual.md) — MIV, manuais aprovados, página de origem de cada capa, erratas de cor do MIV e como os logos (inclusive os em cinza) foram gerados.

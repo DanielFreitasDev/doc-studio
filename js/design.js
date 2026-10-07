@@ -55,6 +55,7 @@ export const BACK_COVERS = [
   { id: 'identity', label: 'Arcos', description: 'Arcos do grafismo da capa do MIV, com assinatura e endereço' },
   { id: 'stage', label: 'Palco', description: 'Faixas em camadas no pé, assinatura centralizada (fundo de palco, MIV p. 104)' },
   { id: 'certificate', label: 'Certificado', description: 'Faixa fina no alto e faixa do timbrado no pé (MIV p. 52)' },
+  { id: 'backdrop', label: 'Backdrop', description: 'Quadros verdes e brancos com as assinaturas alternadas (backdrop de eventos, MIV p. 116)' },
   { id: 'none', label: 'Sem contracapa', description: 'Termina na última página de conteúdo' },
 ];
 
@@ -113,6 +114,11 @@ export const DESIGN_OPTIONS = {
     { value: 'custom', label: 'Logo próprio + Governo', description: 'Envie o logo do órgão; ele fica à esquerda do Governo (MIV p. 16)' },
     { value: 'none', label: 'Sem assinatura', description: 'Nenhuma marca na capa, contracapa e timbrado' },
   ],
+  // Escala de cinza para impressoras preto e branco (MIV p. 12).
+  colorMode: [
+    { value: 'color', label: 'Colorida' },
+    { value: 'gray', label: 'Escala de cinza (P&B)' },
+  ],
   // Página de abertura de capítulo (opção "Página inteira de abertura" do bloco Seção).
   chapterStyle: [
     { value: 'folder', label: 'Faixas (pasta)' },
@@ -136,6 +142,7 @@ export const DEFAULT_DESIGN = Object.freeze({
   signature: 'joint',
   chapterStyle: 'folder',
   headingWeight: 'regular',
+  colorMode: 'color',
   customLogo: '',
   coverImage: '',
   numberSections: true,
@@ -234,6 +241,7 @@ export function docAttributes(design) {
     'data-body-font': design.bodyFont,
     'data-density': design.density,
     'data-heading-weight': design.headingWeight,
+    'data-color-mode': design.colorMode,
   };
 }
 

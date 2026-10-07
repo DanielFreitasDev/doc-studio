@@ -219,6 +219,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       ${choiceGroup({ title: 'Contracapa', name: 'backCover', options: BACK_COVERS, id: 'design-back' })}
       ${choiceGroup({ title: 'Assinatura', name: 'signature', options: DESIGN_OPTIONS.signature, variant: 'brand', id: 'design-signature', hint: 'Usada na capa, na contracapa e no timbrado, sempre na ordem do MIV.', extra: '<div class="logo-upload" id="logo-upload"></div>' })}
       <fieldset class="design-group" id="design-theme"><legend>Tema de cores</legend><ul class="swatch-grid">${swatches}</ul></fieldset>
+      ${segmentedGroup('Impressão', 'colorMode', DESIGN_OPTIONS.colorMode, 'Para impressora preto e branco: capa, faixas e assinaturas em tons de cinza, na correspondência de cores do MIV (p. 12).')}
       <details class="design-more" id="design-more"${preferences.get('design-more-open', false) ? ' open' : ''}>
       <summary>Mais ajustes <small>títulos, cartões, numeração, abertura de capítulo, peso dos títulos, fonte e espaçamento</small></summary>
       ${segmentedGroup('Títulos de seção', 'sectionStyle', DESIGN_OPTIONS.sectionStyle)}
