@@ -139,6 +139,8 @@ export function createPreview({ store, ui, assets, actions }) {
     if (event.target.closest('a[href]')) event.preventDefault();
     const atom = event.target.closest('.atom[data-block-id]');
     if (atom && actions.selection?.handleClick(event, atom.dataset.blockId)) return;
+    // No celular (uma área por vez), tocar num texto edita ali mesmo, sem trocar para o editor.
+    if (matchMedia('(max-width: 759.98px)').matches && actions.editInPage?.(event.target)) return;
     if (atom) {
       actions.select(atom.dataset.blockId, { source: 'preview', revealEditor: true });
       return;
