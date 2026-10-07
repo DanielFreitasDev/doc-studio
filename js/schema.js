@@ -17,18 +17,26 @@ export const BLOCK_GROUPS = [
   { id: 'page', label: 'Página' },
 ];
 
+/**
+ * Cores dos blocos. `swatch` é o fundo da amostra na paleta do editor: as
+ * cores fixas vêm da paleta do grafismo (MIV p. 26); "tema" e "apoio" seguem
+ * o tema de cores escolhido em Design (variáveis definidas em script.js).
+ */
 export const TONE_OPTIONS = [
-  { value: 'theme', label: 'Cor do tema' },
-  { value: 'accent', label: 'Cor de apoio do tema' },
-  { value: 'green', label: 'Verde' },
-  { value: 'teal', label: 'Água-marinha' },
-  { value: 'orange', label: 'Laranja' },
-  { value: 'red', label: 'Vermelho' },
-  { value: 'gold', label: 'Amarelo-ouro' },
-  { value: 'navy', label: 'Grafite' },
+  { value: 'theme', label: 'Cor do tema', swatch: 'var(--tone-theme)' },
+  { value: 'accent', label: 'Cor de apoio do tema', swatch: 'var(--tone-accent)' },
+  { value: 'green', label: 'Verde', swatch: '#26a737' },
+  { value: 'teal', label: 'Água-marinha', swatch: '#2db39e' },
+  { value: 'orange', label: 'Laranja', swatch: '#f59c00' },
+  { value: 'red', label: 'Vermelho', swatch: '#e94f0e' },
+  { value: 'gold', label: 'Amarelo-ouro', swatch: '#e4a500' },
+  { value: 'navy', label: 'Grafite', swatch: '#465564' },
 ];
 
-const TONE_WITH_ALTERNATE = [{ value: 'alternate', label: 'Alternar cores' }, ...TONE_OPTIONS];
+const TONE_WITH_ALTERNATE = [
+  { value: 'alternate', label: 'Alternar cores', swatch: 'conic-gradient(var(--tone-theme) 0 25%, #2db39e 0 50%, var(--tone-accent) 0 75%, #465564 0)' },
+  ...TONE_OPTIONS,
+];
 
 export const CALLOUT_TONES = [
   { value: 'info', label: 'Informação', tone: 'navy' },
@@ -39,11 +47,11 @@ export const CALLOUT_TONES = [
 ];
 
 const TABLE_TONES = [
-  { value: 'navy', label: 'Grafite (padrão)' },
-  { value: 'theme', label: 'Cor do tema' },
-  { value: 'accent', label: 'Cor de apoio' },
-  { value: 'teal', label: 'Água-marinha' },
-  { value: 'minimal', label: 'Minimalista (só linhas)' },
+  { value: 'navy', label: 'Grafite (padrão)', swatch: '#465564' },
+  { value: 'theme', label: 'Cor do tema', swatch: 'var(--tone-theme)' },
+  { value: 'accent', label: 'Cor de apoio', swatch: 'var(--tone-accent)' },
+  { value: 'teal', label: 'Água-marinha', swatch: '#2db39e' },
+  { value: 'minimal', label: 'Minimalista (só linhas)', swatch: 'linear-gradient(transparent 46%, #2f3b47 46% 58%, transparent 58%), #fff' },
 ];
 
 /** Paleta usada quando um bloco está em "Alternar cores". */
@@ -141,7 +149,7 @@ export const BLOCK_TYPES = {
     fields: [
       { key: 'title', kind: 'text', label: 'Título do grupo (opcional)', placeholder: 'Ex.: Fase 1 · Coleta no aplicativo' },
       { key: 'start', kind: 'number', label: 'Começar a numeração em', min: 1, max: 999 },
-      { key: 'tone', kind: 'select', label: 'Cor', options: TONE_OPTIONS },
+      { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_OPTIONS },
       {
         key: 'items', kind: 'items', label: 'Passos', itemLabel: 'Passo', max: 60, split: true,
         fields: [{ key: 'title', kind: 'text', label: 'Título' }, { key: 'text', kind: 'rich', label: 'Descrição', rows: 2 }],
@@ -169,7 +177,7 @@ export const BLOCK_TYPES = {
     fields: [
       { key: 'columns', kind: 'segmented', label: 'Colunas', options: [{ value: '1', label: '1' }, { value: '2', label: '2' }, { value: '3', label: '3' }] },
       { key: 'marker', kind: 'segmented', label: 'Marcador', options: [{ value: 'number', label: '1' }, { value: 'letter', label: 'A' }, { value: 'check', label: '✓' }, { value: 'none', label: 'Nenhum' }] },
-      { key: 'tone', kind: 'select', label: 'Cor', options: TONE_WITH_ALTERNATE },
+      { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_WITH_ALTERNATE },
       {
         key: 'items', kind: 'items', label: 'Cartões', itemLabel: 'Cartão', max: 30, split: true,
         fields: [{ key: 'title', kind: 'text', label: 'Título' }, { key: 'text', kind: 'rich', label: 'Texto', rows: 2 }],
@@ -196,7 +204,7 @@ export const BLOCK_TYPES = {
     }),
     fields: [
       { key: 'label', kind: 'text', label: 'Rótulo das etapas', placeholder: 'Ex.: Etapa, Fase' },
-      { key: 'tone', kind: 'select', label: 'Cor', options: TONE_WITH_ALTERNATE },
+      { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_WITH_ALTERNATE },
       {
         key: 'items', kind: 'items', label: 'Etapas', itemLabel: 'Etapa', max: 16, split: true,
         fields: [{ key: 'title', kind: 'text', label: 'Título' }, { key: 'text', kind: 'rich', label: 'Texto', rows: 2 }],
@@ -223,7 +231,7 @@ export const BLOCK_TYPES = {
     }),
     fields: [
       { key: 'title', kind: 'text', label: 'Título (opcional)' },
-      { key: 'tone', kind: 'select', label: 'Cor', options: TONE_WITH_ALTERNATE },
+      { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_WITH_ALTERNATE },
       {
         key: 'items', kind: 'items', label: 'Marcos', itemLabel: 'Marco', max: 24,
         fields: [
@@ -298,7 +306,7 @@ export const BLOCK_TYPES = {
     fields: [
       { key: 'questionLabel', kind: 'text', label: 'Rótulo da pergunta' },
       { key: 'answerLabel', kind: 'text', label: 'Rótulo da resposta' },
-      { key: 'tone', kind: 'select', label: 'Cor', options: TONE_OPTIONS },
+      { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_OPTIONS },
       {
         key: 'items', kind: 'items', label: 'Perguntas', itemLabel: 'Pergunta', max: 40, split: true,
         fields: [{ key: 'question', kind: 'rich', label: 'Pergunta', rows: 2 }, { key: 'answer', kind: 'rich', label: 'Resposta', rows: 2 }],
@@ -318,7 +326,7 @@ export const BLOCK_TYPES = {
     fields: [
       { key: 'label', kind: 'text', label: 'Título (opcional)' },
       { key: 'items', kind: 'lines', label: 'Etiquetas', hint: 'Uma por linha. Use ~~texto~~ para riscar.', rows: 3 },
-      { key: 'tone', kind: 'select', label: 'Cor', options: TONE_OPTIONS },
+      { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_OPTIONS },
     ],
     summary: (b) => b.items.split('\n').join(' · '),
   },
@@ -339,7 +347,7 @@ export const BLOCK_TYPES = {
     }),
     fields: [
       { key: 'table', kind: 'table', label: 'Conteúdo' },
-      { key: 'tone', kind: 'select', label: 'Cabeçalho', options: TABLE_TONES },
+      { key: 'tone', kind: 'swatches', label: 'Cabeçalho', options: TABLE_TONES },
       { key: 'zebra', kind: 'toggle', label: 'Linhas alternadas' },
       { key: 'keyColumn', kind: 'toggle', label: 'Primeira coluna em destaque' },
       { key: 'note', kind: 'text', label: 'Nota abaixo da tabela (opcional)' },
@@ -364,7 +372,7 @@ export const BLOCK_TYPES = {
     }),
     fields: [
       { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'kpi', label: 'Números grandes' }, { value: 'sheet', label: 'Fichas' }] },
-      { key: 'tone', kind: 'select', label: 'Cor', options: TONE_WITH_ALTERNATE },
+      { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_WITH_ALTERNATE },
       {
         key: 'items', kind: 'items', label: 'Indicadores', itemLabel: 'Indicador', max: 16, inline: true,
         fields: [
@@ -391,7 +399,7 @@ export const BLOCK_TYPES = {
     }),
     fields: [
       { key: 'title', kind: 'text', label: 'Título' },
-      { key: 'tone', kind: 'select', label: 'Cor', options: TONE_OPTIONS },
+      { key: 'tone', kind: 'swatches', label: 'Cor', options: TONE_OPTIONS },
       {
         key: 'items', kind: 'items', label: 'Termos', itemLabel: 'Termo', max: 80, split: true,
         fields: [{ key: 'term', kind: 'text', label: 'Termo' }, { key: 'definition', kind: 'rich', label: 'Definição', rows: 2 }],
@@ -467,7 +475,7 @@ function normalizeField(field, value, fallback) {
       return Number.isFinite(Number(value)) ? clamp(Math.round(Number(value)), field.min ?? 0, field.max ?? 9999) : fallback;
     case 'range':
       return Number.isFinite(Number(value)) ? clamp(Number(value), field.min, field.max) : fallback;
-    case 'select':
+    case 'swatches':
     case 'segmented':
       return field.options.some((option) => option.value === String(value)) ? String(value) : fallback;
     case 'items': {

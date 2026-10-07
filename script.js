@@ -21,7 +21,9 @@ import { toast, openDialog, enableBackdropClose, confirmDialog, setupMenu } from
 import { markdownToBlocks } from './js/markdown.js';
 import { layoutDocument } from './js/paginate.js';
 import { renderCover, renderBackCover } from './js/render.js';
-import { applyDocAttributes, docAttributesHtml, DEFAULT_META } from './js/design.js';
+import { applyDocAttributes, docAttributesHtml, DEFAULT_META, THEMES } from './js/design.js';
+import { setupTooltips } from './js/tooltip.js';
+import { setupControls } from './js/controls.js';
 
 const appEl = $('#app');
 const isCompact = () => !matchMedia('(min-width: 760px)').matches;
@@ -251,6 +253,18 @@ async function main() {
   };
 
   /* ================================================================ módulos */
+  setupTooltips();
+  setupControls();
+
+  // Cores do tema do documento na interface (amostras "Cor do tema" e "Cor de apoio" do editor).
+  function syncThemeColors() {
+    const theme = THEMES.find((t) => t.id === store.doc.design.theme) ?? THEMES[0];
+    appEl.style.setProperty('--tone-theme', theme.colors[0]);
+    appEl.style.setProperty('--tone-accent', theme.colors[2]);
+  }
+  syncThemeColors();
+  store.subscribe((doc, change) => { if (change.kind === 'design' || change.kind === 'replace') syncThemeColors(); });
+
   const drag = createDragController({
     resolveDrop(x, y) {
       return resolveListDrop($('#editor-list'), '.block-card', x, y)

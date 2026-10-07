@@ -104,6 +104,7 @@ export function createBlockPicker({ onChoose }) {
       anchor = trigger;
       context = nextContext;
       search.value = '';
+      popover.querySelector('[data-search-clear]').hidden = true;
       active = 0;
       render();
       showPopover(popover);

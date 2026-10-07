@@ -36,6 +36,7 @@
   <svg class="icon-sprite" aria-hidden="true" focusable="false">
     <defs>
       <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
       <symbol id="i-grip" viewBox="0 0 24 24"><g class="fill"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></g></symbol>
       <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
       <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
@@ -321,7 +322,7 @@
       <div class="dialog__body import-text">
         <div class="field import-text__editor">
           <label for="import-text-input">Texto</label>
-          <textarea id="import-text-input" rows="16" spellcheck="true" placeholder="# Título da seção&#10;Parágrafo de introdução.&#10;&#10;## Subtítulo&#10;- item de lista&#10;1. passo numerado&#10;&#10;> [!ATENÇÃO] Texto do destaque"></textarea>
+          <textarea class="textarea" id="import-text-input" rows="16" spellcheck="true" placeholder="# Título da seção&#10;Parágrafo de introdução.&#10;&#10;## Subtítulo&#10;- item de lista&#10;1. passo numerado&#10;&#10;> [!ATENÇÃO] Texto do destaque"></textarea>
         </div>
         <aside class="import-text__help" aria-labelledby="markdown-help-title">
           <h3 id="markdown-help-title">Como escrever</h3>
@@ -440,6 +441,7 @@
     <div class="block-picker__search">
       <svg class="icon"><use href="#i-search"/></svg>
       <input type="search" id="block-picker-search" placeholder="Buscar bloco…" aria-label="Buscar tipo de bloco" aria-controls="block-picker-list" autocomplete="off" enterkeyhint="go">
+      <button class="icon-btn icon-btn--sm" type="button" data-search-clear aria-label="Limpar busca" hidden><svg class="icon icon--sm"><use href="#i-x"/></svg></button>
     </div>
     <ul class="block-picker__list" id="block-picker-list" role="listbox" aria-label="Tipos de bloco"></ul>
   </div>

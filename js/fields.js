@@ -47,9 +47,20 @@ const RENDER = {
     return `<div class="field">${label(id, field.label)}<textarea class="textarea" id="${id}" data-path="${path}" rows="${field.rows ?? 3}"${described}>${esc(value)}</textarea>${hint(field, id)}</div>`;
   },
 
-  select(field, value, id, path) {
-    const options = field.options.map((o) => `<option value="${esc(o.value)}"${o.value === value ? ' selected' : ''}>${esc(o.label)}</option>`).join('');
-    return `<div class="field">${label(id, field.label)}<select class="select" id="${id}" data-path="${path}">${options}</select></div>`;
+  /** Paleta de cores: rádios reais (setas do teclado funcionam), sem lista suspensa. */
+  swatches(field, value, id, path) {
+    const current = field.options.find((o) => o.value === value) ?? field.options[0];
+    const options = field.options.map((o) => `
+      <label class="tone-chip" title="${esc(o.label)}">
+        <input type="radio" name="${id}" value="${esc(o.value)}" data-path="${path}" data-name="${esc(o.label)}"${o.value === value ? ' checked' : ''}>
+        <span class="tone-chip__dot${o.swatch.includes('--tone-') ? ' tone-chip__dot--theme' : ''}" style="--swatch:${o.swatch}" aria-hidden="true"></span>
+        <span class="visually-hidden">${esc(o.label)}</span>
+      </label>`).join('');
+    return `
+      <fieldset class="field tone-picker">
+        <legend class="field__label">${esc(field.label)}: <span class="tone-picker__current" data-tone-current>${esc(current.label)}</span></legend>
+        <div class="tone-picker__list">${options}</div>
+      </fieldset>`;
   },
 
   segmented(field, value, id, path) {
@@ -62,15 +73,24 @@ const RENDER = {
     return `<label class="switch" for="${id}"><input type="checkbox" role="switch" id="${id}" data-path="${path}"${value ? ' checked' : ''}><span>${esc(field.label)}</span></label>`;
   },
 
+  /** Número com botões − e + próprios (as setas nativas do navegador ficam ocultas). */
   number(field, value, id, path) {
-    return `<div class="field">${label(id, field.label)}<input class="input" id="${id}" type="number" inputmode="numeric" data-path="${path}" value="${esc(value)}" min="${field.min ?? 0}" max="${field.max ?? 9999}"></div>`;
+    return `
+      <div class="field">${label(id, field.label)}
+        <div class="stepper">
+          <button type="button" class="stepper__btn" data-step="down" aria-label="Diminuir" tabindex="-1">${icon('minus')}</button>
+          <input class="input stepper__input" id="${id}" type="number" inputmode="numeric" data-path="${path}" value="${esc(value)}" min="${field.min ?? 0}" max="${field.max ?? 9999}">
+          <button type="button" class="stepper__btn" data-step="up" aria-label="Aumentar" tabindex="-1">${icon('plus')}</button>
+        </div>
+      </div>`;
   },
 
   range(field, value, id, path) {
+    const fill = field.max > field.min ? ((Number(value) - field.min) / (field.max - field.min)) * 100 : 0;
     return `
       <div class="field">${label(id, field.label)}
         <div class="range">
-          <input id="${id}" type="range" data-path="${path}" min="${field.min}" max="${field.max}" step="${field.step ?? 1}" value="${esc(value)}">
+          <input id="${id}" type="range" data-path="${path}" min="${field.min}" max="${field.max}" step="${field.step ?? 1}" value="${esc(value)}" style="--fill:${fill}%">
           <output for="${id}">${esc(value)}${field.unit ?? ''}</output>
         </div>
       </div>`;

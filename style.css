@@ -178,6 +178,37 @@ button:disabled { cursor: not-allowed; }
 
 ::selection { background: color-mix(in srgb, var(--primary) 28%, transparent); }
 
+/* Nenhum controle usa a cor padrão do navegador (cursor de texto, marcações). */
+:root { accent-color: var(--primary); caret-color: var(--primary); }
+
+/* Barras de rolagem do projeto: finas, arredondadas, com destaque verde ao
+   passar o mouse. Chromium e Safari usam os pseudo-elementos ::-webkit-scrollbar
+   (mais controle visual); o Firefox, as propriedades padrão. No Chromium, as
+   propriedades padrão desligariam os pseudo-elementos, por isso ficam isoladas. */
+:root {
+  --scroll-thumb: color-mix(in srgb, var(--text) 24%, transparent);
+  --scroll-thumb-hover: color-mix(in srgb, var(--primary) 70%, transparent);
+}
+@supports not selector(::-webkit-scrollbar) {
+  * { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+}
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-button { display: none; }
+::-webkit-scrollbar-thumb {
+  min-height: 40px;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: var(--scroll-thumb) padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--scroll-thumb-hover); }
+::-webkit-scrollbar-thumb:active { background-color: var(--primary); border-width: 2px; }
+/* Alça de redimensionar campos de texto, desenhada com o mesmo traço da interface. */
+::-webkit-resizer {
+  background:
+    linear-gradient(135deg, transparent 56%, var(--border-strong) 56% 62%, transparent 62% 72%, var(--border-strong) 72% 78%, transparent 78%);
+}
+
 .icon-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 
 .icon {
