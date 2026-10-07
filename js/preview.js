@@ -27,6 +27,8 @@ export function createPreview({ store, ui, assets, actions }) {
 
   /* ---------------------------------------------------------------- renderização */
   function renderNow() {
+    // Sem largura, a área de medição devolveria alturas zero e juntaria páginas: mantém o último layout.
+    if (!measureBody.getBoundingClientRect().width) return;
     const doc = store.doc;
     applyDocAttributes(pagesEl, doc.design);
     applyDocAttributes(measureDoc, doc.design);

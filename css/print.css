@@ -31,7 +31,6 @@ body {
 .toast-region,
 .skip-link,
 .file-warning,
-.measure-host,
 .drag-ghost,
 .drop-indicator,
 dialog,
@@ -70,6 +69,22 @@ dialog,
 .page:last-child {
   break-after: auto;
   page-break-after: auto;
+}
+
+/* A área de medição continua com a largura útil da página (invisível, fora do
+   papel): se a paginação for recalculada durante a impressão (uma fonte que
+   termina de carregar, por exemplo), as medidas continuam certas. Escondê-la
+   fazia tudo medir zero e juntava páginas no PDF. */
+.measure-host {
+  position: fixed !important;
+  left: -10000px !important;
+  top: 0 !important;
+  visibility: hidden !important;
+}
+
+.boot,
+.tooltip {
+  display: none !important;
 }
 
 .atom,

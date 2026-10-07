@@ -4,6 +4,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 
 ## Bugs e soluções
 - [Reset de margens não valia na área de medição](docs/learning/bug-reset-fora-da-area-de-medicao.md) — CSS que muda tamanho de bloco vale em `.page` e na medição; resets com `:where(.doc)`.
+- [Paginação recalculada durante a impressão](docs/learning/bug-medicao-escondida-na-impressao.md) — a área de medição não pode sumir no CSS de impressão; senão o PDF junta páginas.
 
 ## Pegadinhas de ambiente, dependências e bibliotecas
 - [Utilitários de visibilidade perdem para os componentes](docs/learning/gotcha-especificidade-dos-utilitarios-de-visibilidade.md) — `components.css` carrega depois; use `.topbar .hide-compact` e similares.
