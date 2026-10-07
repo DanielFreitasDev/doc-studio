@@ -493,7 +493,7 @@ Escolha sempre entre as opções registradas; não existe CSS, cor ou fonte livr
 | `bodyFont` | `maitree` Maitree (serifada) · `kanit` Kanit (sem serifa) |
 | `headingWeight` | `regular` Padrão (manuais aprovados) · `strong` Extra forte (como o MIV) |
 | `density` | `compact` Compacta · `regular` Padrão · `airy` Arejada |
-| `margins` | `narrow` Estreita (15 mm) · `regular` Padrão (20 mm) · `wide` Larga (25 mm) |
+| `margins` | `narrow` Estreita · `regular` Padrão · `wide` Larga |
 | `signature` | `joint` DETRAN/CE + Governo · `seinfra` Governo + Secretaria · `state` Governo do Ceará · `concept` Governo + conceito · `custom` Logo próprio + Governo · `none` Sem assinatura |
 | `colorMode` | `color` Colorida · `gray` Escala de cinza (P&B) |
 | `chapterStyle` | `folder` Faixas (pasta) · `solid` Verde pleno (MIV) · `stage` Palco · `arcs` Arcos |

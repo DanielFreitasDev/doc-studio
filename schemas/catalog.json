@@ -2296,15 +2296,18 @@
     "margins": [
       {
         "id": "narrow",
-        "label": "Estreita (15 mm)"
+        "label": "Estreita",
+        "description": "15 mm: mais espaço para tabelas e prints"
       },
       {
         "id": "regular",
-        "label": "Padrão (20 mm)"
+        "label": "Padrão",
+        "description": "20 mm, como os manuais aprovados"
       },
       {
         "id": "wide",
-        "label": "Larga (25 mm)"
+        "label": "Larga",
+        "description": "25 mm: linhas mais curtas, leitura mais calma"
       }
     ],
     "signature": [

@@ -175,7 +175,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
   }
 
   function segmentedGroup(title, key, options, hint = '') {
-    const radios = options.map((o) => `<label><input type="radio" name="design-${key}" value="${o.value}" data-design-key="${key}"><span>${esc(o.label)}</span></label>`).join('');
+    const radios = options.map((o) => `<label${o.description ? ` title="${esc(o.description)}"` : ''}><input type="radio" name="design-${key}" value="${o.value}" data-design-key="${key}"><span>${esc(o.label)}</span></label>`).join('');
     return `<fieldset class="design-group"><legend>${esc(title)}</legend>${hint ? `<p class="design-group__hint">${esc(hint)}</p>` : ''}<div class="segmented segmented--block">${radios}</div></fieldset>`;
   }
 
@@ -236,7 +236,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       ${segmentedGroup('Peso dos títulos', 'headingWeight', DESIGN_OPTIONS.headingWeight, 'O MIV usa Kanit ExtraBold nos títulos; os manuais aprovados, Kanit SemiBold.')}
       ${segmentedGroup('Fonte do texto corrido', 'bodyFont', DESIGN_OPTIONS.bodyFont, 'O MIV usa Maitree no texto e Kanit nos títulos.')}
       ${segmentedGroup('Espaçamento', 'density', DESIGN_OPTIONS.density)}
-      ${segmentedGroup('Margens laterais', 'margins', DESIGN_OPTIONS.margins, 'Vale para o texto e o cabeçalho das páginas de conteúdo; capas e faixas seguem o MIV. A estreita acomoda tabelas mais largas.')}
+      ${segmentedGroup('Margens laterais', 'margins', DESIGN_OPTIONS.margins, 'Estreita 15 mm, padrão 20 mm, larga 25 mm. Vale para o texto e o cabeçalho das páginas de conteúdo; capas e faixas seguem o MIV.')}
       </details>`;
     $('.design-more', designRoot).addEventListener('toggle', (event) => preferences.set('design-more-open', event.target.open));
     syncDesign();

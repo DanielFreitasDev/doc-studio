@@ -132,9 +132,9 @@ export const DESIGN_OPTIONS = {
   ],
   // Margem lateral das páginas de conteúdo (PAGE_GEOMETRY.marginsMm).
   margins: [
-    { value: 'narrow', label: 'Estreita (15 mm)' },
-    { value: 'regular', label: 'Padrão (20 mm)' },
-    { value: 'wide', label: 'Larga (25 mm)' },
+    { value: 'narrow', label: 'Estreita', description: '15 mm: mais espaço para tabelas e prints' },
+    { value: 'regular', label: 'Padrão', description: '20 mm, como os manuais aprovados' },
+    { value: 'wide', label: 'Larga', description: '25 mm: linhas mais curtas, leitura mais calma' },
   ],
   // Assinaturas conjuntas seguem o MIV (p. 16–18): órgão à esquerda, Governo sempre à direita.
   signature: [
