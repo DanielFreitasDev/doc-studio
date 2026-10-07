@@ -306,6 +306,7 @@ export function createBlockSelection({ store, ui, assets, actions }) {
         { label: 'Duplicar', icon: 'copy', shortcut: 'Ctrl+D', run: () => duplicateMany(list) },
         { label: 'Copiar', icon: 'clipboard', shortcut: 'Ctrl+C', run: () => copyMany(list) },
         { label: 'Recortar', icon: 'scissors', shortcut: 'Ctrl+X', run: () => copyMany(list, { cut: true }) },
+        { label: 'Copiar para IA (JSON)', icon: 'sparkles', run: () => actions.copyForAi(list) },
         { separator: true },
         { label: 'Mover para cima', icon: 'chevron-up', shortcut: 'Alt+↑', disabled: !contiguous || indexes[0] === 0, run: () => moveMany(-1, list) },
         { label: 'Mover para baixo', icon: 'chevron-down', shortcut: 'Alt+↓', disabled: !contiguous || indexes.at(-1) === store.doc.blocks.length - 1, run: () => moveMany(1, list) },

@@ -102,6 +102,9 @@ function createIndexedDbBackend(db) {
   };
 }
 
+/** Armazenamento só em memória (modo de renderização para agentes: não toca nos documentos do navegador). */
+export const createMemoryStorage = () => createMemoryBackend();
+
 export async function createStorage() {
   try {
     return createIndexedDbBackend(await openDatabase());

@@ -79,6 +79,9 @@
   --accent: #c2410c;
   --danger: #b42318;
   --danger-soft: #fdecea;
+  --warning: #9a5b00;
+  --warning-soft: #fdf3e1;
+  --success-soft: #e3f3e6;
   --focus: #0f766e;
   --canvas: #d8dfdc;
   --canvas-dot: #c9d2ce;
@@ -110,6 +113,9 @@
     --accent: #fb923c;
     --danger: #f97066;
     --danger-soft: rgb(249 112 102 / 0.14);
+    --warning: #fbbf24;
+    --warning-soft: rgb(251 191 36 / 0.13);
+    --success-soft: rgb(69 196 90 / 0.12);
     --focus: #5eead4;
     --canvas: #0a0e10;
     --canvas-dot: #1a2125;
@@ -139,6 +145,9 @@
   --accent: #fb923c;
   --danger: #f97066;
   --danger-soft: rgb(249 112 102 / 0.14);
+  --warning: #fbbf24;
+  --warning-soft: rgb(251 191 36 / 0.13);
+  --success-soft: rgb(69 196 90 / 0.12);
   --focus: #5eead4;
   --canvas: #0a0e10;
   --canvas-dot: #1a2125;

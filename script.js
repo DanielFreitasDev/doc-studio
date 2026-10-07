@@ -7,11 +7,11 @@
  */
 import { $, $$, esc, clamp, debounce, moveItem, slugify, announce, isTypingTarget, downloadBlob, formatTime, formatDateTime } from './js/utils.js';
 import { createStore, createUiState } from './js/state.js';
-import { createBlock, BLOCK_TYPES, TEXT_BLOCK_TYPES, transformBlock, blockPlainText } from './js/schema.js';
-import { createDocument, normalizeDocument, toFilePayload, parseFilePayload, cloneBlock } from './js/model.js';
+import { createBlock, BLOCK_TYPES, TEXT_BLOCK_TYPES, transformBlock, blockPlainText, blockSummary } from './js/schema.js';
+import { createDocument, normalizeDocument, toFilePayload, parseFilePayload, cloneBlock, FILE_VERSION } from './js/model.js';
 import { TEMPLATES, SNIPPETS } from './js/templates.js';
-import { createStorage, preferences } from './js/storage.js';
-import { createAssetRegistry, fileToAsset, isAcceptedImage, usedAssetIds } from './js/images.js';
+import { createStorage, createMemoryStorage, preferences } from './js/storage.js';
+import { createAssetRegistry, fileToAsset, isAcceptedImage, isValidAsset, usedAssetIds } from './js/images.js';
 import { createDragController, resolveListDrop, resolvePreviewDrop } from './js/dnd.js';
 import { createEditor } from './js/editor.js';
 import { createPreview } from './js/preview.js';
@@ -21,7 +21,7 @@ import { toast, openDialog, enableBackdropClose, confirmDialog, setupMenu } from
 import { markdownToBlocks } from './js/markdown.js';
 import { layoutDocument } from './js/paginate.js';
 import { renderCover, renderBackCover } from './js/render.js';
-import { applyDocAttributes, docAttributesHtml, DEFAULT_META, THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS } from './js/design.js';
+import { applyDocAttributes, docAttributesHtml, DESIGN_LABELS, designValueLabel, META_GROUPS, THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS } from './js/design.js';
 import { setupTooltips } from './js/tooltip.js';
 import { setupControls } from './js/controls.js';
 import { createContextMenu } from './js/contextmenu.js';
@@ -30,6 +30,8 @@ import { setupRichText, handleRichShortcut, editRichLink, richFieldOf } from './
 import { createQuickEdit } from './js/quickedit.js';
 import { setupFormatBar } from './js/formatbar.js';
 import { createBlockSelection } from './js/selection.js';
+import { validateDocument, brandReport, contentAdvice } from './js/validate.js';
+import { applyOperations, parseOperationsPayload, diffDocuments, OPERATIONS_FORMAT, OPERATIONS_VERSION } from './js/operations.js';
 
 const appEl = $('#app');
 const isCompact = () => !matchMedia('(min-width: 760px)').matches;
@@ -44,6 +46,39 @@ async function waitForFonts() {
 }
 
 const BLANK_TEMPLATE = TEMPLATES.find((t) => t.id === 'blank');
+
+/**
+ * Caminho de um arquivo do mesmo servidor pedido na URL (`?open=` ou
+ * `?render=`). Endereços de outros sites são recusados.
+ */
+function sameOriginUrl(value) {
+  if (!value) return null;
+  try {
+    const url = new URL(value, location.href);
+    return url.origin === location.origin ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Baixa e lê um arquivo .docstudio.json do mesmo servidor (mesma validação de "Abrir cópia"). */
+async function fetchDocumentFile(url) {
+  const response = await fetch(url, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Não foi possível abrir ${url.pathname} (HTTP ${response.status}).`);
+  return parseFilePayload(await response.text());
+}
+
+/*
+ * Modos pela URL:
+ * - `?open=caminho.docstudio.json` abre o arquivo como novo documento (agentes entregam assim);
+ * - `?render=caminho` é o modo de renderização usado por `tools/docstudio.mjs`:
+ *   só a prévia, nada salvo no navegador, e `document.documentElement.dataset.renderState`
+ *   vira "ready" quando as páginas estão prontas.
+ */
+const urlParams = new URLSearchParams(location.search);
+const renderUrl = sameOriginUrl(urlParams.get('render'));
+const openUrl = sameOriginUrl(urlParams.get('open'));
+if (renderUrl) document.documentElement.dataset.mode = 'render';
 
 function documentFromTemplate(template) {
   return createDocument({
@@ -79,9 +114,11 @@ async function loadInitialDocument(storage, assets) {
 
 async function main() {
   await waitForFonts();
-  const storage = await createStorage();
+  const storage = renderUrl ? createMemoryStorage() : await createStorage();
   const assets = createAssetRegistry();
-  const { doc: initialDoc, firstRun } = await loadInitialDocument(storage, assets);
+  const { doc: initialDoc, firstRun } = renderUrl
+    ? await fetchDocumentFile(renderUrl).then(({ doc, assets: data }) => { assets.load(data); return { doc, firstRun: false }; })
+    : await loadInitialDocument(storage, assets);
 
   const store = createStore(initialDoc);
   const ui = createUiState({
@@ -92,11 +129,11 @@ async function main() {
     overflowBlocks: new Set(),
     pageCount: 0,
     pane: 'editor',
-    view: preferences.get('view', 'split'),
+    view: renderUrl ? 'preview' : preferences.get('view', 'split'),
     panelOpen: matchMedia('(min-width: 1180px)').matches ? preferences.get('panel-open', true) : false,
     tab: preferences.get('tab', 'insert'),
     zoom: 1,
-    zoomFit: true,
+    zoomFit: !renderUrl,
   });
 
   let editor;
@@ -309,6 +346,29 @@ async function main() {
       notify(ok ? 'Texto do bloco copiado.' : 'Não foi possível copiar o texto.', ok ? 'info' : 'error');
     },
 
+    /**
+     * Copia blocos como JSON para colar num agente de IA: ids estáveis, campos
+     * e o formato da resposta esperada (arquivo de alterações). Imagens vão só
+     * pelo id, sem os dados.
+     */
+    async copyForAi(ids) {
+      const set = new Set(ids);
+      const blocks = store.doc.blocks.filter((block) => set.has(block.id));
+      if (!blocks.length) return;
+      const payload = {
+        format: 'doc-studio-selection',
+        version: FILE_VERSION,
+        documentId: store.doc.id,
+        documentName: store.doc.name,
+        instructions: `Blocos selecionados no Estúdio de Documentos. Responda com um arquivo {"format":"${OPERATIONS_FORMAT}","version":${OPERATIONS_VERSION},"documentId":"${store.doc.id}","operations":[...]} que altere estes blocos pelos ids (veja docs/ai/DOCUMENT_FORMAT.md). Use só tipos e opções do catálogo (docs/ai/COMPONENT_CATALOG.md).`,
+        blocks,
+      };
+      const ok = await writeClipboard(JSON.stringify(payload, null, 2));
+      notify(ok
+        ? `${blocks.length === 1 ? 'Bloco copiado' : `${blocks.length} blocos copiados`} para a IA. Cole no agente e traga a resposta em “Aplicar alterações de IA”.`
+        : 'Não foi possível copiar.', ok ? 'info' : 'error');
+    },
+
     /** Mostra o bloco na prévia (abre a prévia se ela estiver escondida). */
     revealInPreview(id) {
       ui.set({ selectedId: id, selectSource: 'menu' });
@@ -398,6 +458,7 @@ async function main() {
         { label: 'Recortar bloco', icon: 'scissors', shortcut: keys('Ctrl+X'), run: () => selection.copyMany([id], { cut: true }) },
         { label: 'Colar abaixo', icon: 'row-below', shortcut: keys('Ctrl+V'), run: () => selection.pasteFromMenu(index + 1) },
         { label: 'Copiar só o texto', icon: 'file-text', disabled: !blockPlainText(block), run: () => actions.copyBlockText(id) },
+        { label: 'Copiar para IA (JSON)', icon: 'sparkles', run: () => actions.copyForAi([id]) },
         origin !== 'preview' && { label: collapsed ? 'Expandir no editor' : 'Recolher no editor', icon: collapsed ? 'expand' : 'collapse', run: () => editor.toggleCollapse(id) },
         { separator: true },
         { label: 'Excluir bloco', icon: 'trash', danger: true, run: () => actions.removeBlock(id) },
@@ -734,7 +795,7 @@ async function main() {
   const documentsDialog = $('#documents-dialog');
   const importDialog = $('#import-text-dialog');
   const shortcutsDialog = $('#shortcuts-dialog');
-  [templatesDialog, documentsDialog, importDialog, shortcutsDialog, $('#pdf-dialog'), $('#confirm-dialog')].forEach(enableBackdropClose);
+  [templatesDialog, documentsDialog, importDialog, shortcutsDialog, $('#pdf-dialog'), $('#confirm-dialog'), $('#check-dialog'), $('#operations-dialog')].forEach(enableBackdropClose);
 
   let templateGridReady = false;
   const templatePages = new Map();
@@ -912,21 +973,204 @@ async function main() {
     }
   });
 
-  /** Pontos a revisar antes do PDF: blocos cortados, textos de exemplo e capa sem título. */
-  function pdfChecks() {
+  /* ================================================================ verificar documento */
+  const DENSE_PAGE_WORDS = 700;
+  const SPARSE_PAGE_FILL = 0.2;
+
+  /**
+   * Verificação completa (a mesma de `tools/docstudio.mjs check`, mais a
+   * paginação real da prévia): estrutura, marca (MIV), conteúdo e páginas.
+   * Itens: { level: 'error' | 'warning' | 'info' | 'ok', message, blockId?, run? }.
+   */
+  function checkReport() {
     const doc = store.doc;
-    const checks = [];
+    const items = [];
+    const add = (level, message, extra = {}) => items.push({ level, message, ...extra });
+
+    for (const issue of validateDocument(doc, { assetIds: new Set(assets.ids()) }).issues) add(issue.level, issue.message, { blockId: issue.blockId });
+    for (const advice of contentAdvice(doc)) {
+      const run = advice.code === 'default-title' ? () => actions.openPanel('document')
+        : advice.code === 'empty-document' ? () => openImportText() : undefined;
+      add(advice.level, advice.message, { blockId: advice.blockId, run, label: advice.code === 'empty-document' ? 'Escrever' : advice.code === 'default-title' ? 'Editar capa' : undefined });
+    }
+
     const overflow = [...ui.get('overflowBlocks')];
-    if (overflow.length) {
-      checks.push({ text: overflow.length === 1 ? 'Um bloco passa do tamanho da página e sairá cortado.' : `${overflow.length} blocos passam do tamanho da página e sairão cortados.`, label: 'Ver bloco', run: () => actions.select(overflow[0], { revealEditor: true }) });
+    overflow.forEach((id) => add('error', `${BLOCK_TYPES[store.doc.blocks[actions.indexOf(id)]?.type]?.label ?? 'Um bloco'} passa do tamanho da página e sairá cortado. Divida o conteúdo em mais blocos.`, { blockId: id }));
+    const pages = preview.pageReport();
+    const contentPages = pages.filter((page) => page.kind === 'content');
+    contentPages.forEach((page, index) => {
+      if (page.words > DENSE_PAGE_WORDS) add('info', `Página ${page.number}: ${page.words} palavras, muito densa. Considere listas, passo a passo ou dividir o texto.`, { blockId: page.blocks[0] });
+      const last = index === contentPages.length - 1;
+      if (!last && page.blocks.length && page.fill != null && page.fill < SPARSE_PAGE_FILL) {
+        add('info', `Página ${page.number}: quase vazia (${Math.round(page.fill * 100)}% ocupada) antes de uma nova página. Confira as quebras de página e “Começar em nova página”.`, { blockId: page.blocks.at(-1) });
+      }
+    });
+
+    const brand = brandReport(doc, assets.dimensions());
+    return { items, brand, pages };
+  }
+
+  const LEVEL_ICON = { error: 'warning', warning: 'warning', info: 'info', ok: 'check' };
+  const LEVEL_TEXT = { error: 'Erro', warning: 'Aviso', info: 'Sugestão', ok: 'Ok' };
+  const LEVEL_ORDER = { error: 0, warning: 1, info: 2, ok: 3 };
+
+  /** Lista de itens da verificação com o botão "Ver" (leva ao bloco). */
+  function checkListHtml(items, offset = 0) {
+    return `<ul class="check-list">${items.map((item, i) => `
+      <li data-level="${item.level}"><svg class="icon" aria-hidden="true"><use href="#i-${LEVEL_ICON[item.level]}"/></svg>
+      <span><span class="visually-hidden">${LEVEL_TEXT[item.level]}: </span>${esc(item.message)}</span>
+      ${item.blockId || item.run ? `<button type="button" class="btn btn--soft btn--small" data-check="${offset + i}">${esc(item.label ?? 'Ver')}</button>` : ''}</li>`).join('')}</ul>`;
+  }
+
+  const checkDialog = $('#check-dialog');
+  function openCheck() {
+    const { items, brand, pages } = checkReport();
+    const problems = items.filter((i) => i.level !== 'info').sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]);
+    const tips = items.filter((i) => i.level === 'info');
+    const brandItems = brand.map((b) => ({ level: b.status, message: b.message, blockId: b.blockId }));
+    const all = [...problems, ...tips, ...brandItems];
+    const count = (level) => all.filter((i) => i.level === level).length;
+    const errors = count('error');
+    const warnings = count('warning');
+    $('#check-summary').textContent = errors || warnings
+      ? `${errors ? `${errors} ${errors === 1 ? 'erro' : 'erros'}` : ''}${errors && warnings ? ' e ' : ''}${warnings ? `${warnings} ${warnings === 1 ? 'aviso' : 'avisos'}` : ''} para revisar antes do PDF.`
+      : 'Tudo certo para gerar o PDF.';
+    $('#check-report').innerHTML = `
+      <div class="check-summary">
+        <span class="check-badge" data-level="${errors ? 'error' : 'ok'}">${errors} ${errors === 1 ? 'erro' : 'erros'}</span>
+        <span class="check-badge" data-level="${warnings ? 'warning' : 'ok'}">${warnings} ${warnings === 1 ? 'aviso' : 'avisos'}</span>
+        <span class="check-badge">${tips.length} ${tips.length === 1 ? 'sugestão' : 'sugestões'}</span>
+        <span class="check-badge">${pages.length} ${pages.length === 1 ? 'página' : 'páginas'}</span>
+      </div>
+      ${problems.length ? `<section><h3>Para revisar</h3>${checkListHtml(problems)}</section>` : ''}
+      ${tips.length ? `<section><h3>Sugestões</h3>${checkListHtml(tips, problems.length)}</section>` : ''}
+      <section><h3>Identidade visual (MIV)</h3>${checkListHtml(brandItems, problems.length + tips.length)}
+        <p class="check-note">A posição, o tamanho mínimo e a área de proteção das assinaturas são aplicados automaticamente; aqui aparece o que depende das suas escolhas.</p></section>`;
+    $('#check-report').onclick = (event) => {
+      const button = event.target.closest('[data-check]');
+      if (!button) return;
+      const item = all[Number(button.dataset.check)];
+      checkDialog.close('review');
+      if (item.run) item.run();
+      else actions.select(item.blockId, { revealEditor: true });
+    };
+    openDialog(checkDialog, { onClose: (value) => { if (value === 'pdf') requestAnimationFrame(() => exportPdf()); } });
+  }
+
+  /** Pontos a revisar antes do PDF: os erros e avisos da verificação. */
+  function pdfChecks() {
+    return checkReport().items
+      .filter((item) => item.level === 'error' || item.level === 'warning')
+      .sort((a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level])
+      .map((item) => ({ text: item.message, label: item.label ?? 'Ver', run: item.run ?? (() => actions.select(item.blockId, { revealEditor: true })) }))
+      .filter((check) => check.run);
+  }
+
+  /* ================================================================ alterações de IA */
+  /**
+   * Aplica um lote de operações como um único passo de desfazer. Usado pelo
+   * diálogo "Aplicar alterações de IA" e por `window.docStudio.applyOperations`
+   * (integração futura de um assistente dentro do app).
+   */
+  function previewOperations(payload) {
+    const incoming = Object.entries(payload.assets ?? {}).filter(([id, asset]) => /^[\w-]{1,64}$/.test(id) && isValidAsset(asset));
+    const assetIds = new Set([...assets.ids(), ...incoming.map(([id]) => id)]);
+    const result = applyOperations(store.doc, payload.operations, { assetIds });
+    return { ...result, incoming: Object.fromEntries(incoming), diff: result.ok ? diffDocuments(store.doc, result.doc) : null };
+  }
+
+  function commitOperations(preview) {
+    const { doc: next, incoming, changes } = preview;
+    assets.merge(incoming);
+    store.update((doc) => {
+      doc.name = next.name;
+      doc.meta = next.meta;
+      doc.design = next.design;
+      doc.blocks = next.blocks;
+    }, { kind: 'replace', source: 'operations' });
+    notify(`${changes.length} ${changes.length === 1 ? 'alteração aplicada' : 'alterações aplicadas'}.`, 'info', { undo: true });
+  }
+
+  const operationsDialog = $('#operations-dialog');
+  const operationsInput = $('#operations-input');
+  const operationsApply = $('#operations-apply');
+  let pendingOperations = null;
+  let pendingDesign = null;
+
+  const META_LABELS = Object.fromEntries(META_GROUPS.flatMap((group) => group.fields.map((field) => [field.key, `${group.title}: ${field.label}`])));
+
+  function diffHtml(diff, description, warnings = []) {
+    const label = (block) => `${esc(BLOCK_TYPES[block.type]?.label ?? block.type)} <small>${esc(blockSummary(block).slice(0, 70))}</small>`;
+    const rows = [
+      ...diff.added.map((b) => ['added', 'Novo', label(b)]),
+      ...diff.removed.map((b) => ['removed', 'Excluído', label(b)]),
+      ...diff.changed.map((b) => ['changed', 'Alterado', label(b)]),
+      ...diff.moved.map((b) => ['moved', 'Mudou de lugar', label(b)]),
+      ...diff.design.map((key) => ['design', esc(DESIGN_LABELS[key] ?? key), esc(designValueLabel(key, pendingDesign?.[key]))]),
+      ...diff.meta.map((key) => ['meta', 'Texto fixo', esc(META_LABELS[key] ?? key)]),
+      ...(diff.renamed ? [['meta', 'Nome', 'o documento será renomeado']] : []),
+    ];
+    const notes = warnings.length ? `<ul class="check-list operations__warnings">${warnings.map((w) => `<li data-level="warning"><svg class="icon" aria-hidden="true"><use href="#i-warning"/></svg><span>${esc(w)}</span></li>`).join('')}</ul>` : '';
+    return `${description ? `<p class="operations__description">${esc(description)}</p>` : ''}${notes}
+      ${rows.length ? `<ul class="diff-list">${rows.map(([kind, title, text]) => `<li data-kind="${kind}"><b>${title}</b><span>${text}</span></li>`).join('')}</ul>` : '<p class="operations__empty">As alterações não mudam nada no documento.</p>'}`;
+  }
+
+  function reviewOperations() {
+    pendingOperations = null;
+    operationsApply.disabled = true;
+    const text = operationsInput.value.trim();
+    const review = $('#operations-review');
+    if (!text) {
+      review.innerHTML = '<p class="operations__empty">Cole ou abra as alterações para revisar aqui.</p>';
+      return;
     }
-    const sample = doc.blocks.find((block) => /\(exemplo\)/i.test(JSON.stringify(block)));
-    if (sample) checks.push({ text: 'O documento ainda tem textos marcados como “(exemplo)”.', label: 'Ver', run: () => actions.select(sample.id, { revealEditor: true }) });
-    if (doc.design.cover !== 'none' && doc.meta.title.trim() === DEFAULT_META.title) {
-      checks.push({ text: 'A capa ainda diz “Título do Documento”.', label: 'Editar capa', run: () => actions.openPanel('document') });
+    let payload;
+    try {
+      payload = parseOperationsPayload(text);
+    } catch (error) {
+      review.innerHTML = `<p class="operations__error" role="alert">${esc(error.message)}</p>`;
+      return;
     }
-    if (!doc.blocks.length) checks.push({ text: 'O documento ainda não tem conteúdo: só a capa e páginas em branco.', label: 'Escrever', run: () => openImportText() });
-    return checks;
+    const result = previewOperations(payload);
+    if (!result.ok) {
+      review.innerHTML = `<p class="operations__error" role="alert">${esc(result.error)}</p>`;
+      return;
+    }
+    const otherDoc = payload.documentId && payload.documentId !== store.doc.id
+      ? '<p class="operations__error">Estas alterações foram preparadas para outro documento. Confira a lista antes de aplicar.</p>'
+      : '';
+    pendingDesign = result.doc.design;
+    review.innerHTML = otherDoc + diffHtml(result.diff, payload.description, result.warnings);
+    pendingOperations = result.diff.empty ? null : result;
+    operationsApply.disabled = !pendingOperations;
+  }
+  const reviewSoon = debounce(reviewOperations, 250);
+  operationsInput.addEventListener('input', reviewSoon);
+
+  $('[data-operations-file]').addEventListener('click', () => $('#operations-file-input').click());
+  $('#operations-file-input').addEventListener('change', async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    if (file.size > 150 * 1024 * 1024) {
+      notify('Arquivo grande demais (máximo de 150 MB).', 'error');
+      return;
+    }
+    operationsInput.value = await file.text();
+    reviewOperations();
+  });
+
+  function openOperations() {
+    operationsInput.value = '';
+    reviewOperations();
+    openDialog(operationsDialog, {
+      onClose(value) {
+        reviewSoon.cancel();
+        if (value === 'confirm' && pendingOperations) commitOperations(pendingOperations);
+        pendingOperations = null;
+      },
+    });
+    operationsInput.focus();
   }
 
   const pdfDialog = $('#pdf-dialog');
@@ -985,6 +1229,8 @@ async function main() {
       openDialog(templatesDialog);
     },
     'open-import-text': () => openImportText(),
+    'open-check': () => openCheck(),
+    'open-operations': () => openOperations(),
     'export-json': () => exportJson(),
     'import-json': () => $('#json-file-input').click(),
     'cycle-app-theme': () => {
@@ -1150,12 +1396,68 @@ async function main() {
 
   /* ================================================================ início */
   syncChrome();
+
+  /**
+   * API para agentes e automação no navegador (também usada pela ferramenta
+   * de linha de comando no modo de renderização). As alterações passam pelo
+   * mesmo histórico de desfazer da interface.
+   */
+  const api = {
+    store,
+    ui,
+    preview,
+    formatVersion: FILE_VERSION,
+    /** Aplica um lote de operações (mesmo formato do arquivo .ops.json) como um passo de desfazer. */
+    applyOperations(operations, { assets: incoming = {} } = {}) {
+      const result = previewOperations({ operations, assets: incoming });
+      if (result.ok && !result.diff.empty) commitOperations(result);
+      return { ok: result.ok, error: result.error, changes: result.changes };
+    },
+    /** Verificação completa (estrutura, marca, conteúdo e páginas). */
+    check() {
+      const { items, brand } = checkReport();
+      return { issues: items.map(({ run, label, ...item }) => item), brand };
+    },
+    /** Páginas como saíram na paginação: blocos de cada página, ocupação e estouros. */
+    report() {
+      preview.renderNow();
+      return { name: store.doc.name, pageCount: preview.pageReport().length, pages: preview.pageReport(), overflowBlocks: [...ui.get('overflowBlocks')] };
+    },
+  };
+  Object.defineProperty(window, 'docStudio', { value: api, configurable: true });
+
+  // Modo de renderização (tools/docstudio.mjs): só as páginas, sem salvar, sem galeria.
+  if (renderUrl) {
+    document.title = store.doc.name;
+    preview.renderNow();
+    await Promise.all([...document.images].map((image) => image.decode().catch(() => {})));
+    preview.renderNow();
+    $('#boot').classList.add('is-done');
+    document.documentElement.dataset.renderState = 'ready';
+    return;
+  }
+
   setHash(store.doc.id);
   saveNow();
   if (!storage.persistent) {
     notify('Este navegador não permite salvar localmente. Use “Baixar cópia de segurança” (menu ⋯) para guardar seu trabalho.', 'error');
   }
-  if (firstRun) {
+
+  if (openUrl) {
+    // Arquivo entregue por um agente (?open=…): abre como novo documento e limpa a URL.
+    const url = new URL(location.href);
+    url.searchParams.delete('open');
+    history.replaceState(null, '', url);
+    try {
+      const { doc, assets: data } = await fetchDocumentFile(openUrl);
+      await switchTo(doc, data, `“${doc.name}” aberto como um novo documento.`);
+      // Primeira visita: o documento em branco de fundo não fica sobrando em "Meus documentos".
+      if (firstRun) await storage.remove(initialDoc.id).catch(() => {});
+      untouchedFirstDocId = null;
+    } catch (error) {
+      notify(error.message, 'error');
+    }
+  } else if (firstRun) {
     renderTemplateGrid();
     openDialog(templatesDialog);
   }
@@ -1165,13 +1467,14 @@ async function main() {
   pagesEl.classList.add('is-intro');
   setTimeout(() => pagesEl.classList.remove('is-intro'), 1200);
   $('#boot').classList.add('is-done');
-
-  // Exposto só para depuração no console do navegador.
-  Object.defineProperty(window, 'docStudio', { value: { store, ui, preview }, configurable: true });
 }
 
 main().catch((error) => {
   console.error(error);
+  if (renderUrl) {
+    document.documentElement.dataset.renderState = 'error';
+    document.documentElement.dataset.renderError = error.message;
+  }
   document.getElementById('boot')?.classList.add('is-done');
   const warning = document.getElementById('file-warning');
   warning.hidden = false;

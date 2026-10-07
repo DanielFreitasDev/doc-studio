@@ -273,6 +273,37 @@ export function createPreview({ store, ui, assets, actions }) {
     ];
   }
 
+  /* ---------------------------------------------------------------- relatório das páginas */
+  /**
+   * O que caiu em cada página (para "Verificar documento" e agentes de IA):
+   * tipo de página, orientação, ids dos blocos, ocupação da área útil (0–1),
+   * estouro e palavras. A ocupação é uma razão, então o zoom não interfere.
+   */
+  function pageReport() {
+    return [...pagesEl.children].map((page, index) => {
+      const kind = ['cover', 'back', 'chapter'].find((name) => page.classList.contains(`page--${name}`)) ?? 'content';
+      const blocks = [...new Set([...page.querySelectorAll('[data-block-id]')].map((el) => el.dataset.blockId))];
+      const body = page.querySelector('.page__body');
+      let fill = null;
+      if (body) {
+        const top = body.getBoundingClientRect().top;
+        const height = body.getBoundingClientRect().height || 1;
+        const bottom = Math.max(top, ...[...body.children].map((el) => el.getBoundingClientRect().bottom));
+        fill = Math.round(((bottom - top) / height) * 100) / 100;
+      }
+      const words = (page.textContent.match(/[\p{L}\p{N}]+/gu) ?? []).length;
+      return {
+        number: index + 1,
+        kind,
+        orientation: page.classList.contains('page--landscape') ? 'landscape' : 'portrait',
+        blocks,
+        fill,
+        words,
+        overflowing: page.classList.contains('is-overflowing'),
+      };
+    });
+  }
+
   /* ---------------------------------------------------------------- assinaturas */
   store.subscribe((doc, change) => {
     if (change.kind === 'name') return;
@@ -305,6 +336,7 @@ export function createPreview({ store, ui, assets, actions }) {
     zoomFit: () => ui.set({ zoomFit: true }),
     revealBlock,
     contextMenu,
+    pageReport,
     get layout() { return layout; },
   };
 }

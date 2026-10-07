@@ -81,6 +81,8 @@
       <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></symbol>
       <symbol id="i-strike" viewBox="0 0 24 24"><path d="M5 12h14M16 6.5A4 4 0 0 0 12 5c-2.5 0-4 1.3-4 3 0 1.2.7 2.2 2 2.8M8 17.5A4.4 4.4 0 0 0 12 19c2.5 0 4-1.3 4-3 0-.5-.1-1-.4-1.4"/></symbol>
       <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19zM12 10v4M12 17h.01"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.6-3.4 8.2-8 9-4.6-.8-8-4.4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
       <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8zM19 15l.8 1.7 1.7.8-1.7.8L19 20l-.8-1.7-1.7-.8 1.7-.8z"/></symbol>
       <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></symbol>
       <symbol id="i-collapse" viewBox="0 0 24 24"><path d="M7 20l5-5 5 5M7 4l5 5 5-5"/></symbol>
@@ -194,6 +196,9 @@
           <button role="menuitem" type="button" data-action="open-documents" class="show-compact"><svg class="icon"><use href="#i-folder"/></svg>Meus documentos</button>
           <button role="menuitem" type="button" data-action="new-document"><svg class="icon"><use href="#i-file-plus"/></svg>Novo documento</button>
           <button role="menuitem" type="button" data-action="open-import-text"><svg class="icon"><use href="#i-pen"/></svg>Escrever / colar texto…</button>
+          <hr role="separator">
+          <button role="menuitem" type="button" data-action="open-check"><svg class="icon"><use href="#i-shield"/></svg>Verificar documento…</button>
+          <button role="menuitem" type="button" data-action="open-operations"><svg class="icon"><use href="#i-sparkles"/></svg>Aplicar alterações de IA…</button>
           <hr role="separator">
           <button role="menuitem" type="button" data-action="export-json"><svg class="icon"><use href="#i-download"/></svg>Baixar cópia de segurança</button>
           <button role="menuitem" type="button" data-action="import-json"><svg class="icon"><use href="#i-upload"/></svg>Abrir cópia de segurança…</button>
@@ -412,6 +417,53 @@
           <button class="btn btn--ghost" value="cancel">Cancelar</button>
           <button class="btn btn--primary" value="confirm" id="import-text-confirm"><svg class="icon"><use href="#i-check"/></svg>Inserir no documento</button>
         </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog" id="check-dialog" aria-labelledby="check-title" aria-describedby="check-summary">
+    <form method="dialog" class="dialog__frame">
+      <div class="dialog__header">
+        <div>
+          <h2 id="check-title">Verificar documento</h2>
+          <p id="check-summary">Confere a estrutura, a identidade visual (MIV) e as páginas.</p>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dialog__body check-report" id="check-report"></div>
+      <div class="dialog__footer dialog__footer--end">
+        <button class="btn btn--ghost" value="cancel">Fechar</button>
+        <button class="btn btn--primary" value="pdf"><svg class="icon"><use href="#i-printer"/></svg>Exportar PDF</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog--wide" id="operations-dialog" aria-labelledby="operations-title" aria-describedby="operations-help">
+    <form method="dialog" class="dialog__frame" id="operations-form">
+      <div class="dialog__header">
+        <div>
+          <h2 id="operations-title">Aplicar alterações de IA</h2>
+          <p id="operations-help">Cole as alterações preparadas por um agente de IA (Claude Code, Codex ou outro) ou abra o arquivo <code>.ops.json</code>. Nada muda até você clicar em <strong>Aplicar</strong>; depois, <kbd>Ctrl</kbd>+<kbd>Z</kbd> desfaz tudo de uma vez.</p>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dialog__body operations">
+        <div class="field operations__input">
+          <div class="operations__label">
+            <label for="operations-input">Alterações (JSON)</label>
+            <button type="button" class="btn btn--soft btn--small" data-operations-file><svg class="icon"><use href="#i-upload"/></svg>Abrir arquivo…</button>
+          </div>
+          <textarea class="textarea textarea--mono" id="operations-input" rows="14" spellcheck="false" placeholder='{ "format": "doc-studio-operations", "version": 1, "operations": [ { "op": "update", "id": "b_…", "set": { "title": "Novo título" } } ] }'></textarea>
+          <input type="file" id="operations-file-input" accept=".json,application/json" hidden>
+        </div>
+        <section class="operations__review" aria-labelledby="operations-review-title" aria-live="polite">
+          <h3 id="operations-review-title">O que vai mudar</h3>
+          <div id="operations-review"><p class="operations__empty">Cole ou abra as alterações para revisar aqui.</p></div>
+        </section>
+      </div>
+      <div class="dialog__footer dialog__footer--end">
+        <button class="btn btn--ghost" value="cancel">Cancelar</button>
+        <button class="btn btn--primary" value="confirm" id="operations-apply" disabled><svg class="icon"><use href="#i-check"/></svg>Aplicar</button>
       </div>
     </form>
   </dialog>

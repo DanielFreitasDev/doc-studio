@@ -89,7 +89,7 @@ export async function fileToAsset(file) {
   return { dataUrl, width: finalWidth, height: finalHeight, name: (file.name || 'imagem').slice(0, 120) };
 }
 
-function isValidAsset(asset) {
+export function isValidAsset(asset) {
   if (!asset || typeof asset.dataUrl !== 'string' || asset.dataUrl.length > 40 * 1024 * 1024) return false;
   const prefix = DATA_URL_PREFIX.exec(asset.dataUrl);
   return Boolean(prefix) && BASE64_BODY.test(asset.dataUrl.slice(prefix[0].length))
@@ -134,6 +134,12 @@ export function createAssetRegistry() {
 
     get: (id) => assets.get(id),
     has: (id) => assets.has(id),
+    ids: () => [...assets.keys()],
+
+    /** Tamanho de cada imagem (para a verificação de resolução), sem os dados. */
+    dimensions() {
+      return Object.fromEntries([...assets].map(([id, a]) => [id, { width: a.width, height: a.height, svg: a.dataUrl.startsWith('data:image/svg') }]));
+    },
 
     /** Mapa id → { url, width, height } usado pelo renderizador. */
     renderMap() {
