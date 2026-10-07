@@ -3,7 +3,7 @@
  *
  * 1. Renderiza todos os átomos numa coluna invisível com a largura útil da
  *    página (170 mm) e mede a posição real de cada um no navegador.
- * 2. Distribui os átomos em páginas de 252 mm de altura útil (227 mm na
+ * 2. Distribui os átomos em páginas de 252 mm de altura útil (221 mm na
  *    primeira folha com cabeçalho timbrado), respeitando:
  *    - quebras forçadas (seção em nova página, quebra de página, capítulo);
  *    - "manter com o próximo" (títulos nunca ficam sozinhos no pé da página);
@@ -18,7 +18,7 @@ import { renderInline } from './markup.js';
 const PX_PER_MM = 96 / 25.4;
 const CONTENT_HEIGHT = 252 * PX_PER_MM;
 // Cabeçalho "timbrado" (assinatura centralizada do MIV) ocupa o topo da primeira página.
-const LETTERHEAD_OFFSET = 25 * PX_PER_MM;
+const LETTERHEAD_OFFSET = 31 * PX_PER_MM;
 const TOLERANCE = 0.75;
 
 /* ------------------------------------------------------------------ larguras de tabela */
@@ -187,7 +187,7 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
     if (page.kind === 'cover') return renderCover(doc, assets, idPrefix);
     if (page.kind === 'back') return renderBackCover(doc, assets, idPrefix);
     if (page.kind === 'chapter') return page.entry.build(idPrefix);
-    return renderContentPage(doc, {
+    return renderContentPage(doc, assets, {
       bodyHtml: fillToc(pageBodyHtml(page.atoms)),
       first: contentIndex++ === 0,
       number: pageNumber(index),

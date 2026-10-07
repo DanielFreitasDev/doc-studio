@@ -150,10 +150,13 @@
 .page__header--logo::after { top: calc(100% + 1.4mm); }
 
 /* Papel timbrado (MIV p. 34–36): assinatura centralizada no alto da primeira folha. */
-.page__letterhead { position: absolute; top: 9.6mm; left: 20mm; right: 20mm; display: flex; justify-content: center; }
+/* Vertical sem secretaria com 37 mm de largura; com secretaria, 40 mm (mínimo do MIV, p. 21).
+   O corpo da primeira folha desce 31 mm (LETTERHEAD_OFFSET em js/paginate.js). */
+.page__letterhead { position: absolute; top: 8mm; left: 20mm; right: 20mm; display: flex; justify-content: center; }
 .page__letterhead .brand { --brand-h: 17.8mm; }
 .page__letterhead .brand--vertical { --brand-h: 31.9mm; }
-.page--letterhead .page__body { top: 46mm; height: 227mm; }
+.page__letterhead .brand--vertical:has(.brand__state--secretaria) { --brand-h: 34.5mm; }
+.page--letterhead .page__body { top: 52mm; height: 221mm; }
 
 /* Endereço do papel timbrado, acima da faixa do rodapé (MIV p. 34). */
 .page__address {
@@ -625,6 +628,12 @@
 .b-toc__t { color: var(--doc-heading); }
 .b-toc__p { font-weight: 500; color: var(--doc-muted); font-variant-numeric: tabular-nums; }
 .b-toc__empty { color: var(--doc-muted); font-size: 8.6pt; }
+.b-toc__dots { display: none; }
+/* Sumário "Pontilhado", como o do MIV (p. 4): título, pontos até o número da página. */
+.b-toc__list--dots .b-toc__item { grid-template-columns: 7.5mm minmax(0, max-content) minmax(4mm, 1fr) auto; gap: 1.2mm; border-bottom: 0; padding: 2pt 0; }
+.b-toc__list--dots .b-toc__t { font-weight: 500; }
+.b-toc__list--dots .b-toc__dots { display: block; align-self: end; margin-bottom: 0.9mm; border-bottom: 0.35mm dotted var(--doc-muted-2); }
+.b-toc__list--dots .b-toc__p { color: var(--doc-heading); }
 
 /* ---------------------------------------------------------------- divisores */
 .atom--divider { margin: 3mm 0 calc(var(--doc-gap) + 3mm); }
@@ -665,17 +674,57 @@
    Governo. O órgão parceiro fica à esquerda, afastado pela largura do escudo
    (0,746 × altura) e centralizado no corpo do escudo, sem a coroa (58% da
    altura a partir do topo). Não há fio separador entre as marcas. */
-.brand { --brand-h: 17mm; display: flex; align-items: flex-start; gap: calc(var(--brand-h) * 0.746); height: var(--brand-h); }
+.brand { --brand-h: 17mm; display: flex; align-items: flex-start; height: var(--brand-h); }
 .brand img { height: 100%; width: auto; max-width: none; }
-.brand .brand__partner { height: calc(var(--brand-h) * 0.8); max-width: calc(var(--brand-h) * 3.2); margin-top: calc(var(--brand-h) * 0.184); object-fit: contain; }
-.brand--vertical { --brand-h: 30mm; }
+.brand .brand__partner { height: calc(var(--brand-h) * 0.8); max-width: calc(var(--brand-h) * 3.2); margin: calc(var(--brand-h) * 0.184) calc(var(--brand-h) * 0.746) 0 0; object-fit: contain; }
+
+/* Vertical (MIV p. 20): --brand-h = altura do escudo + nome. Com secretaria, o
+   nome dela fica centralizado embaixo e a imagem cresce 10,5% (812/735 px). */
+.brand--vertical, .brand--joint-vertical { --brand-h: 30mm; height: auto; }
+.brand .brand__state--vertical { height: var(--brand-h); }
+.brand .brand__state--secretaria { height: calc(var(--brand-h) * 1.1048); }
+/* Conjunta vertical lado a lado (MIV p. 17): órgão do topo do escudo, sem a
+   coroa (9% da altura), até a base do nome; afastado pela largura do escudo. */
+.brand--joint-vertical .brand__partner {
+  height: calc(var(--brand-h) * 0.91);
+  max-width: calc(var(--brand-h) * 1.6);
+  margin: calc(var(--brand-h) * 0.09) calc(var(--brand-h) * 0.385) 0 0;
+  object-position: center bottom;
+}
+
+/* Assinatura com aplicação do conceito (MIV p. 9): linha verde e o conceito
+   em quatro linhas, do topo de "CEARÁ" à base de "GOVERNO DO ESTADO"; a
+   distância até a linha é a mesma entre o escudo e o nome (16,2% da altura). */
+.brand__rule {
+  flex: none;
+  width: max(0.25mm, calc(var(--brand-h) * 0.014));
+  height: calc(var(--brand-h) * 0.64);
+  margin: calc(var(--brand-h) * 0.16) calc(var(--brand-h) * 0.162) 0;
+  background: #26a737;
+}
+.brand .slogan {
+  flex: none;
+  margin-top: calc(var(--brand-h) * 0.142);
+  font-family: 'Kanit', sans-serif;
+  font-size: calc(var(--brand-h) * 0.142);
+  font-weight: 400;
+  line-height: calc(var(--brand-h) * 0.167);
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #26a737;
+}
+.slogan strong { font-weight: 700; color: inherit; }
+.brand--negative .brand__rule { background: #fff; }
+.brand--negative .slogan { color: #fff; }
 
 /* Capa "Pasta" já é o padrão acima. */
 
-/* Capa "Pasta oficial": assinatura vertical centralizada na faixa branca, título embaixo à direita */
+/* Capa "Pasta oficial": assinatura vertical centralizada na faixa branca (com órgão: conjunta vertical, MIV p. 17), título embaixo à direita */
 .cover--official .cover__brand { left: 0; right: 0; top: 31%; bottom: auto; display: flex; justify-content: center; }
 .cover--official .brand { --brand-h: 21mm; }
 .cover--official .brand--vertical { --brand-h: 46mm; }
+.cover--official .brand--joint-vertical { --brand-h: 38mm; }
 .cover--official .cover__heading { top: 55%; left: auto; width: 112mm; text-align: right; }
 .cover--official .cover__rule { margin-left: auto; }
 .cover--official .cover__audience { top: auto; bottom: 9%; }
@@ -747,6 +796,14 @@
 .chapter__rule { display: block; width: 34mm; height: 1.1mm; margin-top: 5mm; background: var(--doc-brand-rule); }
 .chapter__intro { margin-top: 6mm; max-width: 130mm; }
 
+/* Abertura "Verde pleno" (MIV p. 2–3): título em Kanit Bold e texto em branco sobre o degradê. */
+.chapter--solid .chapter__content { left: 92mm; right: 18mm; top: 34%; }
+.chapter--solid .chapter__num { font-size: 72pt; color: rgb(255 255 255 / 0.35); }
+.chapter--solid .chapter__title { font-weight: 700; color: #fff; }
+.chapter--solid .chapter__rule { background: linear-gradient(90deg, #fff, #fccf05); }
+.chapter--solid .chapter__intro, .chapter--solid .chapter__intro strong { color: #fff; }
+.chapter--solid .chapter__intro { font-family: 'Kanit', sans-serif; font-weight: 400; }
+
 /* Contracapa */
 .back__info { position: absolute; left: 23mm; bottom: 11%; max-width: 120mm; }
 .back__info .brand { --brand-h: 16mm; }
@@ -778,11 +835,9 @@
   justify-items: center;
   text-align: center;
 }
-.concept { display: flex; align-items: center; gap: 4mm; }
-.concept .brand { --brand-h: 16mm; }
-.concept__rule { align-self: stretch; width: 0.3mm; margin: 1.5mm 0; background: #fff; }
-.slogan { font-size: 10pt; line-height: 1.2; text-align: left; text-transform: uppercase; color: #fff; max-width: 34mm; }
-.slogan strong { font-weight: 700; color: #fff; }
+/* Sem assinatura, o conceito aparece sozinho e maior, para não sumir na página. */
+.concept { --brand-h: 32mm; }
+.concept .slogan { font-size: calc(var(--brand-h) * 0.142); line-height: calc(var(--brand-h) * 0.167); text-transform: uppercase; color: #fff; }
 .back--fan .back__info { left: 20mm; bottom: auto; top: 12%; }
 
 /* Miniaturas (galeria de modelos e painel de design) */

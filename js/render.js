@@ -72,12 +72,14 @@ const RENDERERS = {
 
     if (block.opener) {
       // Página inteira de abertura: o título não se repete na página de conteúdo.
+      // "Verde pleno" reproduz as páginas de abertura do MIV (p. 2–3): degradê e texto em branco.
+      const solid = ctx.design.chapterStyle === 'solid';
       return [{
         kind: 'chapter',
         blockId: block.id,
         build: (idPrefix) => `
-          <section class="page page--chapter" aria-label="Abertura: ${esc(block.title)}">
-            ${chapterArt(idPrefix)}
+          <section class="page page--chapter${solid ? ' chapter--solid page--dark' : ''}" aria-label="Abertura: ${esc(block.title)}">
+            ${chapterArt(idPrefix, solid ? 'solid' : 'folder')}
             <div class="chapter__content atom" data-block-id="${esc(block.id)}">
               ${num ? `<p class="chapter__num">${num}</p>` : ''}
               ${block.kicker ? `<p class="chapter__kicker">${esc(block.kicker)}</p>` : ''}
@@ -209,10 +211,11 @@ const RENDERERS = {
       <li class="b-toc__item">
         <span class="b-toc__n">${section.number ? pad2(section.number) : '•'}</span>
         <span class="b-toc__t">${esc(section.title)}</span>
+        <span class="b-toc__dots" aria-hidden="true"></span>
         <span class="b-toc__p" data-toc-page="${esc(section.id)}">00</span>
       </li>`).join('');
     const list = items
-      ? `<ol class="b-toc__list" style="--cols:${block.columns}">${items}</ol>`
+      ? `<ol class="b-toc__list b-toc__list--${block.style}" style="--cols:${block.columns}">${items}</ol>`
       : '<p class="b-toc__empty">Adicione blocos do tipo “Seção” para montar o sumário.</p>';
     return [atom(block, 'atom--toc', `<nav class="b-toc" aria-label="${esc(block.title)}"><h3 class="b-toc__title">${esc(block.title)}</h3>${list}</nav>`)];
   },
@@ -355,17 +358,26 @@ const withSecretaria = (design) => design.signature === 'joint' || design.signat
 
 /**
  * Imagem da assinatura do Governo. Com "Secretaria da Infraestrutura" só nas
- * opções que pedem a secretaria; a versão vertical existe sem secretaria e
- * só em positivo.
+ * opções que pedem a secretaria. A vertical existe só em positivo; com
+ * secretaria, o nome dela fica centralizado abaixo do nome (MIV p. 17, 20 e 35).
  */
 function stateLogo(design, { negative, vertical }) {
   if (vertical) {
-    return `<img class="brand__state brand__state--vertical" src="assets/img/ceara-vertical.png" alt="${STATE_ALT}" width="853" height="735">`;
+    return withSecretaria(design)
+      ? `<img class="brand__state brand__state--vertical brand__state--secretaria" src="assets/img/ceara-vertical-secretaria.png" alt="${STATE_ALT}" width="853" height="812">`
+      : `<img class="brand__state brand__state--vertical" src="assets/img/ceara-vertical.png" alt="${STATE_ALT}" width="853" height="735">`;
   }
   const suffix = negative ? '-negative' : '';
   const file = withSecretaria(design) ? 'ceara' : 'ceara-state';
   return `<img class="brand__state" src="assets/img/${file}${suffix}.png" alt="${STATE_ALT}" width="1200" height="382">`;
 }
+
+/**
+ * Conceito do Governo (MIV p. 9): "CUIDAR / DAS PESSOAS, / AVANÇAR / O CEARÁ."
+ * sempre em quatro linhas, Kanit, verbos em bold, separado da assinatura por
+ * uma linha. Verde sobre fundo claro; branco sobre fundo escuro (p. 117).
+ */
+export const SLOGAN_HTML = '<p class="slogan"><strong>Cuidar</strong><br>das pessoas,<br><strong>avançar</strong><br>o Ceará.</p>';
 
 function partnerLogo(design, assets, negative) {
   if (design.signature === 'joint') {
@@ -376,18 +388,26 @@ function partnerLogo(design, assets, negative) {
 }
 
 /**
- * Assinatura conforme o MIV (p. 15–18): o órgão vem à esquerda e o Governo
- * sempre à direita, sem fio separador, afastados pela largura do escudo e
- * alinhados pelo centro do escudo (sem a coroa). `vertical` usa a assinatura
- * vertical quando não há órgão parceiro (papel timbrado, pasta oficial).
+ * Assinatura conforme o MIV (p. 9 e 15–18): o órgão vem à esquerda e o
+ * Governo sempre à direita, sem fio separador, afastados pela largura do
+ * escudo. Na horizontal, alinhados pelo centro do escudo (sem a coroa); na
+ * vertical (`vertical`), pelo topo do escudo sem a coroa e pela base do nome
+ * (p. 17). A vertical só existe em positivo, então sobre fundo escuro a
+ * assinatura volta para a horizontal em negativo. Com `layout: 'pair'` o par
+ * conjunto fica na horizontal com `pairHorizontal` (papel timbrado vinculado,
+ * p. 36). `concept` acrescenta linha + conceito ao lado (p. 9), o que também
+ * acontece quando a assinatura escolhida é "Governo + conceito".
  */
-export function brandHtml(design, assets, { negative = false, vertical = false } = {}) {
+export function brandHtml(design, assets, { negative = false, vertical = false, pairHorizontal = false, concept = false } = {}) {
   if (design.signature === 'none') return '';
   const partner = partnerLogo(design, assets, negative);
-  // A vertical só existe sem secretaria e em positivo (fundo branco).
-  const useVertical = vertical && !partner && !negative && !withSecretaria(design);
-  const layout = partner ? 'joint' : useVertical ? 'vertical' : 'single';
-  return `<div class="brand brand--${layout}">${partner}${stateLogo(design, { negative, vertical: useVertical })}</div>`;
+  const withConcept = concept || design.signature === 'concept';
+  // O conceito acompanha a assinatura horizontal (p. 9 e 117).
+  const useVertical = vertical && !negative && !withConcept && !(partner && pairHorizontal);
+  const layout = useVertical ? (partner ? 'joint-vertical' : 'vertical') : partner ? 'joint' : 'single';
+  const conceptHtml = withConcept ? `<span class="brand__rule"></span>${SLOGAN_HTML}` : '';
+  const modifier = `${withConcept ? ' brand--concept' : ''}${negative ? ' brand--negative' : ''}`;
+  return `<div class="brand brand--${layout}${modifier}">${partner}${stateLogo(design, { negative, vertical: useVertical })}${conceptHtml}</div>`;
 }
 
 /* ------------------------------------------------------------------ páginas */
@@ -432,19 +452,23 @@ export function renderBackCover(doc, assets, idPrefix) {
     </section>`;
 }
 
-/** Assinatura + slogan do Governo, como na contracapa do MIV (p. 9 e 117). */
+/**
+ * Assinatura + conceito do Governo, como na contracapa do MIV (p. 117).
+ * Se a assinatura escolhida já traz o conceito, não o repete; sem
+ * assinatura, mostra só o conceito.
+ */
 function conceptLockup(design, assets) {
-  const brand = brandHtml(design, assets, { negative: true });
-  const slogan = '<p class="slogan"><strong>Cuidar</strong> das pessoas, <strong>avançar</strong> o Ceará.</p>';
-  return `<div class="concept">${brand}${brand ? '<span class="concept__rule"></span>' : ''}${slogan}</div>`;
+  if (design.signature === 'none') return `<div class="concept">${SLOGAN_HTML}</div>`;
+  return brandHtml(design, assets, { negative: true, concept: true });
 }
 
-function headerHtml(doc, first) {
+function headerHtml(doc, assets, first) {
   const { design, meta } = doc;
   if (design.header === 'none') return '';
-  // Papel timbrado do MIV (p. 34–36): assinatura centralizada só na primeira folha.
+  // Papel timbrado do MIV (p. 34–36): assinatura centralizada só na primeira
+  // folha; vertical (com a secretaria embaixo, p. 35) ou par horizontal com o órgão (p. 36).
   if (design.header === 'letterhead') {
-    return first ? `<header class="page__letterhead">${brandHtml(design, {}, { vertical: true })}</header>` : '';
+    return first ? `<header class="page__letterhead">${brandHtml(design, assets, { vertical: true, pairHorizontal: true })}</header>` : '';
   }
   // Assinatura no cabeçalho: sem secretaria e com 30 mm de largura (mínimo do MIV, p. 21).
   const right = design.header === 'logo'
@@ -471,7 +495,7 @@ function addressHtml(meta) {
   return `<address class="page__address">${first ? `<span>${first}</span>` : ''}${rest ? `<span>${rest}</span>` : ''}</address>`;
 }
 
-export function renderContentPage(doc, { bodyHtml, first, number, total, idPrefix, overflowing }) {
+export function renderContentPage(doc, assets, { bodyHtml, first, number, total, idPrefix, overflowing }) {
   const { design } = doc;
   // A meia faixa fica no lado de fora da folha: direita nas páginas ímpares, esquerda nas pares.
   const side = design.footer === 'half' && number % 2 === 0 ? 'left' : 'right';
@@ -487,7 +511,7 @@ export function renderContentPage(doc, { bodyHtml, first, number, total, idPrefi
   ].filter(Boolean).join(' ');
   return `
     <section class="${classes}" aria-label="Página ${number}">
-      ${headerHtml(doc, first)}
+      ${headerHtml(doc, assets, first)}
       <div class="page__body">${bodyHtml}</div>
       ${design.footer === 'address' ? addressHtml(doc.meta) : ''}
       ${footer}

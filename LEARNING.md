@@ -11,7 +11,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 
 ## Decisões de arquitetura
 - [Paginação por átomos e PDF pela impressão](docs/learning/decision-paginacao-por-atomos.md) — blocos medidos com o CSS real; prévia e PDF são o mesmo DOM; átomo maior que a página gera aviso.
-- [Assinaturas pelas regras do MIV](docs/learning/decision-assinaturas-pelas-regras-do-miv.md) — órgão à esquerda, Governo à direita, sem fio, tamanhos mínimos; difere dos dois primeiros manuais de propósito.
+- [Assinaturas pelas regras do MIV](docs/learning/decision-assinaturas-pelas-regras-do-miv.md) — órgão à esquerda, Governo à direita, sem fio, tamanhos mínimos, vertical e conceito em 4 linhas; difere dos dois primeiros manuais de propósito.
 - [Campos de texto com marcação em vez de contenteditable](docs/learning/decision-texto-com-marcacao-em-vez-de-contenteditable.md) — texto sempre escapado antes de `renderInline()`; nada de HTML livre.
 
 ## Abordagens que NÃO funcionaram

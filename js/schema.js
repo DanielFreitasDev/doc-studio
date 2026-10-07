@@ -243,10 +243,12 @@ export const BLOCK_TYPES = {
     icon: 'toc',
     group: 'structure',
     keywords: 'indice sumario neste manual',
-    defaults: () => ({ title: 'Neste documento', columns: '2' }),
+    defaults: () => ({ title: 'Neste documento', columns: '2', style: 'lines' }),
     fields: [
       { key: 'title', kind: 'text', label: 'Título' },
       { key: 'columns', kind: 'segmented', label: 'Colunas', options: [{ value: '1', label: '1' }, { value: '2', label: '2' }] },
+      // "Pontilhado" reproduz o sumário do próprio MIV (p. 4): título, pontos e número da página.
+      { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'lines', label: 'Linhas' }, { value: 'dots', label: 'Pontilhado (MIV)' }] },
     ],
     summary: (b) => b.title,
   },

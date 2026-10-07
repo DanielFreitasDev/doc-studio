@@ -298,6 +298,11 @@ const CHAPTER_LAYERS = () => [
   ...footerBarLayers(PAGE_H),
 ];
 
+// Abertura do MIV (p. 2–3): degradê diagonal medido na tela (#3FB45D → #56C0A3).
+const CHAPTER_SOLID_LAYERS = () => [
+  { pts: [F(0, 0), F(1, 0), F(1, 1), F(0, 1)], colors: ['#3FB45D', '#49BA7E', '#56C0A3'], from: F(0, 0), to: F(1, 1) },
+];
+
 export function coverArt(id, idPrefix) {
   const layers = COVER_LAYERS[id];
   return layers ? svg('cover__art', layers(), idPrefix) : '';
@@ -308,8 +313,12 @@ export function backArt(id, idPrefix) {
   return layers ? svg('back__art', layers(), idPrefix) : '';
 }
 
-export function chapterArt(idPrefix) {
-  return svg('chapter__art', CHAPTER_LAYERS(), idPrefix);
+/**
+ * Arte da página de abertura de capítulo: "folder" (faixas da pasta) ou
+ * "solid" (degradê diagonal verde → água-marinha das p. 2–3 do MIV).
+ */
+export function chapterArt(idPrefix, style = 'folder') {
+  return svg('chapter__art', style === 'solid' ? CHAPTER_SOLID_LAYERS() : CHAPTER_LAYERS(), idPrefix);
 }
 
 /** Ícone de "check" usado em cartões e listas do documento. */

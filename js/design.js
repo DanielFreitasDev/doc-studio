@@ -89,11 +89,17 @@ export const DESIGN_OPTIONS = {
   ],
   // Assinaturas conjuntas seguem o MIV (p. 16–18): órgão à esquerda, Governo sempre à direita.
   signature: [
-    { value: 'joint', label: 'DETRAN/CE + Governo do Ceará (Infraestrutura)' },
-    { value: 'seinfra', label: 'Governo do Ceará + Secretaria da Infraestrutura' },
-    { value: 'state', label: 'Somente Governo do Ceará' },
-    { value: 'custom', label: 'Logo próprio + Governo do Ceará' },
-    { value: 'none', label: 'Sem assinatura' },
+    { value: 'joint', label: 'DETRAN/CE + Governo', description: 'Assinatura conjunta com a Secretaria da Infraestrutura (MIV p. 16)' },
+    { value: 'seinfra', label: 'Governo + Secretaria', description: 'Assinatura secundária: Governo do Ceará com a Secretaria da Infraestrutura (MIV p. 8)' },
+    { value: 'state', label: 'Governo do Ceará', description: 'Somente a assinatura do Governo (MIV p. 7)' },
+    { value: 'concept', label: 'Governo + conceito', description: 'Assinatura com “Cuidar das pessoas, avançar o Ceará.” (MIV p. 9)' },
+    { value: 'custom', label: 'Logo próprio + Governo', description: 'Envie o logo do órgão; ele fica à esquerda do Governo (MIV p. 16)' },
+    { value: 'none', label: 'Sem assinatura', description: 'Nenhuma marca na capa, contracapa e timbrado' },
+  ],
+  // Página de abertura de capítulo (opção "Página inteira de abertura" do bloco Seção).
+  chapterStyle: [
+    { value: 'folder', label: 'Faixas (pasta)' },
+    { value: 'solid', label: 'Verde pleno (MIV)' },
   ],
 };
 
@@ -109,6 +115,7 @@ export const DEFAULT_DESIGN = Object.freeze({
   bodyFont: 'maitree',
   density: 'regular',
   signature: 'joint',
+  chapterStyle: 'folder',
   customLogo: '',
   numberSections: true,
   countCover: true,
@@ -118,39 +125,39 @@ export const DEFAULT_DESIGN = Object.freeze({
 export const DESIGN_PRESETS = [
   {
     id: 'manual', label: 'Manual institucional', description: 'O visual dos manuais oficiais',
-    design: { theme: 'green', cover: 'folder', backCover: 'folder', header: 'classic', footer: 'bar', pageNumber: 'circle', sectionStyle: 'kicker', cardStyle: 'soft' },
+    design: { theme: 'green', cover: 'folder', backCover: 'folder', header: 'classic', footer: 'bar', pageNumber: 'circle', sectionStyle: 'kicker', cardStyle: 'soft', chapterStyle: 'folder' },
   },
   {
     id: 'guide', label: 'Guia rápido', description: 'Leve, direto e arejado',
-    design: { theme: 'teal', cover: 'envelope', backCover: 'minimal', header: 'rule', footer: 'stripe', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'top' },
+    design: { theme: 'teal', cover: 'envelope', backCover: 'minimal', header: 'rule', footer: 'stripe', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'top', chapterStyle: 'folder' },
   },
   {
     id: 'report', label: 'Relatório executivo', description: 'Sóbrio, com números em evidência',
-    design: { theme: 'navy', cover: 'identity', backCover: 'solid', header: 'logo', footer: 'bar', pageNumber: 'text', sectionStyle: 'number', cardStyle: 'outline' },
+    design: { theme: 'navy', cover: 'identity', backCover: 'solid', header: 'logo', footer: 'bar', pageNumber: 'text', sectionStyle: 'number', cardStyle: 'outline', chapterStyle: 'folder' },
   },
   {
     id: 'campaign', label: 'Campanha', description: 'Cores fortes e capa de impacto',
-    design: { theme: 'orange', cover: 'solid', backCover: 'fan', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'soft' },
+    design: { theme: 'orange', cover: 'solid', backCover: 'fan', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'soft', chapterStyle: 'solid' },
   },
   {
     id: 'notice', label: 'Papel timbrado', description: 'Assinatura centralizada, endereço e faixa no pé (MIV p. 34)',
-    design: { theme: 'green', cover: 'none', backCover: 'none', header: 'letterhead', footer: 'address', pageNumber: 'text', sectionStyle: 'kicker', cardStyle: 'outline' },
+    design: { theme: 'green', cover: 'none', backCover: 'none', header: 'letterhead', footer: 'address', pageNumber: 'text', sectionStyle: 'kicker', cardStyle: 'outline', chapterStyle: 'folder' },
   },
   {
     id: 'miv', label: 'Identidade do MIV', description: 'Capa em arcos e meia faixa, como o próprio manual',
-    design: { theme: 'green', cover: 'identity', backCover: 'concept', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'kicker', cardStyle: 'soft' },
+    design: { theme: 'green', cover: 'identity', backCover: 'concept', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'kicker', cardStyle: 'soft', chapterStyle: 'solid' },
   },
   {
     id: 'panel', label: 'Apresentação', description: 'Painel verde na capa, ideal para projetos',
-    design: { theme: 'green', cover: 'panel', backCover: 'concept', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'top' },
+    design: { theme: 'green', cover: 'panel', backCover: 'concept', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'top', chapterStyle: 'solid' },
   },
   {
     id: 'event', label: 'Evento', description: 'Capa de convite, leve e direta',
-    design: { theme: 'teal', cover: 'invite', backCover: 'minimal', header: 'classic', footer: 'bar', pageNumber: 'circle', sectionStyle: 'number', cardStyle: 'outline' },
+    design: { theme: 'teal', cover: 'invite', backCover: 'minimal', header: 'classic', footer: 'bar', pageNumber: 'circle', sectionStyle: 'number', cardStyle: 'outline', chapterStyle: 'folder' },
   },
   {
     id: 'sertao', label: 'Sol do sertão', description: 'Amarelo-ouro com leque',
-    design: { theme: 'gold', cover: 'fan', backCover: 'fan', header: 'classic', footer: 'bar', pageNumber: 'circle', sectionStyle: 'number', cardStyle: 'top' },
+    design: { theme: 'gold', cover: 'fan', backCover: 'fan', header: 'classic', footer: 'bar', pageNumber: 'circle', sectionStyle: 'number', cardStyle: 'top', chapterStyle: 'folder' },
   },
 ];
 
