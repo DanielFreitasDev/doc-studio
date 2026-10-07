@@ -56,6 +56,25 @@ export function createPreview({ store, ui, assets, actions }) {
 
   const schedule = debounce(renderNow, 140);
 
+  /**
+   * Título de capa ou de abertura com uma palavra maior que a coluna (ex.:
+   * "POLIESPORTIVA" na placa): a fonte diminui até a palavra caber, em vez de
+   * parti-la no meio. Prévia e PDF são o mesmo DOM, então o PDF sai igual.
+   */
+  function fitTitles(page) {
+    for (const title of page.querySelectorAll('.cover__title, .chapter__title')) {
+      title.style.overflowWrap = 'normal';
+      const style = getComputedStyle(title);
+      const size = parseFloat(style.fontSize);
+      const lead = parseFloat(style.lineHeight) / size || 1.17;
+      for (let scale = 0.96; title.scrollWidth > title.clientWidth + 1 && scale >= 0.6; scale -= 0.04) {
+        title.style.fontSize = `${(size * scale).toFixed(2)}px`;
+        title.style.lineHeight = `${(size * scale * lead).toFixed(2)}px`;
+      }
+      title.style.overflowWrap = '';
+    }
+  }
+
   /** Substitui apenas as páginas alteradas. */
   function patchPages(htmlList) {
     const template = document.createElement('template');
@@ -67,6 +86,7 @@ export function createPreview({ store, ui, assets, actions }) {
       const existing = pagesEl.children[index];
       if (existing) existing.replaceWith(page);
       else pagesEl.append(page);
+      if (page.matches('.page--cover, .page--chapter')) fitTitles(page);
       observer?.observe(page);
     });
     while (pagesEl.children.length > htmlList.length) pagesEl.lastElementChild.remove();
