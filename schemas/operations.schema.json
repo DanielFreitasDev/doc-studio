@@ -1,0 +1,555 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://doc-studio.local/schemas/operations.schema.json",
+  "title": "Arquivo de alterações do Estúdio de Documentos (.ops.json)",
+  "description": "Gerado por tools/docstudio.mjs a partir de js/operations.js. Lote atômico: se uma operação falhar, nada é aplicado. Formato \"doc-studio-operations\", versão 1.",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "operations"
+  ],
+  "properties": {
+    "format": {
+      "const": "doc-studio-operations"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1
+    },
+    "documentId": {
+      "type": "string",
+      "description": "id do documento alvo (o app avisa se for outro)"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "resumo da alteração, exibido na revisão"
+    },
+    "assets": {
+      "$ref": "document.schema.json#/properties/assets"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "title": "Insere blocos novos.",
+            "type": "object",
+            "required": [
+              "op",
+              "blocks"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "insert"
+              },
+              "blocks": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "document.schema.json#/$defs/document/properties/blocks/items"
+                }
+              },
+              "at": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "start",
+                      "end"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "index"
+                    ],
+                    "properties": {
+                      "index": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "before"
+                    ],
+                    "properties": {
+                      "before": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "after"
+                    ],
+                    "properties": {
+                      "after": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "title": "Altera campos de um bloco; caminhos com ponto valem para itens e células (\"items.2.title\", \"rows.0.1\").",
+            "type": "object",
+            "required": [
+              "op",
+              "id",
+              "set"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "update"
+              },
+              "id": {
+                "type": "string"
+              },
+              "set": {
+                "type": "object",
+                "minProperties": 1
+              },
+              "expect": {
+                "type": "object",
+                "description": "guarda: a operação falha se o alvo não for deste tipo ou não contiver este texto",
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "section",
+                      "heading",
+                      "paragraph",
+                      "list",
+                      "quote",
+                      "code",
+                      "steps",
+                      "cards",
+                      "flow",
+                      "timeline",
+                      "toc",
+                      "callout",
+                      "message",
+                      "faq",
+                      "chips",
+                      "table",
+                      "stats",
+                      "glossary",
+                      "image",
+                      "divider",
+                      "pagebreak"
+                    ]
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Troca um bloco inteiro (pode mudar o tipo), mantendo o id.",
+            "type": "object",
+            "required": [
+              "op",
+              "id",
+              "block"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "replace"
+              },
+              "id": {
+                "type": "string"
+              },
+              "block": {
+                "$ref": "document.schema.json#/$defs/document/properties/blocks/items"
+              },
+              "expect": {
+                "type": "object",
+                "description": "guarda: a operação falha se o alvo não for deste tipo ou não contiver este texto",
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "section",
+                      "heading",
+                      "paragraph",
+                      "list",
+                      "quote",
+                      "code",
+                      "steps",
+                      "cards",
+                      "flow",
+                      "timeline",
+                      "toc",
+                      "callout",
+                      "message",
+                      "faq",
+                      "chips",
+                      "table",
+                      "stats",
+                      "glossary",
+                      "image",
+                      "divider",
+                      "pagebreak"
+                    ]
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Exclui blocos.",
+            "type": "object",
+            "required": [
+              "op"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "remove"
+              },
+              "id": {
+                "type": "string"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "expect": {
+                "type": "object",
+                "description": "guarda: a operação falha se o alvo não for deste tipo ou não contiver este texto",
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "section",
+                      "heading",
+                      "paragraph",
+                      "list",
+                      "quote",
+                      "code",
+                      "steps",
+                      "cards",
+                      "flow",
+                      "timeline",
+                      "toc",
+                      "callout",
+                      "message",
+                      "faq",
+                      "chips",
+                      "table",
+                      "stats",
+                      "glossary",
+                      "image",
+                      "divider",
+                      "pagebreak"
+                    ]
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "id"
+                ]
+              },
+              {
+                "required": [
+                  "ids"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Move blocos (mantendo a ordem entre eles) para outra posição.",
+            "type": "object",
+            "required": [
+              "op",
+              "to"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "move"
+              },
+              "id": {
+                "type": "string"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "to": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "start",
+                      "end"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "index"
+                    ],
+                    "properties": {
+                      "index": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "before"
+                    ],
+                    "properties": {
+                      "before": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "after"
+                    ],
+                    "properties": {
+                      "after": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "anyOf": [
+              {
+                "required": [
+                  "id"
+                ]
+              },
+              {
+                "required": [
+                  "ids"
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Reorganiza o documento inteiro: \"ids\" com todos os ids na nova ordem.",
+            "type": "object",
+            "required": [
+              "op",
+              "ids"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "reorder"
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "title": "Duplica um bloco logo abaixo dele.",
+            "type": "object",
+            "required": [
+              "op",
+              "id"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "duplicate"
+              },
+              "id": {
+                "type": "string"
+              },
+              "newId": {
+                "type": "string",
+                "pattern": "^[\\w-]{1,40}$"
+              }
+            }
+          },
+          {
+            "title": "Transforma um bloco de texto em outro tipo de texto mantendo o conteúdo (paragraph, heading, section, list, quote, callout, message).",
+            "type": "object",
+            "required": [
+              "op",
+              "id",
+              "to"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "transform"
+              },
+              "id": {
+                "type": "string"
+              },
+              "to": {
+                "enum": [
+                  "paragraph",
+                  "heading",
+                  "section",
+                  "list",
+                  "quote",
+                  "callout",
+                  "message"
+                ]
+              },
+              "expect": {
+                "type": "object",
+                "description": "guarda: a operação falha se o alvo não for deste tipo ou não contiver este texto",
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "section",
+                      "heading",
+                      "paragraph",
+                      "list",
+                      "quote",
+                      "code",
+                      "steps",
+                      "cards",
+                      "flow",
+                      "timeline",
+                      "toc",
+                      "callout",
+                      "message",
+                      "faq",
+                      "chips",
+                      "table",
+                      "stats",
+                      "glossary",
+                      "image",
+                      "divider",
+                      "pagebreak"
+                    ]
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Muda opções de aparência registradas (capa, rodapé, tema...).",
+            "type": "object",
+            "required": [
+              "op",
+              "set"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "setDesign"
+              },
+              "set": {
+                "$ref": "document.schema.json#/$defs/document/properties/design"
+              }
+            }
+          },
+          {
+            "title": "Aplica um estilo pronto (só a aparência).",
+            "type": "object",
+            "required": [
+              "op",
+              "preset"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "applyPreset"
+              },
+              "preset": {
+                "enum": [
+                  "manual",
+                  "guide",
+                  "report",
+                  "campaign",
+                  "notice",
+                  "miv",
+                  "panel",
+                  "event",
+                  "sertao",
+                  "stage",
+                  "works",
+                  "photo",
+                  "certificate",
+                  "totem"
+                ]
+              }
+            }
+          },
+          {
+            "title": "Muda textos fixos (capa, cabeçalho, contracapa).",
+            "type": "object",
+            "required": [
+              "op",
+              "set"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "setMeta"
+              },
+              "set": {
+                "$ref": "document.schema.json#/$defs/document/properties/meta"
+              }
+            }
+          },
+          {
+            "title": "Renomeia o documento.",
+            "type": "object",
+            "required": [
+              "op",
+              "name"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "op": {
+                "const": "rename"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

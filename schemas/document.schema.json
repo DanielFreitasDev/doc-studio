@@ -1,0 +1,1408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://doc-studio.local/schemas/document.schema.json",
+  "title": "Arquivo de documento do Estúdio de Documentos (.docstudio.json)",
+  "description": "Gerado por tools/docstudio.mjs a partir de js/schema.js e js/design.js. Formato \"doc-studio\", versão 1. O app normaliza tudo o que importa; este esquema descreve o que é aceito sem correções.",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "document"
+  ],
+  "properties": {
+    "format": {
+      "const": "doc-studio"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1
+    },
+    "exportedAt": {
+      "type": "string"
+    },
+    "document": {
+      "$ref": "#/$defs/document"
+    },
+    "assets": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[\\w-]{1,64}$"
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "dataUrl",
+              "width",
+              "height"
+            ],
+            "properties": {
+              "dataUrl": {
+                "type": "string",
+                "pattern": "^data:image/(png|jpeg|webp|gif|svg\\+xml);base64,"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "src"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "src": {
+                "type": "string",
+                "description": "caminho do arquivo de imagem (só em arquivos-fonte; `docstudio build` converte em dataUrl)"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "document": {
+      "type": "object",
+      "required": [
+        "blocks"
+      ],
+      "properties": {
+        "schema": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "createdAt": {
+          "type": "number"
+        },
+        "updatedAt": {
+          "type": "number"
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kicker": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "subtitle": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "audienceLabel": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "audience": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "version": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "headerTitle": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "headerSubtitle": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "headerRight": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "backTitle": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "backText": {
+              "type": "string",
+              "maxLength": 600
+            },
+            "backWeb": {
+              "type": "string",
+              "maxLength": 600
+            }
+          }
+        },
+        "design": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "theme": {
+              "enum": [
+                "green",
+                "teal",
+                "orange",
+                "red",
+                "gold",
+                "leaf",
+                "navy",
+                "sky"
+              ]
+            },
+            "cover": {
+              "enum": [
+                "folder",
+                "official",
+                "identity",
+                "panel",
+                "invite",
+                "envelope",
+                "fan",
+                "solid",
+                "minimal",
+                "photo",
+                "totem",
+                "sign",
+                "stage",
+                "certificate",
+                "none"
+              ]
+            },
+            "backCover": {
+              "enum": [
+                "folder",
+                "concept",
+                "solid",
+                "fan",
+                "minimal",
+                "vignette",
+                "identity",
+                "stage",
+                "certificate",
+                "backdrop",
+                "none"
+              ]
+            },
+            "header": {
+              "enum": [
+                "classic",
+                "rule",
+                "logo",
+                "letterhead",
+                "band",
+                "none"
+              ]
+            },
+            "footer": {
+              "enum": [
+                "bar",
+                "address",
+                "half",
+                "stripe",
+                "layers",
+                "none"
+              ]
+            },
+            "pageNumber": {
+              "enum": [
+                "circle",
+                "text",
+                "none"
+              ]
+            },
+            "sectionStyle": {
+              "enum": [
+                "kicker",
+                "number",
+                "band"
+              ]
+            },
+            "cardStyle": {
+              "enum": [
+                "soft",
+                "outline",
+                "top"
+              ]
+            },
+            "bodyFont": {
+              "enum": [
+                "maitree",
+                "kanit"
+              ]
+            },
+            "headingWeight": {
+              "enum": [
+                "regular",
+                "strong"
+              ]
+            },
+            "density": {
+              "enum": [
+                "compact",
+                "regular",
+                "airy"
+              ]
+            },
+            "signature": {
+              "enum": [
+                "joint",
+                "seinfra",
+                "state",
+                "concept",
+                "custom",
+                "none"
+              ]
+            },
+            "colorMode": {
+              "enum": [
+                "color",
+                "gray"
+              ]
+            },
+            "chapterStyle": {
+              "enum": [
+                "folder",
+                "solid",
+                "stage",
+                "arcs"
+              ]
+            },
+            "numberSections": {
+              "type": "boolean"
+            },
+            "countCover": {
+              "type": "boolean"
+            },
+            "customLogo": {
+              "type": "string",
+              "pattern": "^[\\w-]{0,64}$"
+            },
+            "coverImage": {
+              "type": "string",
+              "pattern": "^[\\w-]{0,64}$"
+            }
+          }
+        },
+        "blocks": {
+          "type": "array",
+          "maxItems": 2000,
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/block-section"
+              },
+              {
+                "$ref": "#/$defs/block-heading"
+              },
+              {
+                "$ref": "#/$defs/block-paragraph"
+              },
+              {
+                "$ref": "#/$defs/block-list"
+              },
+              {
+                "$ref": "#/$defs/block-quote"
+              },
+              {
+                "$ref": "#/$defs/block-code"
+              },
+              {
+                "$ref": "#/$defs/block-steps"
+              },
+              {
+                "$ref": "#/$defs/block-cards"
+              },
+              {
+                "$ref": "#/$defs/block-flow"
+              },
+              {
+                "$ref": "#/$defs/block-timeline"
+              },
+              {
+                "$ref": "#/$defs/block-toc"
+              },
+              {
+                "$ref": "#/$defs/block-callout"
+              },
+              {
+                "$ref": "#/$defs/block-message"
+              },
+              {
+                "$ref": "#/$defs/block-faq"
+              },
+              {
+                "$ref": "#/$defs/block-chips"
+              },
+              {
+                "$ref": "#/$defs/block-table"
+              },
+              {
+                "$ref": "#/$defs/block-stats"
+              },
+              {
+                "$ref": "#/$defs/block-glossary"
+              },
+              {
+                "$ref": "#/$defs/block-image"
+              },
+              {
+                "$ref": "#/$defs/block-divider"
+              },
+              {
+                "$ref": "#/$defs/block-pagebreak"
+              },
+              {
+                "title": "Bloco por intenção semântica (o sistema escolhe o tipo e as opções)",
+                "type": "object",
+                "required": [
+                  "intent"
+                ],
+                "not": {
+                  "required": [
+                    "type"
+                  ]
+                },
+                "properties": {
+                  "intent": {
+                    "enum": [
+                      "important-information",
+                      "warning",
+                      "danger",
+                      "tip",
+                      "success",
+                      "example",
+                      "note",
+                      "lead",
+                      "procedure",
+                      "requirement",
+                      "comparison",
+                      "screenshot",
+                      "photo",
+                      "system-message",
+                      "error-message",
+                      "faq",
+                      "schedule",
+                      "process",
+                      "key-figures",
+                      "definitions",
+                      "command",
+                      "chapter",
+                      "chapter-opener",
+                      "table-of-contents",
+                      "new-page",
+                      "landscape-pages"
+                    ]
+                  },
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[\\w-]{1,40}$"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "block-section": {
+      "title": "Seção — Título numerado com chamada e linha colorida",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "section"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título da seção"
+        },
+        "kicker": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Chamada acima do título (opcional)"
+        },
+        "intro": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Introdução (opcional)"
+        },
+        "newPage": {
+          "type": "boolean",
+          "description": "Começar em nova página"
+        },
+        "opener": {
+          "type": "boolean",
+          "description": "Página inteira de abertura de capítulo"
+        }
+      }
+    },
+    "block-heading": {
+      "title": "Subtítulo — Título menor dentro de uma seção",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "heading"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Texto"
+        },
+        "level": {
+          "enum": [
+            "2",
+            "3"
+          ],
+          "description": "Nível: 2 = Subtítulo; 3 = Título menor"
+        }
+      }
+    },
+    "block-paragraph": {
+      "title": "Parágrafo — Texto corrido com formatação",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "paragraph"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Texto"
+        },
+        "style": {
+          "enum": [
+            "normal",
+            "lead",
+            "note"
+          ],
+          "description": "Estilo: normal = Normal; lead = Abertura; note = Nota"
+        },
+        "align": {
+          "enum": [
+            "left",
+            "justify",
+            "center"
+          ],
+          "description": "Alinhamento: left = À esquerda; justify = Justificado; center = Centralizado"
+        }
+      }
+    },
+    "block-list": {
+      "title": "Lista — Marcadores, números ou checklist",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "list"
+        },
+        "items": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Itens"
+        },
+        "style": {
+          "enum": [
+            "bullet",
+            "ordered",
+            "check"
+          ],
+          "description": "Marcador: bullet = •; ordered = 1.; check = ✓"
+        }
+      }
+    },
+    "block-quote": {
+      "title": "Citação — Frase em destaque com autoria",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "quote"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Frase"
+        },
+        "author": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Autoria (opcional)"
+        }
+      }
+    },
+    "block-code": {
+      "title": "Código ou texto de tela — Comandos, mensagens e configurações em fonte de máquina",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "code"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título (opcional)"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Conteúdo"
+        },
+        "numbers": {
+          "type": "boolean",
+          "description": "Numerar as linhas"
+        }
+      }
+    },
+    "block-steps": {
+      "title": "Passo a passo — Etapas numeradas ligadas por linha",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "steps"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título do grupo (opcional)"
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 999,
+          "description": "Começar a numeração em"
+        },
+        "tone": {
+          "enum": [
+            "theme",
+            "accent",
+            "green",
+            "teal",
+            "orange",
+            "red",
+            "gold",
+            "navy"
+          ],
+          "description": "Cor: theme = Cor do tema; accent = Cor de apoio do tema; green = Verde; teal = Água-marinha; orange = Laranja; red = Vermelho; gold = Amarelo-ouro; navy = Grafite"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 60,
+          "description": "Passos",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Título"
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Descrição"
+              }
+            }
+          }
+        }
+      }
+    },
+    "block-cards": {
+      "title": "Cartões — Grade de 1 a 3 colunas com marcador",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "cards"
+        },
+        "columns": {
+          "enum": [
+            "1",
+            "2",
+            "3"
+          ],
+          "description": "Colunas: 1 = 1; 2 = 2; 3 = 3"
+        },
+        "marker": {
+          "enum": [
+            "number",
+            "letter",
+            "check",
+            "none"
+          ],
+          "description": "Marcador: number = 1; letter = A; check = ✓; none = Nenhum"
+        },
+        "tone": {
+          "enum": [
+            "alternate",
+            "theme",
+            "accent",
+            "green",
+            "teal",
+            "orange",
+            "red",
+            "gold",
+            "navy"
+          ],
+          "description": "Cor: alternate = Alternar cores; theme = Cor do tema; accent = Cor de apoio do tema; green = Verde; teal = Água-marinha; orange = Laranja; red = Vermelho; gold = Amarelo-ouro; navy = Grafite"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 30,
+          "description": "Cartões",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Título"
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Texto"
+              }
+            }
+          }
+        }
+      }
+    },
+    "block-flow": {
+      "title": "Fluxo — Etapas lado a lado com setas",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "flow"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Rótulo das etapas"
+        },
+        "tone": {
+          "enum": [
+            "alternate",
+            "theme",
+            "accent",
+            "green",
+            "teal",
+            "orange",
+            "red",
+            "gold",
+            "navy"
+          ],
+          "description": "Cor: alternate = Alternar cores; theme = Cor do tema; accent = Cor de apoio do tema; green = Verde; teal = Água-marinha; orange = Laranja; red = Vermelho; gold = Amarelo-ouro; navy = Grafite"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 16,
+          "description": "Etapas",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Título"
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Texto"
+              }
+            }
+          }
+        }
+      }
+    },
+    "block-timeline": {
+      "title": "Linha do tempo — Marcos com data, em sequência",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "timeline"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título (opcional)"
+        },
+        "tone": {
+          "enum": [
+            "alternate",
+            "theme",
+            "accent",
+            "green",
+            "teal",
+            "orange",
+            "red",
+            "gold",
+            "navy"
+          ],
+          "description": "Cor: alternate = Alternar cores; theme = Cor do tema; accent = Cor de apoio do tema; green = Verde; teal = Água-marinha; orange = Laranja; red = Vermelho; gold = Amarelo-ouro; navy = Grafite"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 24,
+          "description": "Marcos",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "date": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Data"
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Título"
+              },
+              "text": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Texto"
+              }
+            }
+          }
+        }
+      }
+    },
+    "block-toc": {
+      "title": "Sumário — Lista automática das seções com página",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "toc"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título"
+        },
+        "columns": {
+          "enum": [
+            "1",
+            "2"
+          ],
+          "description": "Colunas: 1 = 1; 2 = 2"
+        },
+        "style": {
+          "enum": [
+            "lines",
+            "dots"
+          ],
+          "description": "Estilo: lines = Linhas; dots = Pontilhado (MIV)"
+        }
+      }
+    },
+    "block-callout": {
+      "title": "Destaque — Caixa de atenção, dica ou alerta",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "callout"
+        },
+        "tone": {
+          "enum": [
+            "info",
+            "success",
+            "warning",
+            "danger",
+            "tip"
+          ],
+          "description": "Tipo: info = Informação; success = Sucesso; warning = Atenção; danger = Alerta; tip = Dica"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título (opcional)"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Texto"
+        }
+      }
+    },
+    "block-message": {
+      "title": "Mensagem do sistema — Texto exato exibido na tela, entre aspas",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "message"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Rótulo"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Mensagem"
+        },
+        "tone": {
+          "enum": [
+            "info",
+            "success",
+            "warning",
+            "danger",
+            "tip"
+          ],
+          "description": "Tipo: info = Informação; success = Sucesso; warning = Atenção; danger = Alerta; tip = Dica"
+        }
+      }
+    },
+    "block-faq": {
+      "title": "Pergunta e resposta — Dúvidas comuns em duas colunas",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "faq"
+        },
+        "questionLabel": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Rótulo da pergunta"
+        },
+        "answerLabel": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Rótulo da resposta"
+        },
+        "tone": {
+          "enum": [
+            "theme",
+            "accent",
+            "green",
+            "teal",
+            "orange",
+            "red",
+            "gold",
+            "navy"
+          ],
+          "description": "Cor: theme = Cor do tema; accent = Cor de apoio do tema; green = Verde; teal = Água-marinha; orange = Laranja; red = Vermelho; gold = Amarelo-ouro; navy = Grafite"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 40,
+          "description": "Perguntas",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "question": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Pergunta"
+              },
+              "answer": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Resposta"
+              }
+            }
+          }
+        }
+      }
+    },
+    "block-chips": {
+      "title": "Etiquetas — Palavras-chave em pílulas",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "chips"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título (opcional)"
+        },
+        "items": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Etiquetas"
+        },
+        "tone": {
+          "enum": [
+            "theme",
+            "accent",
+            "green",
+            "teal",
+            "orange",
+            "red",
+            "gold",
+            "navy"
+          ],
+          "description": "Cor: theme = Cor do tema; accent = Cor de apoio do tema; green = Verde; teal = Água-marinha; orange = Laranja; red = Vermelho; gold = Amarelo-ouro; navy = Grafite"
+        }
+      }
+    },
+    "block-table": {
+      "title": "Tabela — Linhas e colunas; aceita colar do Excel",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "table"
+        },
+        "header": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "description": "títulos das colunas"
+        },
+        "rows": {
+          "type": "array",
+          "maxItems": 400,
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 4000
+            }
+          },
+          "description": "linhas (listas de células, mesmo número de colunas do cabeçalho)"
+        },
+        "tone": {
+          "enum": [
+            "navy",
+            "theme",
+            "accent",
+            "teal",
+            "minimal"
+          ],
+          "description": "Cabeçalho: navy = Grafite (padrão); theme = Cor do tema; accent = Cor de apoio; teal = Água-marinha; minimal = Minimalista (só linhas)"
+        },
+        "zebra": {
+          "type": "boolean",
+          "description": "Linhas alternadas"
+        },
+        "keyColumn": {
+          "type": "boolean",
+          "description": "Primeira coluna em destaque"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Nota abaixo da tabela (opcional)"
+        }
+      }
+    },
+    "block-stats": {
+      "title": "Indicadores — Números em destaque ou fichas",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "stats"
+        },
+        "style": {
+          "enum": [
+            "kpi",
+            "sheet"
+          ],
+          "description": "Estilo: kpi = Números grandes; sheet = Fichas"
+        },
+        "tone": {
+          "enum": [
+            "alternate",
+            "theme",
+            "accent",
+            "green",
+            "teal",
+            "orange",
+            "red",
+            "gold",
+            "navy"
+          ],
+          "description": "Cor: alternate = Alternar cores; theme = Cor do tema; accent = Cor de apoio do tema; green = Verde; teal = Água-marinha; orange = Laranja; red = Vermelho; gold = Amarelo-ouro; navy = Grafite"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 16,
+          "description": "Indicadores",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Valor"
+              },
+              "label": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Rótulo"
+              },
+              "sub": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Complemento"
+              }
+            }
+          }
+        }
+      }
+    },
+    "block-glossary": {
+      "title": "Glossário — Termos e definições numa caixa",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "glossary"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título"
+        },
+        "tone": {
+          "enum": [
+            "theme",
+            "accent",
+            "green",
+            "teal",
+            "orange",
+            "red",
+            "gold",
+            "navy"
+          ],
+          "description": "Cor: theme = Cor do tema; accent = Cor de apoio do tema; green = Verde; teal = Água-marinha; orange = Laranja; red = Vermelho; gold = Amarelo-ouro; navy = Grafite"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 80,
+          "description": "Termos",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "term": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Termo"
+              },
+              "definition": {
+                "type": "string",
+                "maxLength": 20000,
+                "description": "Definição"
+              }
+            }
+          }
+        }
+      }
+    },
+    "block-image": {
+      "title": "Imagem — Print ou foto com legenda numerada",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "image"
+        },
+        "assetId": {
+          "type": "string",
+          "pattern": "^[\\w-]{0,64}$",
+          "description": "id de uma imagem em \"assets\" (\"\" = sem imagem)"
+        },
+        "caption": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Legenda"
+        },
+        "width": {
+          "type": "number",
+          "minimum": 25,
+          "maximum": 100,
+          "description": "Largura"
+        },
+        "align": {
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ],
+          "description": "Alinhamento: left = Esquerda; center = Centro; right = Direita"
+        },
+        "ratio": {
+          "enum": [
+            "original",
+            "wide",
+            "standard",
+            "square",
+            "portrait"
+          ],
+          "description": "Formato: original = Original; wide = 16:9; standard = 4:3; square = Quadrado; portrait = Retrato"
+        },
+        "fit": {
+          "enum": [
+            "cover",
+            "contain"
+          ],
+          "description": "No formato escolhido: cover = Preencher (corta as bordas); contain = Encaixar (imagem inteira)"
+        },
+        "focus": {
+          "enum": [
+            "top",
+            "center",
+            "bottom"
+          ],
+          "description": "Parte que aparece ao cortar: top = Topo; center = Centro; bottom = Base"
+        },
+        "frame": {
+          "type": "boolean",
+          "description": "Moldura fina"
+        }
+      }
+    },
+    "block-divider": {
+      "title": "Divisor — Linha, faixa colorida, grafismo do MIV ou espaço",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "divider"
+        },
+        "style": {
+          "enum": [
+            "line",
+            "accent",
+            "brand",
+            "wedge",
+            "space"
+          ],
+          "description": "Estilo: line = Linha; accent = Traço colorido; brand = Faixa; wedge = Grafismo; space = Espaço"
+        }
+      }
+    },
+    "block-pagebreak": {
+      "title": "Quebra de página — O próximo bloco começa em nova página, em pé ou deitada",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[\\w-]{1,40}$",
+          "description": "id estável (opcional; criado se faltar)"
+        },
+        "type": {
+          "const": "pagebreak"
+        },
+        "orientation": {
+          "enum": [
+            "portrait",
+            "landscape"
+          ],
+          "description": "Páginas seguintes: portrait = Retrato (em pé); landscape = Paisagem (deitada)"
+        }
+      }
+    }
+  }
+}

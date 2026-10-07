@@ -1,0 +1,3194 @@
+{
+  "generatedFrom": "js/catalog.js (mesmas definições do editor)",
+  "file": {
+    "format": "doc-studio",
+    "version": 1,
+    "maxBlocks": 2000
+  },
+  "operations": {
+    "format": "doc-studio-operations",
+    "version": 1,
+    "positions": [
+      "\"start\"",
+      "\"end\"",
+      "{ \"index\": n }",
+      "{ \"before\": \"id\" }",
+      "{ \"after\": \"id\" }"
+    ],
+    "list": {
+      "insert": {
+        "summary": "Insere blocos novos.",
+        "fields": {
+          "blocks": "lista de blocos ({ type, ...campos }; \"id\" opcional e único)",
+          "at": "posição (opcional, padrão \"end\")"
+        }
+      },
+      "update": {
+        "summary": "Altera campos de um bloco; caminhos com ponto valem para itens e células (\"items.2.title\", \"rows.0.1\").",
+        "fields": {
+          "id": "id do bloco",
+          "set": "objeto { campo ou caminho: valor }",
+          "expect": "guarda opcional"
+        }
+      },
+      "replace": {
+        "summary": "Troca um bloco inteiro (pode mudar o tipo), mantendo o id.",
+        "fields": {
+          "id": "id do bloco",
+          "block": "bloco novo ({ type, ...campos })",
+          "expect": "guarda opcional"
+        }
+      },
+      "remove": {
+        "summary": "Exclui blocos.",
+        "fields": {
+          "id": "id do bloco (ou \"ids\": lista)",
+          "expect": "guarda opcional"
+        }
+      },
+      "move": {
+        "summary": "Move blocos (mantendo a ordem entre eles) para outra posição.",
+        "fields": {
+          "id": "id do bloco (ou \"ids\": lista)",
+          "to": "posição"
+        }
+      },
+      "reorder": {
+        "summary": "Reorganiza o documento inteiro: \"ids\" com todos os ids na nova ordem.",
+        "fields": {
+          "ids": "todos os ids do documento, cada um uma vez"
+        }
+      },
+      "duplicate": {
+        "summary": "Duplica um bloco logo abaixo dele.",
+        "fields": {
+          "id": "id do bloco",
+          "newId": "id da cópia (opcional)"
+        }
+      },
+      "transform": {
+        "summary": "Transforma um bloco de texto em outro tipo de texto mantendo o conteúdo (paragraph, heading, section, list, quote, callout, message).",
+        "fields": {
+          "id": "id do bloco",
+          "to": "tipo de destino"
+        }
+      },
+      "setDesign": {
+        "summary": "Muda opções de aparência registradas (capa, rodapé, tema...).",
+        "fields": {
+          "set": "objeto { opção: valor }"
+        }
+      },
+      "applyPreset": {
+        "summary": "Aplica um estilo pronto (só a aparência).",
+        "fields": {
+          "preset": "id do estilo pronto"
+        }
+      },
+      "setMeta": {
+        "summary": "Muda textos fixos (capa, cabeçalho, contracapa).",
+        "fields": {
+          "set": "objeto { campo: texto }"
+        }
+      },
+      "rename": {
+        "summary": "Renomeia o documento.",
+        "fields": {
+          "name": "novo nome"
+        }
+      }
+    }
+  },
+  "formatting": {
+    "markers": {
+      "bold": "**texto**",
+      "italic": "*texto*",
+      "underline": "++texto++",
+      "strike": "~~texto~~",
+      "highlight": "==texto==",
+      "code": "`texto`",
+      "link": "[texto](https://…)"
+    },
+    "note": "Só nos campos com \"formatting\": true. HTML não é interpretado (aparece como texto). Links: https://, http://, mailto: e tel:. Escape um marcador com \\ (ex.: \\*)."
+  },
+  "page": {
+    "pageMm": {
+      "portrait": [
+        210,
+        297
+      ],
+      "landscape": [
+        297,
+        210
+      ]
+    },
+    "contentWidthMm": {
+      "portrait": 170,
+      "landscape": 257
+    },
+    "contentHeightMm": {
+      "portrait": 252,
+      "landscape": 165
+    },
+    "letterheadOffsetMm": 31
+  },
+  "groups": [
+    {
+      "id": "text",
+      "label": "Texto"
+    },
+    {
+      "id": "structure",
+      "label": "Organização"
+    },
+    {
+      "id": "highlight",
+      "label": "Destaques"
+    },
+    {
+      "id": "data",
+      "label": "Dados"
+    },
+    {
+      "id": "media",
+      "label": "Mídia"
+    },
+    {
+      "id": "page",
+      "label": "Página"
+    }
+  ],
+  "components": [
+    {
+      "type": "section",
+      "label": "Seção",
+      "description": "Título numerado com chamada e linha colorida",
+      "group": "text",
+      "use": "Abrir cada assunto principal (capítulo). Alimenta o sumário e recebe número automático.",
+      "avoid": "Subdivisões dentro de um assunto (use Subtítulo). Seções sem conteúdo.",
+      "pdf": "Nunca fica sozinha no pé da página. \"newPage\" começa em folha nova; \"opener\" cria uma página inteira de abertura.",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Título da seção",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "kicker",
+          "label": "Chamada acima do título (opcional)",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        },
+        {
+          "key": "intro",
+          "label": "Introdução (opcional)",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "newPage",
+          "label": "Começar em nova página",
+          "type": "boolean"
+        },
+        {
+          "key": "opener",
+          "label": "Página inteira de abertura de capítulo",
+          "type": "boolean"
+        }
+      ],
+      "defaults": {
+        "title": "Nova seção",
+        "kicker": "",
+        "intro": "",
+        "newPage": false,
+        "opener": false
+      }
+    },
+    {
+      "type": "heading",
+      "label": "Subtítulo",
+      "description": "Título menor dentro de uma seção",
+      "group": "text",
+      "use": "Subdividir uma seção (\"Quem participa\", \"Documentos exigidos\").",
+      "avoid": "Títulos de capítulo (use Seção) ou frases longas.",
+      "pdf": "Fica sempre junto do bloco seguinte.",
+      "fields": [
+        {
+          "key": "text",
+          "label": "Texto",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "level",
+          "label": "Nível",
+          "type": "enum",
+          "values": [
+            {
+              "value": "2",
+              "label": "Subtítulo"
+            },
+            {
+              "value": "3",
+              "label": "Título menor"
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "text": "Subtítulo",
+        "level": "2"
+      }
+    },
+    {
+      "type": "paragraph",
+      "label": "Parágrafo",
+      "description": "Texto corrido com formatação",
+      "group": "text",
+      "use": "Texto corrido explicativo, curto (3 a 6 linhas). Estilo \"lead\" abre a seção; \"note\" é observação menor.",
+      "avoid": "Sequências de ações (Passo a passo), requisitos (Lista ✓), avisos (Destaque), comparações (Cartões/Tabela).",
+      "pdf": "Linhas em branco separam parágrafos; um parágrafo longo continua na página seguinte, linha a linha (mínimo 2 linhas de cada lado).",
+      "fields": [
+        {
+          "key": "text",
+          "label": "Texto",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "style",
+          "label": "Estilo",
+          "type": "enum",
+          "values": [
+            {
+              "value": "normal",
+              "label": "Normal"
+            },
+            {
+              "value": "lead",
+              "label": "Abertura"
+            },
+            {
+              "value": "note",
+              "label": "Nota"
+            }
+          ]
+        },
+        {
+          "key": "align",
+          "label": "Alinhamento",
+          "type": "enum",
+          "values": [
+            {
+              "value": "left",
+              "label": "À esquerda"
+            },
+            {
+              "value": "justify",
+              "label": "Justificado"
+            },
+            {
+              "value": "center",
+              "label": "Centralizado"
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "text": "",
+        "style": "normal",
+        "align": "left"
+      }
+    },
+    {
+      "type": "list",
+      "label": "Lista",
+      "description": "Marcadores, números ou checklist",
+      "group": "text",
+      "use": "Itens curtos e paralelos: marcadores, números ou checklist (style \"check\" para requisitos e documentos exigidos).",
+      "avoid": "Ações com explicação (Passo a passo) e itens com título + texto (Cartões).",
+      "pdf": "Cada item é uma unidade; a lista pode continuar na página seguinte entre itens.",
+      "fields": [
+        {
+          "key": "items",
+          "label": "Itens",
+          "type": "string",
+          "note": "um item por linha (\\n)",
+          "formatting": true
+        },
+        {
+          "key": "style",
+          "label": "Marcador",
+          "type": "enum",
+          "values": [
+            {
+              "value": "bullet",
+              "label": "•"
+            },
+            {
+              "value": "ordered",
+              "label": "1."
+            },
+            {
+              "value": "check",
+              "label": "✓"
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "items": "Primeiro item\nSegundo item",
+        "style": "bullet"
+      }
+    },
+    {
+      "type": "quote",
+      "label": "Citação",
+      "description": "Frase em destaque com autoria",
+      "group": "text",
+      "use": "Frase de efeito, depoimento ou citação de norma com autoria.",
+      "avoid": "Avisos (Destaque) ou texto comum.",
+      "pdf": "Não se divide entre páginas.",
+      "fields": [
+        {
+          "key": "text",
+          "label": "Frase",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "author",
+          "label": "Autoria (opcional)",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        }
+      ],
+      "defaults": {
+        "text": "Uma frase curta que resume a ideia principal.",
+        "author": ""
+      }
+    },
+    {
+      "type": "code",
+      "label": "Código ou texto de tela",
+      "description": "Comandos, mensagens e configurações em fonte de máquina",
+      "group": "text",
+      "use": "Comandos, códigos, configurações, caminhos de menu e texto de tela literal (fonte de máquina, espaços preservados).",
+      "avoid": "Mensagens curtas exibidas ao usuário (use Mensagem do sistema).",
+      "pdf": "Cada linha é uma unidade; continua na página seguinte entre linhas.",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Título (opcional)",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        },
+        {
+          "key": "text",
+          "label": "Conteúdo",
+          "type": "string",
+          "note": "texto literal, sem formatação; linhas com \\n"
+        },
+        {
+          "key": "numbers",
+          "label": "Numerar as linhas",
+          "type": "boolean"
+        }
+      ],
+      "defaults": {
+        "title": "",
+        "text": "Primeira linha\nSegunda linha",
+        "numbers": false
+      }
+    },
+    {
+      "type": "steps",
+      "label": "Passo a passo",
+      "description": "Etapas numeradas ligadas por linha",
+      "group": "structure",
+      "use": "Procedimentos: ações numeradas que o leitor executa, cada uma com título curto (verbo no imperativo) e explicação.",
+      "avoid": "Itens sem ordem (Lista ou Cartões) e visão geral de fluxo (Fluxo).",
+      "pdf": "Cada passo é uma unidade; o passo a passo continua na página seguinte entre passos. Use \"start\" para continuar a numeração.",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Título do grupo (opcional)",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "start",
+          "label": "Começar a numeração em",
+          "type": "number",
+          "min": 1,
+          "max": 999
+        },
+        {
+          "key": "tone",
+          "label": "Cor",
+          "type": "enum",
+          "values": [
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio do tema"
+            },
+            {
+              "value": "green",
+              "label": "Verde"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "orange",
+              "label": "Laranja"
+            },
+            {
+              "value": "red",
+              "label": "Vermelho"
+            },
+            {
+              "value": "gold",
+              "label": "Amarelo-ouro"
+            },
+            {
+              "value": "navy",
+              "label": "Grafite"
+            }
+          ]
+        },
+        {
+          "key": "items",
+          "label": "Passos",
+          "type": "items",
+          "max": 60,
+          "itemFields": [
+            {
+              "key": "title",
+              "label": "Título",
+              "type": "string",
+              "formatting": true
+            },
+            {
+              "key": "text",
+              "label": "Descrição",
+              "type": "string",
+              "formatting": true
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "title": "",
+        "start": 1,
+        "tone": "theme",
+        "items": [
+          {
+            "title": "Primeiro passo",
+            "text": "Explique o que deve ser feito."
+          },
+          {
+            "title": "Segundo passo",
+            "text": "Indique o resultado esperado."
+          }
+        ]
+      }
+    },
+    {
+      "type": "cards",
+      "label": "Cartões",
+      "description": "Grade de 1 a 3 colunas com marcador",
+      "group": "structure",
+      "use": "Grupos de 2 a 6 itens com título e texto: papéis (\"Quem participa\"), opções, comparação antes × depois.",
+      "avoid": "Sequências (Passo a passo) ou dados tabulares (Tabela).",
+      "pdf": "Cada linha da grade é uma unidade.",
+      "fields": [
+        {
+          "key": "columns",
+          "label": "Colunas",
+          "type": "enum",
+          "values": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            },
+            {
+              "value": "3",
+              "label": "3"
+            }
+          ]
+        },
+        {
+          "key": "marker",
+          "label": "Marcador",
+          "type": "enum",
+          "values": [
+            {
+              "value": "number",
+              "label": "1"
+            },
+            {
+              "value": "letter",
+              "label": "A"
+            },
+            {
+              "value": "check",
+              "label": "✓"
+            },
+            {
+              "value": "none",
+              "label": "Nenhum"
+            }
+          ]
+        },
+        {
+          "key": "tone",
+          "label": "Cor",
+          "type": "enum",
+          "values": [
+            {
+              "value": "alternate",
+              "label": "Alternar cores"
+            },
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio do tema"
+            },
+            {
+              "value": "green",
+              "label": "Verde"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "orange",
+              "label": "Laranja"
+            },
+            {
+              "value": "red",
+              "label": "Vermelho"
+            },
+            {
+              "value": "gold",
+              "label": "Amarelo-ouro"
+            },
+            {
+              "value": "navy",
+              "label": "Grafite"
+            }
+          ]
+        },
+        {
+          "key": "items",
+          "label": "Cartões",
+          "type": "items",
+          "max": 30,
+          "itemFields": [
+            {
+              "key": "title",
+              "label": "Título",
+              "type": "string",
+              "formatting": true
+            },
+            {
+              "key": "text",
+              "label": "Texto",
+              "type": "string",
+              "formatting": true
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "columns": "2",
+        "marker": "number",
+        "tone": "theme",
+        "items": [
+          {
+            "title": "Primeiro ponto",
+            "text": "Descrição curta do ponto."
+          },
+          {
+            "title": "Segundo ponto",
+            "text": "Descrição curta do ponto."
+          }
+        ]
+      }
+    },
+    {
+      "type": "flow",
+      "label": "Fluxo",
+      "description": "Etapas lado a lado com setas",
+      "group": "structure",
+      "use": "Visão geral de um processo em 3 a 5 etapas lado a lado, com setas.",
+      "avoid": "Instruções detalhadas (Passo a passo) ou mais de 6 etapas.",
+      "pdf": "Cada linha de etapas é uma unidade.",
+      "fields": [
+        {
+          "key": "label",
+          "label": "Rótulo das etapas",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        },
+        {
+          "key": "tone",
+          "label": "Cor",
+          "type": "enum",
+          "values": [
+            {
+              "value": "alternate",
+              "label": "Alternar cores"
+            },
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio do tema"
+            },
+            {
+              "value": "green",
+              "label": "Verde"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "orange",
+              "label": "Laranja"
+            },
+            {
+              "value": "red",
+              "label": "Vermelho"
+            },
+            {
+              "value": "gold",
+              "label": "Amarelo-ouro"
+            },
+            {
+              "value": "navy",
+              "label": "Grafite"
+            }
+          ]
+        },
+        {
+          "key": "items",
+          "label": "Etapas",
+          "type": "items",
+          "max": 16,
+          "itemFields": [
+            {
+              "key": "title",
+              "label": "Título",
+              "type": "string",
+              "formatting": true
+            },
+            {
+              "key": "text",
+              "label": "Texto",
+              "type": "string",
+              "formatting": true
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "label": "Etapa",
+        "tone": "alternate",
+        "items": [
+          {
+            "title": "Solicitação",
+            "text": "Quem inicia e onde."
+          },
+          {
+            "title": "Análise",
+            "text": "O que é conferido."
+          },
+          {
+            "title": "Conclusão",
+            "text": "Resultado entregue."
+          }
+        ]
+      }
+    },
+    {
+      "type": "timeline",
+      "label": "Linha do tempo",
+      "description": "Marcos com data, em sequência",
+      "group": "structure",
+      "use": "Datas, prazos e marcos de implantação.",
+      "avoid": "Sequências sem data.",
+      "pdf": "Cada linha de marcos é uma unidade.",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Título (opcional)",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "tone",
+          "label": "Cor",
+          "type": "enum",
+          "values": [
+            {
+              "value": "alternate",
+              "label": "Alternar cores"
+            },
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio do tema"
+            },
+            {
+              "value": "green",
+              "label": "Verde"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "orange",
+              "label": "Laranja"
+            },
+            {
+              "value": "red",
+              "label": "Vermelho"
+            },
+            {
+              "value": "gold",
+              "label": "Amarelo-ouro"
+            },
+            {
+              "value": "navy",
+              "label": "Grafite"
+            }
+          ]
+        },
+        {
+          "key": "items",
+          "label": "Marcos",
+          "type": "items",
+          "max": 24,
+          "itemFields": [
+            {
+              "key": "date",
+              "label": "Data",
+              "type": "string",
+              "formatting": false
+            },
+            {
+              "key": "title",
+              "label": "Título",
+              "type": "string",
+              "formatting": true
+            },
+            {
+              "key": "text",
+              "label": "Texto",
+              "type": "string",
+              "formatting": true
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "title": "",
+        "tone": "alternate",
+        "items": [
+          {
+            "date": "06/10",
+            "title": "Início",
+            "text": "O que acontece nesta data."
+          },
+          {
+            "date": "19/10",
+            "title": "Transição",
+            "text": "O que muda."
+          },
+          {
+            "date": "26/10",
+            "title": "Implantação plena",
+            "text": "Regra definitiva."
+          }
+        ]
+      }
+    },
+    {
+      "type": "toc",
+      "label": "Sumário",
+      "description": "Lista automática das seções com página",
+      "group": "structure",
+      "use": "Sumário automático em documentos com 3 ou mais seções; normalmente logo após a apresentação.",
+      "avoid": "Documentos curtos ou sem blocos Seção.",
+      "pdf": "Não se divide; os números de página são preenchidos na paginação.",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Título",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        },
+        {
+          "key": "columns",
+          "label": "Colunas",
+          "type": "enum",
+          "values": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            }
+          ]
+        },
+        {
+          "key": "style",
+          "label": "Estilo",
+          "type": "enum",
+          "values": [
+            {
+              "value": "lines",
+              "label": "Linhas"
+            },
+            {
+              "value": "dots",
+              "label": "Pontilhado (MIV)"
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "title": "Neste documento",
+        "columns": "2",
+        "style": "lines"
+      }
+    },
+    {
+      "type": "callout",
+      "label": "Destaque",
+      "description": "Caixa de atenção, dica ou alerta",
+      "group": "highlight",
+      "use": "Avisos com intenção: info (importante), warning (atenção), danger (alerta/risco), tip (dica), success (confirmação). Use poucos por página.",
+      "avoid": "Destacar texto comum; vários destaques seguidos perdem o efeito.",
+      "pdf": "Não se divide entre páginas; mantenha o texto curto.",
+      "fields": [
+        {
+          "key": "tone",
+          "label": "Tipo",
+          "type": "enum",
+          "values": [
+            {
+              "value": "info",
+              "label": "Informação"
+            },
+            {
+              "value": "success",
+              "label": "Sucesso"
+            },
+            {
+              "value": "warning",
+              "label": "Atenção"
+            },
+            {
+              "value": "danger",
+              "label": "Alerta"
+            },
+            {
+              "value": "tip",
+              "label": "Dica"
+            }
+          ]
+        },
+        {
+          "key": "title",
+          "label": "Título (opcional)",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "text",
+          "label": "Texto",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        }
+      ],
+      "defaults": {
+        "tone": "warning",
+        "title": "Atenção",
+        "text": "Explique o ponto que merece cuidado."
+      }
+    },
+    {
+      "type": "message",
+      "label": "Mensagem do sistema",
+      "description": "Texto exato exibido na tela, entre aspas",
+      "group": "highlight",
+      "use": "Texto exato que um sistema mostra na tela (erros, confirmações), entre aspas.",
+      "avoid": "Avisos do próprio manual (Destaque).",
+      "pdf": "Não se divide entre páginas.",
+      "fields": [
+        {
+          "key": "label",
+          "label": "Rótulo",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        },
+        {
+          "key": "text",
+          "label": "Mensagem",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "tone",
+          "label": "Tipo",
+          "type": "enum",
+          "values": [
+            {
+              "value": "info",
+              "label": "Informação"
+            },
+            {
+              "value": "success",
+              "label": "Sucesso"
+            },
+            {
+              "value": "warning",
+              "label": "Atenção"
+            },
+            {
+              "value": "danger",
+              "label": "Alerta"
+            },
+            {
+              "value": "tip",
+              "label": "Dica"
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "label": "Mensagem do sistema",
+        "text": "Texto exatamente como aparece na tela.",
+        "tone": "info"
+      }
+    },
+    {
+      "type": "faq",
+      "label": "Pergunta e resposta",
+      "description": "Dúvidas comuns em duas colunas",
+      "group": "highlight",
+      "use": "Dúvidas comuns e situações frequentes com resposta direta.",
+      "avoid": "Conteúdo principal do procedimento.",
+      "pdf": "Cada pergunta é uma unidade.",
+      "fields": [
+        {
+          "key": "questionLabel",
+          "label": "Rótulo da pergunta",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        },
+        {
+          "key": "answerLabel",
+          "label": "Rótulo da resposta",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        },
+        {
+          "key": "tone",
+          "label": "Cor",
+          "type": "enum",
+          "values": [
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio do tema"
+            },
+            {
+              "value": "green",
+              "label": "Verde"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "orange",
+              "label": "Laranja"
+            },
+            {
+              "value": "red",
+              "label": "Vermelho"
+            },
+            {
+              "value": "gold",
+              "label": "Amarelo-ouro"
+            },
+            {
+              "value": "navy",
+              "label": "Grafite"
+            }
+          ]
+        },
+        {
+          "key": "items",
+          "label": "Perguntas",
+          "type": "items",
+          "max": 40,
+          "itemFields": [
+            {
+              "key": "question",
+              "label": "Pergunta",
+              "type": "string",
+              "formatting": true
+            },
+            {
+              "key": "answer",
+              "label": "Resposta",
+              "type": "string",
+              "formatting": true
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "questionLabel": "Dúvida comum",
+        "answerLabel": "Resposta",
+        "tone": "teal",
+        "items": [
+          {
+            "question": "Qual é a dúvida mais frequente?",
+            "answer": "Responda de forma direta, indicando onde conferir."
+          }
+        ]
+      }
+    },
+    {
+      "type": "chips",
+      "label": "Etiquetas",
+      "description": "Palavras-chave em pílulas",
+      "group": "highlight",
+      "use": "Etiquetas curtas: categorias, opções disponíveis, status; ~~risque~~ o que não se aplica.",
+      "avoid": "Frases longas.",
+      "pdf": "Não se divide entre páginas.",
+      "fields": [
+        {
+          "key": "label",
+          "label": "Título (opcional)",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "items",
+          "label": "Etiquetas",
+          "type": "string",
+          "note": "um item por linha (\\n)",
+          "formatting": true
+        },
+        {
+          "key": "tone",
+          "label": "Cor",
+          "type": "enum",
+          "values": [
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio do tema"
+            },
+            {
+              "value": "green",
+              "label": "Verde"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "orange",
+              "label": "Laranja"
+            },
+            {
+              "value": "red",
+              "label": "Vermelho"
+            },
+            {
+              "value": "gold",
+              "label": "Amarelo-ouro"
+            },
+            {
+              "value": "navy",
+              "label": "Grafite"
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "label": "",
+        "items": "Opção A\nOpção B\n~~Não se aplica~~",
+        "tone": "theme"
+      }
+    },
+    {
+      "type": "table",
+      "label": "Tabela",
+      "description": "Linhas e colunas; aceita colar do Excel",
+      "group": "data",
+      "use": "Dados comparáveis em linhas e colunas (normas, prazos, campos e valores). Até 12 colunas; tabelas largas ficam melhores em páginas paisagem.",
+      "avoid": "Texto longo em células e listas simples.",
+      "pdf": "Cada linha é uma unidade; a tabela continua na página seguinte repetindo o cabeçalho.",
+      "fields": [
+        {
+          "key": "header/rows",
+          "label": "Conteúdo",
+          "type": "table",
+          "note": "header: lista de títulos; rows: lista de linhas (listas de células). Até 12 colunas e 400 linhas; células aceitam formatação."
+        },
+        {
+          "key": "tone",
+          "label": "Cabeçalho",
+          "type": "enum",
+          "values": [
+            {
+              "value": "navy",
+              "label": "Grafite (padrão)"
+            },
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "minimal",
+              "label": "Minimalista (só linhas)"
+            }
+          ]
+        },
+        {
+          "key": "zebra",
+          "label": "Linhas alternadas",
+          "type": "boolean"
+        },
+        {
+          "key": "keyColumn",
+          "label": "Primeira coluna em destaque",
+          "type": "boolean"
+        },
+        {
+          "key": "note",
+          "label": "Nota abaixo da tabela (opcional)",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        }
+      ],
+      "defaults": {
+        "header": [
+          "Item",
+          "Descrição"
+        ],
+        "rows": [
+          [
+            "Primeiro",
+            "Detalhe do primeiro item"
+          ],
+          [
+            "Segundo",
+            "Detalhe do segundo item"
+          ]
+        ],
+        "tone": "navy",
+        "zebra": true,
+        "keyColumn": true,
+        "note": ""
+      }
+    },
+    {
+      "type": "stats",
+      "label": "Indicadores",
+      "description": "Números em destaque ou fichas",
+      "group": "data",
+      "use": "Até 4 números que resumem o assunto (kpi) ou fichas com valor e rótulo (sheet).",
+      "avoid": "Números sem contexto.",
+      "pdf": "Cada linha de indicadores é uma unidade.",
+      "fields": [
+        {
+          "key": "style",
+          "label": "Estilo",
+          "type": "enum",
+          "values": [
+            {
+              "value": "kpi",
+              "label": "Números grandes"
+            },
+            {
+              "value": "sheet",
+              "label": "Fichas"
+            }
+          ]
+        },
+        {
+          "key": "tone",
+          "label": "Cor",
+          "type": "enum",
+          "values": [
+            {
+              "value": "alternate",
+              "label": "Alternar cores"
+            },
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio do tema"
+            },
+            {
+              "value": "green",
+              "label": "Verde"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "orange",
+              "label": "Laranja"
+            },
+            {
+              "value": "red",
+              "label": "Vermelho"
+            },
+            {
+              "value": "gold",
+              "label": "Amarelo-ouro"
+            },
+            {
+              "value": "navy",
+              "label": "Grafite"
+            }
+          ]
+        },
+        {
+          "key": "items",
+          "label": "Indicadores",
+          "type": "items",
+          "max": 16,
+          "itemFields": [
+            {
+              "key": "value",
+              "label": "Valor",
+              "type": "string",
+              "formatting": true
+            },
+            {
+              "key": "label",
+              "label": "Rótulo",
+              "type": "string",
+              "formatting": true
+            },
+            {
+              "key": "sub",
+              "label": "Complemento",
+              "type": "string",
+              "formatting": true
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "style": "kpi",
+        "tone": "alternate",
+        "items": [
+          {
+            "value": "5",
+            "label": "Evidências",
+            "sub": "chassi e 4 fotos"
+          },
+          {
+            "value": "4",
+            "label": "Condições",
+            "sub": "para a coleta reduzida"
+          },
+          {
+            "value": "26/10",
+            "label": "Implantação",
+            "sub": "regra obrigatória"
+          }
+        ]
+      }
+    },
+    {
+      "type": "glossary",
+      "label": "Glossário",
+      "description": "Termos e definições numa caixa",
+      "group": "data",
+      "use": "Termos, siglas e definições.",
+      "avoid": "Explicações longas.",
+      "pdf": "Cada termo é uma unidade; a caixa continua na página seguinte.",
+      "fields": [
+        {
+          "key": "title",
+          "label": "Título",
+          "type": "string",
+          "formatting": false,
+          "maxLength": 20000
+        },
+        {
+          "key": "tone",
+          "label": "Cor",
+          "type": "enum",
+          "values": [
+            {
+              "value": "theme",
+              "label": "Cor do tema"
+            },
+            {
+              "value": "accent",
+              "label": "Cor de apoio do tema"
+            },
+            {
+              "value": "green",
+              "label": "Verde"
+            },
+            {
+              "value": "teal",
+              "label": "Água-marinha"
+            },
+            {
+              "value": "orange",
+              "label": "Laranja"
+            },
+            {
+              "value": "red",
+              "label": "Vermelho"
+            },
+            {
+              "value": "gold",
+              "label": "Amarelo-ouro"
+            },
+            {
+              "value": "navy",
+              "label": "Grafite"
+            }
+          ]
+        },
+        {
+          "key": "items",
+          "label": "Termos",
+          "type": "items",
+          "max": 80,
+          "itemFields": [
+            {
+              "key": "term",
+              "label": "Termo",
+              "type": "string",
+              "formatting": false
+            },
+            {
+              "key": "definition",
+              "label": "Definição",
+              "type": "string",
+              "formatting": true
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "title": "Glossário rápido",
+        "tone": "navy",
+        "items": [
+          {
+            "term": "Termo",
+            "definition": "Definição curta e objetiva."
+          }
+        ]
+      }
+    },
+    {
+      "type": "image",
+      "label": "Imagem",
+      "description": "Print ou foto com legenda numerada",
+      "group": "media",
+      "use": "Prints de tela e fotos. Com legenda vira \"Figura N\" e a legenda é o texto alternativo. Prints: moldura e largura 100% (ou 60–80% para prints de celular).",
+      "avoid": "Imagens decorativas sem função; imagens com menos de 150 ppi no tamanho impresso.",
+      "pdf": "Não se divide; a imagem mantém a resolução original (até 3508 px) e o PDF a embute sem perda.",
+      "fields": [
+        {
+          "key": "assetId",
+          "label": "Imagem",
+          "type": "asset-id",
+          "note": "id de uma imagem em \"assets\" do arquivo"
+        },
+        {
+          "key": "caption",
+          "label": "Legenda",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "width",
+          "label": "Largura",
+          "type": "number",
+          "min": 25,
+          "max": 100,
+          "unit": "%"
+        },
+        {
+          "key": "align",
+          "label": "Alinhamento",
+          "type": "enum",
+          "values": [
+            {
+              "value": "left",
+              "label": "Esquerda"
+            },
+            {
+              "value": "center",
+              "label": "Centro"
+            },
+            {
+              "value": "right",
+              "label": "Direita"
+            }
+          ]
+        },
+        {
+          "key": "ratio",
+          "label": "Formato",
+          "type": "enum",
+          "values": [
+            {
+              "value": "original",
+              "label": "Original"
+            },
+            {
+              "value": "wide",
+              "label": "16:9"
+            },
+            {
+              "value": "standard",
+              "label": "4:3"
+            },
+            {
+              "value": "square",
+              "label": "Quadrado"
+            },
+            {
+              "value": "portrait",
+              "label": "Retrato"
+            }
+          ]
+        },
+        {
+          "key": "fit",
+          "label": "No formato escolhido",
+          "type": "enum",
+          "values": [
+            {
+              "value": "cover",
+              "label": "Preencher (corta as bordas)"
+            },
+            {
+              "value": "contain",
+              "label": "Encaixar (imagem inteira)"
+            }
+          ]
+        },
+        {
+          "key": "focus",
+          "label": "Parte que aparece ao cortar",
+          "type": "enum",
+          "values": [
+            {
+              "value": "top",
+              "label": "Topo"
+            },
+            {
+              "value": "center",
+              "label": "Centro"
+            },
+            {
+              "value": "bottom",
+              "label": "Base"
+            }
+          ]
+        },
+        {
+          "key": "frame",
+          "label": "Moldura fina",
+          "type": "boolean"
+        }
+      ],
+      "defaults": {
+        "assetId": "",
+        "caption": "",
+        "width": 100,
+        "align": "center",
+        "ratio": "original",
+        "fit": "cover",
+        "focus": "center",
+        "frame": true
+      }
+    },
+    {
+      "type": "divider",
+      "label": "Divisor",
+      "description": "Linha, faixa colorida, grafismo do MIV ou espaço",
+      "group": "page",
+      "use": "Separar visualmente partes de uma seção (\"wedge\" = grafismo do MIV; \"space\" = respiro).",
+      "avoid": "Separar capítulos (use Seção).",
+      "pdf": "Não se divide.",
+      "fields": [
+        {
+          "key": "style",
+          "label": "Estilo",
+          "type": "enum",
+          "values": [
+            {
+              "value": "line",
+              "label": "Linha"
+            },
+            {
+              "value": "accent",
+              "label": "Traço colorido"
+            },
+            {
+              "value": "brand",
+              "label": "Faixa"
+            },
+            {
+              "value": "wedge",
+              "label": "Grafismo"
+            },
+            {
+              "value": "space",
+              "label": "Espaço"
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "style": "line"
+      }
+    },
+    {
+      "type": "pagebreak",
+      "label": "Quebra de página",
+      "description": "O próximo bloco começa em nova página, em pé ou deitada",
+      "group": "page",
+      "use": "Forçar nova página; \"orientation\": \"landscape\" deixa as páginas seguintes deitadas (tabelas largas), outra quebra em \"portrait\" volta.",
+      "avoid": "Ajustar espaçamento: a paginação já evita títulos órfãos e buracos.",
+      "pdf": "A capa, a contracapa e as aberturas são sempre em retrato.",
+      "fields": [
+        {
+          "key": "orientation",
+          "label": "Páginas seguintes",
+          "type": "enum",
+          "values": [
+            {
+              "value": "portrait",
+              "label": "Retrato (em pé)"
+            },
+            {
+              "value": "landscape",
+              "label": "Paisagem (deitada)"
+            }
+          ]
+        }
+      ],
+      "defaults": {
+        "orientation": "portrait"
+      }
+    }
+  ],
+  "intents": [
+    {
+      "id": "important-information",
+      "description": "Informação que o leitor não pode perder",
+      "becomes": {
+        "type": "callout",
+        "tone": "info",
+        "title": "Importante"
+      }
+    },
+    {
+      "id": "warning",
+      "description": "Cuidado, condição ou exceção que pode causar erro",
+      "becomes": {
+        "type": "callout",
+        "tone": "warning",
+        "title": "Atenção"
+      }
+    },
+    {
+      "id": "danger",
+      "description": "Risco, bloqueio, penalidade ou ação irreversível",
+      "becomes": {
+        "type": "callout",
+        "tone": "danger",
+        "title": "Alerta"
+      }
+    },
+    {
+      "id": "tip",
+      "description": "Atalho, boa prática ou sugestão opcional",
+      "becomes": {
+        "type": "callout",
+        "tone": "tip",
+        "title": "Dica"
+      }
+    },
+    {
+      "id": "success",
+      "description": "Confirmação de que deu certo / resultado esperado",
+      "becomes": {
+        "type": "callout",
+        "tone": "success",
+        "title": "Pronto"
+      }
+    },
+    {
+      "id": "example",
+      "description": "Exemplo concreto que ilustra a regra",
+      "becomes": {
+        "type": "callout",
+        "tone": "tip",
+        "title": "Exemplo"
+      }
+    },
+    {
+      "id": "note",
+      "description": "Observação secundária, em letra menor",
+      "becomes": {
+        "type": "paragraph",
+        "style": "note"
+      }
+    },
+    {
+      "id": "lead",
+      "description": "Parágrafo de abertura, maior, que resume a seção",
+      "becomes": {
+        "type": "paragraph",
+        "style": "lead"
+      }
+    },
+    {
+      "id": "procedure",
+      "description": "Sequência de ações numeradas que o leitor executa",
+      "becomes": {
+        "type": "steps"
+      }
+    },
+    {
+      "id": "requirement",
+      "description": "Requisitos, documentos exigidos, condições (checklist)",
+      "becomes": {
+        "type": "list",
+        "style": "check"
+      }
+    },
+    {
+      "id": "comparison",
+      "description": "Antes × depois, opção A × opção B",
+      "becomes": {
+        "type": "cards",
+        "columns": "2",
+        "marker": "none",
+        "tone": "alternate"
+      }
+    },
+    {
+      "id": "screenshot",
+      "description": "Print de tela com legenda (vira \"Figura N\")",
+      "becomes": {
+        "type": "image",
+        "frame": true,
+        "ratio": "original",
+        "width": 100
+      }
+    },
+    {
+      "id": "photo",
+      "description": "Foto ilustrativa, sem moldura",
+      "becomes": {
+        "type": "image",
+        "frame": false
+      }
+    },
+    {
+      "id": "system-message",
+      "description": "Texto exato exibido por um sistema",
+      "becomes": {
+        "type": "message",
+        "tone": "info"
+      }
+    },
+    {
+      "id": "error-message",
+      "description": "Mensagem de erro exata exibida por um sistema",
+      "becomes": {
+        "type": "message",
+        "tone": "danger",
+        "label": "Mensagem de erro"
+      }
+    },
+    {
+      "id": "faq",
+      "description": "Dúvidas frequentes com resposta",
+      "becomes": {
+        "type": "faq"
+      }
+    },
+    {
+      "id": "schedule",
+      "description": "Datas, prazos, marcos de implantação",
+      "becomes": {
+        "type": "timeline"
+      }
+    },
+    {
+      "id": "process",
+      "description": "Visão geral de um fluxo em poucas etapas, lado a lado",
+      "becomes": {
+        "type": "flow"
+      }
+    },
+    {
+      "id": "key-figures",
+      "description": "Números que resumem o assunto",
+      "becomes": {
+        "type": "stats",
+        "style": "kpi"
+      }
+    },
+    {
+      "id": "definitions",
+      "description": "Termos, siglas e definições",
+      "becomes": {
+        "type": "glossary"
+      }
+    },
+    {
+      "id": "command",
+      "description": "Comandos, códigos, configurações, texto de tela literal",
+      "becomes": {
+        "type": "code"
+      }
+    },
+    {
+      "id": "chapter",
+      "description": "Início de um novo assunto (título numerado em nova página)",
+      "becomes": {
+        "type": "section",
+        "newPage": true
+      }
+    },
+    {
+      "id": "chapter-opener",
+      "description": "Página inteira de abertura de capítulo (use com moderação)",
+      "becomes": {
+        "type": "section",
+        "newPage": true,
+        "opener": true
+      }
+    },
+    {
+      "id": "table-of-contents",
+      "description": "Sumário automático com páginas",
+      "becomes": {
+        "type": "toc"
+      }
+    },
+    {
+      "id": "new-page",
+      "description": "Força o próximo conteúdo em nova página",
+      "becomes": {
+        "type": "pagebreak"
+      }
+    },
+    {
+      "id": "landscape-pages",
+      "description": "Páginas seguintes deitadas (tabelas largas, prints largos)",
+      "becomes": {
+        "type": "pagebreak",
+        "orientation": "landscape"
+      }
+    }
+  ],
+  "calloutTones": [
+    {
+      "value": "info",
+      "label": "Informação"
+    },
+    {
+      "value": "success",
+      "label": "Sucesso"
+    },
+    {
+      "value": "warning",
+      "label": "Atenção"
+    },
+    {
+      "value": "danger",
+      "label": "Alerta"
+    },
+    {
+      "value": "tip",
+      "label": "Dica"
+    }
+  ],
+  "tones": [
+    {
+      "value": "theme",
+      "label": "Cor do tema"
+    },
+    {
+      "value": "accent",
+      "label": "Cor de apoio do tema"
+    },
+    {
+      "value": "green",
+      "label": "Verde"
+    },
+    {
+      "value": "teal",
+      "label": "Água-marinha"
+    },
+    {
+      "value": "orange",
+      "label": "Laranja"
+    },
+    {
+      "value": "red",
+      "label": "Vermelho"
+    },
+    {
+      "value": "gold",
+      "label": "Amarelo-ouro"
+    },
+    {
+      "value": "navy",
+      "label": "Grafite"
+    }
+  ],
+  "design": {
+    "defaults": {
+      "theme": "green",
+      "cover": "folder",
+      "backCover": "folder",
+      "header": "classic",
+      "footer": "bar",
+      "pageNumber": "circle",
+      "sectionStyle": "kicker",
+      "cardStyle": "soft",
+      "bodyFont": "maitree",
+      "density": "regular",
+      "signature": "joint",
+      "chapterStyle": "folder",
+      "headingWeight": "regular",
+      "colorMode": "color",
+      "customLogo": "",
+      "coverImage": "",
+      "numberSections": true,
+      "countCover": true
+    },
+    "themes": [
+      {
+        "id": "green",
+        "label": "Verde institucional",
+        "colors": [
+          "#26a737",
+          "#008241",
+          "#f59c00"
+        ]
+      },
+      {
+        "id": "teal",
+        "label": "Água-marinha",
+        "colors": [
+          "#2db39e",
+          "#1d8475",
+          "#f59c00"
+        ]
+      },
+      {
+        "id": "orange",
+        "label": "Laranja",
+        "colors": [
+          "#e06a0c",
+          "#b4500a",
+          "#26a737"
+        ]
+      },
+      {
+        "id": "red",
+        "label": "Urucum",
+        "colors": [
+          "#e94f0e",
+          "#b83a0a",
+          "#2db39e"
+        ]
+      },
+      {
+        "id": "gold",
+        "label": "Sol",
+        "colors": [
+          "#e4a500",
+          "#8a6400",
+          "#26a737"
+        ]
+      },
+      {
+        "id": "leaf",
+        "label": "Folha",
+        "colors": [
+          "#45b16e",
+          "#2a7050",
+          "#e94f0e"
+        ]
+      },
+      {
+        "id": "navy",
+        "label": "Grafite",
+        "colors": [
+          "#465564",
+          "#2f3b47",
+          "#26a737"
+        ]
+      },
+      {
+        "id": "sky",
+        "label": "Azul",
+        "colors": [
+          "#56a7b2",
+          "#2c6e77",
+          "#f59c00"
+        ]
+      }
+    ],
+    "covers": [
+      {
+        "id": "folder",
+        "label": "Pasta",
+        "description": "Faixas diagonais nos cantos, como a pasta do MIV (p. 44) e os manuais aprovados"
+      },
+      {
+        "id": "official",
+        "label": "Pasta oficial",
+        "description": "Pasta do MIV com a assinatura vertical centralizada e o título embaixo"
+      },
+      {
+        "id": "identity",
+        "label": "Arcos",
+        "description": "Arcos do grafismo, como a capa do próprio Manual de Identidade Visual"
+      },
+      {
+        "id": "panel",
+        "label": "Painel verde",
+        "description": "Título em painel verde e faixas diagonais (apresentação, MIV p. 57)"
+      },
+      {
+        "id": "invite",
+        "label": "Convite",
+        "description": "Faixa vertical verde com bloco laranja à esquerda (convite, MIV p. 55)"
+      },
+      {
+        "id": "envelope",
+        "label": "Envelope",
+        "description": "Faixa inclinada com pé laranja (verso do envelope, MIV p. 38)"
+      },
+      {
+        "id": "fan",
+        "label": "Leque",
+        "description": "Elemento base do grafismo: raios em leque (MIV p. 26)"
+      },
+      {
+        "id": "solid",
+        "label": "Verde pleno",
+        "description": "Degradê verde → água-marinha com assinatura em negativo (MIV p. 117)"
+      },
+      {
+        "id": "minimal",
+        "label": "Minimalista",
+        "description": "Branco, com a faixa do papel timbrado no pé"
+      },
+      {
+        "id": "photo",
+        "label": "Foto",
+        "description": "Sua foto no alto, recortada pelas faixas (slide com foto, MIV p. 56)"
+      },
+      {
+        "id": "totem",
+        "label": "Totem",
+        "description": "Degradê verde em arco, assinatura vertical e raios no pé (totem, MIV p. 115)"
+      },
+      {
+        "id": "sign",
+        "label": "Placa",
+        "description": "Painel verde à direita com o título em branco (placa de obra, MIV p. 76)"
+      },
+      {
+        "id": "stage",
+        "label": "Palco",
+        "description": "Título centralizado e faixas em camadas no pé (fundo de palco, MIV p. 104)"
+      },
+      {
+        "id": "certificate",
+        "label": "Certificado",
+        "description": "Clássica e centralizada, com faixa fina no alto (certificado, MIV p. 52)"
+      },
+      {
+        "id": "none",
+        "label": "Sem capa",
+        "description": "O documento começa direto no conteúdo"
+      }
+    ],
+    "backCovers": [
+      {
+        "id": "folder",
+        "label": "Pasta (verso)",
+        "description": "Faixa diagonal, endereço no rodapé (verso da pasta, MIV p. 44)"
+      },
+      {
+        "id": "concept",
+        "label": "Conceito",
+        "description": "Degradê verde com assinatura e slogan do Governo (contracapa do MIV, p. 117)"
+      },
+      {
+        "id": "solid",
+        "label": "Verde pleno",
+        "description": "Fundo verde com assinatura e endereço centralizados"
+      },
+      {
+        "id": "fan",
+        "label": "Leque",
+        "description": "Grafismo em leque e endereço"
+      },
+      {
+        "id": "minimal",
+        "label": "Minimalista",
+        "description": "Assinatura e endereço centralizados, faixa no pé"
+      },
+      {
+        "id": "vignette",
+        "label": "Vinheta",
+        "description": "Fundo branco com assinatura e conceito em cores (vinheta, MIV p. 62)"
+      },
+      {
+        "id": "identity",
+        "label": "Arcos",
+        "description": "Arcos do grafismo da capa do MIV, com assinatura e endereço"
+      },
+      {
+        "id": "stage",
+        "label": "Palco",
+        "description": "Faixas em camadas no pé, assinatura centralizada (fundo de palco, MIV p. 104)"
+      },
+      {
+        "id": "certificate",
+        "label": "Certificado",
+        "description": "Faixa fina no alto e faixa do timbrado no pé (MIV p. 52)"
+      },
+      {
+        "id": "backdrop",
+        "label": "Backdrop",
+        "description": "Quadros verdes e brancos com as assinaturas alternadas (backdrop de eventos, MIV p. 116)"
+      },
+      {
+        "id": "none",
+        "label": "Sem contracapa",
+        "description": "Termina na última página de conteúdo"
+      }
+    ],
+    "header": [
+      {
+        "id": "classic",
+        "label": "Texto"
+      },
+      {
+        "id": "rule",
+        "label": "Texto e linha"
+      },
+      {
+        "id": "logo",
+        "label": "Texto e assinatura"
+      },
+      {
+        "id": "letterhead",
+        "label": "Timbrado"
+      },
+      {
+        "id": "band",
+        "label": "Faixa no topo"
+      },
+      {
+        "id": "none",
+        "label": "Nenhum"
+      }
+    ],
+    "footer": [
+      {
+        "id": "bar",
+        "label": "Faixa"
+      },
+      {
+        "id": "address",
+        "label": "Faixa e endereço"
+      },
+      {
+        "id": "half",
+        "label": "Meia faixa"
+      },
+      {
+        "id": "stripe",
+        "label": "Linha fina"
+      },
+      {
+        "id": "layers",
+        "label": "Camadas"
+      },
+      {
+        "id": "none",
+        "label": "Nenhum"
+      }
+    ],
+    "pageNumber": [
+      {
+        "id": "circle",
+        "label": "Círculo"
+      },
+      {
+        "id": "text",
+        "label": "Página X de Y"
+      },
+      {
+        "id": "none",
+        "label": "Sem número"
+      }
+    ],
+    "sectionStyle": [
+      {
+        "id": "kicker",
+        "label": "Chamada e linha"
+      },
+      {
+        "id": "number",
+        "label": "Número grande"
+      },
+      {
+        "id": "band",
+        "label": "Faixa"
+      }
+    ],
+    "cardStyle": [
+      {
+        "id": "soft",
+        "label": "Preenchido"
+      },
+      {
+        "id": "outline",
+        "label": "Contorno"
+      },
+      {
+        "id": "top",
+        "label": "Barra superior"
+      }
+    ],
+    "bodyFont": [
+      {
+        "id": "maitree",
+        "label": "Maitree (serifada)"
+      },
+      {
+        "id": "kanit",
+        "label": "Kanit (sem serifa)"
+      }
+    ],
+    "headingWeight": [
+      {
+        "id": "regular",
+        "label": "Padrão (manuais aprovados)"
+      },
+      {
+        "id": "strong",
+        "label": "Extra forte (como o MIV)"
+      }
+    ],
+    "density": [
+      {
+        "id": "compact",
+        "label": "Compacta"
+      },
+      {
+        "id": "regular",
+        "label": "Padrão"
+      },
+      {
+        "id": "airy",
+        "label": "Arejada"
+      }
+    ],
+    "signature": [
+      {
+        "id": "joint",
+        "label": "DETRAN/CE + Governo",
+        "description": "Assinatura conjunta com a Secretaria da Infraestrutura (MIV p. 16)"
+      },
+      {
+        "id": "seinfra",
+        "label": "Governo + Secretaria",
+        "description": "Assinatura secundária: Governo do Ceará com a Secretaria da Infraestrutura (MIV p. 8)"
+      },
+      {
+        "id": "state",
+        "label": "Governo do Ceará",
+        "description": "Somente a assinatura do Governo (MIV p. 7)"
+      },
+      {
+        "id": "concept",
+        "label": "Governo + conceito",
+        "description": "Assinatura com “Cuidar das pessoas, avançar o Ceará.” (MIV p. 9)"
+      },
+      {
+        "id": "custom",
+        "label": "Logo próprio + Governo",
+        "description": "Envie o logo do órgão; ele fica à esquerda do Governo (MIV p. 16)"
+      },
+      {
+        "id": "none",
+        "label": "Sem assinatura",
+        "description": "Nenhuma marca na capa, contracapa e timbrado"
+      }
+    ],
+    "colorMode": [
+      {
+        "id": "color",
+        "label": "Colorida"
+      },
+      {
+        "id": "gray",
+        "label": "Escala de cinza (P&B)"
+      }
+    ],
+    "chapterStyle": [
+      {
+        "id": "folder",
+        "label": "Faixas (pasta)"
+      },
+      {
+        "id": "solid",
+        "label": "Verde pleno (MIV)"
+      },
+      {
+        "id": "stage",
+        "label": "Palco"
+      },
+      {
+        "id": "arcs",
+        "label": "Arcos"
+      }
+    ],
+    "booleans": {
+      "numberSections": "numera as seções (01, 02…)",
+      "countCover": "a capa conta como página 1"
+    },
+    "assets": {
+      "customLogo": "id da imagem do logo (com signature \"custom\")",
+      "coverImage": "id da foto (com cover \"photo\")"
+    }
+  },
+  "presets": [
+    {
+      "id": "manual",
+      "label": "Manual institucional",
+      "description": "O visual dos manuais oficiais",
+      "design": {
+        "theme": "green",
+        "cover": "folder",
+        "backCover": "folder",
+        "header": "classic",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "kicker",
+        "cardStyle": "soft",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "guide",
+      "label": "Guia rápido",
+      "description": "Leve, direto e arejado",
+      "design": {
+        "theme": "teal",
+        "cover": "envelope",
+        "backCover": "minimal",
+        "header": "rule",
+        "footer": "stripe",
+        "pageNumber": "circle",
+        "sectionStyle": "band",
+        "cardStyle": "top",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "report",
+      "label": "Relatório executivo",
+      "description": "Sóbrio, com números em evidência",
+      "design": {
+        "theme": "navy",
+        "cover": "identity",
+        "backCover": "solid",
+        "header": "logo",
+        "footer": "bar",
+        "pageNumber": "text",
+        "sectionStyle": "number",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "campaign",
+      "label": "Campanha",
+      "description": "Cores fortes e capa de impacto",
+      "design": {
+        "theme": "orange",
+        "cover": "solid",
+        "backCover": "fan",
+        "header": "rule",
+        "footer": "half",
+        "pageNumber": "circle",
+        "sectionStyle": "band",
+        "cardStyle": "soft",
+        "chapterStyle": "solid",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "notice",
+      "label": "Papel timbrado",
+      "description": "Assinatura centralizada, endereço e faixa no pé (MIV p. 34)",
+      "design": {
+        "theme": "green",
+        "cover": "none",
+        "backCover": "none",
+        "header": "letterhead",
+        "footer": "address",
+        "pageNumber": "text",
+        "sectionStyle": "kicker",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "miv",
+      "label": "Identidade do MIV",
+      "description": "Capa em arcos e meia faixa, como o próprio manual",
+      "design": {
+        "theme": "green",
+        "cover": "identity",
+        "backCover": "concept",
+        "header": "rule",
+        "footer": "half",
+        "pageNumber": "circle",
+        "sectionStyle": "kicker",
+        "cardStyle": "soft",
+        "chapterStyle": "solid",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "panel",
+      "label": "Apresentação",
+      "description": "Painel verde na capa, ideal para projetos",
+      "design": {
+        "theme": "green",
+        "cover": "panel",
+        "backCover": "concept",
+        "header": "rule",
+        "footer": "half",
+        "pageNumber": "circle",
+        "sectionStyle": "band",
+        "cardStyle": "top",
+        "chapterStyle": "solid",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "event",
+      "label": "Evento",
+      "description": "Capa de convite, leve e direta",
+      "design": {
+        "theme": "teal",
+        "cover": "invite",
+        "backCover": "minimal",
+        "header": "classic",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "number",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "sertao",
+      "label": "Sol do sertão",
+      "description": "Amarelo-ouro com leque",
+      "design": {
+        "theme": "gold",
+        "cover": "fan",
+        "backCover": "fan",
+        "header": "classic",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "number",
+        "cardStyle": "top",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "stage",
+      "label": "Evento (palco)",
+      "description": "Capa de fundo de palco, centralizada, com faixas em camadas",
+      "design": {
+        "theme": "green",
+        "cover": "stage",
+        "backCover": "vignette",
+        "header": "band",
+        "footer": "layers",
+        "pageNumber": "circle",
+        "sectionStyle": "kicker",
+        "cardStyle": "soft",
+        "chapterStyle": "stage",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "works",
+      "label": "Obras e projetos",
+      "description": "Capa de placa de obra, títulos fortes como no MIV",
+      "design": {
+        "theme": "green",
+        "cover": "sign",
+        "backCover": "stage",
+        "header": "rule",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "number",
+        "cardStyle": "top",
+        "chapterStyle": "solid",
+        "headingWeight": "strong"
+      }
+    },
+    {
+      "id": "photo",
+      "label": "Com foto",
+      "description": "Sua foto na capa, recortada pelas faixas do MIV",
+      "design": {
+        "theme": "teal",
+        "cover": "photo",
+        "backCover": "vignette",
+        "header": "rule",
+        "footer": "layers",
+        "pageNumber": "circle",
+        "sectionStyle": "band",
+        "cardStyle": "soft",
+        "chapterStyle": "arcs",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "certificate",
+      "label": "Clássico",
+      "description": "Centralizado e sóbrio, como o certificado do MIV",
+      "design": {
+        "theme": "navy",
+        "cover": "certificate",
+        "backCover": "certificate",
+        "header": "band",
+        "footer": "bar",
+        "pageNumber": "text",
+        "sectionStyle": "kicker",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "totem",
+      "label": "Campanha (totem)",
+      "description": "Degradê verde em arco e raios coloridos",
+      "design": {
+        "theme": "sky",
+        "cover": "totem",
+        "backCover": "concept",
+        "header": "classic",
+        "footer": "half",
+        "pageNumber": "circle",
+        "sectionStyle": "band",
+        "cardStyle": "soft",
+        "chapterStyle": "solid",
+        "headingWeight": "strong"
+      }
+    }
+  ],
+  "meta": {
+    "defaults": {
+      "kicker": "DETRAN/CE · Diretoria de Veículos",
+      "title": "Título do\nDocumento",
+      "subtitle": "Subtítulo do documento",
+      "description": "Linha de apoio · Sistema · Assunto",
+      "audienceLabel": "Para",
+      "audience": "Público a quem\no documento se destina",
+      "version": "Versão 1.0 · <mês e ano de criação>",
+      "headerTitle": "Título do Documento",
+      "headerSubtitle": "Subtítulo",
+      "headerRight": "DETRAN/CE · Diretoria de Veículos",
+      "backTitle": "Departamento Estadual de Trânsito do Ceará",
+      "backText": "Av. Godofredo Maciel, 2900 · Maraponga\nCEP: 60710-903 · Fortaleza-Ceará\nFone: (85) 3195.2300",
+      "backWeb": "www.detran.ce.gov.br"
+    },
+    "fields": [
+      {
+        "key": "kicker",
+        "group": "Capa",
+        "label": "Chamada (acima do título)",
+        "multiline": false
+      },
+      {
+        "key": "title",
+        "group": "Capa",
+        "label": "Título",
+        "multiline": true
+      },
+      {
+        "key": "subtitle",
+        "group": "Capa",
+        "label": "Subtítulo",
+        "multiline": false
+      },
+      {
+        "key": "description",
+        "group": "Capa",
+        "label": "Linha de apoio",
+        "multiline": false
+      },
+      {
+        "key": "audienceLabel",
+        "group": "Capa",
+        "label": "Rótulo do público",
+        "multiline": false
+      },
+      {
+        "key": "audience",
+        "group": "Capa",
+        "label": "Público",
+        "multiline": true
+      },
+      {
+        "key": "version",
+        "group": "Capa",
+        "label": "Versão e data",
+        "multiline": false
+      },
+      {
+        "key": "headerTitle",
+        "group": "Cabeçalho das páginas",
+        "label": "Título (em destaque)",
+        "multiline": false
+      },
+      {
+        "key": "headerSubtitle",
+        "group": "Cabeçalho das páginas",
+        "label": "Complemento (em cor)",
+        "multiline": false
+      },
+      {
+        "key": "headerRight",
+        "group": "Cabeçalho das páginas",
+        "label": "Texto à direita",
+        "multiline": false
+      },
+      {
+        "key": "backTitle",
+        "group": "Contracapa",
+        "label": "Nome do órgão",
+        "multiline": false
+      },
+      {
+        "key": "backText",
+        "group": "Contracapa",
+        "label": "Endereço e contatos",
+        "multiline": true
+      },
+      {
+        "key": "backWeb",
+        "group": "Contracapa",
+        "label": "Site e redes sociais",
+        "multiline": false
+      }
+    ],
+    "note": "Textos fixos sem formatação; \\n quebra a linha onde o campo aceita várias linhas."
+  },
+  "templates": [
+    {
+      "id": "manual",
+      "name": "Manual operacional",
+      "description": "Manual completo com sumário, cronograma, passo a passo, tabelas e dúvidas comuns. É a estrutura dos manuais oficiais.",
+      "kind": "model",
+      "blocks": 24,
+      "design": {
+        "theme": "green",
+        "cover": "folder",
+        "backCover": "folder",
+        "header": "classic",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "kicker",
+        "cardStyle": "soft",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "guide",
+      "name": "Guia rápido",
+      "description": "Poucas páginas, direto ao ponto: o que muda, como fazer e o que observar. Ideal para comunicar uma regra nova.",
+      "kind": "model",
+      "blocks": 9,
+      "design": {
+        "theme": "teal",
+        "cover": "envelope",
+        "backCover": "minimal",
+        "header": "rule",
+        "footer": "stripe",
+        "pageNumber": "circle",
+        "sectionStyle": "band",
+        "cardStyle": "top",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "pop",
+      "name": "Procedimento (POP)",
+      "description": "Procedimento Operacional Padrão: objetivo, responsáveis, materiais, execução, riscos, registros e controle de versões.",
+      "kind": "model",
+      "blocks": 12,
+      "design": {
+        "theme": "teal",
+        "cover": "minimal",
+        "backCover": "minimal",
+        "header": "rule",
+        "footer": "bar",
+        "pageNumber": "text",
+        "sectionStyle": "number",
+        "cardStyle": "outline"
+      }
+    },
+    {
+      "id": "report",
+      "name": "Relatório de resultados",
+      "description": "Indicadores em destaque, linha do tempo, comparativos e conclusões. Visual sóbrio para a gestão.",
+      "kind": "model",
+      "blocks": 9,
+      "design": {
+        "theme": "navy",
+        "cover": "identity",
+        "backCover": "solid",
+        "header": "logo",
+        "footer": "bar",
+        "pageNumber": "text",
+        "sectionStyle": "number",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "notice",
+      "name": "Comunicado",
+      "description": "Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura.",
+      "kind": "model",
+      "blocks": 8,
+      "design": {
+        "theme": "green",
+        "cover": "none",
+        "backCover": "none",
+        "header": "letterhead",
+        "footer": "address",
+        "pageNumber": "text",
+        "sectionStyle": "kicker",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "project",
+      "name": "Apresentação de projeto",
+      "description": "Contexto, objetivos, etapas, investimento e equipe, com capa de placa de obra do MIV. Ideal para projetos e obras.",
+      "kind": "model",
+      "blocks": 8,
+      "design": {
+        "theme": "green",
+        "cover": "sign",
+        "backCover": "stage",
+        "header": "rule",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "number",
+        "cardStyle": "top",
+        "chapterStyle": "solid",
+        "headingWeight": "strong"
+      }
+    },
+    {
+      "id": "citizen",
+      "name": "Cartilha para o cidadão",
+      "description": "Linguagem simples, passo a passo, documentos necessários e dúvidas comuns, com capa de totem do MIV.",
+      "kind": "model",
+      "blocks": 7,
+      "design": {
+        "theme": "sky",
+        "cover": "totem",
+        "backCover": "concept",
+        "header": "classic",
+        "footer": "half",
+        "pageNumber": "circle",
+        "sectionStyle": "band",
+        "cardStyle": "soft",
+        "chapterStyle": "solid",
+        "headingWeight": "strong"
+      }
+    },
+    {
+      "id": "letter",
+      "name": "Ofício",
+      "description": "Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página.",
+      "kind": "model",
+      "blocks": 8,
+      "design": {
+        "theme": "green",
+        "cover": "none",
+        "backCover": "none",
+        "header": "letterhead",
+        "footer": "address",
+        "pageNumber": "text",
+        "sectionStyle": "kicker",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "technical",
+      "name": "Nota técnica",
+      "description": "Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência.",
+      "kind": "model",
+      "blocks": 13,
+      "design": {
+        "theme": "navy",
+        "cover": "envelope",
+        "backCover": "minimal",
+        "header": "logo",
+        "footer": "stripe",
+        "pageNumber": "text",
+        "sectionStyle": "number",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "blank",
+      "name": "Documento em branco",
+      "description": "Capa, contracapa e páginas com a identidade visual, sem nenhum texto de exemplo.",
+      "kind": "start",
+      "blocks": 0,
+      "design": {
+        "theme": "green",
+        "cover": "folder",
+        "backCover": "folder",
+        "header": "classic",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "kicker",
+        "cardStyle": "soft",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "letterhead",
+      "name": "Papel timbrado",
+      "description": "O papel timbrado do MIV: assinatura centralizada no alto, endereço e faixa no pé. Para ofício, memorando ou nota.",
+      "kind": "start",
+      "blocks": 0,
+      "design": {
+        "theme": "green",
+        "cover": "none",
+        "backCover": "none",
+        "header": "letterhead",
+        "footer": "address",
+        "pageNumber": "text",
+        "sectionStyle": "kicker",
+        "cardStyle": "outline",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "plain",
+      "name": "Folha simples",
+      "description": "Só as páginas, sem capa e sem contracapa: cabeçalho, faixa do MIV no pé e número da página.",
+      "kind": "start",
+      "blocks": 0,
+      "design": {
+        "theme": "green",
+        "cover": "none",
+        "backCover": "none",
+        "header": "classic",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "kicker",
+        "cardStyle": "soft",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "from-text",
+      "name": "Já tenho o texto",
+      "description": "Cole o texto do Word ou do e-mail: títulos, listas e tabelas viram blocos formatados.",
+      "kind": "start",
+      "blocks": 0,
+      "design": {
+        "theme": "green",
+        "cover": "folder",
+        "backCover": "folder",
+        "header": "classic",
+        "footer": "bar",
+        "pageNumber": "circle",
+        "sectionStyle": "kicker",
+        "cardStyle": "soft",
+        "chapterStyle": "folder",
+        "headingWeight": "regular"
+      }
+    }
+  ],
+  "snippets": [
+    {
+      "id": "section-steps",
+      "name": "Seção com passo a passo",
+      "description": "Título, introdução e etapas numeradas",
+      "blocks": [
+        {
+          "type": "section",
+          "kicker": "Operação",
+          "title": "Como fazer",
+          "intro": "Resumo do procedimento em uma frase."
+        },
+        {
+          "type": "steps",
+          "start": 1,
+          "tone": "theme",
+          "items": [
+            {
+              "title": "Primeiro passo",
+              "text": ""
+            },
+            {
+              "title": "Segundo passo",
+              "text": ""
+            },
+            {
+              "title": "Terceiro passo",
+              "text": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "who",
+      "name": "Quem participa",
+      "description": "Subtítulo e cartões com letras",
+      "blocks": [
+        {
+          "type": "heading",
+          "text": "Quem participa",
+          "level": "2"
+        },
+        {
+          "type": "cards",
+          "columns": "2",
+          "marker": "letter",
+          "tone": "alternate",
+          "items": [
+            {
+              "title": "Parte A",
+              "text": "Papel no processo."
+            },
+            {
+              "title": "Parte B",
+              "text": "Papel no processo."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "numbers",
+      "name": "Resumo em números",
+      "description": "Três indicadores lado a lado",
+      "blocks": [
+        {
+          "type": "stats",
+          "style": "kpi",
+          "tone": "alternate",
+          "items": [
+            {
+              "value": "00",
+              "label": "Indicador",
+              "sub": "complemento"
+            },
+            {
+              "value": "00",
+              "label": "Indicador",
+              "sub": "complemento"
+            },
+            {
+              "value": "00",
+              "label": "Indicador",
+              "sub": "complemento"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "faq",
+      "name": "Dúvidas comuns",
+      "description": "Seção com perguntas e respostas",
+      "blocks": [
+        {
+          "type": "section",
+          "kicker": "Dúvidas",
+          "title": "Situações comuns"
+        },
+        {
+          "type": "faq",
+          "questionLabel": "Dúvida comum",
+          "answerLabel": "Resposta",
+          "tone": "teal",
+          "items": [
+            {
+              "question": "Pergunta 1?",
+              "answer": "Resposta 1."
+            },
+            {
+              "question": "Pergunta 2?",
+              "answer": "Resposta 2."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rules",
+      "name": "Normas de referência",
+      "description": "Tabela de normas com dica",
+      "blocks": [
+        {
+          "type": "heading",
+          "text": "Normas de referência",
+          "level": "2"
+        },
+        {
+          "type": "table",
+          "header": [
+            "Norma",
+            "O que define"
+          ],
+          "rows": [
+            [
+              "Norma nº 000/2026",
+              "Assunto"
+            ],
+            [
+              "Norma nº 000/2026",
+              "Assunto"
+            ]
+          ],
+          "tone": "navy",
+          "zebra": true,
+          "keyColumn": true,
+          "note": ""
+        },
+        {
+          "type": "callout",
+          "tone": "tip",
+          "title": "Onde conferir",
+          "text": "Indique onde encontrar o texto completo."
+        }
+      ]
+    },
+    {
+      "id": "before-after",
+      "name": "Como era × como fica",
+      "description": "Comparação em dois cartões",
+      "blocks": [
+        {
+          "type": "heading",
+          "text": "O que muda",
+          "level": "2"
+        },
+        {
+          "type": "cards",
+          "columns": "2",
+          "marker": "none",
+          "tone": "alternate",
+          "items": [
+            {
+              "title": "Como era",
+              "text": "Situação anterior."
+            },
+            {
+              "title": "Como fica",
+              "text": "Situação nova."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rollout",
+      "name": "Cronograma de implantação",
+      "description": "Subtítulo e linha do tempo",
+      "blocks": [
+        {
+          "type": "heading",
+          "text": "Cronograma",
+          "level": "2"
+        },
+        {
+          "type": "timeline",
+          "tone": "alternate",
+          "items": [
+            {
+              "date": "00/00",
+              "title": "Etapa 1",
+              "text": ""
+            },
+            {
+              "date": "00/00",
+              "title": "Etapa 2",
+              "text": ""
+            },
+            {
+              "date": "00/00",
+              "title": "Etapa 3",
+              "text": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alert",
+      "name": "Aviso com mensagem da tela",
+      "description": "Destaque de alerta e a mensagem exibida",
+      "blocks": [
+        {
+          "type": "callout",
+          "tone": "danger",
+          "title": "Importante",
+          "text": "Explique a regra que gera o bloqueio."
+        },
+        {
+          "type": "message",
+          "label": "Mensagem no sistema",
+          "text": "Texto exato exibido na tela.",
+          "tone": "danger"
+        }
+      ]
+    }
+  ],
+  "images": {
+    "minimumPpi": 150,
+    "idealPpi": 300,
+    "maxPixels": 3508,
+    "types": [
+      "png",
+      "jpeg",
+      "webp",
+      "gif",
+      "svg"
+    ]
+  }
+}
