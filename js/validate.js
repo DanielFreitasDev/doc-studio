@@ -13,10 +13,10 @@
  *
  * Sem dependência do DOM: roda no navegador e no Node (ferramenta de linha de comando).
  */
-import { BLOCK_TYPES, BLOCK_ID, MAX_TEXT, TABLE_LIMITS, BLOCK_INTENTS, expandIntent } from './schema.js';
-import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DEFAULT_DESIGN, DEFAULT_META, PAGE_GEOMETRY, contentWidthMm } from './design.js';
+import { BLOCK_TYPES, BLOCK_ID, MAX_TEXT, TABLE_LIMITS, BLOCK_INTENTS, IMAGE_RATIOS, expandIntent } from './schema.js';
+import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DEFAULT_DESIGN, DEFAULT_META, META_MAX_TEXT, contentWidthMm } from './design.js';
 import { MAX_BLOCKS } from './model.js';
-import { stripMarkup, safeUrl } from './markup.js';
+import { stripMarkup, linkUrl } from './markup.js';
 import { GRAPHIC_PALETTE, SIGNATURE_COLORS, TYPOGRAPHY, contrastRatio } from './brand.js';
 
 const MM_PER_INCH = 25.4;
@@ -81,17 +81,22 @@ function createReport() {
   };
 }
 
-/** Problemas de um texto do documento: HTML (aparece como texto), links que não funcionarão, cores em código. */
-function checkText(report, value, label, extra) {
+/**
+ * Problemas de um texto do documento: HTML (aparece como texto), links que não
+ * funcionarão e tamanho acima do que a normalização guarda (`max`: 20 mil nos
+ * blocos, 600 nos textos fixos, 500/4 mil nas células); sem isso, o excesso
+ * seria cortado em silêncio.
+ */
+function checkText(report, value, label, extra, max = MAX_TEXT) {
   if (HTML_TAG.test(value)) {
     report.warning('html-in-text', `${label}: contém HTML (${value.match(HTML_TAG)[0].slice(0, 40)}). O HTML não é interpretado e aparecerá como texto; use a formatação do editor (**negrito**, *itálico*, [link](https://…)).`, extra);
   }
   for (const [, , url] of value.matchAll(LINK)) {
-    if (!safeUrl(url.replaceAll('&amp;', '&'))) {
+    if (!linkUrl(url.replaceAll('&amp;', '&'))) {
       report.error('unsafe-link', `${label}: o link “${url.slice(0, 60)}” não é aceito. Só https://, http://, mailto: e tel:.`, extra);
     }
   }
-  if (value.length > MAX_TEXT) report.error('text-too-long', `${label}: texto com ${value.length} caracteres (máximo ${MAX_TEXT}). Divida em mais blocos.`, extra);
+  if (value.length > max) report.error('text-too-long', `${label}: texto com ${value.length} caracteres (máximo ${max}). ${max === MAX_TEXT ? 'Divida em mais blocos.' : 'Encurte o texto.'}`, extra);
 }
 
 function checkEnum(report, value, allowed, label, extra, { colorHint = false } = {}) {
@@ -175,8 +180,11 @@ function validateTable(report, raw, label, extra) {
     if (!Array.isArray(row)) report.error('invalid-table', `${label} · linha ${i + 1}: use uma lista de células.`, extra);
     else if (row.length !== header.length) report.warning('table-shape', `${label} · linha ${i + 1}: ${row.length} células para ${header.length} colunas; faltas ficam vazias e sobras são descartadas.`, extra);
   });
-  [...header, ...raw.rows.flat()].forEach((cell) => {
-    if (typeof cell === 'string') checkText(report, cell, `${label} · célula`, extra);
+  header.forEach((cell) => {
+    if (typeof cell === 'string') checkText(report, cell, `${label} · cabeçalho`, extra, TABLE_LIMITS.headerCell);
+  });
+  raw.rows.filter(Array.isArray).flat().forEach((cell) => {
+    if (typeof cell === 'string') checkText(report, cell, `${label} · célula`, extra, TABLE_LIMITS.cell);
   });
 }
 
@@ -202,7 +210,7 @@ export function validateDocument(raw, { assetIds = null } = {}) {
       for (const [key, value] of Object.entries(raw.meta)) {
         if (!(key in DEFAULT_META)) report.warning('unknown-field', `meta: o campo “${key}” não existe; será ignorado. Campos: ${list(Object.keys(DEFAULT_META))}.`);
         else if (typeof value !== 'string') report.error('invalid-type', `meta · ${key}: use texto.`);
-        else checkText(report, value, `meta · ${key}`, { field: `meta.${key}` });
+        else checkText(report, value, `meta · ${key}`, { field: `meta.${key}` }, META_MAX_TEXT);
       }
     }
   }
@@ -283,6 +291,9 @@ function finish(report) {
 const OFFICIAL_HEX = new Set([...GRAPHIC_PALETTE, ...SIGNATURE_COLORS].map((c) => c.hex));
 
 /** Largura impressa de uma imagem (mm) para estimar a resolução. */
+// Área da foto na capa "Foto" (js/graphics.js, photoBackground).
+const COVER_PHOTO_MM = [210, 150];
+
 function printedWidthMm(block, orientation, margins) {
   return (contentWidthMm(orientation, margins) * block.width) / 100;
 }
@@ -297,6 +308,26 @@ export function maxImageWidth(pixelWidth, orientation = 'portrait', margins = 'r
 /** Resolução efetiva (ppi) de uma imagem no tamanho impresso. */
 export function effectivePpi(pixelWidth, widthMm) {
   return Math.round(pixelWidth / (widthMm / MM_PER_INCH));
+}
+
+/**
+ * Resolução de uma imagem numa caixa de `boxW` × `boxH` mm: "Preencher" amplia
+ * até cobrir a caixa (o recorte desperdiça pixels), "Encaixar" até caber.
+ */
+function boxPpi(asset, boxW, boxH, fit = 'cover') {
+  if (!boxH || !asset.height) return effectivePpi(asset.width, boxW);
+  const scales = [boxW / asset.width, boxH / asset.height];
+  const mmPerPixel = fit === 'contain' ? Math.min(...scales) : Math.max(...scales);
+  return Math.round(MM_PER_INCH / mmPerPixel);
+}
+
+/** Resolução de um bloco de imagem, considerando o formato fixo (16:9, quadrado…) e o recorte. */
+function blockImagePpi(asset, block, orientation, margins) {
+  const width = printedWidthMm(block, orientation, margins);
+  const ratio = IMAGE_RATIOS.find((option) => option.value === block.ratio)?.ratio;
+  if (!ratio) return effectivePpi(asset.width, width);
+  const [w, h] = ratio.split('/').map(Number);
+  return boxPpi(asset, width, (width * h) / w, block.fit);
 }
 
 /**
@@ -349,16 +380,20 @@ export function brandReport(doc, assets = null) {
       if (!asset) continue;
       checked += 1;
       if (asset.svg) continue;
-      const ppi = effectivePpi(asset.width, printedWidthMm(block, orientation, design.margins));
+      const ppi = blockImagePpi(asset, block, orientation, design.margins);
       const label = block.caption ? `“${stripMarkup(block.caption).slice(0, 50)}”` : 'sem legenda';
       if (ppi < IMAGE_PPI.minimum) {
-        const maxWidth = maxImageWidth(asset.width, orientation, design.margins);
+        // A resolução cresce na mesma proporção em que a largura diminui (também com recorte).
+        const maxWidth = Math.max(25, Math.min(100, Math.floor((block.width * ppi) / IMAGE_PPI.minimum / 5) * 5));
         add('warning', 'image-resolution', `Imagem ${label}: ${ppi} ppi no tamanho impresso (mínimo ${IMAGE_PPI.minimum}). Pode pixelar no PDF: use um arquivo maior ou diminua a largura para até ${maxWidth}%.`, { blockId: block.id });
       }
     }
     if (design.cover === 'photo' && design.coverImage && assets[design.coverImage] && !assets[design.coverImage].svg) {
-      const ppi = effectivePpi(assets[design.coverImage].width, PAGE_GEOMETRY.pageMm.portrait[0]);
-      if (ppi < IMAGE_PPI.minimum) add('warning', 'image-resolution', `Foto da capa: ${ppi} ppi na largura da página (mínimo ${IMAGE_PPI.minimum}). Use uma foto com pelo menos ${Math.ceil((210 / MM_PER_INCH) * IMAGE_PPI.minimum)} px de largura.`);
+      // A foto preenche a área do alto da capa (210 × 150 mm, recortada como no slide da p. 56 do MIV).
+      const [areaW, areaH] = COVER_PHOTO_MM;
+      const ppi = boxPpi(assets[design.coverImage], areaW, areaH);
+      const need = (mm) => Math.ceil((mm / MM_PER_INCH) * IMAGE_PPI.minimum);
+      if (ppi < IMAGE_PPI.minimum) add('warning', 'image-resolution', `Foto da capa: ${ppi} ppi na área da foto (mínimo ${IMAGE_PPI.minimum}). Use uma foto com pelo menos ${need(areaW)} × ${need(areaH)} px.`);
       checked += 1;
     }
     if (checked && !items.some((i) => i.rule === 'image-resolution')) add('ok', 'image-resolution', `${checked === 1 ? 'A imagem tem' : `As ${checked} imagens têm`} resolução suficiente para impressão (≥ ${IMAGE_PPI.minimum} ppi).`);
