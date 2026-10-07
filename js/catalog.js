@@ -29,7 +29,7 @@ export const COMPONENT_GUIDE = {
     pdf: 'Fica sempre junto do bloco seguinte.',
   },
   paragraph: {
-    use: 'Texto corrido explicativo, curto (3 a 6 linhas). Estilo "lead" abre a seção; "note" é observação menor.',
+    use: 'Texto corrido explicativo, curto (3 a 6 linhas). Estilo "lead" abre a seção; "note" é observação menor. Alinhamento "right" para local e data de ofícios e comunicados.',
     avoid: 'Sequências de ações (Passo a passo), requisitos (Lista ✓), avisos (Destaque), comparações (Cartões/Tabela).',
     pdf: 'Linhas em branco separam parágrafos; um parágrafo longo continua na página seguinte, linha a linha (mínimo 2 linhas de cada lado).',
   },

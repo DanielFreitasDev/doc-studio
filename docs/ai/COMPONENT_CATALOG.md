@@ -87,7 +87,7 @@ Padrão:
 
 Texto corrido com formatação.
 
-- **Use para:** Texto corrido explicativo, curto (3 a 6 linhas). Estilo "lead" abre a seção; "note" é observação menor.
+- **Use para:** Texto corrido explicativo, curto (3 a 6 linhas). Estilo "lead" abre a seção; "note" é observação menor. Alinhamento "right" para local e data de ofícios e comunicados.
 - **Evite:** Sequências de ações (Passo a passo), requisitos (Lista ✓), avisos (Destaque), comparações (Cartões/Tabela).
 - **No PDF:** Linhas em branco separam parágrafos; um parágrafo longo continua na página seguinte, linha a linha (mínimo 2 linhas de cada lado).
 
@@ -95,7 +95,7 @@ Texto corrido com formatação.
 | --- | --- | --- |
 | `text` | Texto | texto com formatação* |
 | `style` | Estilo | `normal` Normal · `lead` Abertura · `note` Nota |
-| `align` | Alinhamento | `left` À esquerda · `justify` Justificado · `center` Centralizado |
+| `align` | Alinhamento | `left` À esquerda · `justify` Justificado · `center` Centralizado · `right` À direita |
 
 Padrão:
 
@@ -601,7 +601,7 @@ Mudam só a aparência, nunca o conteúdo.
 | `notice` | Comunicado | Comunicação oficial | 7 | Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura. |
 | `project` | Apresentação de projeto | Gestão e projetos | 8 | Contexto, objetivos, etapas, investimento e equipe, com capa de placa de obra do MIV. Ideal para projetos e obras. |
 | `citizen` | Cartilha para o cidadão | Manuais e guias | 7 | Linguagem simples, passo a passo, documentos necessários e dúvidas comuns, com capa de totem do MIV. |
-| `letter` | Ofício | Comunicação oficial | 7 | Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página. |
+| `letter` | Ofício | Comunicação oficial | 8 | Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página. |
 | `technical` | Nota técnica | Procedimentos e técnicos | 13 | Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência. |
 | `blank` | Documento em branco | começar do zero | 0 | Capa, contracapa e páginas com a identidade visual, sem nenhum texto de exemplo. |
 | `letterhead` | Papel timbrado | começar do zero | 0 | O papel timbrado do MIV: assinatura centralizada no alto, endereço e faixa no pé. Para ofício, memorando ou nota. |

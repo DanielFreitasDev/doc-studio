@@ -332,6 +332,7 @@
 .b-p--lead { font-size: calc(var(--doc-p-size) + 1pt); line-height: calc(var(--doc-p-lead) + 1.8pt); color: var(--doc-navy); }
 .b-p--note { font-family: 'Kanit', sans-serif; font-weight: 300; font-size: 8.2pt; line-height: 11.5pt; color: var(--doc-muted); }
 .b-p--center { text-align: center; }
+.b-p--right { text-align: right; } /* data e local de ofícios ("Fortaleza, 7 de outubro de 2026.") */
 .b-p--justify { text-align: justify; }
 /* Parágrafo justificado dividido entre páginas: a última linha da primeira parte também é justificada. */
 .is-split-head .b-p--justify { text-align-last: justify; }

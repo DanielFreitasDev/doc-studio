@@ -539,9 +539,10 @@
           "enum": [
             "left",
             "justify",
-            "center"
+            "center",
+            "right"
           ],
-          "description": "Alinhamento: left = À esquerda; justify = Justificado; center = Centralizado"
+          "description": "Alinhamento: left = À esquerda; justify = Justificado; center = Centralizado; right = À direita"
         }
       }
     },

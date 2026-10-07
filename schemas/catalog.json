@@ -255,7 +255,7 @@
       "label": "Parágrafo",
       "description": "Texto corrido com formatação",
       "group": "text",
-      "use": "Texto corrido explicativo, curto (3 a 6 linhas). Estilo \"lead\" abre a seção; \"note\" é observação menor.",
+      "use": "Texto corrido explicativo, curto (3 a 6 linhas). Estilo \"lead\" abre a seção; \"note\" é observação menor. Alinhamento \"right\" para local e data de ofícios e comunicados.",
       "avoid": "Sequências de ações (Passo a passo), requisitos (Lista ✓), avisos (Destaque), comparações (Cartões/Tabela).",
       "pdf": "Linhas em branco separam parágrafos; um parágrafo longo continua na página seguinte, linha a linha (mínimo 2 linhas de cada lado).",
       "fields": [
@@ -301,6 +301,10 @@
             {
               "value": "center",
               "label": "Centralizado"
+            },
+            {
+              "value": "right",
+              "label": "À direita"
             }
           ]
         }
@@ -2956,7 +2960,7 @@
       "description": "Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página.",
       "kind": "model",
       "category": "official",
-      "blocks": 7,
+      "blocks": 8,
       "design": {
         "theme": "green",
         "cover": "none",

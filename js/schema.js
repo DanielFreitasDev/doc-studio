@@ -108,7 +108,7 @@ export const BLOCK_TYPES = {
     fields: [
       { key: 'text', kind: 'rich', label: 'Texto', rows: 4, placeholder: 'Escreva aqui. Digite / num parágrafo vazio para trocar o tipo de bloco.' },
       { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'normal', label: 'Normal' }, { value: 'lead', label: 'Abertura' }, { value: 'note', label: 'Nota' }] },
-      { key: 'align', kind: 'segmented', label: 'Alinhamento', options: [{ value: 'left', label: 'À esquerda' }, { value: 'justify', label: 'Justificado' }, { value: 'center', label: 'Centralizado' }] },
+      { key: 'align', kind: 'segmented', label: 'Alinhamento', options: [{ value: 'left', label: 'À esquerda' }, { value: 'justify', label: 'Justificado' }, { value: 'center', label: 'Centralizado' }, { value: 'right', label: 'À direita' }] },
     ],
     summary: (b) => b.text,
   },

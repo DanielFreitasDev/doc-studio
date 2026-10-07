@@ -404,7 +404,8 @@ export const TEMPLATES = [
       headerRight: '',
     },
     blocks: [
-      { type: 'paragraph', style: 'normal', text: `**Ofício nº 000/2026 – DIREV/DETRAN-CE**\nFortaleza, ${longDate()}.` },
+      { type: 'paragraph', style: 'normal', text: '**Ofício nº 000/2026 – DIREV/DETRAN-CE**' },
+      { type: 'paragraph', style: 'normal', align: 'right', text: `Fortaleza, ${longDate()}.` },
       { type: 'paragraph', style: 'normal', text: 'A Sua Senhoria o(a) Senhor(a)\n**Nome do destinatário**\nCargo · Órgão (exemplo)' },
       { type: 'paragraph', style: 'normal', text: '**Assunto:** escreva aqui o assunto do ofício.' },
       { type: 'paragraph', style: 'normal', text: 'Senhor(a) Diretor(a),' },
