@@ -312,7 +312,8 @@ const RENDERERS = {
       const cells = block.rows.map((row) => stripMarkup(row[col] ?? '').trim()).filter(Boolean);
       return cells.length > 0 && cells.every((cell) => NUMERIC_CELL.test(cell));
     });
-    const numClass = (col) => (numeric[col] ? ' class="is-num"' : '');
+    // A coluna-chave (primeira, em destaque) fica sempre à esquerda, no cabeçalho e nas células.
+    const numClass = (col) => (numeric[col] && !(col === 0 && block.keyColumn) ? ' class="is-num"' : '');
     const colgroup = widths ? `<colgroup>${widths.map((w) => `<col style="width:${w}%">`).join('')}</colgroup>` : '';
     const tone = `tone-${block.tone}`;
     const headerHtml = `<table class="b-table ${tone}">${colgroup}<thead><tr>${block.header.map((cell, col) => `<th${numClass(col)}${ed(`header.${col}`)}>${renderInline(cell)}</th>`).join('')}</tr></thead></table>`;
