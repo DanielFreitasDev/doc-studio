@@ -27,14 +27,20 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - Clicar num trecho da prévia leva ao bloco no editor (duplo clique já posiciona o cursor).
 - Desfazer/refazer ilimitado (até 150 passos), duplicar, recolher/expandir blocos.
 
+**Começar**
+- **Começar do zero**: Documento em branco (capa, contracapa e página timbrada, sem texto de exemplo), Papel timbrado (o do MIV, sem capa) ou "Já tenho o texto" (cola o texto e ele vira o documento).
+- 5 **modelos prontos** com textos de exemplo: Manual operacional, Guia rápido, Procedimento (POP), Relatório de resultados e Comunicado (em papel timbrado).
+- Na primeira visita, fechar a galeria deixa um documento em branco; escolher um modelo descarta esse documento se ele não foi editado.
+
 **Design (tudo do MIV)**
-- 6 **modelos de documento**: Manual operacional, Guia rápido, Procedimento (POP), Relatório de resultados, Comunicado e Em branco.
-- 6 **estilos prontos** que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Comunicado, Sol do sertão.
-- 6 **capas**: Pasta (a dos manuais oficiais), Identidade, Envelope, Leque (elemento base do grafismo), Verde pleno (assinatura em negativo) e Minimalista — ou sem capa.
-- 4 **contracapas**: Pasta (verso), Verde pleno, Leque e Minimalista — ou sem contracapa.
-- 7 **temas de cor**, 3 estilos de título de seção, 3 estilos de cartão, 4 cabeçalhos, 3 rodapés, 3 numerações, 2 fontes de texto e 3 espaçamentos.
-- **Página de abertura de capítulo** opcional por seção.
-- Assinatura: Governo do Ceará + DETRAN/CE, só Governo do Ceará, Governo do Ceará + logo próprio (upload) ou nenhuma.
+- 9 **estilos prontos** que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Papel timbrado, Identidade do MIV, Apresentação, Evento e Sol do sertão.
+- 9 **capas**, cada uma baseada numa peça do MIV: Pasta (a dos manuais aprovados), Pasta oficial (assinatura vertical centralizada), Arcos (capa do próprio MIV), Painel verde (slide de abertura), Convite, Envelope (verso), Leque (elemento base), Verde pleno (contracapa do MIV) e Minimalista — ou sem capa.
+- 5 **contracapas**: Pasta (verso), Conceito (assinatura em negativo + slogan, como a contracapa do MIV), Verde pleno, Leque e Minimalista — ou sem contracapa.
+- **Cabeçalhos**: texto, texto e linha, texto e assinatura (30 mm, mínimo do MIV), **timbrado** (assinatura centralizada no alto da primeira folha, como o papel timbrado do MIV) ou nenhum.
+- **Rodapés**: faixa do papel timbrado, faixa com endereço (papel timbrado completo), **meia faixa** (o rodapé das páginas do próprio MIV, espelhado nas páginas pares), linha fina ou nenhum.
+- **Assinaturas** na ordem do MIV (órgão à esquerda, Governo à direita, sem fio separador, afastados pela largura do escudo): DETRAN/CE + Governo (Infraestrutura), Governo + Secretaria da Infraestrutura, somente Governo do Ceará (horizontal ou vertical), logo próprio + Governo, ou nenhuma.
+- 7 **temas de cor** da paleta do grafismo, 3 estilos de título de seção, 3 estilos de cartão, 3 numerações, 2 fontes de texto e 3 espaçamentos (em "Mais ajustes", para não sobrecarregar o painel).
+- Divisor com o **grafismo** do MIV e **página de abertura de capítulo** opcional por seção.
 - Miniaturas das capas mostram seus próprios textos e cores.
 
 **Arquivos**
@@ -46,7 +52,10 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - Celular: uma área por vez com navegação inferior (Editar, Inserir, Design, Prévia).
 - Tablet: editor e prévia lado a lado, painel lateral como gaveta.
 - Desktop: painel fixo + editor + prévia; modos "só editor", "lado a lado" e "só prévia" (Ctrl+1/2/3).
-- Tema claro/escuro/automático para o app (o documento é sempre papel branco).
+- Tema do app **claro por padrão**; escuro ou automático (segue o sistema) no menu ⋯. O documento é sempre papel branco.
+- **Gerar o PDF** abre um passo a passo e avisa antes de imprimir se há bloco cortado, texto marcado como "(exemplo)", capa com o título padrão ou documento vazio.
+- Status de salvamento sempre visível (no celular, um ponto colorido); se o salvamento falhar, aparece o botão "Baixar cópia".
+- Botão de **Ajuda** com primeiros passos; avisos com "Desfazer" ficam 10 s na tela.
 
 ## 3. Estrutura de arquivos
 
@@ -84,7 +93,9 @@ doc-studio/
 └── assets/
     ├── favicon.svg
     ├── fonts/             Kanit e Maitree (WOFF, subconjunto latino) + LICENSE.md
-    └── img/               Assinaturas Governo do Ceará e DETRAN/CE (cor e negativo)
+    └── img/               Assinaturas: Governo com Secretaria da Infraestrutura (ceara),
+                           Governo sem secretaria (ceara-state), vertical (ceara-vertical)
+                           e DETRAN/CE; versões -negative para fundos coloridos
 ```
 
 **Por que vários arquivos?** O escopo é o de uma aplicação (editor, paginação, design, armazenamento, arrastar e soltar). Um único `script.js` passaria de 4 mil linhas. Cada módulo ES tem uma responsabilidade; o `script.js` é a "raiz de composição": cria as peças e as conecta. O CSS segue a mesma lógica: base do app, componentes, documento A4 e impressão.
@@ -109,12 +120,12 @@ Navegadores recomendados: Chrome/Edge 120+, Firefox 126+ e Safari 17+.
 
 ## 6. Como usar
 
-1. Na primeira abertura, escolha um **modelo** (ou feche para começar pelo Manual operacional).
+1. Na primeira abertura, escolha como começar: **em branco**, **papel timbrado**, **colando um texto** ou por um **modelo pronto** (fechar a galeria = documento em branco).
 2. Em **Textos** (painel lateral), preencha capa, cabeçalho e contracapa.
 3. No editor, edite os blocos. Para adicionar: painel **Inserir** (clique ou arraste), botão **+** entre blocos, **Ctrl+K**, ou `/` num parágrafo vazio. Para escrever de uma vez: **Escrever texto**.
 4. Em **Design**, troque capa, contracapa, cores e estilos — a prévia muda na hora.
-5. Clique em **Exportar PDF** e escolha "Salvar como PDF" na janela de impressão.
-6. Para levar o trabalho a outro computador: menu **⋯ → Salvar arquivo (.json)**; no outro, **Abrir arquivo (.json)**.
+5. Clique em **Exportar PDF**: revise os avisos (se houver), clique em "Abrir janela de impressão" e escolha "Salvar como PDF".
+6. Para levar o trabalho a outro computador: menu **⋯ → Baixar cópia de segurança** (arquivo `.docstudio.json`); no outro, **Abrir cópia de segurança**.
 
 Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `Alt+↑/↓` mover bloco · `Ctrl+D` duplicar · `Ctrl+B`/`Ctrl+I` negrito/itálico · `Ctrl+1/2/3` modos de visualização · `Ctrl+S` salvar · `Ctrl+P` PDF · `?` ajuda.
 
@@ -124,8 +135,10 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 
 | # | Ação | Resultado esperado | Sinal de falha |
 |---|------|--------------------|----------------|
-| 1 | Abrir `http://localhost:8080` pela primeira vez | Galeria de modelos aparece; ao fundo, o Manual operacional com 7 páginas | Página em branco ou erro no console (F12) |
-| 2 | Escolher "Guia rápido" | Novo documento de 4 páginas; o anterior continua em "Meus documentos" | Documento anterior some da lista |
+| 1 | Abrir `http://localhost:8080` pela primeira vez (ou numa janela anônima) | Tema claro; galeria "Como você quer começar?" com "Começar do zero" no topo; ao fundo, documento em branco (capa, página timbrada vazia e contracapa) | Página em branco, tema escuro ou erro no console (F12) |
+| 2 | Escolher "Guia rápido" sem ter editado nada | Novo documento de 4 páginas; "Meus documentos" mostra só o Guia rápido (o documento em branco intocado foi descartado) | Aparece um "Documento sem título" sobrando |
+| 2a | Novo documento → "Já tenho o texto", colar um texto com `# Título` e `1. passo` | Abre "Escreva ou cole seu texto" já em "Substituir tudo"; ao inserir, vira seção e passo a passo | O texto vai para o fim de um documento de exemplo |
+| 2b | Novo documento → "Papel timbrado" | Uma página com a assinatura centralizada no alto, endereço do órgão e faixa do MIV no pé | Capa aparece ou o endereço some |
 | 3 | Digitar no título de uma seção | A prévia muda em ~0,1 s; o cursor não pula | Cursor perde a posição ou a prévia não atualiza |
 | 4 | Num parágrafo vazio, digitar `/`, depois "tabela" e Enter | O parágrafo vira uma tabela | Seletor não abre |
 | 5 | Copiar 3×3 células do Excel e colar na primeira célula da tabela | Tabela com 3 colunas e as linhas preenchidas | Tudo cai numa célula só |
@@ -133,10 +146,13 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 | 7 | Focar a alça ⋮⋮ de um bloco e apertar ↑ | O bloco sobe uma posição e o foco continua na alça | Foco se perde |
 | 8 | Excluir um bloco e clicar "Desfazer" no aviso | O bloco volta no mesmo lugar | Bloco não volta |
 | 9 | Colar um print (Ctrl+V) com um bloco selecionado | Bloco de imagem após o selecionado; com legenda vira "Figura N" | Nada acontece |
-| 10 | Design → capa "Verde pleno" | Capa verde com textos e assinatura em branco | Logo colorido sobre o verde |
+| 10 | Design → capa "Verde pleno" e contracapa "Conceito" | Fundo em degradê verde → água-marinha; textos, assinatura e slogan em branco | Logo colorido sobre o verde |
+| 10a | Design → Assinatura "DETRAN/CE + Governo" | DETRAN à esquerda, Governo à direita, sem fio entre eles | Ordem invertida ou fio separador |
+| 10b | Mais ajustes → Rodapé "Meia faixa" | Faixa à direita nas páginas ímpares e à esquerda nas pares, número no lado de fora | Faixa sempre do mesmo lado |
 | 11 | Criar uma tabela com 80 linhas | A tabela continua nas páginas seguintes repetindo o cabeçalho | Linhas cortadas no pé da página |
 | 12 | Colar um parágrafo enorme (sem linhas em branco) | Aviso laranja no bloco ("maior que a área da página") e contorno vermelho na página | Texto cortado sem aviso |
-| 13 | Exportar PDF → Salvar como PDF | Mesmo número de páginas da prévia, A4, sem margens brancas, cores do fundo presentes | Páginas extras em branco ou margens (veja "Edge cases") |
+| 13 | Exportar PDF | Caixa "Gerar o PDF" com os passos (e avisos, se houver); "Abrir janela de impressão" → Salvar como PDF: mesmo número de páginas da prévia, A4, sem margens brancas, cores do fundo presentes | Páginas extras em branco, margens, ou a caixa aparece no PDF |
+| 13a | Num modelo pronto, Exportar PDF | Aviso "O documento ainda tem textos marcados como “(exemplo)”" com botão "Ver" | Nenhum aviso |
 | 14 | Recarregar a página (F5) | O mesmo documento reabre, com as imagens | Documento volta ao modelo |
 | 15 | Salvar `.json`, abrir em outra aba com "Abrir arquivo" | Abre como novo documento idêntico | Mensagem de arquivo inválido |
 | 16 | Redimensionar a janela até 320 px de largura | Navegação inferior; nenhuma barra de rolagem horizontal na página | Conteúdo cortado ou rolagem lateral |
@@ -147,7 +163,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 - **Arquivo `.json` de outro sistema** → aviso "Este arquivo não foi gerado pelo Estúdio de Documentos" e nada é alterado.
 - **Imagem em formato não suportado (ex.: .bmp)** → aviso pedindo PNG, JPG, WEBP ou GIF. Imagens acima de 2400 px são reduzidas automaticamente.
 - **Navegador sem IndexedDB** (alguns modos privados) → aviso de que é preciso salvar o `.json`; o app continua funcionando na aba.
-- **Espaço do navegador cheio** → status "Falha ao salvar" e aviso para salvar o `.json`.
+- **Espaço do navegador cheio** → status "Falha ao salvar" e botão "Baixar cópia" na barra superior (em qualquer largura).
 - **PDF com fundo branco nas capas** → na janela de impressão, marque "Gráficos de plano de fundo" (o CSS já pede `print-color-adjust: exact`; alguns navegadores ignoram).
 - **Seção sem blocos "Seção"** → o sumário mostra a orientação para adicioná-las.
 
@@ -159,13 +175,22 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 
 ### O que foi verificado no desenvolvimento
 
-Executado com Playwright (Chromium): os fluxos do roteiro acima (exceto teste de toque real), PDF gerado pelo Chromium com 7 páginas idênticas à prévia e fontes Kanit/Maitree embutidas, larguras 320, 375, 390, 759/760, 900, 1179/1180, 1280 e 1600 px sem rolagem horizontal, e varredura axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) sem violações na tela principal, painéis, diálogos, tema escuro e celular. **Não validados neste ambiente:** Firefox, Safari/WebKit, arraste por toque em aparelho real e impressão pelo diálogo do Firefox/Safari.
+Executado com Playwright (Chromium), última rodada em 07/10/2026:
+- todos os modelos e os três "começar do zero" sem páginas cortadas e sem erros no console;
+- PDF gerado pelo Chromium: Manual operacional (capa Arcos, contracapa Conceito, meia faixa) com 7 páginas e Comunicado em papel timbrado com 1 página, iguais à prévia, fontes Kanit/Maitree embutidas;
+- larguras 320, 360, 390, 559/560, 759/760, 1024, 1179/1180, 1279/1280 e 1920 px sem rolagem horizontal;
+- varredura axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) na tela principal, Design, diálogos (modelos, PDF, ajuda), tema escuro e celular: sem violações na interface. A única ocorrência é o contraste da "chamada" verde (#26a737) dentro das páginas do documento, que é a cor prescrita pelo MIV e foi mantida.
+
+**Não validados neste ambiente:** Firefox, Safari/WebKit, arraste por toque em aparelho real e impressão pelo diálogo do Firefox/Safari.
 
 ## 8. Decisões técnicas principais
 
 - **Paginação real em A4 (prévia = PDF).** Cada bloco vira "átomos" (uma linha de tabela, um passo, uma linha de cartões). O app mede cada átomo numa coluna invisível com a largura útil da página (170 mm), distribui-os em páginas de 252 mm de altura útil e só então desenha as páginas. Títulos nunca ficam sozinhos no pé da página e tabelas repetem o cabeçalho. Como a medição usa o mesmo CSS da impressão, o PDF sai igual à prévia. *Impacto:* precisão; o custo é recalcular o layout a cada mudança (com atraso de 140 ms e troca só das páginas alteradas).
 - **PDF pela impressão do navegador.** Gerar PDF em JavaScript puro exigiria reimplementar fontes e layout; a impressão nativa com `@page { size: A4; margin: 0 }` produz PDF vetorial, com texto selecionável e fontes embutidas.
-- **Grafismo em SVG com coordenadas medidas no MIV.** As faixas da capa "Pasta" e do rodapé foram medidas no manual oficial e redesenhadas como polígonos com degradê. Sai nítido em qualquer zoom e na impressão.
+- **Grafismo em SVG com coordenadas medidas no MIV.** As faixas da capa "Pasta", do rodapé e da meia faixa foram medidas no manual oficial e redesenhadas como polígonos com degradê; a capa Arcos e o leque usam setores de anel (arcos SVG), como o elemento base. Sai nítido em qualquer zoom e na impressão.
+- **Assinaturas pelas regras do MIV (p. 15–22).** Órgão à esquerda e Governo à direita, sem fio separador, afastados pela largura do escudo e alinhados pelo centro do escudo; tamanhos mínimos respeitados (com secretaria ≥ 40 mm de largura; sem secretaria ≥ 30 mm). *Impacto:* a ordem das marcas mudou em relação aos dois primeiros manuais (que tinham o Governo à esquerda e um fio entre as marcas).
+- **Cores oficiais primeiro.** Cores principais vêm da paleta do grafismo (p. 26) e os tons escuros de texto usam os verdes oficiais da assinatura (#008241, #2a7050) quando existem; os demais tons escuros e os fundos claros são derivados para garantir contraste e estão documentados em `css/document.css`.
+- **Tema claro por padrão.** O `<html>` já nasce com `data-theme="light"`; o escuro e o automático são escolhas explícitas do usuário (pedido do responsável pelo projeto).
 - **Campos de texto comuns + marcação simples, em vez de `contenteditable`.** Edição rica com `contenteditable` é frágil (HTML imprevisível colado do Word, cursor pulando). Com `textarea` e `**negrito**`, o texto é sempre escapado antes de virar HTML — nenhum conteúdo colado ou importado consegue injetar código.
 - **Formulários gerados a partir de um catálogo.** Cada tipo de bloco declara seus campos uma vez (`schema.js`); o editor monta os formulários e a importação valida arquivos com essa mesma definição. Novo tipo de bloco = uma entrada no catálogo + um renderizador.
 - **Estado com histórico e "rajadas" de digitação.** Toda mudança passa pelo `store`; digitação contínua no mesmo campo vira um único passo de desfazer. O editor não se redesenha enquanto você digita (o cursor fica intacto); só a prévia.
@@ -192,6 +217,8 @@ Executado com Playwright (Chromium): os fluxos do roteiro acima (exceto teste de
 - Mais variações de grafismo (ex.: capas em paisagem para apresentações).
 - Comentários e revisão entre colegas.
 - Testes automatizados versionados (Playwright) no repositório.
+- Carregar Kanit ExtraBold/Black (usadas nos títulos do próprio MIV) se a chefia aprovar títulos mais pesados.
+- Versões em tons de cinza/monocromáticas da assinatura (MIV p. 12–13) para impressão em uma cor.
 - PWA instalável com funcionamento offline garantido por service worker, se houver demanda.
 
 ## 11. Licenças de terceiros
