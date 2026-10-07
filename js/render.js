@@ -69,6 +69,10 @@ function atom(block, className, inner, options = {}) {
   };
 }
 
+/** Tamanho da maior palavra (o espaço não separável de "R$ 120,00" mantém a palavra inteira). */
+const longestWord = (text) => Math.max(1, ...stripMarkup(text).replace(/(R\$|[Nn][º°])\s+(?=\d)/g, '$1\u00A0')
+  .split(/[ \t\n]+/).map((word) => [...word].length));
+
 /** Célula numérica: algarismos com moeda, %, sinais e separadores ("R$ 1.200,00", "96%", "−3,5", "8 420"). */
 const NUMERIC_CELL = /^(?=.*\d)[\s\d.,%+\-−–()R$€º°/]+$/;
 
@@ -337,7 +341,7 @@ const RENDERERS = {
         const part = (key) => `${ed(`items.${index}.${key}`)}>${renderInline(item[key])}`;
         return block.style === 'sheet'
           ? `<div class="b-sheet ${tone}"><p class="b-sheet__l"${part('label')}</p><p class="b-sheet__v"${part('value')}</p><p class="b-sheet__s"${part('sub')}</p></div>`
-          : `<div class="b-kpi ${tone}"><p class="b-kpi__v"${part('value')}</p><p class="b-kpi__l"${part('label')}</p><p class="b-kpi__s"${part('sub')}</p></div>`;
+          : `<div class="b-kpi ${tone}"><p class="b-kpi__v" style="--chars:${longestWord(item.value)}"${part('value')}</p><p class="b-kpi__l"${part('label')}</p><p class="b-kpi__s"${part('sub')}</p></div>`;
       }).join('');
       return atom(block, 'atom--stats', `<div class="b-stats" style="--cols:${columns}">${items}</div>`);
     });

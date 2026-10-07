@@ -563,7 +563,10 @@
   overflow: hidden;
 }
 .b-kpi::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3pt; background: var(--t); }
-.b-kpi__v { font-size: 24pt; font-weight: 700; line-height: 1.05; color: var(--t); overflow-wrap: anywhere; }
+/* O número diminui para caber inteiro na coluna ("26/10/2026", "R$ 120,00"), em vez de partir no meio:
+   --chars é a maior palavra (js/render.js); ~0,6 em por algarismo em Kanit Bold. */
+.b-kpi { container-type: inline-size; }
+.b-kpi__v { font-size: min(24pt, calc(100cqi / (var(--chars, 1) * 0.62))); font-weight: 700; line-height: 1.05; color: var(--t); overflow-wrap: break-word; }
 .b-kpi__l { margin-top: 3pt; font-size: 9.4pt; font-weight: 500; line-height: 12pt; color: var(--doc-heading); }
 .b-kpi__s { font-size: 8pt; font-weight: 300; line-height: 10.5pt; color: var(--doc-muted); }
 .b-sheet {
