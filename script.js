@@ -143,6 +143,18 @@ async function main() {
   const imageInput = $('#image-file-input');
 
   /* ================================================================ ações */
+  /**
+   * Lê uma imagem para o registro. Uma foto grande demora a decodificar: se
+   * outro documento foi aberto nesse meio-tempo, ela não é aplicada (iria
+   * para o documento errado).
+   */
+  async function loadAsset(file) {
+    const docId = store.doc.id;
+    const asset = await fileToAsset(file);
+    if (store.doc.id !== docId) throw new Error('Outro documento foi aberto enquanto a imagem carregava; ela não foi aplicada.');
+    return assets.add(asset);
+  }
+
   const notify = (message, tone = 'info', { undo = false } = {}) => {
     const mark = undo ? store.historyMark() : null;
     return toast(message, {
@@ -283,7 +295,7 @@ async function main() {
 
     async setCoverPhoto(file) {
       try {
-        const id = assets.add(await fileToAsset(file));
+        const id = await loadAsset(file);
         store.update((doc) => { doc.design.coverImage = id; doc.design.cover = 'photo'; }, { kind: 'design' });
         notify('Foto da capa aplicada.');
       } catch (error) {
@@ -293,7 +305,7 @@ async function main() {
 
     async setBlockImage(blockId, file) {
       try {
-        const id = assets.add(await fileToAsset(file));
+        const id = await loadAsset(file);
         store.update((doc) => {
           const block = doc.blocks.find((b) => b.id === blockId);
           if (block) block.assetId = id;
@@ -313,7 +325,7 @@ async function main() {
       const blocks = [];
       for (const file of accepted) {
         try {
-          blocks.push(createBlock('image', { assetId: assets.add(await fileToAsset(file)) }));
+          blocks.push(createBlock('image', { assetId: await loadAsset(file) }));
         } catch (error) {
           notify(`${file.name}: ${error.message}`, 'error');
         }
@@ -549,7 +561,7 @@ async function main() {
 
     async setLogo(file) {
       try {
-        const id = assets.add(await fileToAsset(file));
+        const id = await loadAsset(file);
         store.update((doc) => { doc.design.customLogo = id; doc.design.signature = 'custom'; }, { kind: 'design' });
       } catch (error) {
         notify(error.message, 'error');
