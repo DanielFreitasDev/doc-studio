@@ -1,13 +1,13 @@
 {
   "format": "doc-studio",
   "version": 1,
-  "exportedAt": "2026-10-07T18:02:12.410Z",
+  "exportedAt": "2026-10-07T19:14:00.530Z",
   "document": {
     "schema": 1,
-    "id": "d_11jkkzwfbtxzi",
+    "id": "d_1j39g0i11in5pp",
     "name": "Guia rápido · Estúdio de Documentos",
-    "createdAt": 1791396132408,
-    "updatedAt": 1791396132408,
+    "createdAt": 1791400440527,
+    "updatedAt": 1791400440527,
     "meta": {
       "kicker": "DETRAN/CE · Diretoria de Veículos",
       "title": "Guia rápido do\nEstúdio de Documentos",
@@ -34,6 +34,7 @@
       "cardStyle": "soft",
       "bodyFont": "maitree",
       "density": "regular",
+      "margins": "regular",
       "signature": "joint",
       "chapterStyle": "solid",
       "headingWeight": "regular",
@@ -112,7 +113,7 @@
           },
           {
             "title": "Reorganize arrastando",
-            "text": "Arraste pela alça ⋮⋮, pela Estrutura ou direto na página. Ctrl+Z desfaz qualquer passo."
+            "text": "Arraste pela alça (os pontinhos à esquerda do bloco), pela Estrutura ou direto na página. Ctrl+Z desfaz qualquer passo."
           },
           {
             "title": "Gere o PDF",
@@ -125,7 +126,7 @@
         "type": "callout",
         "tone": "tip",
         "title": "Antes de enviar",
-        "text": "Menu ⋯ → **Verificar documento** mostra o que revisar: textos de exemplo, imagens com pouca resolução, páginas densas e as regras do Manual de Identidade Visual."
+        "text": "Menu **Mais opções** (os três pontos) → **Verificar documento** mostra o que revisar: textos de exemplo, imagens com pouca resolução, páginas densas e as regras do Manual de Identidade Visual."
       },
       {
         "id": "b_ia",

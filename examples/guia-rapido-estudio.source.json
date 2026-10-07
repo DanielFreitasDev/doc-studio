@@ -40,10 +40,10 @@
       { "id": "b_dicas", "intent": "procedure", "start": 1, "tone": "theme", "items": [
         { "title": "Clique duas vezes num texto da prévia", "text": "Um campo abre sobre o trecho e a página se atualiza enquanto você digita." },
         { "title": "Selecione para formatar", "text": "Negrito, itálico, sublinhado, destaque e link pela barra, pelo botão direito ou por Ctrl+B / I / U / K." },
-        { "title": "Reorganize arrastando", "text": "Arraste pela alça ⋮⋮, pela Estrutura ou direto na página. Ctrl+Z desfaz qualquer passo." },
+        { "title": "Reorganize arrastando", "text": "Arraste pela alça (os pontinhos à esquerda do bloco), pela Estrutura ou direto na página. Ctrl+Z desfaz qualquer passo." },
         { "title": "Gere o PDF", "text": "**Exportar PDF** confere o documento e abre a impressão: escolha **Salvar como PDF**." }
       ] },
-      { "id": "b_verificar", "intent": "tip", "title": "Antes de enviar", "text": "Menu ⋯ → **Verificar documento** mostra o que revisar: textos de exemplo, imagens com pouca resolução, páginas densas e as regras do Manual de Identidade Visual." },
+      { "id": "b_verificar", "intent": "tip", "title": "Antes de enviar", "text": "Menu **Mais opções** (os três pontos) → **Verificar documento** mostra o que revisar: textos de exemplo, imagens com pouca resolução, páginas densas e as regras do Manual de Identidade Visual." },
 
       { "id": "b_ia", "type": "section", "kicker": "Agentes de IA", "title": "Alterações sugeridas pela IA", "intro": "Selecione blocos, use **Copiar para IA (JSON)** no botão direito e peça a mudança ao agente. A resposta volta em **Aplicar alterações de IA**." },
       { "id": "b_tela-ia", "intent": "screenshot", "assetId": "img_ia", "caption": "Revisão antes de aplicar: o que entra, sai, muda e muda de lugar.", "width": 85 },

@@ -69,7 +69,29 @@ export const TYPOGRAPHY = {
   // O MIV não define fonte de máquina: comandos e textos de tela usam a monoespaçada do sistema.
   monospace: { family: 'DejaVu Sans Mono (ou a monoespaçada do sistema)', rule: 'Exceção funcional, fora do MIV: só no bloco “Código ou texto de tela” e na formatação `texto de tela`, para comandos, códigos e textos literais.' },
   allowedFamilies: ['Kanit', 'Maitree'],
+  /*
+   * Caracteres que Kanit e Maitree desenham (as fontes do projeto são o
+   * subconjunto latino): faixas [início, fim] em Unicode, extraídas dos
+   * arquivos em assets/fonts; `docstudio check` confere. Fora delas (⋯, ✓, ≤,
+   * emoji) o navegador usa uma fonte do sistema, diferente em cada computador.
+   */
+  glyphRanges: [
+    [0x20, 0x7e], [0xa0, 0x17e], [0x2010, 0x2010], [0x2012, 0x2015], [0x2018, 0x201a], [0x201c, 0x201e],
+    [0x2020, 0x2022], [0x2026, 0x2026], [0x2030, 0x2030], [0x2032, 0x2033], [0x2039, 0x203a], [0x20ac, 0x20ac],
+    [0x2122, 0x2122], [0x2190, 0x2193], [0x2212, 0x2212],
+  ],
 };
+
+/** Caracteres de um texto que as fontes do MIV não têm (sem repetir; quebras de linha e tabulação não contam). */
+export function missingGlyphs(text) {
+  const missing = new Set();
+  for (const char of String(text ?? '')) {
+    const code = char.codePointAt(0);
+    if (code === 0x0a || code === 0x09 || code === 0x0d) continue;
+    if (!TYPOGRAPHY.glyphRanges.some(([start, end]) => code >= start && code <= end)) missing.add(char);
+  }
+  return [...missing];
+}
 
 /**
  * Logos disponíveis (SVG vetoriais extraídos do MIV). Agentes e documentos

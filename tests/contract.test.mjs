@@ -279,3 +279,11 @@ test('resolução da imagem considera o recorte do formato fixo e da foto da cap
   assert.match(messages[0], /60 ppi/);
   assert.match(messages[1], /Foto da capa: 122 ppi/);
 });
+
+test('caracteres fora das fontes do MIV geram aviso; código e texto de tela não', () => {
+  const warn = (blocks) => brandReport(createDocument({ blocks })).filter((item) => item.status === 'warning' && item.rule === 'typography');
+  assert.equal(warn([{ type: 'paragraph', text: 'Menu ⋯ e alça ⋮ ✓' }]).length, 1);
+  assert.match(warn([{ type: 'paragraph', text: 'Menu ⋯' }])[0].message, /⋯/);
+  assert.equal(warn([{ type: 'paragraph', text: 'Acentos, “aspas”, travessão — e R$ 10 → ok…' }]).length, 0);
+  assert.equal(warn([{ type: 'code', text: 'a ≤ b ⋯' }, { type: 'paragraph', text: 'use `x ≥ 1`' }]).length, 0);
+});

@@ -17,7 +17,7 @@ import { BLOCK_TYPES, BLOCK_ID, MAX_TEXT, TABLE_LIMITS, BLOCK_INTENTS, IMAGE_RAT
 import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DEFAULT_DESIGN, DEFAULT_META, META_MAX_TEXT, contentWidthMm } from './design.js';
 import { MAX_BLOCKS } from './model.js';
 import { stripMarkup, linkUrl } from './markup.js';
-import { GRAPHIC_PALETTE, SIGNATURE_COLORS, TYPOGRAPHY, contrastRatio } from './brand.js';
+import { GRAPHIC_PALETTE, SIGNATURE_COLORS, TYPOGRAPHY, contrastRatio, missingGlyphs } from './brand.js';
 
 const MM_PER_INCH = 25.4;
 /** Resolução mínima no tamanho impresso: abaixo de 150 ppi a imagem pixela; 300 ppi é o ideal. */
@@ -363,6 +363,13 @@ export function brandReport(doc, assets = null) {
   // Texto de tela e código usam a monoespaçada do sistema (exceção funcional, fora do MIV).
   const monospace = doc.blocks.some((block) => block.type === 'code' || /`[^`\n]+`/.test(JSON.stringify(block)));
   if (monospace) add('info', 'typography', 'Comandos e textos de tela usam fonte monoespaçada do sistema, fora das fontes do MIV (exceção funcional): use só para textos literais; para destacar palavras comuns, prefira negrito.');
+  // Texto (fora de código e texto de tela, que usam a monoespaçada) com caracteres que Kanit e Maitree não têm.
+  const prose = JSON.stringify({ meta: doc.meta, blocks: doc.blocks.map((block) => (block.type === 'code' ? { ...block, text: '' } : block)) })
+    .replace(/`[^`\n]+`/g, '');
+  const missing = missingGlyphs(prose);
+  if (missing.length) {
+    add('warning', 'typography', `Caracteres fora das fontes do MIV (${missing.slice(0, 8).join(' ')}): o navegador desenha com outra fonte, diferente em cada computador, e ela entra no PDF. Troque por equivalentes (… no lugar de ⋯; o estilo de lista “✓” no lugar do símbolo digitado).`);
+  }
 
   const cover = COVERS.find((c) => c.id === design.cover);
   const back = BACK_COVERS.find((c) => c.id === design.backCover);

@@ -18,11 +18,12 @@ import { TEMPLATES } from '../js/templates.js';
 import { validateDocument, brandReport, contentAdvice, effectivePpi, maxImageWidth } from '../js/validate.js';
 import { applyOperations, diffDocuments, parseOperationsPayload, assetConflicts, assetConflictMessage } from '../js/operations.js';
 import { buildCatalog, COMPONENT_GUIDE } from '../js/catalog.js';
-import { GRAPHIC_PALETTE, SIGNATURE_COLORS, DERIVED_COLORS, contrastRatio } from '../js/brand.js';
+import { GRAPHIC_PALETTE, SIGNATURE_COLORS, DERIVED_COLORS, TYPOGRAPHY, contrastRatio } from '../js/brand.js';
 import { TONE_OPTIONS } from '../js/schema.js';
 import { loadDocumentFile, readText, resolveAssets, writeJson, assetDimensions } from './lib/files.mjs';
 import { startServer, launchChrome, waitFor, DOC_ROUTE } from './lib/chrome.mjs';
 import { generatedFiles } from './lib/generate.mjs';
+import { commonGlyphRanges } from './lib/fonts.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -283,6 +284,10 @@ const commands = {
         const rasters = (text.match(/\/Subtype\s*\/Image/g) ?? []).length;
         const userImages = check.doc.blocks.filter((b) => b.type === 'image' && b.assetId && !assetDimensions(assets)[b.assetId]?.svg).length + (check.doc.design.cover === 'photo' && check.doc.design.coverImage ? 1 : 0);
         console.log(`\nPDF: ${out} (${(pdf.length / 1024).toFixed(0)} KB, ${pdfPages || '?'} página(s)${pdfPages && pdfPages !== report.pageCount ? ` ✖ a prévia tem ${report.pageCount}` : ''}, ${rasters} imagem(ns) rasterizada(s) para ${userImages} foto(s)/print(s) do documento${rasters > userImages ? ' ⚠ confira com pdfimages -list' : ''}).`);
+        // Fontes embutidas fora do MIV (e da monoespaçada do código): sinal de caractere que Kanit e Maitree não têm.
+        const fonts = new Set([...text.matchAll(/\/FontName\s*\/(?:[A-Z]{6}\+)?([\w-]+)/g)].map((match) => match[1]));
+        const foreign = [...fonts].filter((font) => !/^(Kanit|Maitree|DejaVuSansMono)/.test(font));
+        console.log(`Fontes no PDF: ${[...fonts].sort().join(', ') || '—'}${foreign.length ? `  ⚠ fora do MIV: ${foreign.join(', ')} (caracteres que Kanit e Maitree não têm; veja a verificação da marca)` : ''}.`);
       }
 
       if (options.png) {
@@ -382,7 +387,13 @@ const commands = {
     for (const [relative, content] of Object.entries(generatedFiles())) {
       if ((await readFile(path.join(ROOT, relative), 'utf8').catch(() => null)) !== content) problems.push(`${relative} desatualizado: rode \`node tools/docstudio.mjs generate\`.`);
     }
-    // 5. Exemplos continuam válidos.
+    // 5. Caracteres das fontes conferem com TYPOGRAPHY.glyphRanges (js/brand.js).
+    const fontDir = path.join(ROOT, 'assets/fonts');
+    const { readdirSync: listFonts } = await import('node:fs');
+    const fontFiles = listFonts(fontDir).filter((f) => f.endsWith('.woff')).map((f) => path.join(fontDir, f));
+    const ranges = await commonGlyphRanges(fontFiles);
+    if (JSON.stringify(ranges) !== JSON.stringify(TYPOGRAPHY.glyphRanges)) problems.push(`TYPOGRAPHY.glyphRanges (js/brand.js) não confere com as fontes: ${JSON.stringify(ranges.map(([a, b]) => [a.toString(16), b.toString(16)]))}.`);
+    // 6. Exemplos continuam válidos.
     const { existsSync, readdirSync } = await import('node:fs');
     const examplesDir = path.join(ROOT, 'examples');
     const examples = existsSync(examplesDir) ? readdirSync(examplesDir).filter((f) => f.endsWith('.json') && !f.endsWith('.ops.json')) : [];
