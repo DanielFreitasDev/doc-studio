@@ -4,6 +4,7 @@ description: o playwright-core do MCP é mais novo que os navegadores em cache; 
 type: project
 category: gotcha
 date: 2026-10-07
+updated: 2026-10-07
 ---
 Dá para validar o app no Firefox e no WebKit (motor do Safari) na máquina do mantenedor, mas com dois ajustes.
 
@@ -13,4 +14,8 @@ Dá para validar o app no Firefox e no WebKit (motor do Safari) na máquina do m
 
 **Como aplicar:** num script Node, carregue o `playwright-core` desse diretório com `createRequire`, chame `launch({ executablePath: '~/.cache/ms-playwright/firefox-1543/firefox/firefox' })` (WebKit: `webkit-2359/pw_run.sh`) e abra `http://127.0.0.1:8080/`. No Playwright MCP, o envio de arquivos (`browser_file_upload`) só aceita caminhos dentro do projeto (ex.: `.playwright-mcp/`, que está no `.gitignore`).
 
+**Área de transferência e arquivos nos testes:** no Chromium sem interface, o Ctrl+V real não lê o que o evento `copy` do app gravou (o `paste` chega só com `text/uri-list` do sistema); teste copiar/colar disparando `ClipboardEvent('copy')`/`ClipboardEvent('paste')` com um `DataTransfer` e reaproveitando os dados. No Playwright MCP, abrir o seletor de arquivo deixa a página em "modal state": um `browser_run_code` que o dispara termina sem resultado até `browser_file_upload` (sem caminhos cancela).
+
 **Evidência:** em 2026-10-07, Firefox e WebKit abriram o app com esses ajustes, sem erros de console, e paginaram o "Manual operacional" em 7 páginas, como o Chromium.
+
+Em 2026-10-07 (quinta auditoria), Firefox e WebKit repetiram o fluxo de texto visual com o mesmo resultado do Chromium; o colar de blocos foi validado com eventos sintéticos depois de o Ctrl+V real chegar só com `text/uri-list`.
