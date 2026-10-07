@@ -451,6 +451,7 @@ code {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   padding: var(--space-2) var(--space-4) calc(var(--space-8) + env(safe-area-inset-bottom));
 }
@@ -460,6 +461,7 @@ code {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   scroll-padding-block: 80px;
   padding: 0 var(--gutter) var(--space-8);
@@ -480,6 +482,9 @@ code {
   min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
+  /* Reserva o espaço da barra de rolagem: sem isso, o "ajustar à largura" entra
+     em laço (a barra aparece, a largura diminui, o zoom cai, a barra some...). */
+  scrollbar-gutter: stable;
 }
 
 /* ---------------------------------------------------------------- navegação inferior (celular) */
