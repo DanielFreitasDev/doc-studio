@@ -268,6 +268,8 @@
 
 /* ---------------------------------------------------------------- unidades de paginação ("átomos") */
 .atom { display: flow-root; margin: 0 0 var(--doc-gap); }
+/* Palavra maior que a coluna (endereço, código colado): quebra em vez de vazar da página. */
+:where(.doc) :where(.atom, .cover__heading, .cover__audience, .back__info) { overflow-wrap: break-word; }
 .page__body > .atom:first-child { margin-top: 0; }
 
 /* Destaques de interação existem só na prévia (ver css/print.css). */
