@@ -115,7 +115,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       const def = BLOCK_TYPES[block.type];
       const summary = blockSummary(block) || def.label;
       return `
-        <li class="outline__item${block.id === selected ? ' is-selected' : ''}" data-block-id="${esc(block.id)}" data-type="${block.type}">
+        <li class="outline__item${block.id === selected || ui.get('selectedIds').has(block.id) ? ' is-selected' : ''}" data-block-id="${esc(block.id)}" data-type="${block.type}">
           <button type="button" class="icon-btn drag-handle" data-drag-handle aria-label="Mover ${esc(def.label)}: arraste ou use as setas">${icon('grip', 'icon--sm')}</button>
           <button type="button" class="outline__link" data-outline-go title="${esc(def.label)}">${icon(def.icon)}<span>${esc(summary)}</span></button>
         </li>`;
@@ -131,6 +131,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
 
   outline.addEventListener('click', (event) => {
     const item = event.target.closest('.outline__item');
+    if (item && actions.selection?.handleClick(event, item.dataset.blockId)) return;
     if (item && event.target.closest('[data-outline-go]')) actions.select(item.dataset.blockId, { source: 'outline', revealEditor: true });
   });
   outline.addEventListener('keydown', (event) => {
@@ -432,8 +433,8 @@ export function createPanels({ store, ui, assets, actions, drag }) {
 
   ui.subscribe((state, changed) => {
     if (changed.includes('tab')) showTab(state.tab);
-    if (changed.includes('selectedId')) {
-      $$('.outline__item', outline).forEach((item) => item.classList.toggle('is-selected', item.dataset.blockId === state.selectedId));
+    if (changed.includes('selectedId') || changed.includes('selectedIds')) {
+      $$('.outline__item', outline).forEach((item) => item.classList.toggle('is-selected', item.dataset.blockId === state.selectedId || state.selectedIds.has(item.dataset.blockId)));
     }
     if (changed.includes('pageCount')) renderOutlineSoon();
   });

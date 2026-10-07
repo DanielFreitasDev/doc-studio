@@ -6,7 +6,7 @@
  * o que mantém a rolagem estável e evita piscar imagens.
  */
 import { $, $$, debounce, clamp, prefersReducedMotion } from './utils.js';
-import { applyDocAttributes } from './design.js';
+import { applyDocAttributes, DESIGN_OPTIONS } from './design.js';
 import { layoutDocument } from './paginate.js';
 import { BLOCK_TYPES } from './schema.js';
 import { keys, writeClipboard } from './textmenu.js';
@@ -112,9 +112,10 @@ export function createPreview({ store, ui, assets, actions }) {
 
   /* ---------------------------------------------------------------- seleção */
   function highlightSelection() {
-    const id = ui.get('selectedId');
+    const ids = new Set(ui.get('selectedIds'));
+    if (ui.get('selectedId')) ids.add(ui.get('selectedId'));
     $$('.atom.is-selected', pagesEl).forEach((el) => el.classList.remove('is-selected'));
-    if (id) $$(`.atom[data-block-id="${CSS.escape(id)}"]`, pagesEl).forEach((el) => el.classList.add('is-selected'));
+    ids.forEach((id) => $$(`.atom[data-block-id="${CSS.escape(id)}"]`, pagesEl).forEach((el) => el.classList.add('is-selected')));
   }
 
   function revealBlock(id) {
@@ -133,6 +134,7 @@ export function createPreview({ store, ui, assets, actions }) {
     // Links da página não navegam na prévia (no PDF continuam clicáveis).
     if (event.target.closest('a[href]')) event.preventDefault();
     const atom = event.target.closest('.atom[data-block-id]');
+    if (atom && actions.selection?.handleClick(event, atom.dataset.blockId)) return;
     if (atom) {
       actions.select(atom.dataset.blockId, { source: 'preview', revealEditor: true });
       return;
@@ -225,8 +227,41 @@ export function createPreview({ store, ui, assets, actions }) {
     return {
       title: page ? `Página ${Number(page.dataset.index) + 1} de ${pageHtml.length}` : 'Prévia',
       icon: 'eye',
-      items: [...copy, ...viewItems()],
+      items: [...copy, ...(page?.classList.contains('page--content') ? pageItems(page) : []), ...viewItems()],
     };
+  }
+
+  /**
+   * Ações da página de conteúdo. O documento é um fluxo de blocos (as páginas
+   * são calculadas), então "a página" é o conjunto de blocos que aparecem
+   * nela: dá para selecioná-los (e usar a barra da seleção), duplicá-los ou
+   * excluí-los, e criar uma página nova com uma quebra de página.
+   */
+  function pageItems(page) {
+    const blocks = store.doc.blocks;
+    const onPage = [...new Set([...page.querySelectorAll('.atom[data-block-id]')].map((atom) => atom.dataset.blockId))];
+    // Blocos que estão inteiros nesta página (não continuam em outra).
+    const whole = onPage.filter((id) => [...pagesEl.querySelectorAll(`.atom[data-block-id="${CSS.escape(id)}"]`)].every((atom) => atom.closest('.page') === page));
+    const lastIndex = Math.max(-1, ...onPage.map((id) => blocks.findIndex((b) => b.id === id)));
+    const after = lastIndex >= 0 ? lastIndex + 1 : blocks.length;
+    const { design } = store.doc;
+    const radio = (key, options) => options.map((option) => ({
+      label: option.label, radio: true, checked: design[key] === option.value, run: () => actions.setDesign(key, option.value),
+    }));
+    const current = (key, options) => options.find((option) => option.value === design[key])?.label;
+    return [
+      { label: 'Nova página depois desta', icon: 'pagebreak', run: () => actions.insertType('pagebreak', after) },
+      { label: 'Inserir bloco no fim desta página', icon: 'plus', run: () => actions.openPicker(page, { index: after }) },
+      { separator: true },
+      { label: 'Selecionar os blocos desta página', icon: 'select-all', disabled: !onPage.length, run: () => actions.selection.select(onPage) },
+      { label: 'Duplicar o conteúdo da página', icon: 'copy', disabled: !whole.length, run: () => actions.duplicatePage(whole) },
+      { label: 'Excluir o conteúdo da página', icon: 'trash', danger: true, disabled: !whole.length, run: () => actions.selection.removeMany(whole) },
+      { separator: true },
+      { label: 'Cabeçalho das páginas', icon: 'layout', hint: current('header', DESIGN_OPTIONS.header), submenu: radio('header', DESIGN_OPTIONS.header) },
+      { label: 'Rodapé das páginas', icon: 'layout', hint: current('footer', DESIGN_OPTIONS.footer), submenu: radio('footer', DESIGN_OPTIONS.footer) },
+      { label: 'Numeração', icon: 'outline', hint: current('pageNumber', DESIGN_OPTIONS.pageNumber), submenu: radio('pageNumber', DESIGN_OPTIONS.pageNumber) },
+      { separator: true },
+    ];
   }
 
   /* ---------------------------------------------------------------- assinaturas */
@@ -237,6 +272,7 @@ export function createPreview({ store, ui, assets, actions }) {
   });
 
   ui.subscribe((state, changed) => {
+    if (changed.includes('selectedIds') && !changed.includes('selectedId')) highlightSelection();
     if (changed.includes('selectedId')) {
       highlightSelection();
       if (state.selectedId && state.selectSource !== 'preview') revealBlock(state.selectedId);

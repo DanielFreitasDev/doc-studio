@@ -30,7 +30,7 @@ export function createEditor({ store, ui, assets, actions, drag }) {
   function cardHtml(block) {
     const definition = BLOCK_TYPES[block.type];
     const collapsed = ui.get('collapsed').has(block.id);
-    const selected = ui.get('selectedId') === block.id;
+    const selected = ui.get('selectedId') === block.id || ui.get('selectedIds').has(block.id);
     const overflow = ui.get('overflowBlocks').has(block.id);
     const context = { block, assets: assets.renderMap() };
     const fields = definition.fields.map((field) =>
@@ -283,6 +283,11 @@ export function createEditor({ store, ui, assets, actions, drag }) {
 
   /* ---------------------------------------------------------------- cliques */
   list.addEventListener('click', (event) => {
+    if (selectionClick) {
+      selectionClick = false;
+      event.preventDefault();
+      return;
+    }
     const button = event.target.closest('button');
     const card = event.target.closest('.block-card');
     if (!button || !card) return;
@@ -360,12 +365,23 @@ export function createEditor({ store, ui, assets, actions, drag }) {
   /* ---------------------------------------------------------------- seleção */
   list.addEventListener('focusin', (event) => {
     const card = event.target.closest('.block-card');
+    // Foco (Tab) num bloco que já está na seleção de vários não desfaz a seleção.
+    if (selectionClick || (card && ui.get('selectedIds').has(card.dataset.blockId))) return;
     if (card && ui.get('selectedId') !== card.dataset.blockId) {
       ui.set({ selectedId: card.dataset.blockId, selectSource: 'editor' });
     }
   });
+  // Ctrl/Shift + clique no cabeçalho do cartão: seleção de vários blocos (o clique não abre/fecha o cartão).
+  let selectionClick = false;
   list.addEventListener('pointerdown', (event) => {
     const card = event.target.closest('.block-card');
+    selectionClick = false;
+    if (card && event.button === 0 && event.target.closest('.block-card__head') && !event.target.closest('[data-drag-handle]')
+      && actions.selection?.handleClick(event, card.dataset.blockId)) {
+      selectionClick = true;
+      event.preventDefault();
+      return;
+    }
     if (card && ui.get('selectedId') !== card.dataset.blockId) {
       ui.set({ selectedId: card.dataset.blockId, selectSource: 'editor' });
     }
@@ -517,9 +533,12 @@ export function createEditor({ store, ui, assets, actions, drag }) {
   });
 
   ui.subscribe((state, changed) => {
-    if (changed.includes('selectedId')) {
-      $$('.block-card.is-selected', list).forEach((card) => card.classList.remove('is-selected'));
-      if (state.selectedId) cardOf(state.selectedId)?.classList.add('is-selected');
+    if (changed.includes('selectedId') || changed.includes('selectedIds')) {
+      $$('.block-card', list).forEach((card) => {
+        const id = card.dataset.blockId;
+        card.classList.toggle('is-selected', id === state.selectedId || state.selectedIds.has(id));
+        card.classList.toggle('is-multi', state.selectedIds.has(id));
+      });
     }
     if (changed.includes('collapsed')) {
       $$('.block-card', list).forEach((card) => {

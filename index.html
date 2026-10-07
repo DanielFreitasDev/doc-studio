@@ -297,6 +297,18 @@
       </section>
     </div>
 
+    <!-- Barra da seleção de vários blocos (js/selection.js) -->
+    <div class="selection-bar" id="selection-bar" role="toolbar" aria-label="Blocos selecionados" hidden>
+      <strong class="selection-bar__count" id="selection-count" aria-live="polite"></strong>
+      <button class="btn btn--ghost btn--small" type="button" data-selection="duplicate" title="Duplicar (Ctrl+D)"><svg class="icon"><use href="#i-copy"/></svg><span class="selection-bar__label">Duplicar</span></button>
+      <button class="btn btn--ghost btn--small" type="button" data-selection="copy" title="Copiar (Ctrl+C)"><svg class="icon"><use href="#i-clipboard"/></svg><span class="selection-bar__label">Copiar</span></button>
+      <button class="btn btn--ghost btn--small" type="button" data-selection="cut" title="Recortar (Ctrl+X)"><svg class="icon"><use href="#i-scissors"/></svg><span class="selection-bar__label">Recortar</span></button>
+      <button class="icon-btn icon-btn--sm" type="button" data-selection="up" aria-label="Mover para cima (Alt+↑)" title="Mover para cima (Alt+↑)"><svg class="icon"><use href="#i-chevron-up"/></svg></button>
+      <button class="icon-btn icon-btn--sm" type="button" data-selection="down" aria-label="Mover para baixo (Alt+↓)" title="Mover para baixo (Alt+↓)"><svg class="icon"><use href="#i-chevron-down"/></svg></button>
+      <button class="btn btn--ghost btn--small btn--danger-text" type="button" data-selection="delete" title="Excluir (Delete)"><svg class="icon"><use href="#i-trash"/></svg><span class="selection-bar__label">Excluir</span></button>
+      <button class="icon-btn icon-btn--sm" type="button" data-selection="clear" aria-label="Desfazer a seleção (Esc)" title="Desfazer a seleção (Esc)"><svg class="icon"><use href="#i-x"/></svg></button>
+    </div>
+
     <nav class="bottom-nav" aria-label="Navegação principal">
       <button type="button" data-pane-target="editor" aria-current="page"><svg class="icon"><use href="#i-edit"/></svg><span>Editar</span></button>
       <button type="button" data-pane-target="panel" data-tab-target="insert"><svg class="icon"><use href="#i-blocks"/></svg><span>Inserir</span></button>

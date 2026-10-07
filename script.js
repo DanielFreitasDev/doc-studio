@@ -29,6 +29,7 @@ import { textFieldItems, richFieldItems, textMenuTitle, keys, writeClipboard } f
 import { setupRichText, handleRichShortcut, editRichLink, richFieldOf } from './js/richtext.js';
 import { createQuickEdit } from './js/quickedit.js';
 import { setupFormatBar } from './js/formatbar.js';
+import { createBlockSelection } from './js/selection.js';
 
 const appEl = $('#app');
 const isCompact = () => !matchMedia('(min-width: 760px)').matches;
@@ -85,6 +86,7 @@ async function main() {
   const store = createStore(initialDoc);
   const ui = createUiState({
     selectedId: null,
+    selectedIds: new Set(),
     selectSource: null,
     collapsed: new Set(),
     overflowBlocks: new Set(),
@@ -178,7 +180,17 @@ async function main() {
       actions.insertBlocks([cloneBlock(store.doc.blocks[index])], index + 1, { focus: false });
     },
 
-    removeBlock(id) {
+    /** Duplica os blocos de uma página numa página nova logo depois dela (menu da página). */
+    duplicatePage(ids) {
+      const set = new Set(ids);
+      const source = store.doc.blocks.filter((block) => set.has(block.id));
+      if (!source.length) return;
+      const copies = [createBlock('pagebreak'), ...source.map(cloneBlock)];
+      actions.insertBlocks(copies, actions.indexOf(source.at(-1).id) + 1, { focus: false });
+      notify('Página duplicada (o conteúdo começa numa nova página).', 'info', { undo: true });
+    },
+
+    removeBlock(id, { verb = 'excluído' } = {}) {
       const index = actions.indexOf(id);
       if (index < 0) return;
       const label = BLOCK_TYPES[store.doc.blocks[index].type].label;
@@ -189,7 +201,7 @@ async function main() {
         ? $(`.block-card[data-block-id="${CSS.escape(neighbor.id)}"] [data-drag-handle]`)
         : $('[data-action="insert-end"]:not([hidden])');
       focusTarget?.focus({ preventScroll: true });
-      notify(`${label} excluído.`, 'info', { undo: true });
+      notify(`${label} ${verb}.`, 'info', { undo: true });
     },
 
     select(id, { source = 'api', revealEditor = false, focus = false } = {}) {
@@ -326,6 +338,11 @@ async function main() {
       const index = actions.indexOf(id);
       const block = store.doc.blocks[index];
       if (!block) return [];
+      // Bloco que faz parte de uma seleção de vários: ações do grupo.
+      if (selection.many && selection.has(id)) {
+        const group = selection.menuItems();
+        return [{ heading: group.title }, ...group.items];
+      }
       const definition = BLOCK_TYPES[block.type];
       const last = store.doc.blocks.length - 1;
       const collapsed = ui.get('collapsed').has(id);
@@ -377,7 +394,10 @@ async function main() {
         { label: 'Mover para cima', icon: 'chevron-up', shortcut: keys('Alt+↑'), disabled: index === 0, run: () => actions.moveBlockBy(id, -1) },
         { label: 'Mover para baixo', icon: 'chevron-down', shortcut: keys('Alt+↓'), disabled: index === last, run: () => actions.moveBlockBy(id, 1) },
         { label: 'Duplicar', icon: 'copy', shortcut: keys('Ctrl+D'), run: () => actions.duplicateBlock(id) },
-        { label: 'Copiar texto', icon: 'clipboard', disabled: !blockPlainText(block), run: () => actions.copyBlockText(id) },
+        { label: 'Copiar bloco', icon: 'clipboard', shortcut: keys('Ctrl+C'), run: () => selection.copyMany([id]) },
+        { label: 'Recortar bloco', icon: 'scissors', shortcut: keys('Ctrl+X'), run: () => selection.copyMany([id], { cut: true }) },
+        { label: 'Colar abaixo', icon: 'row-below', shortcut: keys('Ctrl+V'), run: () => selection.pasteFromMenu(index + 1) },
+        { label: 'Copiar só o texto', icon: 'file-text', disabled: !blockPlainText(block), run: () => actions.copyBlockText(id) },
         origin !== 'preview' && { label: collapsed ? 'Expandir no editor' : 'Recolher no editor', icon: collapsed ? 'expand' : 'collapse', run: () => editor.toggleCollapse(id) },
         { separator: true },
         { label: 'Excluir bloco', icon: 'trash', danger: true, run: () => actions.removeBlock(id) },
@@ -494,6 +514,8 @@ async function main() {
   editor = createEditor({ store, ui, assets, actions, drag });
   preview = createPreview({ store, ui, assets, actions });
   const quickEdit = createQuickEdit({ store, ui, actions });
+  const selection = createBlockSelection({ store, ui, assets, actions });
+  actions.selection = selection;
   actions.editInPage = (element) => quickEdit.editAt(element);
   const panels = createPanels({ store, ui, assets, actions, drag });
 
@@ -1029,13 +1051,13 @@ async function main() {
       actions.openPicker(anchor ?? $('#editor-list'), { index: actions.insertionIndex() });
     } else if (mod && key === 'd' && selected && !inDialog) {
       event.preventDefault();
-      actions.duplicateBlock(selected);
+      selection.duplicateMany();
     } else if (mod && ['1', '2', '3'].includes(event.key)) {
       event.preventDefault();
       withTransition(() => ui.set({ view: ['editor', 'split', 'preview'][Number(event.key) - 1] }));
     } else if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown') && selected && !inDialog) {
       event.preventDefault();
-      actions.moveBlockBy(selected, event.key === 'ArrowUp' ? -1 : 1);
+      selection.moveMany(event.key === 'ArrowUp' ? -1 : 1);
     } else if (event.key === '?' && !isTypingTarget(event.target) && !inDialog) {
       event.preventDefault();
       openDialog(shortcutsDialog);
@@ -1048,7 +1070,11 @@ async function main() {
   document.addEventListener('paste', (event) => {
     if (event.target.closest?.('dialog')) return;
     const files = [...(event.clipboardData?.files ?? [])].filter(isAcceptedImage);
-    if (!files.length) return;
+    // Sem imagem: fora de um campo, cola blocos copiados ou texto (vira blocos).
+    if (!files.length) {
+      selection.paste(event);
+      return;
+    }
     event.preventDefault();
     const card = event.target.closest?.('.block-card[data-type="image"]');
     if (card && files.length === 1) actions.setBlockImage(card.dataset.blockId, files[0]);

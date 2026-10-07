@@ -115,6 +115,16 @@ export function createAssetRegistry() {
       invalidate();
     },
 
+    /** Acrescenta imagens vindas de fora (blocos colados de outro documento), sem trocar as atuais. */
+    merge(raw = {}) {
+      for (const [id, asset] of Object.entries(raw ?? {})) {
+        if (!assets.has(id) && /^[\w-]{1,64}$/.test(id) && isValidAsset(asset)) {
+          assets.set(id, { dataUrl: asset.dataUrl, width: Math.round(asset.width), height: Math.round(asset.height), name: String(asset.name ?? '').slice(0, 120) });
+        }
+      }
+      invalidate();
+    },
+
     add(asset) {
       const id = uid('img');
       assets.set(id, asset);

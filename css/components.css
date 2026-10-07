@@ -1580,3 +1580,40 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .format-bubble:popover-open { animation: pop-in var(--dur-fast) var(--ease); }
 .format-bubble .icon-btn { width: 32px; height: 32px; }
 .format-bubble [aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-soft-text); }
+
+/* ---------------------------------------------------------------- seleção de vários blocos (js/selection.js) */
+.block-card.is-multi { box-shadow: 0 0 0 2px var(--primary), var(--shadow-1); }
+.selection-bar {
+  position: fixed;
+  left: 50%;
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  z-index: var(--z-toast);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  max-width: calc(100vw - 2 * var(--space-3));
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-3);
+  transform: translateX(-50%);
+  animation: bar-in var(--dur-med) var(--ease);
+}
+.selection-bar[hidden] { display: none; }
+.selection-bar__count { margin-right: var(--space-2); font-size: var(--text-sm); white-space: nowrap; }
+@keyframes bar-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+@media (max-width: 759.98px) {
+  .selection-bar { bottom: calc(64px + max(var(--space-2), env(safe-area-inset-bottom))); }
+}
+@media (prefers-reduced-motion: reduce) { .selection-bar { animation: none; } }
+@media (max-width: 559.98px) {
+  .selection-bar__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+/* Com a barra da seleção na tela, os avisos sobem para não cobri-la. */
+body:has(#selection-bar:not([hidden])) .toast-region { bottom: calc(76px + 64px + env(safe-area-inset-bottom)); }
+@media (min-width: 760px) {
+  body:has(#selection-bar:not([hidden])) .toast-region { bottom: calc(var(--space-6) + 64px); }
+}
