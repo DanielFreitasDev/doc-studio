@@ -251,7 +251,8 @@ const RENDERERS = {
         <span class="b-toc__p" data-toc-page="${esc(section.id)}">00</span>
       </li>`).join('');
     const list = items
-      ? `<ol class="b-toc__list b-toc__list--${block.style}" style="--cols:${block.columns}">${items}</ol>`
+      // Em colunas, a leitura desce cada coluna (01–05 | 06–10), como no sumário dos manuais aprovados.
+      ? `<ol class="b-toc__list b-toc__list--${block.style}" style="--cols:${block.columns};--rows:${Math.ceil(ctx.sections.length / Number(block.columns))}">${items}</ol>`
       : '<p class="b-toc__empty">Adicione blocos do tipo “Seção” para montar o sumário.</p>';
     return [atom(block, 'atom--toc', `<nav class="b-toc" aria-label="${esc(block.title)}"><h3 class="b-toc__title"${ed('title')}>${esc(block.title)}</h3>${list}</nav>`)];
   },
