@@ -9,16 +9,10 @@
   <meta name="theme-color" content="#f3f5f4">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
-  <!-- O tema claro é o padrão. Aplica o tema salvo antes da primeira pintura para evitar "flash" de tema errado. -->
-  <script>
-    (() => {
-      try {
-        const theme = JSON.parse(localStorage.getItem('doc-studio:app-theme'));
-        if (theme === 'dark') document.documentElement.dataset.theme = 'dark';
-        else if (theme === 'auto') delete document.documentElement.dataset.theme;
-      } catch { /* armazenamento bloqueado: mantém o tema claro */ }
-    })();
-  </script>
+  <!-- Só os arquivos do próprio app executam script; nada vem de outro site (fontes e imagens são locais ou blob:). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <!-- Tema salvo antes da primeira pintura e aviso de file:// (script clássico, ver js/boot.js). -->
+  <script src="js/boot.js"></script>
 
   <link rel="preload" href="assets/fonts/Kanit-Regular.woff" as="font" type="font/woff" crossorigin>
   <link rel="preload" href="assets/fonts/Kanit-Medium.woff" as="font" type="font/woff" crossorigin>
@@ -144,15 +138,6 @@
     Os navegadores bloqueiam módulos JavaScript em arquivos abertos direto do disco.
     Na pasta do projeto, rode <code>python3 -m http.server 8080</code> e acesse <code>http://localhost:8080</code>.
   </div>
-  <script>
-    if (location.protocol === 'file:') {
-      document.getElementById('file-warning').hidden = false;
-      document.getElementById('boot').classList.add('is-done');
-    }
-    // Garantia: se o script principal não carregar (navegador antigo, erro de rede), a tela de abertura sai.
-    setTimeout(() => document.getElementById('boot').classList.add('is-done'), 8000);
-  </script>
-
   <div class="app" id="app" data-pane="editor" data-view="split" data-panel-open="true">
     <header class="topbar">
       <div class="topbar__brand">

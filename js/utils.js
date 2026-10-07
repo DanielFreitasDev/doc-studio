@@ -79,17 +79,26 @@ export function longDate(date = new Date()) {
   return new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 }
 
-/** Lê um valor por caminho "items.2.title" (índices numéricos viram posições de array). */
+/**
+ * Chaves que nunca podem aparecer num caminho: chegariam ao protótipo de
+ * todos os objetos (prototype pollution) a partir de um arquivo importado.
+ */
+const UNSAFE_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+export const isSafeKey = (key) => key !== '' && !UNSAFE_KEYS.has(key);
+
+/** Lê um valor por caminho "items.2.title" (índices numéricos viram posições de array). Só lê propriedades próprias. */
 export function getByPath(target, path) {
-  return path.split('.').reduce((node, key) => (node == null ? undefined : node[key]), target);
+  return path.split('.').reduce((node, key) => (node != null && typeof node === 'object' && Object.hasOwn(node, key) ? node[key] : undefined), target);
 }
 
-/** Escreve um valor por caminho, criando objetos intermediários quando faltarem. */
+/** Escreve um valor por caminho, criando objetos intermediários quando faltarem. Recusa chaves inseguras e caminhos por dentro de textos. */
 export function setByPath(target, path, value) {
   const keys = path.split('.');
+  if (!keys.every(isSafeKey)) throw new TypeError(`Caminho inválido: “${path}”.`);
   const last = keys.pop();
   const parent = keys.reduce((node, key) => {
-    if (node[key] == null) node[key] = /^\d+$/.test(key) ? [] : {};
+    if (!Object.hasOwn(node, key) || node[key] == null) node[key] = /^\d+$/.test(key) ? [] : {};
+    if (typeof node[key] !== 'object') throw new TypeError(`Caminho inválido: “${path}”.`);
     return node[key];
   }, target);
   parent[last] = value;
@@ -143,4 +152,4 @@ export function downloadBlob(blob, filename) {
 }
 
 export const icon = (name, extraClass = '') =>
-  `<svg class="icon ${extraClass}" aria-hidden="true" focusable="false"><use href="#i-${name}"/></svg>`;
+  `<svg class="icon ${esc(extraClass)}" aria-hidden="true" focusable="false"><use href="#i-${esc(name)}"/></svg>`;

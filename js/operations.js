@@ -20,7 +20,7 @@
 import { BLOCK_TYPES, BLOCK_ID, normalizeBlock, transformBlock, blockPlainText, TEXT_BLOCK_TYPES, expandIntent } from './schema.js';
 import { normalizeDesign, normalizeMeta, DESIGN_PRESETS } from './design.js';
 import { validateDocument } from './validate.js';
-import { uid, setByPath, getByPath } from './utils.js';
+import { uid, setByPath, getByPath, isSafeKey } from './utils.js';
 
 export const OPERATIONS_FORMAT = 'doc-studio-operations';
 export const OPERATIONS_VERSION = 1;
@@ -121,7 +121,13 @@ const HANDLERS = {
     const draft = structuredClone(current);
     for (const [path, value] of Object.entries(op.set)) {
       const keys = path.split('.');
+      if (!keys.every(isSafeKey)) fail(`caminho “${path}” inválido: use nomes de campo separados por ponto, como “items.0.title”.`);
       if (['id', 'type'].includes(keys[0])) fail(`“${keys[0]}” não pode ser alterado com update (use "replace" ou "transform").`);
+      // Só dá para descer por listas e objetos (não por dentro de um texto: “title.x”).
+      for (let depth = 1; depth < keys.length; depth += 1) {
+        const node = getByPath(draft, keys.slice(0, depth).join('.'));
+        if (node != null && typeof node !== 'object') fail(`caminho “${path}”: “${keys.slice(0, depth).join('.')}” é um valor simples, não uma lista ou um objeto.`);
+      }
       // Itens e linhas: o índice pode no máximo acrescentar um item no fim.
       for (let depth = 1; depth < keys.length; depth += 1) {
         if (!/^\d+$/.test(keys[depth])) continue;
@@ -242,8 +248,9 @@ export function applyOperations(doc, operations, { assetIds = null } = {}) {
       if (!handler) fail(`operação “${op?.op}” não existe. Use: ${Object.keys(HANDLERS).join(', ')}.`);
       changes.push(handler(draft, op, { doc: draft, assetIds, warnings }));
     } catch (error) {
-      if (!(error instanceof OperationError)) throw error;
-      return { ok: false, doc, changes, warnings, error: `Operação ${index + 1} (${op?.op ?? '?'}): ${error.message} Nenhuma alteração foi aplicada.` };
+      // Erro inesperado (entrada que nenhuma regra previu) também recusa o lote, sem derrubar quem chamou.
+      const message = error instanceof OperationError ? error.message : `não foi possível aplicar (${error.message}).`;
+      return { ok: false, doc, changes, warnings, error: `Operação ${index + 1} (${op?.op ?? '?'}): ${message} Nenhuma alteração foi aplicada.` };
     }
   }
   draft.updatedAt = Date.now();
