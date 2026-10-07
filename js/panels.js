@@ -6,7 +6,7 @@ import { $, $$, esc, icon, debounce } from './utils.js';
 import { BLOCK_TYPES, BLOCK_GROUPS, blockSummary } from './schema.js';
 import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DESIGN_PRESETS, META_GROUPS, docAttributesHtml } from './design.js';
 import { SNIPPETS } from './templates.js';
-import { renderCover, renderBackCover } from './render.js';
+import { renderCover, renderBackCover, renderContentPage, brandHtml } from './render.js';
 import { fieldHtml, readControlValue } from './fields.js';
 import { preferences } from './storage.js';
 
@@ -154,20 +154,35 @@ export function createPanels({ store, ui, assets, actions, drag }) {
   const thumbHtml = (pageHtml, design, zoom = 0.115) =>
     `<div class="doc thumb" ${docAttributesHtml(design)} style="--zoom:${zoom}" aria-hidden="true">${pageHtml}</div>`;
 
-  function choiceGroup({ title, name, options, thumb }) {
-    const items = options.map((option) => `
-      <li><label class="choice" title="${esc(option.description ?? '')}">
-        <input type="radio" name="${name}" value="${option.id}" data-design-key="${name}">
-        <span class="choice__thumb${option.id === 'none' ? ' choice__thumb--none' : ''}" data-thumb="${name}:${option.id}">${option.id === 'none' ? icon('x', 'icon--xl') : ''}</span>
+  /**
+   * Grupo de escolhas visuais (miniaturas). `variant` define o recorte:
+   * "page" = página inteira; "top"/"bottom" = faixa do alto ou do pé de uma
+   * página de conteúdo; "brand" = só a assinatura.
+   */
+  function choiceGroup({ title, name, options, variant = 'page', hint = '', id = '', extra = '' }) {
+    const items = options.map((option) => {
+      const value = option.id ?? option.value;
+      const none = value === 'none';
+      return `
+      <li><label class="choice choice--${variant}" title="${esc(option.description ?? '')}">
+        <input type="radio" name="design-${name}" value="${value}" data-design-key="${name}">
+        <span class="choice__thumb choice__thumb--${variant}${none ? ' choice__thumb--none' : ''}" data-thumb="${name}:${value}">${none ? icon('x', 'icon--xl') : ''}</span>
         <span>${esc(option.label)}</span>
-      </label></li>`).join('');
-    return `<fieldset class="design-group"><legend>${esc(title)}</legend><ul class="choice-grid">${items}</ul></fieldset>`;
+      </label></li>`;
+    }).join('');
+    return `<fieldset class="design-group"${id ? ` id="${id}"` : ''}><legend>${esc(title)}</legend>${hint ? `<p class="design-group__hint">${esc(hint)}</p>` : ''}<ul class="choice-grid choice-grid--${variant}">${items}</ul>${extra}</fieldset>`;
   }
 
   function segmentedGroup(title, key, options, hint = '') {
     const radios = options.map((o) => `<label><input type="radio" name="design-${key}" value="${o.value}" data-design-key="${key}"><span>${esc(o.label)}</span></label>`).join('');
     return `<fieldset class="design-group"><legend>${esc(title)}</legend>${hint ? `<p class="design-group__hint">${esc(hint)}</p>` : ''}<div class="segmented segmented--block">${radios}</div></fieldset>`;
   }
+
+  // Atalhos do topo do painel: o painel é longo e o leigo procura "capa", "rodapé"...
+  const DESIGN_SECTIONS = [
+    ['design-presets', 'Estilos'], ['design-cover', 'Capa'], ['design-header', 'Cabeçalho'], ['design-footer', 'Rodapé'],
+    ['design-back', 'Contracapa'], ['design-signature', 'Assinatura'], ['design-theme', 'Cores'], ['design-more', 'Mais'],
+  ];
 
   function renderDesign() {
     const presets = DESIGN_PRESETS.map((preset) => {
@@ -185,24 +200,26 @@ export function createPanels({ store, ui, assets, actions, drag }) {
         <span>${esc(theme.label)}</span>
       </label></li>`).join('');
 
-    const signatureOptions = DESIGN_OPTIONS.signature.map((o) => `<option value="${o.value}">${esc(o.label)}</option>`).join('');
+    const jump = DESIGN_SECTIONS.map(([target, label]) => `<li><a href="#${target}" data-design-jump="${target}">${esc(label)}</a></li>`).join('');
 
     designRoot.innerHTML = `
-      <section class="design-group">
+      <nav class="design-jump" aria-label="Ir para"><ul>${jump}</ul></nav>
+      <section class="design-group" id="design-presets">
         <h3 class="design-group__title">${icon('sparkles', 'icon--sm')}Estilos prontos</h3>
         <p class="design-group__hint">Aplica capa, cores e estilos de uma vez. O conteúdo não muda.</p>
         <ul class="choice-grid choice-grid--wide">${presets}</ul>
       </section>
-      ${choiceGroup({ title: 'Capa', name: 'cover', options: COVERS })}
+      ${choiceGroup({ title: 'Capa', name: 'cover', options: COVERS, id: 'design-cover' })}
       <button type="button" class="btn btn--soft btn--small design-texts-link" data-action="edit-texts">${icon('file-text', 'icon--sm')}Editar os textos da capa e da contracapa</button>
-      ${choiceGroup({ title: 'Contracapa', name: 'backCover', options: BACK_COVERS })}
-      <fieldset class="design-group"><legend>Tema de cores</legend><ul class="swatch-grid">${swatches}</ul></fieldset>
-      <details class="design-more"${preferences.get('design-more-open', false) ? ' open' : ''}>
-      <summary>Mais ajustes <small>títulos, cartões, cabeçalho, rodapé, numeração, fonte, espaçamento e assinatura</small></summary>
+      ${choiceGroup({ title: 'Cabeçalho das páginas', name: 'header', options: DESIGN_OPTIONS.header, variant: 'top', id: 'design-header' })}
+      ${choiceGroup({ title: 'Rodapé das páginas', name: 'footer', options: DESIGN_OPTIONS.footer, variant: 'bottom', id: 'design-footer', hint: 'A faixa colorida do pé das páginas, como no papel timbrado e nas páginas do MIV.' })}
+      ${choiceGroup({ title: 'Contracapa', name: 'backCover', options: BACK_COVERS, id: 'design-back' })}
+      ${choiceGroup({ title: 'Assinatura', name: 'signature', options: DESIGN_OPTIONS.signature, variant: 'brand', id: 'design-signature', hint: 'Usada na capa, na contracapa e no timbrado, sempre na ordem do MIV.', extra: '<div class="logo-upload" id="logo-upload"></div>' })}
+      <fieldset class="design-group" id="design-theme"><legend>Tema de cores</legend><ul class="swatch-grid">${swatches}</ul></fieldset>
+      <details class="design-more" id="design-more"${preferences.get('design-more-open', false) ? ' open' : ''}>
+      <summary>Mais ajustes <small>títulos, cartões, numeração, abertura de capítulo, fonte e espaçamento</small></summary>
       ${segmentedGroup('Títulos de seção', 'sectionStyle', DESIGN_OPTIONS.sectionStyle)}
       ${segmentedGroup('Cartões', 'cardStyle', DESIGN_OPTIONS.cardStyle)}
-      ${segmentedGroup('Cabeçalho das páginas', 'header', DESIGN_OPTIONS.header)}
-      ${segmentedGroup('Rodapé', 'footer', DESIGN_OPTIONS.footer)}
       <fieldset class="design-group"><legend>Numeração</legend>
         <div class="option-list">
           <div class="segmented segmented--block">${DESIGN_OPTIONS.pageNumber.map((o) => `<label><input type="radio" name="design-pageNumber" value="${o.value}" data-design-key="pageNumber"><span>${esc(o.label)}</span></label>`).join('')}</div>
@@ -210,15 +227,9 @@ export function createPanels({ store, ui, assets, actions, drag }) {
           <label class="switch"><input type="checkbox" role="switch" data-design-key="numberSections"><span>Numerar as seções (01, 02…)</span></label>
         </div>
       </fieldset>
+      ${segmentedGroup('Página de abertura de capítulo', 'chapterStyle', DESIGN_OPTIONS.chapterStyle, 'Vale para as seções marcadas com “Página inteira de abertura de capítulo”.')}
       ${segmentedGroup('Fonte do texto corrido', 'bodyFont', DESIGN_OPTIONS.bodyFont, 'O MIV usa Maitree no texto e Kanit nos títulos.')}
       ${segmentedGroup('Espaçamento', 'density', DESIGN_OPTIONS.density)}
-      <fieldset class="design-group"><legend>Assinatura</legend>
-        <div class="field">
-          <label for="design-signature" class="visually-hidden">Assinatura na capa e contracapa</label>
-          <select class="select" id="design-signature" data-design-key="signature">${signatureOptions}</select>
-        </div>
-        <div class="logo-upload" id="logo-upload"></div>
-      </fieldset>
       </details>`;
     $('.design-more', designRoot).addEventListener('toggle', (event) => preferences.set('design-more-open', event.target.open));
     syncDesign();
@@ -243,7 +254,13 @@ export function createPanels({ store, ui, assets, actions, drag }) {
     }
   }
 
-  /** Miniaturas das capas com os textos e cores atuais do documento. */
+  /** Página de conteúdo de amostra para as miniaturas de cabeçalho e rodapé. */
+  function sampleContentPage(doc, map, idPrefix) {
+    const body = '<div class="thumb-sample"><span></span><span></span><span></span></div>';
+    return renderContentPage(doc, map, { bodyHtml: body, first: true, number: 1, total: 8, idPrefix, overflowing: false });
+  }
+
+  /** Miniaturas com os textos, as cores e a assinatura atuais do documento. */
   function refreshThumbnails() {
     if ($('#panel-design').hidden) return;
     const doc = store.doc;
@@ -252,8 +269,16 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       const [key, id] = slot.dataset.thumb.split(':');
       if (id === 'none') return;
       const preview = { ...doc, design: { ...doc.design, [key]: id } };
-      const html = key === 'cover' ? renderCover(preview, map, `t-${key}-${id}`) : renderBackCover(preview, map, `t-${key}-${id}`);
-      slot.innerHTML = thumbHtml(html, preview.design);
+      const prefix = `t-${key}-${id}`;
+      if (key === 'signature') {
+        const placeholder = id === 'custom' && !map[doc.design.customLogo] ? '<span class="thumb-logo" aria-hidden="true">Seu logo</span>' : '';
+        slot.innerHTML = `<span class="thumb-brand" aria-hidden="true">${placeholder}${brandHtml(preview.design, map)}</span>`;
+        return;
+      }
+      const html = key === 'cover' ? renderCover(preview, map, prefix)
+        : key === 'backCover' ? renderBackCover(preview, map, prefix)
+          : sampleContentPage(preview, map, prefix);
+      slot.innerHTML = thumbHtml(html, preview.design, key === 'header' || key === 'footer' ? 0.17 : 0.115);
     });
   }
   const refreshThumbnailsSoon = debounce(refreshThumbnails, 300);
@@ -273,6 +298,15 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       const { design, label } = DESIGN_PRESETS.find((p) => p.id === preset.dataset.preset);
       store.update((doc) => Object.assign(doc.design, design), { kind: 'design' });
       actions.notify(`Estilo “${label}” aplicado.`, 'info', { undo: true });
+      return;
+    }
+    const jump = event.target.closest('[data-design-jump]');
+    if (jump) {
+      event.preventDefault();
+      const target = document.getElementById(jump.dataset.designJump);
+      if (target.tagName === 'DETAILS') target.open = true;
+      target.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      target.querySelector('summary, input, button')?.focus({ preventScroll: true });
       return;
     }
     if (event.target.closest('[data-action="choose-logo"]')) actions.chooseLogo();
