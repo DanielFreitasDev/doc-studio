@@ -752,6 +752,7 @@
 
 .cover__heading { position: absolute; left: 20mm; right: 20mm; top: 24.6%; }
 .cover__kicker {
+  text-wrap: balance;
   font-size: 8.6pt;
   font-weight: 600;
   letter-spacing: 0.19em;
@@ -837,13 +838,14 @@
 
 /* Capa "Painel verde": título em branco no painel à direita, assinatura na área branca */
 .cover--panel .cover__brand { top: 33%; bottom: auto; left: 18mm; right: auto; }
-.cover--panel .cover__heading { top: 39%; left: 134mm; right: 10mm; }
+/* Título e público na mesma borda esquerda, dentro do painel inclinado do alto ao pé. */
+.cover--panel .cover__heading { top: 39%; left: 141mm; right: 10mm; }
 .cover--panel .cover__title { font-size: 25pt; line-height: 30pt; }
 .cover--panel .cover__subtitle { font-size: 14pt; line-height: 18pt; }
-.cover--panel .cover__audience { top: auto; bottom: 9%; left: 146mm; right: 10mm; text-align: left; }
+.cover--panel .cover__audience { top: auto; bottom: 9%; left: 141mm; right: 10mm; text-align: left; }
 .cover--panel .cover__aud-label { margin-right: 0; }
 .cover--panel :is(.cover__kicker, .cover__title, .cover__aud-label, .cover__aud-text) { color: #fff; }
-.cover--panel :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.9); }
+.cover--panel :is(.cover__subtitle, .cover__desc, .cover__version) { color: #fff; }
 .cover--panel .cover__rule { background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 
 /* Capa "Convite": coluna de texto à direita da faixa vertical */
