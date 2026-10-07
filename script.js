@@ -741,6 +741,12 @@ async function main() {
     await switchTo(documentFromTemplate(template), {}, template.then === 'import' ? '' : message);
     if (discardId) await storage.remove(discardId).catch(() => {});
     if (template.then === 'import') openImportText('replace');
+    // Na primeira visita a galeria abre sozinha e, ao fechar, o foco voltaria ao início da página:
+    // leva quem usa o teclado direto ao começo do trabalho (primeiro bloco ou "Escrever ou colar texto").
+    else if (document.activeElement === document.body) {
+      const start = $('#editor-list .block-card [data-drag-handle]') ?? $('#editor-empty:not([hidden]) .btn--primary');
+      start?.focus({ preventScroll: true });
+    }
   }
 
   async function openDocument(id) {
