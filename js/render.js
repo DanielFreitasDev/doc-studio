@@ -323,12 +323,13 @@ const RENDERERS = {
   glossary(block) {
     const tone = toneClass(block.tone);
     if (!block.items.length) {
-      return [atom(block, 'atom--gloss is-last seg-start seg-end', `<div class="b-gloss ${tone}"><p class="b-gloss__title">${esc(block.title)}</p></div>`)];
+      return [atom(block, 'atom--gloss is-first is-last seg-start seg-end', `<div class="b-gloss ${tone}"><p class="b-gloss__title">${esc(block.title)}</p></div>`)];
     }
     return block.items.map((item, index) => {
       const title = index === 0 && block.title ? `<p class="b-gloss__title"${ed('title')}>${esc(block.title)}</p>` : '';
-      const last = index === block.items.length - 1 ? ' is-last' : '';
-      return atom(block, `atom--gloss${last}`,
+      // O respiro da caixa fica no primeiro e no último item (medidos na paginação), como no bloco de código.
+      const edges = `${index === 0 ? ' is-first' : ''}${index === block.items.length - 1 ? ' is-last' : ''}`;
+      return atom(block, `atom--gloss${edges}`,
         `<div class="b-gloss ${tone}">${title}<p><strong${ed(`items.${index}.term`)}>${esc(item.term)}</strong>${item.term && item.definition ? ' — ' : ''}<span${ed(`items.${index}.definition`)}>${renderInline(item.definition)}</span></p></div>`,
         { group: true });
     });

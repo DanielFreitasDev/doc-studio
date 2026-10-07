@@ -688,8 +688,11 @@
   font-weight: 300;
   line-height: 12.4pt;
 }
-.seg-start .b-gloss { padding-top: 9pt; border-top-right-radius: 4pt; }
-.seg-end .b-gloss { padding-bottom: 9pt; border-bottom-right-radius: 4pt; }
+.atom--gloss.is-first .b-gloss { padding-top: 9pt; }
+.atom--gloss.is-last .b-gloss { padding-bottom: 9pt; }
+/* Os segmentos (partes da caixa em cada página) só arredondam os cantos: o respiro já foi medido na paginação. */
+.seg-start .b-gloss { border-top-right-radius: 4pt; }
+.seg-end .b-gloss { border-bottom-right-radius: 4pt; }
 .b-gloss__title { margin-bottom: 2pt; font-size: 9.4pt; font-weight: 600; color: var(--t-strong); }
 .b-gloss strong { font-weight: 500; color: var(--doc-heading); }
 
