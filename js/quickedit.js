@@ -4,7 +4,7 @@
  * Clique duas vezes num texto da página (ou use "Editar este texto aqui" no
  * botão direito) e um campo visual abre sobre ele. Cada tecla atualiza o
  * documento e a prévia por baixo, como no editor; Enter (em campos de uma
- * linha), Esc, "Concluir" ou um clique fora fecham.
+ * linha e nos textos curtos da capa), Esc, "Concluir" ou um clique fora fecham.
  *
  * Por que um campo flutuante e não a própria página editável: as páginas são
  * redesenhadas a cada mudança (a paginação pode levar o texto para outra
@@ -128,18 +128,22 @@ export function createQuickEdit({ store, ui, actions }) {
     if (!field || value === null) return false;
 
     const multiline = field.kind !== 'text';
+    // Textos curtos da capa (título e público, até 2 linhas): Enter conclui, como num campo de uma
+    // linha, e Shift+Enter quebra a linha. Endereço e parágrafos continuam com Enter = nova linha.
+    const enterCloses = !multiline || (Boolean(target.meta) && field.kind === 'lines' && (field.rows ?? 2) <= 2);
+    const hint = !multiline ? 'Enter para concluir' : enterCloses ? 'Enter conclui · Shift+Enter quebra a linha' : 'Esc ou clique fora para concluir';
     panel.innerHTML = `
       <div class="quick-edit__head">
         <span class="quick-edit__title"><strong>${esc(title ?? '')}</strong> · <span id="quick-edit-label">${esc(field.label)}</span></span>
       </div>
       ${controlHtml(field, value)}
       <div class="quick-edit__foot">
-        <span class="quick-edit__hint">${multiline ? 'Esc ou clique fora para concluir' : 'Enter para concluir'} · as mudanças já estão na página</span>
+        <span class="quick-edit__hint">${hint} · as mudanças já estão na página</span>
         ${target.meta ? '' : '<button type="button" class="btn btn--ghost btn--small" data-quick="editor">Abrir no editor</button>'}
         <button type="button" class="btn btn--primary btn--small" data-quick="done">Concluir</button>
       </div>`;
     const control = panel.querySelector('#quick-edit-field');
-    session = { target, control, field, anchorRect: anchor.getBoundingClientRect(), returnFocus: document.activeElement };
+    session = { target, control, field, enterCloses, anchorRect: anchor.getBoundingClientRect(), returnFocus: document.activeElement };
     if (supportsPopover) panel.showPopover();
     else panel.hidden = false;
     place();
@@ -172,7 +176,8 @@ export function createQuickEdit({ store, ui, actions }) {
     if (!session) return;
     const { target, control } = session;
     const limit = target.meta ? META_MAX_TEXT : textLimit(store.doc.blocks.find((b) => b.id === target.blockId), target.path);
-    const { value, cut } = capText(control.dataset.rich ? richMarkup(control) : control.value, limit);
+    // Linhas vazias no fim não aparecem e só empurrariam o texto da página: não são gravadas.
+    const { value, cut } = capText((control.dataset.rich ? richMarkup(control) : control.value).replace(/\n+$/, ''), limit);
     if (cut) {
       if (control.dataset.rich) setRichValue(control, value);
       else control.value = value;
@@ -216,7 +221,7 @@ export function createQuickEdit({ store, ui, actions }) {
       event.preventDefault();
       event.stopPropagation();
       close();
-    } else if (event.key === 'Enter' && !event.shiftKey && session?.field.kind === 'text' && event.target === session.control) {
+    } else if (event.key === 'Enter' && !event.shiftKey && session?.enterCloses && event.target === session.control) {
       event.preventDefault();
       close();
     } else if (event.key === 'Tab') {
