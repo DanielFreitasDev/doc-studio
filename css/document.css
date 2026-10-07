@@ -886,7 +886,9 @@
 .page--dark { color: #fff; }
 .page--dark :is(.cover__kicker, .cover__aud-label, .chapter__kicker) { color: #fff; }
 .page--dark :is(.cover__title, .cover__aud-text, .back__title, .back__text) { color: #fff; }
-.page--dark :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.88); }
+.page--dark :is(.cover__subtitle, .cover__desc, .cover__version) { color: #fff; }
+/* Branco sobre o verde do MIV tem contraste baixo (2,2–3,2:1): texto pequeno sem transparência e sem o peso leve. */
+:is(.page--dark, .cover--panel, .cover--sign, .cover--totem) .cover__version { font-weight: 400; }
 .page--dark .cover__rule { background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 
 /* Abertura de capítulo */
@@ -920,7 +922,7 @@
 .cover--totem :is(.cover__heading, .cover__audience) { left: 18mm; right: 18mm; max-width: none; text-align: center; }
 .cover--totem .cover__heading { top: 8.5%; }
 .cover--totem :is(.cover__kicker, .cover__title) { color: #fff; }
-.cover--totem :is(.cover__subtitle, .cover__desc) { color: rgb(255 255 255 / 0.92); }
+.cover--totem :is(.cover__subtitle, .cover__desc) { color: #fff; }
 .cover--totem .cover__rule { margin-inline: auto; background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 .cover--totem .cover__audience { top: 42%; }
 .cover--totem .cover__aud-label { margin-right: -0.55em; }
@@ -938,7 +940,7 @@
 .cover--sign .cover__heading { top: 11%; left: 137mm; right: 9mm; }
 .cover--sign :is(.cover__kicker, .cover__title, .cover__aud-label, .cover__aud-text) { color: #fff; }
 .cover--sign .cover__title { font-size: 25pt; line-height: 29pt; text-transform: uppercase; }
-.cover--sign :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.92); }
+.cover--sign :is(.cover__subtitle, .cover__desc, .cover__version) { color: #fff; }
 .cover--sign .cover__subtitle { font-size: 14pt; line-height: 18pt; }
 .cover--sign .cover__rule { background: linear-gradient(90deg, #fff, var(--doc-brand-gold)); }
 .cover--sign .cover__audience { top: auto; bottom: 9%; left: 137mm; right: 9mm; text-align: left; }
