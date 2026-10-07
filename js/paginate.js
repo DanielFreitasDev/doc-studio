@@ -293,9 +293,26 @@ function distribute(entries, headerHeights, capacityOf, splitText) {
 
   for (const page of pages) {
     if (page.kind !== 'content' || !page.atoms.length) continue;
-    page.overflowing = usedHeight({ atoms: page.atoms }, page.atoms.at(-1)) > page.capacity + 2;
+    const used = usedHeight({ atoms: page.atoms }, page.atoms.at(-1));
+    page.overflowing = used > page.capacity + 2;
+    page.fill = Math.round((used / page.capacity) * 100) / 100;
   }
   return pages.filter((page) => page.kind !== 'content' || page.atoms.length);
+}
+
+/* ------------------------------------------------------------------ aberturas de capítulo */
+// Margem inferior da abertura: o texto não pode descer além disso (a página não continua).
+const CHAPTER_BOTTOM_MM = 20;
+
+/** A introdução da abertura passa do pé da página? (A abertura é uma página só: o excesso seria cortado.) */
+function chapterOverflows(html, measureBody) {
+  measureBody.innerHTML = html;
+  const page = measureBody.querySelector('.page--chapter');
+  const content = page?.querySelector('.chapter__content');
+  const limit = page ? page.getBoundingClientRect().bottom - CHAPTER_BOTTOM_MM * PX_PER_MM : 0;
+  const overflow = Boolean(content) && content.getBoundingClientRect().bottom > limit + TOLERANCE;
+  measureBody.innerHTML = '';
+  return overflow;
 }
 
 /* ------------------------------------------------------------------ montagem final */
@@ -382,7 +399,11 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
     const idPrefix = `p${index}`;
     if (page.kind === 'cover') return renderCover(doc, assets, idPrefix);
     if (page.kind === 'back') return renderBackCover(doc, assets, idPrefix);
-    if (page.kind === 'chapter') return page.entry.build(idPrefix);
+    if (page.kind === 'chapter') {
+      const html = page.entry.build(idPrefix);
+      if (chapterOverflows(html, measureBody)) overflowBlocks.add(page.entry.blockId);
+      return html;
+    }
     return renderContentPage(doc, assets, {
       bodyHtml: fillToc(pageBodyHtml(page.atoms)),
       first: contentIndex++ === 0,
@@ -394,5 +415,7 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
     });
   });
 
-  return { pagesHtml, sectionPages, firstPageOfBlock, overflowBlocks };
+  // Ocupação de cada página de conteúdo (0–1), pelas medidas da paginação: vale mesmo com a prévia escondida.
+  const fills = sequence.map((page) => (page.kind === 'content' ? page.fill ?? 0 : null));
+  return { pagesHtml, sectionPages, firstPageOfBlock, overflowBlocks, fills };
 }

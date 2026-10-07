@@ -284,14 +284,8 @@ export function createPreview({ store, ui, assets, actions }) {
     return [...pagesEl.children].map((page, index) => {
       const kind = ['cover', 'back', 'chapter'].find((name) => page.classList.contains(`page--${name}`)) ?? 'content';
       const blocks = [...new Set([...page.querySelectorAll('[data-block-id]')].map((el) => el.dataset.blockId))];
-      const body = page.querySelector('.page__body');
-      let fill = null;
-      if (body) {
-        const top = body.getBoundingClientRect().top;
-        const height = body.getBoundingClientRect().height || 1;
-        const bottom = Math.max(top, ...[...body.children].map((el) => el.getBoundingClientRect().bottom));
-        fill = Math.round(((bottom - top) / height) * 100) / 100;
-      }
+      // Ocupação medida pela paginação (a página na tela mede zero com a prévia escondida).
+      const fill = layout?.fills?.[index] ?? null;
       const words = (page.textContent.match(/[\p{L}\p{N}]+/gu) ?? []).length;
       return {
         number: index + 1,
