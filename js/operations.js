@@ -243,7 +243,8 @@ export function applyOperations(doc, operations, { assetIds = null } = {}) {
   const changes = [];
   const warnings = [];
   for (const [index, op] of operations.entries()) {
-    const handler = HANDLERS[op?.op];
+    // Só operações do catálogo: "toString" ou "constructor" viriam do protótipo de Object.
+    const handler = typeof op?.op === 'string' && Object.hasOwn(HANDLERS, op.op) ? HANDLERS[op.op] : null;
     try {
       if (!handler) fail(`operação “${op?.op}” não existe. Use: ${Object.keys(HANDLERS).join(', ')}.`);
       changes.push(handler(draft, op, { doc: draft, assetIds, warnings }));
