@@ -31,6 +31,8 @@ const CONTENT_HEIGHT = {
 // Cabeçalho "timbrado" (assinatura centralizada do MIV) ocupa o topo da primeira página.
 const LETTERHEAD_OFFSET = PAGE_GEOMETRY.letterheadOffsetMm * PX_PER_MM;
 const TOLERANCE = 0.75;
+// Palavra mais longa que uma coluna de tabela garante sem partir (ver measureTableColumns).
+const MAX_WORD_MM = 40;
 // Controle de linhas viúvas e órfãs: um parágrafo dividido deixa ao menos 2 linhas em cada página.
 const MIN_LINES = 2;
 
@@ -57,12 +59,37 @@ function measureTableColumns(block, measureBody, cache, orientation) {
   measureBody.innerHTML = `<table class="b-table b-table--auto tone-navy"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
   const table = measureBody.firstElementChild;
   const total = table.getBoundingClientRect().width || 1;
-  const widths = [...table.querySelectorAll('th')].map((th) => Math.round((th.getBoundingClientRect().width / total) * 10000) / 100);
+  const columnWidths = () => [...table.querySelectorAll('th')].map((th) => th.getBoundingClientRect().width);
+  const proportional = columnWidths();
+  // Largura mínima de cada coluna: a maior palavra sem partir (tabela com largura zero = largura mínima),
+  // com 1 mm de folga para as bordas e o arredondamento em %. Palavras acima de 40 mm (endereços,
+  // códigos) podem quebrar: reservar a largura delas espremeria as outras colunas.
+  table.classList.add('b-table--min');
+  table.style.width = '0';
+  const minimums = columnWidths().map((width) => Math.min(width + PX_PER_MM, MAX_WORD_MM * PX_PER_MM, total / 3));
+  const widths = withMinimums(proportional, minimums, total).map((width) => Math.round((width / total) * 10000) / 100);
 
   setOrientation(measureBody, 'portrait');
   if (cache.size > 200) cache.clear();
   cache.set(key, widths);
   return widths;
+}
+
+/**
+ * Garante a cada coluna a sua largura mínima, tirando a diferença das colunas
+ * que têm folga, na proporção da folga. A medição automática distribui a
+ * largura pelo tamanho do conteúdo e podia deixar uma coluna curta mais
+ * estreita que a sua maior palavra ("Atendiment|o").
+ */
+function withMinimums(widths, minimums, total) {
+  const sumMin = minimums.reduce((sum, width) => sum + width, 0);
+  if (sumMin >= total) return minimums.map((width) => (width / sumMin) * total);
+  const raised = widths.map((width, i) => Math.max(width, minimums[i]));
+  const deficit = raised.reduce((sum, width) => sum + width, 0) - total;
+  if (deficit <= 0.5) return raised;
+  const slack = raised.map((width, i) => width - minimums[i]);
+  const totalSlack = slack.reduce((sum, value) => sum + value, 0);
+  return raised.map((width, i) => width - (slack[i] / totalSlack) * deficit);
 }
 
 /* ------------------------------------------------------------------ textos divididos */

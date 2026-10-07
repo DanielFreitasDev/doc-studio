@@ -59,6 +59,8 @@ export function renderInline(text) {
     return href ? `${keep(`<a href="${esc(href)}">`)}${label}${keep('</a>')}` : match;
   });
   for (const [pattern, replacement] of RULES) html = html.replace(pattern, replacement);
+  // "R$ 120,00" e "nº 12" não se separam no fim da linha (espaço não separável, como na revisão de texto).
+  html = html.replace(/(^|[\s(>])(R\$|[Nn][º°]) (?=\d)/g, '$1$2\u00A0');
   while (HAS_SLOT.test(html)) html = html.replace(SLOT, (_, index) => slots[Number(index)]);
   return html.replace(/\n/g, '<br>');
 }

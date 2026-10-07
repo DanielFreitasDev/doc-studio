@@ -523,6 +523,9 @@
   vertical-align: middle;
   overflow-wrap: anywhere;
 }
+.b-table :is(th, td).is-num { text-align: right; font-variant-numeric: tabular-nums; }
+/* Medição da maior palavra de cada coluna (js/paginate.js): sem partir palavras. */
+.b-table--min :is(th, td) { overflow-wrap: normal; }
 .b-table td:first-child { border-left: 0.5pt solid var(--doc-border); }
 .b-table td:last-child { border-right: 0.5pt solid var(--doc-border); }
 .b-table--zebra td { background: var(--doc-surface); }

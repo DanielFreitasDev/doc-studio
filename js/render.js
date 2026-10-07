@@ -69,6 +69,9 @@ function atom(block, className, inner, options = {}) {
   };
 }
 
+/** Célula numérica: algarismos com moeda, %, sinais e separadores ("R$ 1.200,00", "96%", "−3,5", "8 420"). */
+const NUMERIC_CELL = /^(?=.*\d)[\s\d.,%+\-−–()R$€º°/]+$/;
+
 /* ------------------------------------------------------------------ blocos */
 const RENDERERS = {
   section(block, ctx) {
@@ -288,15 +291,21 @@ const RENDERERS = {
 
   table(block, ctx) {
     const widths = ctx.tableColumns(block);
+    // Colunas só com números (valores, porcentagens, quantidades) alinham à direita, com algarismos de mesma largura.
+    const numeric = block.header.map((_, col) => {
+      const cells = block.rows.map((row) => stripMarkup(row[col] ?? '').trim()).filter(Boolean);
+      return cells.length > 0 && cells.every((cell) => NUMERIC_CELL.test(cell));
+    });
+    const numClass = (col) => (numeric[col] ? ' class="is-num"' : '');
     const colgroup = widths ? `<colgroup>${widths.map((w) => `<col style="width:${w}%">`).join('')}</colgroup>` : '';
     const tone = `tone-${block.tone}`;
-    const headerHtml = `<table class="b-table ${tone}">${colgroup}<thead><tr>${block.header.map((cell, col) => `<th${ed(`header.${col}`)}>${renderInline(cell)}</th>`).join('')}</tr></thead></table>`;
+    const headerHtml = `<table class="b-table ${tone}">${colgroup}<thead><tr>${block.header.map((cell, col) => `<th${numClass(col)}${ed(`header.${col}`)}>${renderInline(cell)}</th>`).join('')}</tr></thead></table>`;
     const header = atom(block, 'atom--table', headerHtml, { keep: true, group: true });
     const headerAtomHtml = header.html;
 
     const rows = block.rows.map((row, index) => {
       const zebra = block.zebra && index % 2 === 1 ? ' b-table--zebra' : '';
-      const cells = row.map((cell, col) => `<td${col === 0 && block.keyColumn ? ' class="is-key"' : ''}${ed(`rows.${index}.${col}`)}>${renderInline(cell)}</td>`).join('');
+      const cells = row.map((cell, col) => `<td${col === 0 && block.keyColumn ? ' class="is-key"' : numClass(col)}${ed(`rows.${index}.${col}`)}>${renderInline(cell)}</td>`).join('');
       const last = index === block.rows.length - 1 ? ' is-last' : '';
       return atom(block, `atom--table${last}`, `<table class="b-table ${tone}${zebra}">${colgroup}<tbody><tr>${cells}</tr></tbody></table>`,
         { group: true, repeatHeader: headerAtomHtml });
