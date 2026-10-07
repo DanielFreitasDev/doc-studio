@@ -7,6 +7,7 @@
  */
 import { esc, icon } from './utils.js';
 import { FORMATS } from './markup.js';
+import { richHtml, richMarkup } from './richtext.js';
 
 const idFor = (base, path) => `${base}-${path.replace(/[^\w-]/g, '-')}`;
 
@@ -18,31 +19,63 @@ function hint(field, id) {
   return field.hint ? `<p class="field__hint" id="${id}-hint">${esc(field.hint)}</p>` : '';
 }
 
-function richToolbar(id, labelText) {
-  // Barra com "tabindex móvel": uma só parada de Tab; as setas trocam de botão.
-  const buttons = Object.entries(FORMATS).map(([name, format], index) => {
+/** Botões da barra de formatação: os formatos do texto e o link. */
+export const TOOLBAR_FORMATS = [
+  ...Object.entries(FORMATS).map(([name, format]) => ({ name, label: format.label, icon: format.icon, key: format.key })),
+  { name: 'link', label: 'Link', icon: 'link', key: 'k' },
+];
+
+/** Barra com "tabindex móvel": uma só parada de Tab; as setas trocam de botão. */
+export function richToolbar(id, labelText) {
+  const buttons = TOOLBAR_FORMATS.map((format, index) => {
     const shortcut = format.key ? ` (Ctrl+${format.key.toUpperCase()})` : '';
-    return `<button type="button" class="icon-btn" data-format="${name}" data-target="${id}" aria-label="${format.label}${shortcut}" title="${format.label}${shortcut}" tabindex="${index === 0 ? 0 : -1}">${icon(format.icon)}</button>`;
+    const separator = format.name === 'highlight' || format.name === 'link' ? '<span class="rich__sep" aria-hidden="true"></span>' : '';
+    return `${separator}<button type="button" class="icon-btn" data-format="${format.name}" data-target="${id}" aria-pressed="false" aria-label="${format.label}${shortcut}" title="${format.label}${shortcut}" tabindex="${index === 0 ? 0 : -1}">${icon(format.icon)}</button>`;
   }).join('');
   return `<div class="rich__toolbar" role="toolbar" aria-label="Formatação: ${esc(labelText)}" aria-controls="${id}">${buttons}</div>`;
 }
 
+/**
+ * Campo de texto visual (js/richtext.js). `mode`: single (uma linha), multi
+ * (parágrafos) ou lines (um item por linha). Os de várias linhas têm a barra
+ * de formatação fixa; os de uma linha usam a barra flutuante da seleção.
+ */
+export function richArea(value, { id, path, mode, label: labelText, labelledBy, describedBy, placeholder, big, cell, rows }) {
+  const naming = labelledBy ? `aria-labelledby="${labelledBy}"` : `aria-label="${esc(labelText)}"`;
+  const classes = ['rich__area', big ? 'rich__area--title' : '', cell ? 'rich__area--cell' : '', value ? '' : 'is-empty'].filter(Boolean).join(' ');
+  return `<div class="${classes}" id="${id}" contenteditable="true" role="textbox" ${naming}${describedBy ? ` aria-describedby="${describedBy}"` : ''} aria-multiline="${mode !== 'single'}" data-path="${path}" data-rich="${mode}" spellcheck="true" enterkeyhint="${mode === 'single' ? 'next' : 'enter'}"${placeholder ? ` data-placeholder="${esc(placeholder)}"` : ''}${rows ? ` style="--rows:${rows}"` : ''}>${richHtml(value)}</div>`;
+}
+
+function richField(field, value, id, path, mode) {
+  const labelId = `${id}-label`;
+  const area = richArea(value, {
+    id, path, mode,
+    labelledBy: labelId,
+    describedBy: field.hint ? `${id}-hint` : '',
+    placeholder: field.placeholder,
+    big: field.big,
+    rows: mode === 'single' ? 0 : field.rows ?? 3,
+  });
+  return `
+    <div class="field">
+      <span class="field__label" id="${labelId}" data-rich-label="${id}">${esc(field.label)}</span>
+      <div class="rich rich--${mode}">${mode === 'single' ? '' : richToolbar(id, field.label)}${area}</div>
+      ${hint(field, id)}
+    </div>`;
+}
+
 const RENDER = {
   text(field, value, id, path) {
+    if (!field.plain) return richField(field, value, id, path, 'single');
     return `<div class="field">${label(id, field.label)}<input class="input${field.big ? ' input--title' : ''}" id="${id}" type="text" data-path="${path}" value="${esc(value)}"${field.placeholder ? ` placeholder="${esc(field.placeholder)}"` : ''}${field.plain ? ' data-plain' : ''} autocomplete="off" enterkeyhint="next"></div>`;
   },
 
   rich(field, value, id, path) {
-    return `
-      <div class="field">${label(id, field.label)}
-        <div class="rich">
-          ${richToolbar(id, field.label)}
-          <textarea class="textarea" id="${id}" data-path="${path}" data-rich rows="${field.rows ?? 3}"${field.placeholder ? ` placeholder="${esc(field.placeholder)}"` : ''}>${esc(value)}</textarea>
-        </div>
-      </div>`;
+    return richField(field, value, id, path, 'multi');
   },
 
   lines(field, value, id, path) {
+    if (!field.plain) return richField(field, value, id, path, 'lines');
     const described = field.hint ? ` aria-describedby="${id}-hint"` : '';
     return `<div class="field">${label(id, field.label)}<textarea class="textarea" id="${id}" data-path="${path}" rows="${field.rows ?? 3}"${described}>${esc(value)}</textarea>${hint(field, id)}</div>`;
   },
@@ -126,10 +159,10 @@ const RENDER = {
   table(field, _value, id, _path, context) {
     const { header, rows } = context.block;
     const headCells = header.map((cell, c) =>
-      `<th scope="col"><input data-path="header.${c}" value="${esc(cell)}" aria-label="Cabeçalho da coluna ${c + 1}" autocomplete="off"></th>`).join('');
+      `<th scope="col">${richArea(cell, { id: `${id}-h${c}`, path: `header.${c}`, mode: 'single', label: `Cabeçalho da coluna ${c + 1}`, cell: true })}</th>`).join('');
     const bodyRows = rows.map((row, r) => `
       <tr>
-        ${row.map((cell, c) => `<td><input data-path="rows.${r}.${c}" value="${esc(cell)}" aria-label="Linha ${r + 1}, coluna ${c + 1}" autocomplete="off"></td>`).join('')}
+        ${row.map((cell, c) => `<td>${richArea(cell, { id: `${id}-r${r}c${c}`, path: `rows.${r}.${c}`, mode: 'single', label: `Linha ${r + 1}, coluna ${c + 1}`, cell: true })}</td>`).join('')}
         <td class="row-tools"><button type="button" class="icon-btn icon-btn--sm icon-btn--danger" data-table-action="remove-row" data-index="${r}" aria-label="Remover linha ${r + 1}"${rows.length <= 1 ? ' disabled' : ''}>${icon('x')}</button></td>
       </tr>`).join('');
     const colTools = header.map((_, c) =>
@@ -176,6 +209,7 @@ export function fieldHtml(field, value, { idBase, path = field.key, context = {}
 
 /** Converte o valor de um controle para o tipo do campo. */
 export function readControlValue(control) {
+  if (control.dataset.rich) return richMarkup(control);
   if (control.type === 'checkbox') return control.checked;
   if (control.type === 'number' || control.type === 'range') {
     const number = Number(control.value);

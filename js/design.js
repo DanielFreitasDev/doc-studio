@@ -254,33 +254,34 @@ export function docAttributesHtml(design) {
 }
 
 /* ------------------------------------------------------------------ textos fixos */
+// Textos fixos são exibidos sem formatação (esc), por isso são campos simples (`plain`).
 export const META_GROUPS = [
   {
     title: 'Capa',
     fields: [
-      { key: 'kicker', kind: 'text', label: 'Chamada (acima do título)' },
-      { key: 'title', kind: 'lines', label: 'Título', rows: 2, hint: 'Use Enter para quebrar a linha.' },
-      { key: 'subtitle', kind: 'text', label: 'Subtítulo' },
-      { key: 'description', kind: 'text', label: 'Linha de apoio' },
-      { key: 'audienceLabel', kind: 'text', label: 'Rótulo do público', placeholder: 'Ex.: Para' },
-      { key: 'audience', kind: 'lines', label: 'Público', rows: 2 },
-      { key: 'version', kind: 'text', label: 'Versão e data' },
+      { key: 'kicker', kind: 'text', plain: true, label: 'Chamada (acima do título)' },
+      { key: 'title', kind: 'lines', plain: true, label: 'Título', rows: 2, hint: 'Use Enter para quebrar a linha.' },
+      { key: 'subtitle', kind: 'text', plain: true, label: 'Subtítulo' },
+      { key: 'description', kind: 'text', plain: true, label: 'Linha de apoio' },
+      { key: 'audienceLabel', kind: 'text', plain: true, label: 'Rótulo do público', placeholder: 'Ex.: Para' },
+      { key: 'audience', kind: 'lines', plain: true, label: 'Público', rows: 2 },
+      { key: 'version', kind: 'text', plain: true, label: 'Versão e data' },
     ],
   },
   {
     title: 'Cabeçalho das páginas',
     fields: [
-      { key: 'headerTitle', kind: 'text', label: 'Título (em destaque)' },
-      { key: 'headerSubtitle', kind: 'text', label: 'Complemento (em cor)' },
-      { key: 'headerRight', kind: 'text', label: 'Texto à direita' },
+      { key: 'headerTitle', kind: 'text', plain: true, label: 'Título (em destaque)' },
+      { key: 'headerSubtitle', kind: 'text', plain: true, label: 'Complemento (em cor)' },
+      { key: 'headerRight', kind: 'text', plain: true, label: 'Texto à direita' },
     ],
   },
   {
     title: 'Contracapa',
     fields: [
-      { key: 'backTitle', kind: 'text', label: 'Nome do órgão' },
-      { key: 'backText', kind: 'lines', label: 'Endereço e contatos', rows: 3 },
-      { key: 'backWeb', kind: 'text', label: 'Site e redes sociais', placeholder: 'Ex.: www.detran.ce.gov.br · @perfil do órgão' },
+      { key: 'backTitle', kind: 'text', plain: true, label: 'Nome do órgão' },
+      { key: 'backText', kind: 'lines', plain: true, label: 'Endereço e contatos', rows: 3 },
+      { key: 'backWeb', kind: 'text', plain: true, label: 'Site e redes sociais', placeholder: 'Ex.: www.detran.ce.gov.br · @perfil do órgão' },
     ],
   },
 ];

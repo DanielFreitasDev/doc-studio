@@ -32,6 +32,7 @@ const SHEET_QUERY = '(max-width: 559.98px)';
 
 /** Campos onde se digita texto (onde o toque longo deve manter a seleção nativa do sistema). */
 export function isTextField(element) {
+  if (element?.closest?.('[data-rich]')) return true;
   if (element instanceof HTMLTextAreaElement) return !element.readOnly && !element.disabled;
   return element instanceof HTMLInputElement && !element.readOnly && !element.disabled &&
     ['text', 'search', 'url', 'email', 'tel', ''].includes(element.type);

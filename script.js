@@ -25,7 +25,10 @@ import { applyDocAttributes, docAttributesHtml, DEFAULT_META, THEMES, COVERS, BA
 import { setupTooltips } from './js/tooltip.js';
 import { setupControls } from './js/controls.js';
 import { createContextMenu } from './js/contextmenu.js';
-import { textFieldItems, textMenuTitle, keys, writeClipboard } from './js/textmenu.js';
+import { textFieldItems, richFieldItems, textMenuTitle, keys, writeClipboard } from './js/textmenu.js';
+import { setupRichText, handleRichShortcut, editRichLink, richFieldOf } from './js/richtext.js';
+import { createQuickEdit } from './js/quickedit.js';
+import { setupFormatBar } from './js/formatbar.js';
 
 const appEl = $('#app');
 const isCompact = () => !matchMedia('(min-width: 760px)').matches;
@@ -456,6 +459,9 @@ async function main() {
   /* ================================================================ módulos */
   setupTooltips();
   setupControls();
+  // Campos de texto visuais: o desfazer do menu Editar do sistema usa o histórico do documento.
+  setupRichText({ onUndo: () => store.undo(), onRedo: () => store.redo() });
+  setupFormatBar();
 
   // Cores do tema do documento na interface (amostras "Cor do tema" e "Cor de apoio" do editor).
   function syncThemeColors() {
@@ -487,6 +493,8 @@ async function main() {
   });
   editor = createEditor({ store, ui, assets, actions, drag });
   preview = createPreview({ store, ui, assets, actions });
+  const quickEdit = createQuickEdit({ store, ui, actions });
+  actions.editInPage = (element) => quickEdit.editAt(element);
   const panels = createPanels({ store, ui, assets, actions, drag });
 
   imageInput.addEventListener('change', () => {
@@ -948,6 +956,11 @@ async function main() {
   // Ordem: o primeiro provedor que reconhecer o elemento monta o menu. Onde
   // nenhum reconhece, fica o menu do navegador (e Shift + botão direito sempre o abre).
   const contextMenu = createContextMenu({ isBusy: () => drag.dragging });
+  // Edição direta na página: o texto do campo flutuante.
+  contextMenu.register((target) => {
+    const rich = quickEdit.contains(target) ? richFieldOf(target) : null;
+    return rich ? { title: textMenuTitle(rich), icon: 'pen', items: richFieldItems(rich, { notify }), footer: 'Shift + botão direito abre o menu do navegador' } : null;
+  });
   contextMenu.register((target) => editor.contextMenu(target));
   contextMenu.register((target) => preview.contextMenu(target));
   contextMenu.register((target, context) => panels.contextMenu(target, context));
@@ -986,6 +999,9 @@ async function main() {
 
   /* ================================================================ atalhos de teclado */
   document.addEventListener('keydown', (event) => {
+    if (event.defaultPrevented) return;
+    // Ctrl+B/I/U e Ctrl+K (link) dentro de um texto: formatação, não os atalhos do app.
+    if (handleRichShortcut(event, { onLink: editRichLink })) return;
     const mod = event.ctrlKey || event.metaKey;
     const key = event.key.toLowerCase();
     const inDialog = Boolean(event.target.closest?.('dialog'));

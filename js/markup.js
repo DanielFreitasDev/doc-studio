@@ -1,34 +1,64 @@
 /**
  * Formatação inline simples (subconjunto de Markdown) usada em todos os textos.
  *
- * Por que não usar contenteditable/HTML livre: o usuário escreve em campos de
- * texto comuns e marca trechos com **negrito**, *itálico*, `código`,
- * ==destaque== e ~~riscado~~. O texto é sempre escapado ANTES de virar HTML,
- * então nenhum conteúdo digitado ou importado consegue injetar marcação.
+ * O documento guarda o texto com marcações (**negrito**, *itálico*,
+ * ++sublinhado++, `código`, ==destaque==, ~~riscado~~ e [link](https://…)).
+ * O usuário não precisa conhecê-las: os campos do editor são visuais
+ * (js/richtext.js) e convertem o que se vê nessas marcações. O texto é sempre
+ * escapado ANTES de virar HTML, então nenhum conteúdo digitado, colado ou
+ * importado consegue injetar marcação. Uma barra invertida mantém o caractere
+ * literal (\* mostra um asterisco).
  */
 import { esc } from './utils.js';
 
+/** Caracteres que uma barra invertida torna literais. */
+const ESCAPABLE = /\\([\\*_`=~+[\]])/g;
+// Marcadores internos (área de uso privado do Unicode) para trechos já prontos.
+const SLOT = /\uE000(\d+)\uE001/g;
+const HAS_SLOT = /\uE000\d+\uE001/;
+
 const RULES = [
-  [/`([^`\n]+)`/g, '<code>$1</code>'],
   [/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>'],
   [/==([^=\n]+?)==/g, '<mark>$1</mark>'],
   [/~~([^~\n]+?)~~/g, '<s>$1</s>'],
-  [/(^|[^*\w])\*([^*\s][^*\n]*?)\*(?!\w)/g, '$1<em>$2</em>'],
+  [/\+\+(?=\S)([^+\n]*?\S)\+\+/g, '<u>$1</u>'],
+  [/\*([^\s*](?:[^*\n]*?[^\s*])?)\*/g, '<em>$1</em>'],
   [/(^|[^_\w])_([^_\s][^_\n]*?)_(?!\w)/g, '$1<em>$2</em>'],
 ];
 
+/** Endereço aceito em links: só web, e-mail e telefone (nada de javascript: ou data:). */
+export function safeUrl(url) {
+  const value = String(url ?? '').trim();
+  if (/^(https?:\/\/|mailto:|tel:)[^\s"'<>]+$/i.test(value)) return value;
+  if (/^www\.[^\s"'<>]+$/i.test(value)) return `https://${value}`;
+  return '';
+}
+
 /** Converte o texto do usuário em HTML seguro com formatação inline e quebras de linha. */
 export function renderInline(text) {
-  let html = esc(text ?? '');
+  const slots = [];
+  const keep = (html) => `\uE000${slots.push(html) - 1}\uE001`;
+  let html = String(text ?? '').replace(/[\uE000\uE001]/g, '').replace(ESCAPABLE, (_, char) => keep(esc(char)));
+  html = esc(html);
+  html = html.replace(/`([^`\n]+)`/g, (_, code) => keep(`<code>${code}</code>`));
+  // Link: a URL fica guardada (as regras seguintes não podem mexer nela) e o texto do link continua formatável.
+  html = html.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, (match, label, url) => {
+    const href = safeUrl(url.replaceAll('&amp;', '&'));
+    return href ? `${keep(`<a href="${esc(href)}">`)}${label}${keep('</a>')}` : match;
+  });
   for (const [pattern, replacement] of RULES) html = html.replace(pattern, replacement);
+  while (HAS_SLOT.test(html)) html = html.replace(SLOT, (_, index) => slots[Number(index)]);
   return html.replace(/\n/g, '<br>');
 }
 
+const ENTITIES = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
+
 /** Texto sem marcações (para resumos, títulos de arquivo e sumário). */
 export function stripMarkup(text) {
-  return String(text ?? '')
-    .replace(/\*\*|==|~~|`/g, '')
-    .replace(/(^|\s)[*_]([^*_]+)[*_]/g, '$1$2')
+  return renderInline(text)
+    .replace(/<br>/g, ' ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&(?:amp|lt|gt|quot|#39);/g, (entity) => ENTITIES[entity])
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -36,9 +66,10 @@ export function stripMarkup(text) {
 export const FORMATS = {
   bold: { marker: '**', label: 'Negrito', icon: 'bold', key: 'b' },
   italic: { marker: '*', label: 'Itálico', icon: 'italic', key: 'i' },
-  code: { marker: '`', label: 'Texto de tela', icon: 'code' },
-  highlight: { marker: '==', label: 'Destaque', icon: 'highlight' },
+  underline: { marker: '++', label: 'Sublinhado', icon: 'underline', key: 'u' },
   strike: { marker: '~~', label: 'Riscado', icon: 'strike' },
+  highlight: { marker: '==', label: 'Destaque', icon: 'highlight' },
+  code: { marker: '`', label: 'Texto de tela', icon: 'code' },
 };
 
 const WORD_CHAR = /[\p{L}\p{N}_-]/u;
@@ -136,6 +167,7 @@ export function toggleFormat(field, formatName) {
 /** Marcações completas (pares) — usadas para remover a formatação de um trecho. */
 const PAIRS = [
   [/`([^`\n]+)`/g, '$1'],
+  [/\+\+(?=\S)([^+\n]*?\S)\+\+/g, '$1'],
   [/\*\*([^*\n]+?)\*\*/g, '$1'],
   [/==([^=\n]+?)==/g, '$1'],
   [/~~([^~\n]+?)~~/g, '$1'],

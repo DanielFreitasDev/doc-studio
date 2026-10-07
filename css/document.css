@@ -272,6 +272,11 @@
   .pages .atom:hover { outline: 0.3mm solid color-mix(in srgb, var(--doc-primary) 50%, transparent); outline-offset: 1.2mm; cursor: pointer; }
   .pages .atom.is-selected:hover { outline-style: dashed; }
 }
+/* Trechos editáveis direto na página: cursor de texto e realce discreto. */
+@media (hover: hover) {
+  .pages :is([data-edit], [data-edit-meta]):hover { cursor: text; text-decoration: underline dashed color-mix(in srgb, var(--doc-primary) 55%, transparent); text-decoration-thickness: 0.25mm; text-underline-offset: 0.8mm; }
+}
+.pages .is-quick-editing { outline: 0.5mm solid var(--doc-primary); outline-offset: 0.8mm; border-radius: 0.6mm; }
 .pages .atom.drop-target-before { box-shadow: 0 -1.2mm 0 -0.4mm var(--doc-primary); }
 .pages .atom.drop-target-after { box-shadow: 0 1.2mm 0 -0.4mm var(--doc-primary); }
 
@@ -293,6 +298,9 @@
 .doc code { font-family: 'DejaVu Sans Mono', ui-monospace, monospace; font-size: 0.82em; color: var(--doc-code); background: none; padding: 0; }
 .doc mark { background: var(--doc-accent-soft); color: var(--doc-accent-strong); padding: 0 0.6mm; border-radius: 0.6mm; }
 .doc s { text-decoration-thickness: 0.25mm; }
+.doc u { text-decoration-thickness: 0.2mm; text-underline-offset: 0.5mm; }
+/* Links: cor escura do tema, sublinhados (no PDF continuam clicáveis). */
+.doc a { color: var(--doc-primary-strong); text-decoration: underline; text-decoration-thickness: 0.2mm; text-underline-offset: 0.5mm; overflow-wrap: anywhere; }
 
 /* ---------------------------------------------------------------- parágrafos */
 .b-p {

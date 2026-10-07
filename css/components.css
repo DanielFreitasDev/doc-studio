@@ -699,12 +699,54 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 .field-row { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); }
 
 /* Barra de formatação acima dos textos ricos */
-.rich { display: grid; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); overflow: hidden; }
+/* Campo de texto visual (js/richtext.js): contenteditable com aparência de campo. */
+.rich { display: grid; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); overflow: hidden; transition: border-color var(--dur-fast), box-shadow var(--dur-fast), background-color var(--dur-fast); }
+.rich:hover { border-color: var(--border-strong); }
 .rich:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent); background: var(--surface); }
-.rich .textarea { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
-.rich__toolbar { display: flex; flex-wrap: wrap; gap: 2px; padding: 2px; border-bottom: 1px solid var(--border); }
+.rich__toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; padding: 2px; border-bottom: 1px solid var(--border); }
 .rich__toolbar .icon-btn { width: 34px; height: 34px; }
 .rich__toolbar .icon { width: 17px; height: 17px; }
+.rich__toolbar [aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-soft-text); }
+.rich__sep { width: 1px; align-self: stretch; margin: 6px 3px; background: var(--border); }
+.rich__area {
+  position: relative;
+  min-height: max(38px, calc(var(--rows, 1) * 1.5em + 2 * var(--space-2)));
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-3);
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: text;
+  outline: none;
+}
+.rich--single .rich__area { max-height: none; }
+.rich__area--title { font-size: var(--text-lg); font-weight: 600; }
+.rich__area.is-empty::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  inset: var(--space-2) var(--space-3) auto;
+  color: var(--text-subtle);
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Formatação visível enquanto se edita (a do documento fica em css/document.css). */
+.rich__area :is(b, strong) { font-weight: 700; }
+.rich__area--title :is(b, strong) { font-weight: 800; }
+.rich__area :is(i, em) { font-style: italic; }
+.rich__area u { text-decoration: underline; text-underline-offset: 0.15em; }
+.rich__area s { text-decoration: line-through; }
+.rich__area mark { background: color-mix(in srgb, #f59c00 26%, transparent); color: inherit; border-radius: 3px; padding: 0 2px; }
+.rich__area code { font-family: var(--font-mono); font-size: 0.9em; color: var(--focus); }
+.rich__area a { color: var(--primary); text-decoration: underline; text-underline-offset: 0.15em; cursor: text; }
+
+.field__error { font-size: var(--text-xs); font-weight: 500; color: var(--danger); }
+.input[aria-invalid="true"] { border-color: var(--danger); }
+.btn--danger-text { color: var(--danger); }
+.btn--danger-text:hover:not(:disabled) { background: var(--danger-soft); }
 
 /* Interruptor (checkbox com role="switch") */
 .switch {
@@ -778,17 +820,16 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 .table-editor tr > :first-child { border-left: 0; }
 .table-editor tr > :last-child { border-right: 0; }
 .table-editor thead th { background: var(--surface-3); }
-.table-editor input {
-  width: 100%;
+.table-editor .rich__area--cell {
   min-width: 120px;
   min-height: 38px;
-  padding: var(--space-1) var(--space-2);
-  border: 0;
-  background: transparent;
+  max-height: none;
+  padding: var(--space-2);
   font-size: var(--text-sm);
+  line-height: 1.4;
 }
-.table-editor thead input { font-weight: 600; }
-.table-editor input:focus { outline: 2px solid var(--focus); outline-offset: -2px; background: var(--surface); }
+.table-editor thead .rich__area--cell { font-weight: 600; }
+.table-editor .rich__area--cell:focus { outline: 2px solid var(--focus); outline-offset: -2px; background: var(--surface); }
 .table-editor .row-tools, .table-editor .col-tools { width: 1%; white-space: nowrap; background: var(--surface); }
 .table-editor .col-tools { text-align: center; }
 .table-editor__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
@@ -1498,3 +1539,44 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 
 /* Troca de modo de visualização (View Transitions, quando o navegador suporta). */
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 220ms; animation-timing-function: var(--ease); }
+
+/* ---------------------------------------------------------------- edição direta na página (js/quickedit.js) */
+.quick-edit {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-3);
+  max-height: calc(100dvh - 16px);
+  overflow: auto;
+}
+.quick-edit:popover-open { animation: pop-in var(--dur-med) var(--ease); }
+.quick-edit__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--text-xs); color: var(--text-muted); }
+.quick-edit__title strong { color: var(--text); font-weight: 600; }
+.quick-edit__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-2); }
+.quick-edit__hint { margin-right: auto; font-size: var(--text-xs); color: var(--text-subtle); }
+.quick-edit .rich__area { max-height: 40vh; }
+
+/* ---------------------------------------------------------------- barra flutuante de formatação (js/formatbar.js) */
+.format-bubble {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-2);
+}
+.format-bubble:popover-open { animation: pop-in var(--dur-fast) var(--ease); }
+.format-bubble .icon-btn { width: 32px; height: 32px; }
+.format-bubble [aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-soft-text); }

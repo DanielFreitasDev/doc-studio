@@ -5,6 +5,7 @@
  * - avisos temporários ("toasts") anunciados por aria-live.
  */
 import { $, $$ } from './utils.js';
+import { safeUrl } from './markup.js';
 
 const supportsPopover = typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype;
 
@@ -76,6 +77,50 @@ export function confirmDialog({ title = 'Confirmar', message, confirmLabel = 'Co
   ok.className = `btn ${danger ? 'btn--danger' : 'btn--primary'}`;
   return new Promise((resolve) => {
     openDialog(dialog, { onClose: (value) => resolve(value === 'confirm') });
+  });
+}
+
+/**
+ * Pede o endereço de um link. Resolve com { url } (aplicar), { remove: true }
+ * ou null (cancelado). O endereço é validado antes de fechar (só web, e-mail
+ * e telefone), com a mensagem no próprio campo, sem o balão do navegador.
+ */
+export function linkDialog({ url = '' } = {}) {
+  const dialog = $('#link-dialog');
+  const input = $('#link-url');
+  const error = $('#link-error');
+  $('#link-title').textContent = url ? 'Editar link' : 'Inserir link';
+  $('#link-remove').hidden = !url;
+  input.value = url;
+  error.hidden = true;
+  input.removeAttribute('aria-invalid');
+  return new Promise((resolve) => {
+    const onSubmit = (event) => {
+      if (event.submitter?.value !== 'confirm') return;
+      if (safeUrl(input.value)) return;
+      event.preventDefault();
+      error.hidden = false;
+      input.setAttribute('aria-invalid', 'true');
+      input.focus();
+    };
+    // Enter no campo aplica (o primeiro botão do formulário é "Remover link").
+    const onKey = (event) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      $('#link-dialog form').requestSubmit($('#link-confirm'));
+    };
+    dialog.addEventListener('submit', onSubmit);
+    input.addEventListener('keydown', onKey);
+    openDialog(dialog, {
+      onClose(value) {
+        dialog.removeEventListener('submit', onSubmit);
+        input.removeEventListener('keydown', onKey);
+        if (value === 'confirm') resolve({ url: safeUrl(input.value) });
+        else if (value === 'remove') resolve({ remove: true });
+        else resolve(null);
+      },
+    });
+    requestAnimationFrame(() => { input.focus(); input.select(); });
   });
 }
 

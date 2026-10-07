@@ -9,11 +9,12 @@
 import { $, $$, esc, icon, getByPath, setByPath, moveItem, clamp } from './utils.js';
 import { BLOCK_TYPES, blockSummary } from './schema.js';
 import { fieldHtml, readControlValue } from './fields.js';
-import { toggleFormat, FORMATS } from './markup.js';
 import { setupMenu } from './dialogs.js';
 import { isAcceptedImage } from './images.js';
-import { isTextField } from './contextmenu.js';
-import { textFieldItems, textMenuTitle } from './textmenu.js';
+import { textFieldItems, richFieldItems, textMenuTitle } from './textmenu.js';
+import {
+  richFieldOf, toggleRichFormat, editRichLink, getRichSelection, isDiscreteEdit, setRichSelection, setRichValue,
+} from './richtext.js';
 
 export function createEditor({ store, ui, assets, actions, drag }) {
   const list = $('#editor-list');
@@ -70,7 +71,8 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       id: card.dataset.blockId,
       path: active.dataset.path,
       action: active.dataset.action ?? (active.matches('[data-drag-handle]') ? 'drag' : null),
-      selection: 'selectionStart' in active && active.type !== 'number' ? [active.selectionStart, active.selectionEnd] : null,
+      selection: active.dataset.rich ? getRichSelection(active)
+        : 'selectionStart' in active && active.type !== 'number' ? [active.selectionStart, active.selectionEnd] : null,
     };
   }
 
@@ -84,7 +86,9 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     else if (snapshot.action) target = card.querySelector(`[data-action="${snapshot.action}"]`);
     if (!target) return;
     target.focus({ preventScroll: true });
-    if (snapshot.selection && 'setSelectionRange' in target) {
+    if (snapshot.selection && target.dataset.rich) {
+      try { setRichSelection(target, snapshot.selection); } catch { /* conteúdo mudou de tamanho */ }
+    } else if (snapshot.selection && 'setSelectionRange' in target) {
       try { target.setSelectionRange(...snapshot.selection); } catch { /* campo sem seleção de texto */ }
     }
   }
@@ -148,15 +152,18 @@ export function createEditor({ store, ui, assets, actions, drag }) {
 
     const block = findBlock(store.doc, id);
     const value = coerce(block, path, control);
+    const discrete = isDiscreteEdit(event);
+    if (discrete) store.breakCoalescing();
     store.update((doc) => setByPath(findBlock(doc, id), path, value), {
       kind: 'content',
       blockId: id,
-      coalesce: control.type === 'text' || control.tagName === 'TEXTAREA' ? `${id}:${path}` : null,
+      path,
+      coalesce: !discrete && (control.type === 'text' || control.tagName === 'TEXTAREA' || control.dataset.rich) ? `${id}:${path}` : null,
     });
     card.querySelector('.block-card__summary').textContent = blockSummary(findBlock(store.doc, id));
 
     // "/" num parágrafo vazio abre o seletor para transformar o bloco.
-    if (block.type === 'paragraph' && path === 'text' && control.value === '/') {
+    if (block.type === 'paragraph' && path === 'text' && value === '/') {
       actions.openPicker(control, { convertId: id });
     }
   });
@@ -241,7 +248,7 @@ export function createEditor({ store, ui, assets, actions, drag }) {
 
   /** Colar várias células (Excel, Word, Planilhas) preenche a tabela a partir da célula atual. */
   list.addEventListener('paste', (event) => {
-    const input = event.target.closest('.table-editor input[data-path]');
+    const input = event.target.closest?.('.table-editor [data-path]') ?? event.target.parentElement?.closest('.table-editor [data-path]');
     if (!input) return;
     const text = event.clipboardData?.getData('text/plain') ?? '';
     if (!/[\t\n]/.test(text.trim())) return;
@@ -282,7 +289,9 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     const id = card.dataset.blockId;
 
     if (button.dataset.format) {
-      toggleFormat(document.getElementById(button.dataset.target), button.dataset.format);
+      const field = document.getElementById(button.dataset.target);
+      if (button.dataset.format === 'link') editRichLink(field);
+      else toggleRichFormat(field, button.dataset.format);
       return;
     }
     if (button.dataset.itemAction) return handleItemAction(button, id);
@@ -340,26 +349,12 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       return;
     }
 
-    // Barra de formatação: setas trocam de botão (tabindex móvel).
-    const toolbar = event.target.closest('.rich__toolbar');
-    if (toolbar && (event.key === 'ArrowRight' || event.key === 'ArrowLeft')) {
-      const buttons = $$('button', toolbar);
-      const index = buttons.indexOf(event.target);
-      const next = buttons[(index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length];
-      buttons.forEach((button) => { button.tabIndex = button === next ? 0 : -1; });
-      next.focus();
-      event.preventDefault();
-      return;
-    }
 
-    // Ctrl+B / Ctrl+I nos campos que aceitam formatação (os "data-plain" mostrariam os asteriscos).
-    if ((event.ctrlKey || event.metaKey) && !event.altKey && isTextField(event.target) && !event.target.matches('[data-plain]')) {
-      const format = Object.entries(FORMATS).find(([, f]) => f.key === event.key.toLowerCase());
-      if (format) {
-        event.preventDefault();
-        toggleFormat(event.target, format[0]);
-      }
-    }
+  });
+
+  // Os botões da barra de formatação não tiram o foco do texto (a seleção continua visível).
+  list.addEventListener('pointerdown', (event) => {
+    if (event.target.closest('.rich__toolbar button')) event.preventDefault();
   });
 
   /* ---------------------------------------------------------------- seleção */
@@ -469,13 +464,16 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     const block = findBlock(store.doc, id);
     if (!block) return null;
     const definition = BLOCK_TYPES[block.type];
-    const field = isTextField(target) && target.matches('[data-path]') ? target : null;
-    const cell = target.closest('.table-editor td, .table-editor th')?.querySelector('input[data-path]') ?? null;
+    const rich = richFieldOf(target);
+    const plainField = target.matches('input[data-path], textarea[data-path]') && !target.readOnly ? target : null;
+    const field = rich ?? plainField;
+    const cell = target.closest('.table-editor td, .table-editor th')?.querySelector('[data-path]') ?? null;
     const itemEl = target.closest('.item');
     const blockItems = actions.blockMenuItems(id, { anchor: card.querySelector('.block-card__head'), origin: 'editor' });
     const items = [];
 
-    if (field) items.push(...textFieldItems(field, { formats: !field.matches('[data-plain]'), notify: actions.notify }));
+    if (rich) items.push(...richFieldItems(rich, { notify: actions.notify }));
+    else if (plainField) items.push(...textFieldItems(plainField, { formats: false, notify: actions.notify }));
     if (cell) items.push({ separator: true }, ...tableItems(id, cell));
     if (itemEl) {
       const item = itemItems(id, itemEl);
@@ -494,9 +492,22 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     };
   }
 
+  /** Mostra no cartão um texto alterado em outro lugar (edição direta na página da prévia). */
+  function syncControl(id, path) {
+    const card = cardOf(id);
+    const block = findBlock(store.doc, id);
+    if (!card || !block) return;
+    const control = card.querySelector(`[data-path="${CSS.escape(path)}"]`);
+    const value = getByPath(block, path) ?? '';
+    if (control?.dataset.rich) setRichValue(control, value);
+    else if (control && 'value' in control && control.value !== value) control.value = value;
+    card.querySelector('.block-card__summary').textContent = blockSummary(block);
+  }
+
   /* ---------------------------------------------------------------- reações ao estado */
   store.subscribe((doc, change) => {
     if (change.kind === 'replace' || change.kind === 'structure') render();
+    else if (change.kind === 'content' && change.source === 'quick') syncControl(change.blockId, change.path);
     else if (change.kind === 'block') {
       // renderCard é chamado por quem originou a mudança (com o foco certo);
       // aqui só garante consistência se a mudança veio de outro lugar.

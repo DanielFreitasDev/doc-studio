@@ -130,6 +130,8 @@ export function createPreview({ store, ui, assets, actions }) {
   }
 
   pagesEl.addEventListener('click', (event) => {
+    // Links da página não navegam na prévia (no PDF continuam clicáveis).
+    if (event.target.closest('a[href]')) event.preventDefault();
     const atom = event.target.closest('.atom[data-block-id]');
     if (atom) {
       actions.select(atom.dataset.blockId, { source: 'preview', revealEditor: true });
@@ -140,6 +142,11 @@ export function createPreview({ store, ui, assets, actions }) {
   });
 
   pagesEl.addEventListener('dblclick', (event) => {
+    // Duplo clique num texto: edição direta na página (js/quickedit.js).
+    if (actions.editInPage?.(event.target)) {
+      event.preventDefault();
+      return;
+    }
     const atom = event.target.closest('.atom[data-block-id]');
     if (atom) actions.select(atom.dataset.blockId, { source: 'preview', revealEditor: true, focus: true });
   });
@@ -196,17 +203,23 @@ export function createPreview({ store, ui, assets, actions }) {
       ? [{ label: 'Copiar', icon: 'copy', shortcut: keys('Ctrl+C'), run: () => writeClipboard(selected) }, { separator: true }]
       : [];
 
+    // Texto da página: edição direta (o mesmo do duplo clique).
+    const editable = target.closest('[data-edit], [data-edit-meta]');
+    const edit = editable
+      ? [{ label: 'Editar este texto aqui', icon: 'pen', shortcut: 'Duplo clique', run: () => actions.editInPage(editable) }, { separator: true }]
+      : [];
+
     const atom = target.closest('.atom[data-block-id]');
     const block = atom && store.doc.blocks.find((b) => b.id === atom.dataset.blockId);
     if (block) {
       const definition = BLOCK_TYPES[block.type];
       actions.select(block.id, { source: 'preview' });
-      return { title: definition.label, icon: definition.icon, items: [...copy, ...actions.blockMenuItems(block.id, { anchor: atom, origin: 'preview' })] };
+      return { title: definition.label, icon: definition.icon, items: [...copy, ...edit, ...actions.blockMenuItems(block.id, { anchor: atom, origin: 'preview' })] };
     }
 
     const region = regionOf(target);
     const part = region && actions.designMenu(region);
-    if (part) return { ...part, items: [...copy, ...part.items] };
+    if (part) return { ...part, items: [...copy, ...edit, ...part.items] };
 
     const page = target.closest('.page[data-index]');
     return {

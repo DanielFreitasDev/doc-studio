@@ -19,6 +19,9 @@ const toneClass = (tone, index = 0) => `tone-${tone === 'alternate' ? ALTERNATE_
 const calloutTone = (value) => CALLOUT_TONES.find((t) => t.value === value)?.tone ?? 'navy';
 const nonEmptyLines = (text) => String(text ?? '').split('\n').map((line) => line.trim()).filter(Boolean);
 const paragraphs = (text) => String(text ?? '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+/** Campo de origem de um trecho: permite editar o texto direto na página (js/quickedit.js). */
+const ed = (path) => ` data-edit="${path}"`;
+const edMeta = (key) => ` data-edit-meta="${key}"`;
 
 /** Escala de cinza (MIV p. 12): sufixo dos arquivos de assinatura e cores do grafismo. */
 const isGray = (design) => design.colorMode === 'gray';
@@ -71,9 +74,9 @@ const RENDERERS = {
     const num = number ? pad2(number) : '';
     const showKicker = block.kicker || (num && ctx.design.sectionStyle !== 'number');
     const kicker = showKicker
-      ? `<p class="b-section__kicker">${num ? `<span class="b-section__num">${num}</span><span class="b-section__dot"> . </span>` : ''}<span>${esc(block.kicker)}</span></p>`
+      ? `<p class="b-section__kicker">${num ? `<span class="b-section__num">${num}</span><span class="b-section__dot"> . </span>` : ''}<span${ed('kicker')}>${esc(block.kicker)}</span></p>`
       : '';
-    const intro = paragraphs(block.intro).map((text) => `<p class="b-p b-p--lead b-section__intro">${renderInline(text)}</p>`).join('');
+    const intro = paragraphs(block.intro).map((text) => `<p class="b-p b-p--lead b-section__intro"${ed('intro')}>${renderInline(text)}</p>`).join('');
 
     if (block.opener) {
       // Página inteira de abertura: o título não se repete na página de conteúdo.
@@ -88,8 +91,8 @@ const RENDERERS = {
             ${chapterArt(idPrefix, style)}
             <div class="chapter__content atom" data-block-id="${esc(block.id)}">
               ${num ? `<p class="chapter__num">${num}</p>` : ''}
-              ${block.kicker ? `<p class="chapter__kicker">${esc(block.kicker)}</p>` : ''}
-              <h2 class="chapter__title">${renderInline(block.title)}</h2>
+              ${block.kicker ? `<p class="chapter__kicker"${ed('kicker')}>${esc(block.kicker)}</p>` : ''}
+              <h2 class="chapter__title"${ed('title')}>${renderInline(block.title)}</h2>
               <span class="chapter__rule"></span>
               ${intro.replaceAll('b-section__intro', 'chapter__intro')}
             </div>
@@ -101,7 +104,7 @@ const RENDERERS = {
       <div class="b-section">
         ${num ? `<span class="b-section__bignum">${num}</span>` : ''}
         ${kicker}
-        <h2 class="b-section__title">${renderInline(block.title)}</h2>
+        <h2 class="b-section__title"${ed('title')}>${renderInline(block.title)}</h2>
         <span class="b-section__rule"></span>
         ${intro}
       </div>`;
@@ -115,13 +118,13 @@ const RENDERERS = {
     // h2 = título de seção; subtítulos ficam abaixo dele na hierarquia.
     const level = block.level === '3' ? 3 : 2;
     const tag = level === 3 ? 'h4' : 'h3';
-    return [atom(block, `atom--h${level}`, `<${tag} class="b-h${level}">${renderInline(block.text)}</${tag}>`, { keep: true })];
+    return [atom(block, `atom--h${level}`, `<${tag} class="b-h${level}"${ed('text')}>${renderInline(block.text)}</${tag}>`, { keep: true })];
   },
 
   paragraph(block) {
     // Parágrafos podem ser divididos por linha entre páginas (ver js/paginate.js).
     return paragraphs(block.text).map((text) => ({
-      ...atom(block, `atom--p atom--p-${block.style}`, `<p class="b-p b-p--${block.style}">${renderInline(text)}</p>`),
+      ...atom(block, `atom--p atom--p-${block.style}`, `<p class="b-p b-p--${block.style}"${ed('text')}>${renderInline(text)}</p>`),
       splittable: true,
     }));
   },
@@ -132,18 +135,18 @@ const RENDERERS = {
       const mark = block.style === 'ordered' ? `${index + 1}.` : block.style === 'check' ? CHECK_SVG : '•';
       const last = index === items.length - 1 ? ' is-last' : '';
       return atom(block, `atom--li${last}`,
-        `<div class="b-li b-li--${block.style}"><span class="b-li__mark" aria-hidden="true">${mark}</span><span>${renderInline(text)}</span></div>`);
+        `<div class="b-li b-li--${block.style}"><span class="b-li__mark" aria-hidden="true">${mark}</span><span${ed('items')}>${renderInline(text)}</span></div>`);
     });
   },
 
   quote(block) {
-    const author = block.author ? `<p class="b-quote__author">${esc(block.author)}</p>` : '';
-    return [atom(block, 'atom--quote', `<blockquote class="b-quote"><p class="b-quote__text">${renderInline(block.text)}</p>${author}</blockquote>`)];
+    const author = block.author ? `<p class="b-quote__author"${ed('author')}>${esc(block.author)}</p>` : '';
+    return [atom(block, 'atom--quote', `<blockquote class="b-quote"><p class="b-quote__text"${ed('text')}>${renderInline(block.text)}</p>${author}</blockquote>`)];
   },
 
   steps(block) {
     const atoms = [];
-    if (block.title) atoms.push(atom(block, 'atom--h3 atom--steps-title', `<h3 class="b-h3">${renderInline(block.title)}</h3>`, { keep: true }));
+    if (block.title) atoms.push(atom(block, 'atom--h3 atom--steps-title', `<h3 class="b-h3"${ed('title')}>${renderInline(block.title)}</h3>`, { keep: true }));
     const tone = toneClass(block.tone);
     block.items.forEach((item, index) => {
       const last = index === block.items.length - 1 ? ' is-last' : '';
@@ -151,8 +154,8 @@ const RENDERERS = {
         <div class="b-step ${tone}${last}">
           <span class="b-step__n">${block.start + index}</span>
           <div>
-            ${item.title ? `<p class="b-step__t">${renderInline(item.title)}</p>` : ''}
-            ${item.text ? `<p class="b-step__b">${renderInline(item.text)}</p>` : ''}
+            ${item.title ? `<p class="b-step__t"${ed(`items.${index}.title`)}>${renderInline(item.title)}</p>` : ''}
+            ${item.text ? `<p class="b-step__b"${ed(`items.${index}.text`)}>${renderInline(item.text)}</p>` : ''}
           </div>
         </div>`));
     });
@@ -170,8 +173,8 @@ const RENDERERS = {
           <div class="b-card ${toneClass(block.tone, index)}${marker ? '' : ' b-card--plain'}">
             ${badge}
             <div>
-              ${item.title ? `<p class="b-card__t">${renderInline(item.title)}</p>` : ''}
-              ${item.text ? `<p class="b-card__b">${renderInline(item.text)}</p>` : ''}
+              ${item.title ? `<p class="b-card__t"${ed(`items.${index}.title`)}>${renderInline(item.title)}</p>` : ''}
+              ${item.text ? `<p class="b-card__b"${ed(`items.${index}.text`)}>${renderInline(item.text)}</p>` : ''}
             </div>
           </div>`;
       }).join('');
@@ -189,8 +192,8 @@ const RENDERERS = {
         return `
           <div class="b-flow__item ${toneClass(block.tone, index)}${hasNext}">
             <p class="b-flow__n">${esc(block.label)} ${index + 1}</p>
-            ${item.title ? `<p class="b-flow__t">${renderInline(item.title)}</p>` : ''}
-            ${item.text ? `<p class="b-flow__b">${renderInline(item.text)}</p>` : ''}
+            ${item.title ? `<p class="b-flow__t"${ed(`items.${index}.title`)}>${renderInline(item.title)}</p>` : ''}
+            ${item.text ? `<p class="b-flow__b"${ed(`items.${index}.text`)}>${renderInline(item.text)}</p>` : ''}
           </div>`;
       }).join('');
       const last = rowIndex === rows.length - 1 ? ' is-last' : '';
@@ -200,16 +203,19 @@ const RENDERERS = {
 
   timeline(block) {
     const atoms = [];
-    if (block.title) atoms.push(atom(block, 'atom--h3', `<h3 class="b-h3">${renderInline(block.title)}</h3>`, { keep: true }));
+    if (block.title) atoms.push(atom(block, 'atom--h3', `<h3 class="b-h3"${ed('title')}>${renderInline(block.title)}</h3>`, { keep: true }));
     const columns = gridColumns(block.items.length, 5);
     chunk(block.items, columns).forEach((row, rowIndex) => {
-      const items = row.map((item, i) => `
-        <div class="b-tl__item ${toneClass(block.tone, rowIndex * columns + i)}">
+      const items = row.map((item, i) => {
+        const index = rowIndex * columns + i;
+        return `
+        <div class="b-tl__item ${toneClass(block.tone, index)}">
           <span class="b-tl__dot"></span>
-          ${item.date ? `<p class="b-tl__date">${esc(item.date)}</p>` : ''}
-          ${item.title ? `<p class="b-tl__t">${renderInline(item.title)}</p>` : ''}
-          ${item.text ? `<p class="b-tl__b">${renderInline(item.text)}</p>` : ''}
-        </div>`).join('');
+          ${item.date ? `<p class="b-tl__date"${ed(`items.${index}.date`)}>${esc(item.date)}</p>` : ''}
+          ${item.title ? `<p class="b-tl__t"${ed(`items.${index}.title`)}>${renderInline(item.title)}</p>` : ''}
+          ${item.text ? `<p class="b-tl__b"${ed(`items.${index}.text`)}>${renderInline(item.text)}</p>` : ''}
+        </div>`;
+      }).join('');
       atoms.push(atom(block, 'atom--timeline', `<div class="b-tl" style="--cols:${columns}">${items}</div>`));
     });
     return atoms;
@@ -226,39 +232,39 @@ const RENDERERS = {
     const list = items
       ? `<ol class="b-toc__list b-toc__list--${block.style}" style="--cols:${block.columns}">${items}</ol>`
       : '<p class="b-toc__empty">Adicione blocos do tipo “Seção” para montar o sumário.</p>';
-    return [atom(block, 'atom--toc', `<nav class="b-toc" aria-label="${esc(block.title)}"><h3 class="b-toc__title">${esc(block.title)}</h3>${list}</nav>`)];
+    return [atom(block, 'atom--toc', `<nav class="b-toc" aria-label="${esc(block.title)}"><h3 class="b-toc__title"${ed('title')}>${esc(block.title)}</h3>${list}</nav>`)];
   },
 
   callout(block) {
-    const title = block.title ? `<p class="b-callout__title">${renderInline(block.title)}</p>` : '';
-    return [atom(block, 'atom--callout', `<div class="b-callout tone-${calloutTone(block.tone)}">${title}<p class="b-callout__text">${renderInline(block.text)}</p></div>`)];
+    const title = block.title ? `<p class="b-callout__title"${ed('title')}>${renderInline(block.title)}</p>` : '';
+    return [atom(block, 'atom--callout', `<div class="b-callout tone-${calloutTone(block.tone)}">${title}<p class="b-callout__text"${ed('text')}>${renderInline(block.text)}</p></div>`)];
   },
 
   message(block) {
     return [atom(block, 'atom--callout', `
       <div class="b-callout tone-${calloutTone(block.tone)}">
-        ${block.label ? `<p class="b-callout__label">${esc(block.label)}</p>` : ''}
-        <p class="b-callout__quote">“${renderInline(block.text)}”</p>
+        ${block.label ? `<p class="b-callout__label"${ed('label')}>${esc(block.label)}</p>` : ''}
+        <p class="b-callout__quote">“<span${ed('text')}>${renderInline(block.text)}</span>”</p>
       </div>`)];
   },
 
   faq(block) {
-    return block.items.map((item) => atom(block, 'atom--faq', `
+    return block.items.map((item, index) => atom(block, 'atom--faq', `
       <div class="b-faq ${toneClass(block.tone)}">
         <div class="b-faq__q">
-          ${block.questionLabel ? `<p class="b-faq__label">${esc(block.questionLabel)}</p>` : ''}
-          <p class="b-faq__qt">${renderInline(item.question)}</p>
+          ${block.questionLabel ? `<p class="b-faq__label"${ed('questionLabel')}>${esc(block.questionLabel)}</p>` : ''}
+          <p class="b-faq__qt"${ed(`items.${index}.question`)}>${renderInline(item.question)}</p>
         </div>
         <div class="b-faq__a">
-          ${block.answerLabel ? `<p class="b-faq__label">${esc(block.answerLabel)}</p>` : ''}
-          <p class="b-faq__at">${renderInline(item.answer)}</p>
+          ${block.answerLabel ? `<p class="b-faq__label"${ed('answerLabel')}>${esc(block.answerLabel)}</p>` : ''}
+          <p class="b-faq__at"${ed(`items.${index}.answer`)}>${renderInline(item.answer)}</p>
         </div>
       </div>`));
   },
 
   chips(block) {
-    const chips = nonEmptyLines(block.items).map((text) => `<span class="b-chip">${renderInline(text)}</span>`).join('');
-    const label = block.label ? `<p class="b-chips__label">${renderInline(block.label)}</p>` : '';
+    const chips = nonEmptyLines(block.items).map((text) => `<span class="b-chip"${ed('items')}>${renderInline(text)}</span>`).join('');
+    const label = block.label ? `<p class="b-chips__label"${ed('label')}>${renderInline(block.label)}</p>` : '';
     return [atom(block, 'atom--chips', `<div class="b-chips ${toneClass(block.tone)}">${label}<div class="b-chips__list">${chips}</div></div>`)];
   },
 
@@ -266,20 +272,20 @@ const RENDERERS = {
     const widths = ctx.tableColumns(block);
     const colgroup = widths ? `<colgroup>${widths.map((w) => `<col style="width:${w}%">`).join('')}</colgroup>` : '';
     const tone = `tone-${block.tone}`;
-    const headerHtml = `<table class="b-table ${tone}">${colgroup}<thead><tr>${block.header.map((cell) => `<th>${renderInline(cell)}</th>`).join('')}</tr></thead></table>`;
+    const headerHtml = `<table class="b-table ${tone}">${colgroup}<thead><tr>${block.header.map((cell, col) => `<th${ed(`header.${col}`)}>${renderInline(cell)}</th>`).join('')}</tr></thead></table>`;
     const header = atom(block, 'atom--table', headerHtml, { keep: true, group: true });
     const headerAtomHtml = header.html;
 
     const rows = block.rows.map((row, index) => {
       const zebra = block.zebra && index % 2 === 1 ? ' b-table--zebra' : '';
-      const cells = row.map((cell, col) => `<td${col === 0 && block.keyColumn ? ' class="is-key"' : ''}>${renderInline(cell)}</td>`).join('');
+      const cells = row.map((cell, col) => `<td${col === 0 && block.keyColumn ? ' class="is-key"' : ''}${ed(`rows.${index}.${col}`)}>${renderInline(cell)}</td>`).join('');
       const last = index === block.rows.length - 1 ? ' is-last' : '';
       return atom(block, `atom--table${last}`, `<table class="b-table ${tone}${zebra}">${colgroup}<tbody><tr>${cells}</tr></tbody></table>`,
         { group: true, repeatHeader: headerAtomHtml });
     });
 
     const atoms = [header, ...rows];
-    if (block.note) atoms.push(atom(block, 'atom--p', `<p class="b-p b-p--note b-table-note">${renderInline(block.note)}</p>`));
+    if (block.note) atoms.push(atom(block, 'atom--p', `<p class="b-p b-p--note b-table-note"${ed('note')}>${renderInline(block.note)}</p>`));
     return atoms;
   },
 
@@ -287,10 +293,12 @@ const RENDERERS = {
     const columns = gridColumns(block.items.length);
     return chunk(block.items, columns).map((row, rowIndex) => {
       const items = row.map((item, i) => {
-        const tone = toneClass(block.tone, rowIndex * columns + i);
+        const index = rowIndex * columns + i;
+        const tone = toneClass(block.tone, index);
+        const part = (key) => `${ed(`items.${index}.${key}`)}>${renderInline(item[key])}`;
         return block.style === 'sheet'
-          ? `<div class="b-sheet ${tone}"><p class="b-sheet__l">${renderInline(item.label)}</p><p class="b-sheet__v">${renderInline(item.value)}</p><p class="b-sheet__s">${renderInline(item.sub)}</p></div>`
-          : `<div class="b-kpi ${tone}"><p class="b-kpi__v">${renderInline(item.value)}</p><p class="b-kpi__l">${renderInline(item.label)}</p><p class="b-kpi__s">${renderInline(item.sub)}</p></div>`;
+          ? `<div class="b-sheet ${tone}"><p class="b-sheet__l"${part('label')}</p><p class="b-sheet__v"${part('value')}</p><p class="b-sheet__s"${part('sub')}</p></div>`
+          : `<div class="b-kpi ${tone}"><p class="b-kpi__v"${part('value')}</p><p class="b-kpi__l"${part('label')}</p><p class="b-kpi__s"${part('sub')}</p></div>`;
       }).join('');
       return atom(block, 'atom--stats', `<div class="b-stats" style="--cols:${columns}">${items}</div>`);
     });
@@ -302,10 +310,10 @@ const RENDERERS = {
       return [atom(block, 'atom--gloss is-last seg-start seg-end', `<div class="b-gloss ${tone}"><p class="b-gloss__title">${esc(block.title)}</p></div>`)];
     }
     return block.items.map((item, index) => {
-      const title = index === 0 && block.title ? `<p class="b-gloss__title">${esc(block.title)}</p>` : '';
+      const title = index === 0 && block.title ? `<p class="b-gloss__title"${ed('title')}>${esc(block.title)}</p>` : '';
       const last = index === block.items.length - 1 ? ' is-last' : '';
       return atom(block, `atom--gloss${last}`,
-        `<div class="b-gloss ${tone}">${title}<p><strong>${esc(item.term)}</strong>${item.term && item.definition ? ' — ' : ''}${renderInline(item.definition)}</p></div>`,
+        `<div class="b-gloss ${tone}">${title}<p><strong${ed(`items.${index}.term`)}>${esc(item.term)}</strong>${item.term && item.definition ? ' — ' : ''}<span${ed(`items.${index}.definition`)}>${renderInline(item.definition)}</span></p></div>`,
         { group: true });
     });
   },
@@ -318,7 +326,7 @@ const RENDERERS = {
     let caption = '';
     if (block.caption) {
       ctx.figureNo += 1;
-      caption = `<figcaption><span class="b-fig__n">Figura ${ctx.figureNo}</span> · ${renderInline(block.caption)}</figcaption>`;
+      caption = `<figcaption><span class="b-fig__n">Figura ${ctx.figureNo}</span> · <span${ed('caption')}>${renderInline(block.caption)}</span></figcaption>`;
     }
     const alt = block.caption ? esc(stripMarkup(block.caption)) : 'Imagem';
     return [atom(block, 'atom--figure', `
@@ -429,9 +437,9 @@ export function renderCover(doc, assets, idPrefix) {
   if (!cover || cover.id === 'none') return '';
   const audience = meta.audience || meta.version
     ? `<div class="cover__audience">
-         ${meta.audienceLabel && meta.audience ? `<p class="cover__aud-label">${esc(meta.audienceLabel)}</p>` : ''}
-         ${meta.audience ? `<p class="cover__aud-text">${esc(meta.audience)}</p>` : ''}
-         ${meta.version ? `<p class="cover__version">${esc(meta.version)}</p>` : ''}
+         ${meta.audienceLabel && meta.audience ? `<p class="cover__aud-label"${edMeta('audienceLabel')}>${esc(meta.audienceLabel)}</p>` : ''}
+         ${meta.audience ? `<p class="cover__aud-text"${edMeta('audience')}>${esc(meta.audience)}</p>` : ''}
+         ${meta.version ? `<p class="cover__version"${edMeta('version')}>${esc(meta.version)}</p>` : ''}
        </div>`
     : '';
   const photo = cover.id === 'photo' ? assets[design.coverImage] : null;
@@ -442,11 +450,11 @@ export function renderCover(doc, assets, idPrefix) {
       ${coverArt(cover.id, idPrefix, { photoUrl: photo ? esc(photo.url) : '' })}
       <div class="cover__brand">${brandHtml(design, assets, { negative: cover.dark, vertical: VERTICAL_BRAND_COVERS.has(cover.id) })}</div>
       <div class="cover__heading">
-        ${meta.kicker ? `<p class="cover__kicker">${esc(meta.kicker)}</p>` : ''}
-        <p class="cover__title">${esc(meta.title)}</p>
-        ${meta.subtitle ? `<p class="cover__subtitle">${esc(meta.subtitle)}</p>` : ''}
+        ${meta.kicker ? `<p class="cover__kicker"${edMeta('kicker')}>${esc(meta.kicker)}</p>` : ''}
+        <p class="cover__title"${edMeta('title')}>${esc(meta.title)}</p>
+        ${meta.subtitle ? `<p class="cover__subtitle"${edMeta('subtitle')}>${esc(meta.subtitle)}</p>` : ''}
         <span class="cover__rule"></span>
-        ${meta.description ? `<p class="cover__desc">${esc(meta.description)}</p>` : ''}
+        ${meta.description ? `<p class="cover__desc"${edMeta('description')}>${esc(meta.description)}</p>` : ''}
       </div>
       ${audience}
       ${concept}
@@ -493,9 +501,9 @@ export function renderBackCover(doc, assets, idPrefix) {
       ${back.id === 'backdrop' ? backdropHtml(design, assets) : ''}
       <div class="back__info">
         ${backBrandHtml(back, design, assets)}
-        ${meta.backTitle ? `<p class="back__title">${esc(meta.backTitle)}</p>` : ''}
-        ${meta.backText ? `<p class="back__text">${esc(meta.backText)}</p>` : ''}
-        ${meta.backWeb ? `<p class="back__web">${esc(meta.backWeb)}</p>` : ''}
+        ${meta.backTitle ? `<p class="back__title"${edMeta('backTitle')}>${esc(meta.backTitle)}</p>` : ''}
+        ${meta.backText ? `<p class="back__text"${edMeta('backText')}>${esc(meta.backText)}</p>` : ''}
+        ${meta.backWeb ? `<p class="back__web"${edMeta('backWeb')}>${esc(meta.backWeb)}</p>` : ''}
       </div>
     </section>`);
 }
@@ -521,11 +529,11 @@ function headerHtml(doc, assets, first, idPrefix) {
   // Assinatura no cabeçalho: sem secretaria e com 30 mm de largura (mínimo do MIV, p. 21).
   const right = design.header === 'logo'
     ? `<img src="assets/img/ceara-state${graySuffix(design)}.svg" alt="${STATE_ALT}" width="1258" height="400">`
-    : esc(meta.headerRight);
+    : `<span${edMeta('headerRight')}>${esc(meta.headerRight)}</span>`;
   return `
     ${design.header === 'band' ? `<div class="page__header-art">${headerArt('band', `${idPrefix}-h`)}</div>` : ''}
     <header class="page__header page__header--${design.header}">
-      <span class="page__header-left"><span class="page__header-title">${esc(meta.headerTitle)}</span>${meta.headerSubtitle ? `<span class="page__header-sub">${esc(meta.headerSubtitle)}</span>` : ''}</span>
+      <span class="page__header-left"><span class="page__header-title"${edMeta('headerTitle')}>${esc(meta.headerTitle)}</span>${meta.headerSubtitle ? `<span class="page__header-sub"${edMeta('headerSubtitle')}>${esc(meta.headerSubtitle)}</span>` : ''}</span>
       <span class="page__header-right">${right}</span>
     </header>`;
 }

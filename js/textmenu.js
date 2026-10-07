@@ -8,6 +8,10 @@
  * o texto é convertido por markdownToBlocks().
  */
 import { FORMATS, formatState, effectiveRange, toggleFormat, clearFormat, hasFormatting, replaceText } from './markup.js';
+import {
+  getRichSelection, setRichSelection, richFormatState, toggleRichFormat, clearRichFormat, setRichLink,
+  editRichLink, insertRichMarkup, deleteRichSelection, richSelectedText, escapeMarkup, restoreRichSelection,
+} from './richtext.js';
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '');
 
@@ -214,13 +218,77 @@ export function textFieldItems(field, { formats = false, markdown = false, notif
   return items;
 }
 
+/**
+ * Itens de texto para um campo visual (js/richtext.js): a formatação aparece
+ * marcada conforme o trecho selecionado, mais link, área de transferência e
+ * "Selecionar tudo". Recebe a seleção feita antes de o menu abrir.
+ */
+export function richFieldItems(element, { notify } = {}) {
+  const range = getRichSelection(element) ?? restoreRichSelection(element);
+  const [start, end] = [Math.min(...range), Math.max(...range)];
+  const hasSelection = start !== end;
+  const state = richFormatState(element);
+  const restore = () => {
+    element.focus({ preventScroll: true });
+    setRichSelection(element, [start, end]);
+  };
+  const formatted = Object.keys(FORMATS).some((name) => state[name]) || Boolean(state.link);
+  const tools = Object.entries(FORMATS).map(([name, format]) => ({
+    label: format.label,
+    icon: format.icon,
+    shortcut: format.key ? keys(`Ctrl+${format.key.toUpperCase()}`) : '',
+    checked: Boolean(state[name]),
+    run: () => { restore(); toggleRichFormat(element, name); },
+  }));
+  const items = [
+    { row: tools, label: 'Formatação' },
+    { label: state.link ? 'Editar link…' : 'Inserir link…', icon: 'link', shortcut: keys('Ctrl+K'), run: () => { restore(); editRichLink(element); } },
+    state.link && { label: 'Abrir link em nova aba', icon: 'external', run: () => window.open(state.link, '_blank', 'noopener') },
+    state.link && { label: 'Remover link', icon: 'unlink', run: () => setRichLink(element, '', [start, end]) },
+    { label: 'Remover formatação', icon: 'eraser', disabled: !formatted && !hasSelection, run: () => { restore(); clearRichFormat(element); } },
+    { separator: true },
+    {
+      label: 'Recortar', icon: 'scissors', shortcut: keys('Ctrl+X'), disabled: !hasSelection,
+      run: async () => { if (await writeClipboard(richSelectedText(element, [start, end]))) deleteRichSelection(element, [start, end]); },
+    },
+    {
+      label: 'Copiar', icon: 'copy', shortcut: keys('Ctrl+C'), disabled: !hasSelection,
+      run: async () => { await writeClipboard(richSelectedText(element, [start, end])); restore(); },
+    },
+  ];
+  if (canReadClipboard()) {
+    items.push({
+      label: 'Colar', icon: 'clipboard', shortcut: keys('Ctrl+V'),
+      run: async () => {
+        let text;
+        try {
+          text = await navigator.clipboard.readText();
+        } catch {
+          notify?.(`O navegador não liberou a área de transferência para o menu. Use ${keys('Ctrl+V')}.`, 'error');
+          return;
+        }
+        element.focus({ preventScroll: true });
+        insertRichMarkup(element, escapeMarkup(text.replace(/\r\n?/g, '\n')), [start, end]);
+      },
+    });
+  }
+  items.push({
+    label: 'Selecionar tudo', icon: 'select-all', shortcut: keys('Ctrl+A'), disabled: !element.textContent,
+    run: () => { element.focus(); window.getSelection().selectAllChildren(element); },
+  });
+  return items;
+}
+
 /** Rótulo curto do campo, para o título do menu ("Texto", "Linha 2, coluna 1"…). */
 export function fieldName(field) {
-  return (field.labels?.[0]?.textContent || field.getAttribute('aria-label') || 'Texto').trim();
+  const labelledBy = field.getAttribute('aria-labelledby');
+  const label = labelledBy ? document.getElementById(labelledBy)?.textContent : field.labels?.[0]?.textContent;
+  return (label || field.getAttribute('aria-label') || 'Texto').trim();
 }
 
 /** Título do menu de texto: o que está selecionado ou o nome do campo. */
 export function textMenuTitle(field) {
-  const length = Math.abs((field.selectionEnd ?? 0) - (field.selectionStart ?? 0));
+  const rich = field.dataset?.rich ? getRichSelection(field) : null;
+  const length = rich ? Math.abs(rich[1] - rich[0]) : Math.abs((field.selectionEnd ?? 0) - (field.selectionStart ?? 0));
   return length ? `Texto selecionado · ${length} ${length === 1 ? 'caractere' : 'caracteres'}` : fieldName(field);
 }

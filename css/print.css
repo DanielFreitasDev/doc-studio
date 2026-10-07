@@ -83,13 +83,15 @@ dialog,
 }
 
 .boot,
-.tooltip {
+.tooltip,
+.quick-edit {
   display: none !important;
 }
 
 .atom,
 .atom:hover,
-.atom.is-selected {
+.atom.is-selected,
+.is-quick-editing {
   outline: none !important;
   box-shadow: none !important;
 }

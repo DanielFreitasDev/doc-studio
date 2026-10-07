@@ -426,6 +426,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       refreshThumbnails();
     }
     if (change.kind === 'meta') refreshThumbnailsSoon();
+    if (change.kind === 'meta' && change.source === 'quick') syncDocumentForm();
     if (change.kind === 'structure' || change.kind === 'content' || change.kind === 'block') renderOutlineSoon();
   });
 

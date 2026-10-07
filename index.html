@@ -75,6 +75,10 @@
       <symbol id="i-italic" viewBox="0 0 24 24"><path d="M19 5h-9M14 19H5M15 5L9 19"/></symbol>
       <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></symbol>
       <symbol id="i-highlight" viewBox="0 0 24 24"><path d="M3 21h18M7 17l10-10 3 3-10 10H7z"/></symbol>
+      <symbol id="i-underline" viewBox="0 0 24 24"><path d="M7 4v7a5 5 0 0 0 10 0V4M5 20h14"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3.2-3.2a4.5 4.5 0 0 0-6.4-6.4L12 5.6M14 10a4.5 4.5 0 0 0-6.4 0l-3.2 3.2a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></symbol>
+      <symbol id="i-unlink" viewBox="0 0 24 24"><path d="M15 9l-6 6M13.2 4.4a4.5 4.5 0 0 1 6.4 6.4L18 12.4M6 11.6l-1.6 1.6a4.5 4.5 0 0 0 6.4 6.4l1.6-1.6M3 3l18 18"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></symbol>
       <symbol id="i-strike" viewBox="0 0 24 24"><path d="M5 12h14M16 6.5A4 4 0 0 0 12 5c-2.5 0-4 1.3-4 3 0 1.2.7 2.2 2 2.8M8 17.5A4.4 4.4 0 0 0 12 19c2.5 0 4-1.3 4-3 0-.5-.1-1-.4-1.4"/></symbol>
       <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19zM12 10v4M12 17h.01"/></symbol>
       <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8zM19 15l.8 1.7 1.7.8-1.7.8L19 20l-.8-1.7-1.7-.8 1.7-.8z"/></symbol>
@@ -455,6 +459,30 @@
       <div class="dialog__footer dialog__footer--end">
         <button class="btn btn--ghost" value="cancel">Cancelar</button>
         <button class="btn btn--primary" value="confirm" autofocus><svg class="icon"><use href="#i-printer"/></svg>Abrir janela de impressão</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog--small" id="link-dialog" aria-labelledby="link-title" aria-describedby="link-help">
+    <form method="dialog" class="dialog__frame" novalidate>
+      <div class="dialog__header">
+        <div>
+          <h2 id="link-title">Inserir link</h2>
+          <p id="link-help">O texto selecionado vira um link, clicável também no PDF.</p>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dialog__body">
+        <div class="field">
+          <label for="link-url">Endereço</label>
+          <input class="input" id="link-url" type="text" inputmode="url" autocomplete="off" spellcheck="false" enterkeyhint="done" placeholder="www.detran.ce.gov.br" aria-describedby="link-error">
+          <p class="field__error" id="link-error" role="alert" hidden>Use um endereço que comece com https://, www., mailto: ou tel:.</p>
+        </div>
+      </div>
+      <div class="dialog__footer dialog__footer--end">
+        <button class="btn btn--ghost btn--danger-text" value="remove" id="link-remove" formnovalidate><svg class="icon"><use href="#i-unlink"/></svg>Remover link</button>
+        <button class="btn btn--ghost" value="cancel">Cancelar</button>
+        <button class="btn btn--primary" value="confirm" id="link-confirm"><svg class="icon"><use href="#i-check"/></svg>Aplicar</button>
       </div>
     </form>
   </dialog>
