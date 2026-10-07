@@ -13,7 +13,7 @@ import { setupMenu } from './dialogs.js';
 import { isAcceptedImage } from './images.js';
 import { textFieldItems, richFieldItems, textMenuTitle } from './textmenu.js';
 import {
-  richFieldOf, toggleRichFormat, editRichLink, getRichSelection, isDiscreteEdit, setRichSelection, setRichValue,
+  richFieldOf, toggleRichFormat, editRichLink, getRichSelection, isDiscreteEdit, setRichSelection, setRichValue, escapeMarkup,
 } from './richtext.js';
 
 export function createEditor({ store, ui, assets, actions, drag }) {
@@ -271,6 +271,7 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     const startRow = area === 'header' ? -1 : Number(first);
     const startCol = Number(area === 'header' ? first : second);
 
+    let cutCells = 0;
     store.update((doc) => {
       const block = findBlock(doc, id);
       const neededColumns = Math.min(12, startCol + Math.max(...grid.map((row) => row.length)));
@@ -284,12 +285,18 @@ export function createEditor({ store, ui, assets, actions, drag }) {
         while (rowIndex >= block.rows.length) block.rows.push(Array(block.header.length).fill(''));
         const target = rowIndex === -1 ? block.header : block.rows[rowIndex];
         cells.forEach((cell, c) => {
-          if (startCol + c < block.header.length) target[startCol + c] = cell.trim();
+          if (startCol + c >= block.header.length) return;
+          // Texto de planilha é literal: "5*3*2" não vira itálico; e cada célula respeita o limite da importação.
+          const path = rowIndex === -1 ? `header.${startCol + c}` : `rows.${rowIndex}.${startCol + c}`;
+          const { value, cut } = capText(escapeMarkup(cell.trim()), textLimit(block, path));
+          target[startCol + c] = value;
+          if (cut) cutCells += 1;
         });
       });
     }, { kind: 'block', blockId: id });
     renderCard(id, `[data-path="${input.dataset.path}"]`);
     actions.announce(`${grid.length} linhas coladas na tabela.`);
+    if (cutCells) actions.notify(`${cutCells} ${cutCells === 1 ? 'célula passou do tamanho máximo e foi cortada' : 'células passaram do tamanho máximo e foram cortadas'} (${TABLE_LIMITS.cell.toLocaleString('pt-BR')} caracteres por célula, ${TABLE_LIMITS.headerCell} no cabeçalho).`, 'error');
   });
 
   /* ---------------------------------------------------------------- cliques */
