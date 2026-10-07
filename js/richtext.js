@@ -23,7 +23,7 @@
  *  - data-rich="multi"   várias linhas; linha em branco separa parágrafos;
  *  - data-rich="lines"   uma linha por item (listas e etiquetas).
  */
-import { renderInline, safeUrl, FORMATS } from './markup.js';
+import { renderInline, linkUrl, FORMATS } from './markup.js';
 import { linkDialog } from './dialogs.js';
 
 const FORMAT_TAGS = {
@@ -60,7 +60,7 @@ function formatsOf(element, inherited) {
   const name = FORMAT_TAGS[element.tagName];
   if (name) next[name] = true;
   if (element.tagName === 'A') {
-    const href = safeUrl(element.getAttribute('href'));
+    const href = linkUrl(element.getAttribute('href'));
     if (href) next.link = href;
   }
   const style = element.style;
@@ -460,7 +460,7 @@ export function clearRichFormat(element) {
 
 /** Cria, troca ou remove (url vazia) o link do trecho selecionado; sem trecho, insere o endereço como link. */
 export function setRichLink(element, url, selection) {
-  const href = url ? safeUrl(url) : '';
+  const href = url ? linkUrl(url) : '';
   if (url && !href) return false;
   if (selection) {
     element.focus({ preventScroll: true });

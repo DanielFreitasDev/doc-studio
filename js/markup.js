@@ -35,6 +35,16 @@ export function safeUrl(url) {
   return '';
 }
 
+/**
+ * Endereço de link já pronto para `safeUrl`: aspas, apóstrofo e sinais de
+ * menor/maior codificados (it's → it%27s), como faz um navegador. Usado na
+ * renderização, na colagem, no diálogo de link e na validação, para que os
+ * quatro aceitem os mesmos endereços.
+ */
+export function linkUrl(url) {
+  return safeUrl(String(url ?? '').trim().replace(/["'<>]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`));
+}
+
 /** Converte o texto do usuário em HTML seguro com formatação inline e quebras de linha. */
 export function renderInline(text) {
   const slots = [];
@@ -45,8 +55,7 @@ export function renderInline(text) {
   // Link: a URL fica guardada (as regras seguintes não podem mexer nela) e o texto do link continua formatável.
   html = html.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, (match, label, url) => {
     // A URL já passou por esc(): volta ao texto original e codifica aspas e sinais (it's → it%27s).
-    const raw = url.replace(/&(amp|lt|gt|quot|#39);/g, (entity) => ENTITIES[entity]).replace(/["'<>]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`);
-    const href = safeUrl(raw);
+    const href = linkUrl(url.replace(/&(amp|lt|gt|quot|#39);/g, (entity) => ENTITIES[entity]));
     return href ? `${keep(`<a href="${esc(href)}">`)}${label}${keep('</a>')}` : match;
   });
   for (const [pattern, replacement] of RULES) html = html.replace(pattern, replacement);

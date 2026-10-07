@@ -5,7 +5,7 @@
  * - avisos temporários ("toasts") anunciados por aria-live.
  */
 import { $, $$ } from './utils.js';
-import { safeUrl } from './markup.js';
+import { linkUrl } from './markup.js';
 
 const supportsPopover = typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype;
 
@@ -97,7 +97,7 @@ export function linkDialog({ url = '' } = {}) {
   return new Promise((resolve) => {
     const onSubmit = (event) => {
       if (event.submitter?.value !== 'confirm') return;
-      if (safeUrl(input.value)) return;
+      if (linkUrl(input.value)) return;
       event.preventDefault();
       error.hidden = false;
       input.setAttribute('aria-invalid', 'true');
@@ -115,7 +115,7 @@ export function linkDialog({ url = '' } = {}) {
       onClose(value) {
         dialog.removeEventListener('submit', onSubmit);
         input.removeEventListener('keydown', onKey);
-        if (value === 'confirm') resolve({ url: safeUrl(input.value) });
+        if (value === 'confirm') resolve({ url: linkUrl(input.value) });
         else if (value === 'remove') resolve({ remove: true });
         else resolve(null);
       },
