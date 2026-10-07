@@ -444,7 +444,11 @@ export const BLOCK_TYPES = {
     fields: [
       { key: 'assetId', kind: 'image', label: 'Imagem' },
       { key: 'caption', kind: 'text', label: 'Legenda', placeholder: 'Ex.: Tela de confirmação dos dados' },
-      { key: 'width', kind: 'range', label: 'Largura', min: 25, max: 100, step: 5, unit: '%' },
+      {
+        key: 'width', kind: 'range', label: 'Largura', min: 25, max: 100, step: 5, unit: '%',
+        // Tamanhos prontos do botão direito (sem precisar arrastar o controle).
+        presets: [{ value: 40, label: 'Pequena' }, { value: 60, label: 'Média' }, { value: 80, label: 'Grande' }, { value: 100, label: 'Largura total' }],
+      },
       { key: 'align', kind: 'segmented', label: 'Alinhamento', options: [{ value: 'left', label: 'Esquerda' }, { value: 'center', label: 'Centro' }, { value: 'right', label: 'Direita' }] },
       // Formato fixo recorta (preencher) ou encaixa a imagem; "Original" mantém a proporção do arquivo.
       { key: 'ratio', kind: 'segmented', label: 'Formato', options: IMAGE_RATIOS.map(({ value, label }) => ({ value, label })) },

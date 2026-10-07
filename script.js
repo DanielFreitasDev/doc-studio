@@ -417,6 +417,19 @@ async function main() {
         if (field.kind === 'toggle') {
           return [{ label: field.label, checked: Boolean(block[field.key]), run: () => actions.setBlockField(id, field.key, !block[field.key]) }];
         }
+        if (field.kind === 'range' && field.presets) {
+          return [{
+            label: field.label,
+            hint: `${block[field.key]}${field.unit ?? ''}`,
+            icon: 'fit',
+            submenu: field.presets.map((preset) => ({
+              label: `${preset.label} (${preset.value}${field.unit ?? ''})`,
+              radio: true,
+              checked: preset.value === block[field.key],
+              run: () => actions.setBlockField(id, field.key, preset.value),
+            })),
+          }];
+        }
         if (field.kind !== 'segmented' && field.kind !== 'swatches') return [];
         const current = field.options.find((option) => option.value === block[field.key]);
         return [{
