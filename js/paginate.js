@@ -137,6 +137,8 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
   const atoms = entries.filter((e) => e.kind === 'atom');
   const headerHeights = measureAtoms(atoms, measureBody);
   const bodyPages = distribute(entries, headerHeights);
+  // Documento sem conteúdo: mostra uma página timbrada vazia, pronta para receber o texto.
+  if (!bodyPages.length) bodyPages.push({ kind: 'content', atoms: [] });
 
   const hasCover = doc.design.cover !== 'none';
   const hasBack = doc.design.backCover !== 'none';

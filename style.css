@@ -85,7 +85,8 @@
   --page-shadow: 0 1px 3px rgb(16 24 32 / 0.18), 0 10px 28px rgb(16 24 32 / 0.14);
 }
 
-/* Tema escuro: segue o sistema, a não ser que o usuário force o claro. */
+/* Tema escuro: escolhido no menu ("escuro") ou seguindo o sistema ("automático").
+   O padrão é o claro: o <html> já nasce com data-theme="light". */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
@@ -316,13 +317,34 @@ code {
   font-size: var(--text-xs);
   color: var(--text-subtle);
   white-space: nowrap;
-  display: none;
 }
 .save-status[data-state="error"] { color: var(--danger); font-weight: 500; }
+/* No celular o status vira um ponto colorido (o texto continua para leitores de tela);
+   o erro aparece sempre por extenso, com o botão "Baixar cópia". */
+@media (max-width: 559.98px) {
+  .save-status:not([data-state="error"]) {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--primary);
+    color: transparent;
+  }
+  .save-status[data-state="saving"] { background: var(--text-subtle); }
+}
+.topbar .save-rescue { flex: none; }
+.topbar .save-rescue[hidden] { display: none; }
 
 .topbar__actions { display: flex; align-items: center; gap: var(--space-1); flex: none; }
 
 .topbar .view-switch, .topbar .hide-compact { display: none; }
+.topbar .show-compact { display: inline; }
+/* Botão de ajuda: no celular fica só no menu ⋯ para sobrar espaço ao nome do documento. */
+.topbar .hide-narrow { display: none; }
+@media (min-width: 560px) {
+  .topbar .hide-narrow { display: inline-flex; }
+}
 
 /* ---------------------------------------------------------------- área de trabalho */
 .workspace {
@@ -453,12 +475,8 @@ code {
 .bottom-nav button[aria-current="page"] .icon { stroke-width: 2.4; }
 
 /* =============================================================================
-   ≥ 560px — barra superior mais completa
+   ≥ 1100px — nome do app visível na barra superior
    ========================================================================== */
-@media (min-width: 560px) {
-  .save-status { display: block; }
-}
-
 @media (min-width: 1100px) {
   .topbar__title { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
 }
@@ -532,7 +550,7 @@ code {
 /* Utilitários de visibilidade: vencem o "display" dos componentes. */
 @media (min-width: 1280px) {
   .topbar .hide-compact { display: inline-flex; }
-  .menu .show-compact { display: none; }
+  .topbar .show-compact, .menu .show-compact { display: none; }
 }
 
 /* =============================================================================

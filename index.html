@@ -1,22 +1,22 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Estúdio de Documentos · Identidade Visual do Ceará</title>
   <meta name="description" content="Editor visual de manuais e documentos na identidade visual do Governo do Ceará, com pré-visualização em tempo real e exportação para PDF.">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f3f5f4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0f1417" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f3f5f4">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 
-  <!-- Aplica o tema salvo antes da primeira pintura para evitar "flash" de tema errado. -->
+  <!-- O tema claro é o padrão. Aplica o tema salvo antes da primeira pintura para evitar "flash" de tema errado. -->
   <script>
     (() => {
       try {
         const theme = JSON.parse(localStorage.getItem('doc-studio:app-theme'));
-        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
-      } catch { /* armazenamento bloqueado: segue o tema do sistema */ }
+        if (theme === 'dark') document.documentElement.dataset.theme = 'dark';
+        else if (theme === 'auto') delete document.documentElement.dataset.theme;
+      } catch { /* armazenamento bloqueado: mantém o tema claro */ }
     })();
   </script>
 
@@ -130,9 +130,10 @@
       </div>
 
       <div class="topbar__doc">
-        <label class="visually-hidden" for="doc-name">Nome do arquivo</label>
-        <input class="doc-name" id="doc-name" type="text" autocomplete="off" spellcheck="false" maxlength="120">
+        <label class="visually-hidden" for="doc-name">Nome do documento</label>
+        <input class="doc-name" id="doc-name" type="text" autocomplete="off" spellcheck="false" maxlength="120" placeholder="Nome do documento" title="Clique para renomear o documento">
         <p class="save-status" id="save-status" role="status" aria-live="polite"></p>
+        <button class="btn btn--danger btn--small save-rescue" type="button" data-action="export-json" id="save-rescue" hidden>Baixar cópia</button>
       </div>
 
       <div class="topbar__actions">
@@ -150,6 +151,7 @@
         <button class="btn btn--ghost hide-compact" type="button" data-action="open-templates"><svg class="icon"><use href="#i-layout"/></svg><span>Modelos</span></button>
         <button class="btn btn--ghost hide-compact" type="button" data-action="open-documents"><svg class="icon"><use href="#i-folder"/></svg><span>Meus documentos</span></button>
 
+        <button class="icon-btn hide-narrow" type="button" data-action="open-shortcuts" aria-label="Ajuda e primeiros passos" title="Ajuda e primeiros passos"><svg class="icon"><use href="#i-faq"/></svg></button>
         <button class="icon-btn" type="button" id="more-menu-button" aria-haspopup="menu" aria-expanded="false" aria-controls="more-menu" aria-label="Mais opções" title="Mais opções"><svg class="icon"><use href="#i-more"/></svg></button>
         <div class="menu" id="more-menu" role="menu" popover aria-label="Mais opções">
           <button role="menuitem" type="button" data-action="open-templates" class="show-compact"><svg class="icon"><use href="#i-layout"/></svg>Modelos prontos</button>
@@ -157,15 +159,15 @@
           <button role="menuitem" type="button" data-action="new-document"><svg class="icon"><use href="#i-file-plus"/></svg>Novo documento</button>
           <button role="menuitem" type="button" data-action="open-import-text"><svg class="icon"><use href="#i-pen"/></svg>Escrever / colar texto…</button>
           <hr role="separator">
-          <button role="menuitem" type="button" data-action="export-json"><svg class="icon"><use href="#i-download"/></svg>Salvar arquivo (.json)</button>
-          <button role="menuitem" type="button" data-action="import-json"><svg class="icon"><use href="#i-upload"/></svg>Abrir arquivo (.json)…</button>
+          <button role="menuitem" type="button" data-action="export-json"><svg class="icon"><use href="#i-download"/></svg>Baixar cópia de segurança</button>
+          <button role="menuitem" type="button" data-action="import-json"><svg class="icon"><use href="#i-upload"/></svg>Abrir cópia de segurança…</button>
           <hr role="separator">
-          <button role="menuitem" type="button" data-action="cycle-app-theme"><svg class="icon"><use href="#i-monitor"/></svg><span data-theme-label>Tema do app: automático</span></button>
-          <button role="menuitem" type="button" data-action="open-shortcuts"><svg class="icon"><use href="#i-keyboard"/></svg>Atalhos e ajuda</button>
+          <button role="menuitem" type="button" data-action="cycle-app-theme"><svg class="icon"><use href="#i-monitor"/></svg><span data-theme-label>Tema do app: claro</span></button>
+          <button role="menuitem" type="button" data-action="open-shortcuts"><svg class="icon"><use href="#i-faq"/></svg>Ajuda e atalhos</button>
         </div>
 
         <button class="btn btn--primary" type="button" data-action="export-pdf" title="Exportar PDF (Ctrl+P)" aria-label="Exportar PDF">
-          <svg class="icon" aria-hidden="true"><use href="#i-printer"/></svg><span class="hide-compact">Exportar PDF</span>
+          <svg class="icon" aria-hidden="true"><use href="#i-printer"/></svg><span class="show-compact">PDF</span><span class="hide-compact">Exportar PDF</span>
         </button>
       </div>
     </header>
@@ -186,7 +188,7 @@
         <section class="panel" id="panel-insert" role="tabpanel" aria-labelledby="tab-insert" tabindex="-1">
           <header class="panel__header">
             <h2>Inserir</h2>
-            <p>Clique para adicionar após o bloco selecionado ou arraste para o editor ou para a página.</p>
+            <p>Cada parte do documento é um <strong>bloco</strong>. Clique para adicionar abaixo do bloco selecionado (ou no fim) ou arraste até a página.</p>
           </header>
           <div class="panel__body" id="insert-palette"></div>
         </section>
@@ -212,8 +214,8 @@
 
         <section class="panel" id="panel-document" role="tabpanel" aria-labelledby="tab-document" tabindex="-1" hidden>
           <header class="panel__header">
-            <h2>Textos fixos</h2>
-            <p>Capa, cabeçalho das páginas e contracapa.</p>
+            <h2>Textos da capa e das páginas</h2>
+            <p>Título da capa, cabeçalho das páginas e endereço da contracapa. Dica: clicar na capa da prévia abre este painel.</p>
           </header>
           <form class="panel__body" id="document-form" autocomplete="off"></form>
         </section>
@@ -231,13 +233,14 @@
         <ol class="block-list" id="editor-list" tabindex="-1" aria-label="Blocos do documento"></ol>
         <div class="editor-empty" id="editor-empty" hidden>
           <svg class="icon icon--xl"><use href="#i-file-plus"/></svg>
-          <h3>Seu documento está vazio</h3>
-          <p>Comece por um modelo, escreva livremente ou adicione blocos um a um.</p>
+          <h3>Seu documento está pronto para receber o conteúdo</h3>
+          <p>Escreva (ou cole) o texto de uma vez, ou monte bloco a bloco: seções, listas, passo a passo, tabelas, imagens…</p>
           <div class="editor-empty__actions">
-            <button class="btn btn--primary" type="button" data-action="open-templates"><svg class="icon"><use href="#i-layout"/></svg>Escolher modelo</button>
-            <button class="btn btn--soft" type="button" data-action="open-import-text"><svg class="icon"><use href="#i-pen"/></svg>Escrever texto</button>
-            <button class="btn btn--ghost" type="button" data-action="insert-end"><svg class="icon"><use href="#i-plus"/></svg>Inserir bloco</button>
+            <button class="btn btn--primary" type="button" data-action="open-import-text"><svg class="icon"><use href="#i-pen"/></svg>Escrever ou colar texto</button>
+            <button class="btn btn--soft" type="button" data-action="insert-end"><svg class="icon"><use href="#i-plus"/></svg>Adicionar bloco</button>
+            <button class="btn btn--ghost" type="button" data-action="open-templates"><svg class="icon"><use href="#i-layout"/></svg>Usar um modelo pronto</button>
           </div>
+          <p class="editor-empty__tip">Para mudar o título da capa, clique na capa na prévia ou abra <strong>Textos</strong>. Capa, cores e rodapé ficam em <strong>Design</strong>.</p>
         </div>
         <button class="btn btn--soft add-block-end" type="button" data-action="insert-end"><svg class="icon"><use href="#i-plus"/></svg>Adicionar bloco</button>
       </main>
@@ -274,13 +277,16 @@
     <form method="dialog" class="dialog__frame">
       <div class="dialog__header">
         <div>
-          <h2 id="templates-title">Comece por um modelo</h2>
-          <p>Cada modelo já vem com capa, estrutura e textos de exemplo. Tudo é editável.</p>
+          <h2 id="templates-title">Como você quer começar?</h2>
+          <p>A identidade visual do Governo do Ceará já vem aplicada. Depois você pode trocar capa, cores e rodapé quando quiser.</p>
         </div>
         <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
       </div>
-      <div class="dialog__body">
-        <ul class="template-grid" id="template-grid"></ul>
+      <div class="dialog__body" id="template-grid">
+        <h3 class="template-group__title" id="template-group-blank">Começar do zero</h3>
+        <ul class="template-grid template-grid--blank" aria-labelledby="template-group-blank" data-template-group="blank"></ul>
+        <h3 class="template-group__title" id="template-group-model">Modelos prontos <small>com estrutura e textos de exemplo para substituir</small></h3>
+        <ul class="template-grid" aria-labelledby="template-group-model" data-template-group="model"></ul>
       </div>
     </form>
   </dialog>
@@ -290,7 +296,7 @@
       <div class="dialog__header">
         <div>
           <h2 id="documents-title">Meus documentos</h2>
-          <p>Salvos automaticamente neste navegador. Para levar a outro computador, use “Salvar arquivo (.json)”.</p>
+          <p>Salvos automaticamente neste navegador. Para usar em outro computador ou guardar uma versão, use “Baixar cópia de segurança” no menu ⋯.</p>
         </div>
         <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
       </div>
@@ -308,7 +314,7 @@
       <div class="dialog__header">
         <div>
           <h2 id="import-text-title">Escreva ou cole seu texto</h2>
-          <p>O texto vira blocos automaticamente. Funciona com Markdown e com texto colado do Word.</p>
+          <p>Cole um texto do Word, do e-mail ou digite aqui. Títulos, listas, tabelas e avisos viram partes formatadas do documento.</p>
         </div>
         <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
       </div>
@@ -343,7 +349,7 @@
         </fieldset>
         <div class="dialog__footer-actions">
           <button class="btn btn--ghost" value="cancel">Cancelar</button>
-          <button class="btn btn--primary" value="confirm" id="import-text-confirm"><svg class="icon"><use href="#i-check"/></svg>Converter em blocos</button>
+          <button class="btn btn--primary" value="confirm" id="import-text-confirm"><svg class="icon"><use href="#i-check"/></svg>Inserir no documento</button>
         </div>
       </div>
     </form>
@@ -353,12 +359,20 @@
     <form method="dialog" class="dialog__frame">
       <div class="dialog__header">
         <div>
-          <h2 id="shortcuts-title">Atalhos e ajuda</h2>
-          <p>No Mac, use <kbd>⌘</kbd> no lugar de <kbd>Ctrl</kbd>.</p>
+          <h2 id="shortcuts-title">Ajuda</h2>
+          <p>Primeiros passos, geração do PDF e atalhos de teclado.</p>
         </div>
         <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
       </div>
-      <div class="dialog__body">
+      <div class="dialog__body" tabindex="0" aria-label="Conteúdo da ajuda">
+        <h3 class="help-first">Primeiros passos</h3>
+        <ol class="help-steps">
+          <li><strong>Comece</strong> em branco, colando um texto pronto ou por um modelo (menu ⋯ → Novo documento).</li>
+          <li><strong>Escreva</strong> no editor: cada parte (título, parágrafo, tabela, passo a passo…) é um bloco. Use <strong>Inserir</strong> para adicionar e arraste para reordenar.</li>
+          <li><strong>Personalize</strong> em <strong>Design</strong>: capa, contracapa, cores, cabeçalho e rodapé. Os títulos da capa ficam em <strong>Textos</strong>.</li>
+          <li><strong>Gere o PDF</strong> no botão verde. Tudo é salvo sozinho neste navegador.</li>
+        </ol>
+        <h3>Atalhos de teclado <small>(no Mac, use <kbd>⌘</kbd> no lugar de <kbd>Ctrl</kbd>)</small></h3>
         <dl class="shortcuts">
           <dt><kbd>Ctrl</kbd> <kbd>Z</kbd></dt><dd>Desfazer</dd>
           <dt><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd></dt><dd>Refazer</dd>
@@ -373,13 +387,39 @@
           <dt><kbd>?</kbd></dt><dd>Abrir esta ajuda</dd>
         </dl>
         <h3>Para gerar o PDF</h3>
-        <p>Na janela de impressão, escolha <strong>Salvar como PDF</strong>. As margens e o tamanho A4 já vêm configurados. Se o fundo colorido não aparecer, marque <strong>Gráficos de plano de fundo</strong>.</p>
+        <p>Na janela de impressão, em <strong>Destino</strong>, escolha <strong>Salvar como PDF</strong>. As margens e o tamanho A4 já vêm configurados. Se as capas saírem sem cor, abra <strong>Mais definições</strong> e marque <strong>Gráficos de plano de fundo</strong>.</p>
         <h3>Dicas</h3>
         <ul class="help-list">
           <li>Cole um print com <kbd>Ctrl</kbd> <kbd>V</kbd> ou arraste imagens para o editor: vira uma figura numerada.</li>
           <li>Clique em qualquer trecho da prévia para ir direto ao bloco correspondente.</li>
           <li>Cole tabelas do Excel na primeira célula de uma tabela para preenchê-la de uma vez.</li>
+          <li>Os documentos ficam neste navegador. Para não depender dele, use <strong>Baixar cópia de segurança</strong> (menu ⋯) de vez em quando.</li>
         </ul>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog" id="pdf-dialog" aria-labelledby="pdf-title">
+    <form method="dialog" class="dialog__frame">
+      <div class="dialog__header">
+        <div>
+          <h2 id="pdf-title">Gerar o PDF</h2>
+          <p>O navegador abre a janela de impressão. Lá, siga estes passos:</p>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dialog__body">
+        <ul class="pdf-checks" id="pdf-checks" aria-label="Pontos a revisar antes do PDF"></ul>
+        <ol class="help-steps">
+          <li>Em <strong>Destino</strong>, escolha <strong>Salvar como PDF</strong>.</li>
+          <li>Tamanho A4 e margens já vêm certos. Se as capas saírem sem cor, abra <strong>Mais definições</strong> e marque <strong>Gráficos de plano de fundo</strong>.</li>
+          <li>Clique em <strong>Salvar</strong> e escolha a pasta.</li>
+        </ol>
+        <label class="switch pdf-skip"><input type="checkbox" role="switch" id="pdf-skip-help"><span>Não mostrar estas instruções de novo</span></label>
+      </div>
+      <div class="dialog__footer dialog__footer--end">
+        <button class="btn btn--ghost" value="cancel">Cancelar</button>
+        <button class="btn btn--primary" value="confirm" autofocus><svg class="icon"><use href="#i-printer"/></svg>Abrir janela de impressão</button>
       </div>
     </form>
   </dialog>

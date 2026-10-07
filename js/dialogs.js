@@ -9,7 +9,8 @@ import { $, $$ } from './utils.js';
 const supportsPopover = typeof HTMLElement !== 'undefined' && 'showPopover' in HTMLElement.prototype;
 
 /* ------------------------------------------------------------------ avisos */
-export function toast(message, { actionLabel, onAction, tone = 'info', duration = 4500 } = {}) {
+/** Aviso temporário. Com ação (ex.: "Desfazer"), fica 10 s para dar tempo de ler e reagir. */
+export function toast(message, { actionLabel, onAction, tone = 'info', duration = actionLabel ? 10000 : 5000 } = {}) {
   const region = $('#toast-region');
   const element = document.createElement('div');
   element.className = 'toast';

@@ -21,7 +21,7 @@ import { toast, openDialog, enableBackdropClose, confirmDialog, setupMenu } from
 import { markdownToBlocks } from './js/markdown.js';
 import { layoutDocument } from './js/paginate.js';
 import { renderCover, renderBackCover } from './js/render.js';
-import { applyDocAttributes, docAttributesHtml } from './js/design.js';
+import { applyDocAttributes, docAttributesHtml, DEFAULT_META } from './js/design.js';
 
 const appEl = $('#app');
 const isCompact = () => !matchMedia('(min-width: 760px)').matches;
@@ -35,9 +35,11 @@ async function waitForFonts() {
   await Promise.race([Promise.all(faces.map((face) => document.fonts.load(face))), timeout]);
 }
 
+const BLANK_TEMPLATE = TEMPLATES.find((t) => t.id === 'blank');
+
 function documentFromTemplate(template) {
   return createDocument({
-    name: template.id === 'blank' ? 'Documento sem título' : template.name,
+    name: template.group === 'blank' ? 'Documento sem título' : template.name,
     meta: template.meta,
     design: template.design,
     blocks: template.blocks,
@@ -63,7 +65,8 @@ async function loadInitialDocument(storage, assets) {
       return { doc: normalizeDocument(record.doc), firstRun: false };
     }
   }
-  return { doc: documentFromTemplate(TEMPLATES[0]), firstRun: true };
+  // Primeira visita: documento em branco atrás da galeria (fechar a galeria = começar do zero).
+  return { doc: documentFromTemplate(BLANK_TEMPLATE), firstRun: true };
 }
 
 async function main() {
@@ -321,6 +324,7 @@ async function main() {
   /* ================================================================ nome, histórico e salvamento */
   const nameInput = $('#doc-name');
   const status = $('#save-status');
+  const saveRescue = $('#save-rescue');
   const undoButton = $('[data-action="undo"]');
   const redoButton = $('[data-action="redo"]');
 
@@ -350,19 +354,30 @@ async function main() {
       await storage.save(doc, assets.serialize(usedAssetIds(doc)));
       preferences.set('last-doc', doc.id);
       status.dataset.state = 'saved';
-      status.textContent = storage.persistent ? `Salvo às ${formatTime(Date.now())}` : 'Salvo só nesta aba';
+      status.textContent = storage.persistent ? `Salvo neste navegador às ${formatTime(Date.now())}` : 'Salvo só nesta aba';
+      saveRescue.hidden = true;
       saveErrorShown = false;
+      requestPersistence();
     } catch (error) {
       status.dataset.state = 'error';
       status.textContent = 'Falha ao salvar';
+      saveRescue.hidden = false;
       if (!saveErrorShown) {
         saveErrorShown = true;
-        notify('Não foi possível salvar no navegador (espaço cheio?). Use “Salvar arquivo (.json)” para não perder o trabalho.', 'error');
+        notify('Não foi possível salvar no navegador (espaço cheio?). Clique em “Baixar cópia” para não perder o trabalho.', 'error');
       }
       console.error(error);
     }
   }
   const saveSoon = debounce(saveNow, 700);
+
+  // Pede ao navegador para não apagar os documentos quando faltar espaço (uma vez por sessão).
+  let persistenceRequested = false;
+  function requestPersistence() {
+    if (persistenceRequested || !storage.persistent) return;
+    persistenceRequested = true;
+    navigator.storage?.persist?.().catch(() => {});
+  }
 
   store.subscribe((doc, change) => {
     syncChrome();
@@ -393,9 +408,20 @@ async function main() {
     if (message) notify(message);
   }
 
+  // Documento de exemplo aberto na primeira visita: se a pessoa escolher outro
+  // modelo sem ter editado nada, ele é descartado em vez de poluir "Meus documentos".
+  let untouchedFirstDocId = firstRun ? initialDoc.id : null;
+
   async function newFromTemplate(templateId) {
-    const template = TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES.at(-1);
-    await switchTo(documentFromTemplate(template), {}, `Documento “${template.name}” criado. Os anteriores continuam em Meus documentos.`);
+    const template = TEMPLATES.find((t) => t.id === templateId) ?? BLANK_TEMPLATE;
+    const discardId = untouchedFirstDocId === store.doc.id && !store.canUndo ? untouchedFirstDocId : null;
+    untouchedFirstDocId = null;
+    const message = template.group === 'blank'
+      ? 'Documento em branco criado. Escreva no editor ou use “Inserir”.'
+      : `Modelo “${template.name}” aberto. Troque os textos de exemplo pelos seus.`;
+    await switchTo(documentFromTemplate(template), {}, template.then === 'import' ? '' : message);
+    if (discardId) await storage.remove(discardId).catch(() => {});
+    if (template.then === 'import') openImportText('replace');
   }
 
   async function openDocument(id) {
@@ -437,7 +463,7 @@ async function main() {
         store.replace(normalizeDocument(record.doc));
       } else {
         assets.load({});
-        store.replace(documentFromTemplate(TEMPLATES.at(-1)));
+        store.replace(documentFromTemplate(BLANK_TEMPLATE));
         await saveNow();
       }
       setHash(store.doc.id);
@@ -456,25 +482,30 @@ async function main() {
   const documentsDialog = $('#documents-dialog');
   const importDialog = $('#import-text-dialog');
   const shortcutsDialog = $('#shortcuts-dialog');
-  [templatesDialog, documentsDialog, importDialog, shortcutsDialog, $('#confirm-dialog')].forEach(enableBackdropClose);
+  [templatesDialog, documentsDialog, importDialog, shortcutsDialog, $('#pdf-dialog'), $('#confirm-dialog')].forEach(enableBackdropClose);
 
   let templateGridReady = false;
+  function templateCardHtml(template) {
+    const doc = documentFromTemplate(template);
+    applyDocAttributes($('#measure-doc'), doc.design);
+    const { pagesHtml } = layoutDocument(doc, {}, $('#measure-body'), new Map());
+    const thumbs = template.then === 'import'
+      ? `<span class="template-card__icon"><svg class="icon icon--xl"><use href="#i-pen"/></svg></span>`
+      : pagesHtml.slice(0, 2).map((html) =>
+        panels.thumbHtml(html.replaceAll('id="p', `id="tpl-${template.id}-p`).replaceAll('url(#p', `url(#tpl-${template.id}-p`), doc.design, 0.13)).join('');
+    const pages = template.group === 'blank' ? '' : `<small>${pagesHtml.length} páginas de exemplo</small>`;
+    return `
+      <li><button type="button" class="template-card" data-template="${template.id}">
+        <span class="template-card__preview" aria-hidden="true">${thumbs}</span>
+        <span class="template-card__text"><strong>${esc(template.name)}</strong><small>${esc(template.description)}</small>${pages}</span>
+      </button></li>`;
+  }
+
   function renderTemplateGrid() {
     if (templateGridReady) return;
-    const measureDoc = $('#measure-doc');
-    const items = TEMPLATES.map((template) => {
-      const doc = documentFromTemplate(template);
-      applyDocAttributes(measureDoc, doc.design);
-      const { pagesHtml } = layoutDocument(doc, {}, $('#measure-body'), new Map());
-      const thumbs = pagesHtml.slice(0, 2).map((html, i) =>
-        panels.thumbHtml(html.replaceAll('id="p', `id="tpl-${template.id}-p`).replaceAll('url(#p', `url(#tpl-${template.id}-p`), doc.design, 0.13)).join('');
-      return `
-        <li><button type="button" class="template-card" data-template="${template.id}">
-          <span class="template-card__preview" aria-hidden="true">${thumbs}</span>
-          <span class="template-card__text"><strong>${esc(template.name)}</strong><small>${esc(template.description)}</small><small>${pagesHtml.length} páginas</small></span>
-        </button></li>`;
-    }).join('');
-    $('#template-grid').innerHTML = items;
+    $$('[data-template-group]').forEach((list) => {
+      list.innerHTML = TEMPLATES.filter((t) => (t.group ?? 'model') === list.dataset.templateGroup).map(templateCardHtml).join('');
+    });
     templateGridReady = true;
     preview.renderNow(); // devolve a área de medição ao documento atual
   }
@@ -530,6 +561,13 @@ async function main() {
     }
   });
 
+  /** Abre "Escrever texto". Num documento vazio, o texto colado vira o documento inteiro. */
+  function openImportText(mode = store.doc.blocks.length ? 'append' : 'replace') {
+    $$('input[name="import-mode"]').forEach((input) => { input.checked = input.value === mode; });
+    openDialog(importDialog);
+    $('#import-text-input').focus();
+  }
+
   importDialog.addEventListener('close', () => {
     if (importDialog.returnValue !== 'confirm') return;
     const text = $('#import-text-input').value;
@@ -540,8 +578,9 @@ async function main() {
     }
     const mode = new FormData($('#import-text-form')).get('import-mode');
     if (mode === 'replace') {
+      const wasEmpty = !store.doc.blocks.length;
       store.update((doc) => { doc.blocks = blocks; }, { kind: 'structure' });
-      notify(`Documento substituído por ${blocks.length} blocos.`, 'info', { undo: true });
+      notify(wasEmpty ? `${blocks.length} blocos criados a partir do texto.` : `Documento substituído por ${blocks.length} blocos.`, 'info', { undo: true });
     } else {
       actions.insertBlocks(blocks, mode === 'after' ? actions.insertionIndex() : store.doc.blocks.length, { focus: false });
       notify(`${blocks.length} blocos criados a partir do texto.`, 'info', { undo: true });
@@ -554,7 +593,7 @@ async function main() {
     const doc = store.doc;
     const payload = toFilePayload(doc, assets.serialize(usedAssetIds(doc)));
     downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), `${slugify(doc.name)}.docstudio.json`);
-    notify('Arquivo .json salvo. Abra-o em qualquer navegador pelo menu “Abrir arquivo”.');
+    notify('Cópia de segurança baixada. Para abri-la em outro computador: menu ⋯ → “Abrir cópia de segurança”.');
   }
 
   $('#json-file-input').addEventListener('change', async (event) => {
@@ -573,22 +612,66 @@ async function main() {
     }
   });
 
-  function exportPdf() {
-    if (!preferences.get('pdf-tip-shown', false)) {
-      preferences.set('pdf-tip-shown', true);
-      notify('Na janela que abrir, escolha “Salvar como PDF”. Tamanho A4 e margens já vêm configurados.');
+  /** Pontos a revisar antes do PDF: blocos cortados, textos de exemplo e capa sem título. */
+  function pdfChecks() {
+    const doc = store.doc;
+    const checks = [];
+    const overflow = [...ui.get('overflowBlocks')];
+    if (overflow.length) {
+      checks.push({ text: overflow.length === 1 ? 'Um bloco passa do tamanho da página e sairá cortado.' : `${overflow.length} blocos passam do tamanho da página e sairão cortados.`, label: 'Ver bloco', run: () => actions.select(overflow[0], { revealEditor: true }) });
     }
-    preview.print();
+    const sample = doc.blocks.find((block) => /\(exemplo\)/i.test(JSON.stringify(block)));
+    if (sample) checks.push({ text: 'O documento ainda tem textos marcados como “(exemplo)”.', label: 'Ver', run: () => actions.select(sample.id, { revealEditor: true }) });
+    if (doc.design.cover !== 'none' && doc.meta.title.trim() === DEFAULT_META.title) {
+      checks.push({ text: 'A capa ainda diz “Título do Documento”.', label: 'Editar capa', run: () => actions.openPanel('document') });
+    }
+    if (!doc.blocks.length) checks.push({ text: 'O documento ainda não tem conteúdo: só a capa e páginas em branco.', label: 'Escrever', run: () => openImportText() });
+    return checks;
+  }
+
+  const pdfDialog = $('#pdf-dialog');
+  function exportPdf() {
+    const checks = pdfChecks();
+    if (!checks.length && preferences.get('pdf-skip-help', false)) {
+      preview.print();
+      return;
+    }
+    $('#pdf-checks').innerHTML = checks.map((check, i) => `
+      <li><svg class="icon" aria-hidden="true"><use href="#i-warning"/></svg><span>${esc(check.text)}</span>
+      <button type="button" class="btn btn--soft btn--small" data-check="${i}">${esc(check.label)}</button></li>`).join('');
+    $('#pdf-checks').hidden = !checks.length;
+    $('#pdf-skip-help').checked = preferences.get('pdf-skip-help', false);
+    $('#pdf-checks').onclick = (event) => {
+      const button = event.target.closest('[data-check]');
+      if (!button) return;
+      pdfDialog.close('review');
+      checks[Number(button.dataset.check)].run();
+    };
+    openDialog(pdfDialog, {
+      onClose(value) {
+        preferences.set('pdf-skip-help', $('#pdf-skip-help').checked);
+        // Espera o diálogo sumir para ele não aparecer na impressão.
+        if (value === 'confirm') requestAnimationFrame(() => preview.print());
+      },
+    });
   }
 
   /* ================================================================ tema do app */
-  const THEME_LABELS = { auto: 'automático', light: 'claro', dark: 'escuro' };
+  // O claro é o padrão; "automático" segue o tema do sistema operacional.
+  const THEME_ORDER = ['light', 'dark', 'auto'];
+  const THEME_LABELS = { light: 'claro', dark: 'escuro', auto: 'automático (sistema)' };
+  const savedAppTheme = () => {
+    const theme = preferences.get('app-theme', 'light');
+    return THEME_ORDER.includes(theme) ? theme : 'light';
+  };
   function applyAppTheme(theme) {
     if (theme === 'auto') delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = theme;
     $('[data-theme-label]').textContent = `Tema do app: ${THEME_LABELS[theme]}`;
+    const dark = theme === 'dark' || (theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    $('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0f1417' : '#f3f5f4');
   }
-  applyAppTheme(preferences.get('app-theme', 'auto'));
+  applyAppTheme(savedAppTheme());
 
   /* ================================================================ comandos */
   const COMMANDS = {
@@ -601,14 +684,14 @@ async function main() {
       renderTemplateGrid();
       openDialog(templatesDialog);
     },
-    'open-import-text': () => { openDialog(importDialog); $('#import-text-input').focus(); },
+    'open-import-text': () => openImportText(),
     'export-json': exportJson,
     'import-json': () => $('#json-file-input').click(),
     'cycle-app-theme': () => {
-      const order = ['auto', 'light', 'dark'];
-      const next = order[(order.indexOf(preferences.get('app-theme', 'auto')) + 1) % order.length];
+      const next = THEME_ORDER[(THEME_ORDER.indexOf(savedAppTheme()) + 1) % THEME_ORDER.length];
       preferences.set('app-theme', next);
       applyAppTheme(next);
+      notify(`Tema do app: ${THEME_LABELS[next]}. O documento continua em papel branco.`);
     },
     'open-shortcuts': () => openDialog(shortcutsDialog),
     'export-pdf': exportPdf,
@@ -718,7 +801,7 @@ async function main() {
   setHash(store.doc.id);
   saveNow();
   if (!storage.persistent) {
-    notify('Este navegador não permite salvar localmente. Use “Salvar arquivo (.json)” para guardar seu trabalho.', 'error');
+    notify('Este navegador não permite salvar localmente. Use “Baixar cópia de segurança” (menu ⋯) para guardar seu trabalho.', 'error');
   }
   if (firstRun) {
     renderTemplateGrid();

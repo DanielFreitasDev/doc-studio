@@ -257,6 +257,7 @@
 }
 .editor-empty h3 { color: var(--text); font-size: var(--text-lg); font-weight: 600; }
 .editor-empty__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); margin-top: var(--space-2); }
+.editor-empty__tip { max-width: 46ch; margin-top: var(--space-2); font-size: var(--text-sm); }
 
 /* ---------------------------------------------------------------- cartão de bloco */
 .block-card {
@@ -671,6 +672,41 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
   font-weight: 600;
 }
 .design-group__hint { margin: calc(var(--space-1) * -1) 0 var(--space-2); font-size: var(--text-xs); color: var(--text-muted); }
+.design-texts-link { margin-top: var(--space-3); }
+
+/* "Mais ajustes": opções finas recolhidas (divulgação progressiva) */
+.design-more { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+.design-more > summary {
+  display: grid;
+  gap: 2px;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  list-style: none;
+  position: relative;
+}
+.design-more > summary::-webkit-details-marker { display: none; }
+.design-more > summary::before {
+  content: "";
+  position: absolute;
+  left: var(--space-3);
+  top: 1.05rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  rotate: -45deg;
+  transition: rotate var(--dur-fast);
+}
+.design-more[open] > summary::before { rotate: 45deg; }
+.design-more > summary small { font-size: var(--text-xs); font-weight: 400; color: var(--text-muted); }
+.design-more > summary:hover { background: var(--surface-3); }
+.design-more > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.design-more > .design-group:first-of-type { margin-top: var(--space-4); }
 
 /* Opções visuais (miniaturas de capa, estilos prontos) */
 .choice-grid { list-style: none; display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
@@ -852,6 +888,22 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 .template-card__text { display: grid; align-content: start; gap: var(--space-1); padding: var(--space-3) var(--space-4) var(--space-4); }
 .template-card__text strong { font-size: var(--text-md); font-weight: 600; }
 .template-card__text small { font-size: var(--text-xs); color: var(--text-muted); line-height: 1.4; }
+.dialog__body .template-group__title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-2); margin: 0 0 var(--space-3); }
+.dialog__body .template-grid + .template-group__title { margin-top: var(--space-6); }
+.template-group__title small { font-size: var(--text-sm); font-weight: 400; color: var(--text-muted); }
+.template-grid--blank .template-card { border-style: dashed; border-width: 1.5px; }
+.template-grid--blank .template-card:hover { border-style: solid; }
+.template-card__icon {
+  display: grid;
+  place-items: center;
+  width: 103px; /* mesma largura das miniaturas (zoom 0,13 de 210 mm) */
+  aspect-ratio: 210 / 297;
+  align-self: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: var(--page-shadow);
+}
 
 /* Lista de documentos */
 .document-list { list-style: none; display: grid; gap: var(--space-2); }
@@ -884,6 +936,26 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 .shortcuts { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-4); align-items: center; font-size: var(--text-sm); }
 .shortcuts dd { color: var(--text-muted); }
 .help-list { display: grid; gap: var(--space-1); padding-left: 1.2em; font-size: var(--text-sm); color: var(--text-muted); }
+.dialog__body .help-first { margin-top: 0; }
+.dialog__body h3 small { font-size: var(--text-xs); font-weight: 400; color: var(--text-muted); }
+.help-steps { display: grid; gap: var(--space-2); padding-left: 1.4em; font-size: var(--text-sm); color: var(--text-muted); }
+.help-steps strong { color: var(--text); font-weight: 600; }
+
+/* Diálogo "Gerar o PDF": pontos a revisar antes de imprimir */
+.pdf-checks { list-style: none; display: grid; gap: var(--space-2); margin-bottom: var(--space-4); }
+.pdf-checks li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--danger-soft);
+  font-size: var(--text-sm);
+}
+.pdf-checks li > span { flex: 1 1 20ch; }
+.pdf-checks .icon { flex: none; color: var(--danger); }
+.pdf-skip { margin-top: var(--space-4); }
 
 /* ---------------------------------------------------------------- arrastar e soltar */
 .drag-ghost {

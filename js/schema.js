@@ -52,7 +52,7 @@ export const ALTERNATE_TONES = ['theme', 'teal', 'accent', 'navy'];
 export const BLOCK_TYPES = {
   section: {
     label: 'Seção',
-    description: 'Título numerado com chamada e filete',
+    description: 'Título numerado com chamada e linha colorida',
     icon: 'section',
     group: 'text',
     keywords: 'capitulo titulo h1',
@@ -76,7 +76,7 @@ export const BLOCK_TYPES = {
     defaults: () => ({ text: 'Subtítulo', level: '2' }),
     fields: [
       { key: 'text', kind: 'text', label: 'Texto', big: true },
-      { key: 'level', kind: 'segmented', label: 'Nível', options: [{ value: '2', label: 'Subtítulo' }, { value: '3', label: 'Intertítulo' }] },
+      { key: 'level', kind: 'segmented', label: 'Nível', options: [{ value: '2', label: 'Subtítulo' }, { value: '3', label: 'Título menor' }] },
     ],
     summary: (b) => b.text,
   },
@@ -417,13 +417,13 @@ export const BLOCK_TYPES = {
 
   divider: {
     label: 'Divisor',
-    description: 'Linha, filete colorido ou espaço',
+    description: 'Linha, faixa colorida ou espaço',
     icon: 'divider',
     group: 'page',
     keywords: 'separador linha espaco',
     defaults: () => ({ style: 'line' }),
     fields: [
-      { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'line', label: 'Linha' }, { value: 'accent', label: 'Filete' }, { value: 'brand', label: 'Faixa' }, { value: 'space', label: 'Espaço' }] },
+      { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'line', label: 'Linha' }, { value: 'accent', label: 'Traço colorido' }, { value: 'brand', label: 'Faixa' }, { value: 'space', label: 'Espaço' }] },
     ],
     summary: () => '',
   },

@@ -5,7 +5,7 @@
  * trabalhar a cada tecla) e só as páginas cujo HTML mudou são substituídas,
  * o que mantém a rolagem estável e evita piscar imagens.
  */
-import { $, $$, debounce, clamp, slugify, prefersReducedMotion } from './utils.js';
+import { $, $$, debounce, clamp, prefersReducedMotion } from './utils.js';
 import { applyDocAttributes } from './design.js';
 import { layoutDocument } from './paginate.js';
 
@@ -145,7 +145,8 @@ export function createPreview({ store, ui, assets, actions }) {
     schedule.cancel();
     renderNow();
     const previousTitle = document.title;
-    document.title = slugify(store.doc.name);
+    // O título vira o nome sugerido do PDF: mantém o nome legível, sem os caracteres proibidos em arquivos.
+    document.title = store.doc.name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() || 'documento';
     const restore = () => { document.title = previousTitle; };
     window.addEventListener('afterprint', restore, { once: true });
     window.print();

@@ -3,6 +3,7 @@
  * temas de cor, capas, contracapas, cabeçalho, rodapé, numeração, estilos
  * de título, tipografia e assinatura. Também define os textos fixos (meta).
  */
+import { monthYear } from './utils.js';
 
 export const THEMES = [
   { id: 'green', label: 'Verde institucional', colors: ['#26a737', '#1b7a2a', '#f59c00'] },
@@ -20,7 +21,7 @@ export const COVERS = [
   { id: 'envelope', label: 'Envelope', description: 'Faixa vertical inclinada, texto à esquerda' },
   { id: 'fan', label: 'Leque', description: 'Elemento base do grafismo em leque' },
   { id: 'solid', label: 'Verde pleno', description: 'Fundo em degradê com assinatura em negativo', dark: true },
-  { id: 'minimal', label: 'Minimalista', description: 'Branco com filete e rodapé do papel timbrado' },
+  { id: 'minimal', label: 'Minimalista', description: 'Branco com linha colorida e rodapé do papel timbrado' },
   { id: 'none', label: 'Sem capa', description: 'O documento começa direto no conteúdo' },
 ];
 
@@ -35,13 +36,13 @@ export const BACK_COVERS = [
 export const DESIGN_OPTIONS = {
   header: [
     { value: 'classic', label: 'Texto' },
-    { value: 'rule', label: 'Texto + filete' },
+    { value: 'rule', label: 'Texto e linha' },
     { value: 'logo', label: 'Com assinatura' },
     { value: 'none', label: 'Nenhum' },
   ],
   footer: [
     { value: 'bar', label: 'Faixa do MIV' },
-    { value: 'stripe', label: 'Filete fino' },
+    { value: 'stripe', label: 'Linha fina' },
     { value: 'none', label: 'Nenhum' },
   ],
   pageNumber: [
@@ -50,7 +51,7 @@ export const DESIGN_OPTIONS = {
     { value: 'none', label: 'Sem número' },
   ],
   sectionStyle: [
-    { value: 'kicker', label: 'Chamada + filete' },
+    { value: 'kicker', label: 'Chamada e linha' },
     { value: 'number', label: 'Número grande' },
     { value: 'band', label: 'Faixa' },
   ],
@@ -197,7 +198,7 @@ export const DEFAULT_META = Object.freeze({
   description: 'Linha de apoio · Sistema · Assunto',
   audienceLabel: 'Para',
   audience: 'Público a quem\no documento se destina',
-  version: 'Versão 1.0 · Outubro de 2026',
+  version: `Versão 1.0 · ${monthYear()}`,
   headerTitle: 'Título do Documento',
   headerSubtitle: 'Subtítulo',
   headerRight: 'DETRAN/CE · Diretoria de Veículos',

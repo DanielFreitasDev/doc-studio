@@ -5,8 +5,23 @@
  * "exemplo"): servem para mostrar a estrutura e devem ser substituídos.
  */
 import { DESIGN_PRESETS } from './design.js';
+import { monthYear, longDate } from './utils.js';
 
 const preset = (id) => DESIGN_PRESETS.find((p) => p.id === id).design;
+
+/** Textos de capa neutros para quem começa do zero (sem conteúdo de exemplo). */
+const BLANK_META = {
+  kicker: 'DETRAN/CE',
+  title: 'Título do\nDocumento',
+  subtitle: 'Subtítulo',
+  description: '',
+  audienceLabel: 'Para',
+  audience: 'Público a quem o documento se destina',
+  version: `Versão 1.0 · ${monthYear()}`,
+  headerTitle: 'Título do Documento',
+  headerSubtitle: '',
+  headerRight: 'DETRAN/CE',
+};
 
 export const TEMPLATES = [
   {
@@ -21,7 +36,7 @@ export const TEMPLATES = [
       description: 'Portal de Serviços · Vistoria veicular · Passo a passo',
       audienceLabel: 'Para',
       audience: 'Atendentes e parceiros\nque realizam o agendamento',
-      version: 'Versão 1.0 · Outubro de 2026',
+      version: `Versão 1.0 · ${monthYear()}`,
       headerTitle: 'Manual do Atendimento',
       headerSubtitle: '· Agendamento de Vistoria',
       headerRight: 'DETRAN/CE · Diretoria de Veículos',
@@ -117,7 +132,7 @@ export const TEMPLATES = [
       description: 'Sistema de Veículos · Função de atendimento',
       audienceLabel: 'Para',
       audience: 'Despachantes e\nequipes de atendimento',
-      version: 'Versão 1.0 · Outubro de 2026',
+      version: `Versão 1.0 · ${monthYear()}`,
       headerTitle: 'Guia Rápido do Despachante',
       headerSubtitle: '· Nova regra de atendimento',
       headerRight: 'DETRAN/CE · Diretoria de Veículos',
@@ -163,7 +178,7 @@ export const TEMPLATES = [
       description: 'Unidades de atendimento · Rotina diária',
       audienceLabel: 'Aplicação',
       audience: 'Todas as unidades\nde atendimento',
-      version: 'Revisão 01 · Outubro de 2026',
+      version: `Revisão 01 · ${monthYear()}`,
       headerTitle: 'POP 012 · Conferência de Documentos',
       headerSubtitle: '',
       headerRight: 'DETRAN/CE',
@@ -208,7 +223,7 @@ export const TEMPLATES = [
       description: 'Julho a setembro de 2026',
       audienceLabel: 'Para',
       audience: 'Diretoria e\ncoordenações',
-      version: 'Outubro de 2026',
+      version: monthYear(),
       headerTitle: 'Relatório de Resultados',
       headerSubtitle: '· 3º trimestre de 2026',
       headerRight: 'DETRAN/CE',
@@ -256,7 +271,7 @@ export const TEMPLATES = [
       description: '',
       audienceLabel: 'Para',
       audience: 'Unidades de atendimento,\ndespachantes e parceiros',
-      version: 'Fortaleza, 7 de outubro de 2026',
+      version: `Fortaleza, ${longDate()}`,
       headerTitle: 'Comunicado DIREV nº 00/2026',
       headerSubtitle: '',
       headerRight: '',
@@ -272,27 +287,25 @@ export const TEMPLATES = [
     ],
   },
 
+  /* ---------------------------------------------------------------- começar do zero */
   {
     id: 'blank',
-    name: 'Em branco',
-    description: 'Capa, uma seção e um parágrafo. Comece do zero com a identidade visual pronta.',
+    group: 'blank',
+    name: 'Documento em branco',
+    description: 'Capa, contracapa e páginas com a identidade visual, sem nenhum texto de exemplo.',
     design: { ...preset('manual') },
-    meta: {
-      kicker: 'DETRAN/CE',
-      title: 'Título do\nDocumento',
-      subtitle: 'Subtítulo',
-      description: '',
-      audienceLabel: 'Para',
-      audience: 'Público-alvo',
-      version: 'Versão 1.0 · Outubro de 2026',
-      headerTitle: 'Título do Documento',
-      headerSubtitle: '',
-      headerRight: 'DETRAN/CE',
-    },
-    blocks: [
-      { type: 'section', kicker: 'Introdução', title: 'Comece por aqui', intro: '' },
-      { type: 'paragraph', style: 'normal', text: 'Escreva seu texto. Use **negrito**, *itálico* e ==destaque==. Digite / num parágrafo vazio para escolher outro tipo de bloco.' },
-    ],
+    meta: BLANK_META,
+    blocks: [],
+  },
+  {
+    id: 'from-text',
+    group: 'blank',
+    then: 'import',
+    name: 'Já tenho o texto',
+    description: 'Cole o texto do Word ou do e-mail: títulos, listas e tabelas viram blocos formatados.',
+    design: { ...preset('manual') },
+    meta: BLANK_META,
+    blocks: [],
   },
 ];
 

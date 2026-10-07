@@ -8,6 +8,7 @@ import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DESIGN_PRESETS, META_GROUP
 import { SNIPPETS } from './templates.js';
 import { renderCover, renderBackCover } from './render.js';
 import { fieldHtml, readControlValue } from './fields.js';
+import { preferences } from './storage.js';
 
 const TABS = ['insert', 'outline', 'design', 'document'];
 
@@ -193,8 +194,11 @@ export function createPanels({ store, ui, assets, actions, drag }) {
         <ul class="choice-grid choice-grid--wide">${presets}</ul>
       </section>
       ${choiceGroup({ title: 'Capa', name: 'cover', options: COVERS })}
+      <button type="button" class="btn btn--soft btn--small design-texts-link" data-action="edit-texts">${icon('file-text', 'icon--sm')}Editar os textos da capa e da contracapa</button>
       ${choiceGroup({ title: 'Contracapa', name: 'backCover', options: BACK_COVERS })}
       <fieldset class="design-group"><legend>Tema de cores</legend><ul class="swatch-grid">${swatches}</ul></fieldset>
+      <details class="design-more"${preferences.get('design-more-open', false) ? ' open' : ''}>
+      <summary>Mais ajustes <small>títulos, cartões, cabeçalho, rodapé, numeração, fonte, espaçamento e assinatura</small></summary>
       ${segmentedGroup('Títulos de seção', 'sectionStyle', DESIGN_OPTIONS.sectionStyle)}
       ${segmentedGroup('Cartões', 'cardStyle', DESIGN_OPTIONS.cardStyle)}
       ${segmentedGroup('Cabeçalho das páginas', 'header', DESIGN_OPTIONS.header)}
@@ -214,7 +218,9 @@ export function createPanels({ store, ui, assets, actions, drag }) {
           <select class="select" id="design-signature" data-design-key="signature">${signatureOptions}</select>
         </div>
         <div class="logo-upload" id="logo-upload"></div>
-      </fieldset>`;
+      </fieldset>
+      </details>`;
+    $('.design-more', designRoot).addEventListener('toggle', (event) => preferences.set('design-more-open', event.target.open));
     syncDesign();
   }
 
@@ -270,6 +276,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       return;
     }
     if (event.target.closest('[data-action="choose-logo"]')) actions.chooseLogo();
+    if (event.target.closest('[data-action="edit-texts"]')) actions.openPanel('document');
   });
 
   /* ================================================================ textos fixos */

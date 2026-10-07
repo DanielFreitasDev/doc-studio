@@ -68,6 +68,17 @@ export function formatTime(timestamp) {
   return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(timestamp));
 }
 
+/** "Outubro de 2026" (mês atual): usado nas versões dos modelos para a data nunca ficar velha. */
+export function monthYear(date = new Date()) {
+  const text = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(date);
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** "7 de outubro de 2026" (data de hoje por extenso). */
+export function longDate(date = new Date()) {
+  return new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+}
+
 /** Lê um valor por caminho "items.2.title" (índices numéricos viram posições de array). */
 export function getByPath(target, path) {
   return path.split('.').reduce((node, key) => (node == null ? undefined : node[key]), target);

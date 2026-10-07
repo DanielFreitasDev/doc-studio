@@ -36,7 +36,7 @@ export function stripMarkup(text) {
 export const FORMATS = {
   bold: { marker: '**', label: 'Negrito', icon: 'bold', key: 'b' },
   italic: { marker: '*', label: 'Itálico', icon: 'italic', key: 'i' },
-  code: { marker: '`', label: 'Código', icon: 'code' },
+  code: { marker: '`', label: 'Texto de tela', icon: 'code' },
   highlight: { marker: '==', label: 'Destaque', icon: 'highlight' },
   strike: { marker: '~~', label: 'Riscado', icon: 'strike' },
 };
