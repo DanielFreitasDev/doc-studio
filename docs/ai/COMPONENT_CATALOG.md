@@ -572,15 +572,15 @@ Mudam só a aparência, nunca o conteúdo.
 
 | id | nome | tipo | blocos | descrição |
 | --- | --- | --- | --- | --- |
-| `manual` | Manual operacional | modelo com exemplo | 24 | Manual completo com sumário, cronograma, passo a passo, tabelas e dúvidas comuns. É a estrutura dos manuais oficiais. |
-| `guide` | Guia rápido | modelo com exemplo | 9 | Poucas páginas, direto ao ponto: o que muda, como fazer e o que observar. Ideal para comunicar uma regra nova. |
-| `pop` | Procedimento (POP) | modelo com exemplo | 12 | Procedimento Operacional Padrão: objetivo, responsáveis, materiais, execução, riscos, registros e controle de versões. |
-| `report` | Relatório de resultados | modelo com exemplo | 9 | Indicadores em destaque, linha do tempo, comparativos e conclusões. Visual sóbrio para a gestão. |
-| `notice` | Comunicado | modelo com exemplo | 8 | Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura. |
-| `project` | Apresentação de projeto | modelo com exemplo | 8 | Contexto, objetivos, etapas, investimento e equipe, com capa de placa de obra do MIV. Ideal para projetos e obras. |
-| `citizen` | Cartilha para o cidadão | modelo com exemplo | 7 | Linguagem simples, passo a passo, documentos necessários e dúvidas comuns, com capa de totem do MIV. |
-| `letter` | Ofício | modelo com exemplo | 8 | Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página. |
-| `technical` | Nota técnica | modelo com exemplo | 13 | Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência. |
+| `manual` | Manual operacional | Manuais e guias | 24 | Manual completo com sumário, cronograma, passo a passo, tabelas e dúvidas comuns. É a estrutura dos manuais oficiais. |
+| `guide` | Guia rápido | Manuais e guias | 9 | Poucas páginas, direto ao ponto: o que muda, como fazer e o que observar. Ideal para comunicar uma regra nova. |
+| `pop` | Procedimento (POP) | Procedimentos e técnicos | 12 | Procedimento Operacional Padrão: objetivo, responsáveis, materiais, execução, riscos, registros e controle de versões. |
+| `report` | Relatório de resultados | Gestão e projetos | 9 | Indicadores em destaque, linha do tempo, comparativos e conclusões. Visual sóbrio para a gestão. |
+| `notice` | Comunicado | Comunicação oficial | 8 | Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura. |
+| `project` | Apresentação de projeto | Gestão e projetos | 8 | Contexto, objetivos, etapas, investimento e equipe, com capa de placa de obra do MIV. Ideal para projetos e obras. |
+| `citizen` | Cartilha para o cidadão | Manuais e guias | 7 | Linguagem simples, passo a passo, documentos necessários e dúvidas comuns, com capa de totem do MIV. |
+| `letter` | Ofício | Comunicação oficial | 8 | Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página. |
+| `technical` | Nota técnica | Procedimentos e técnicos | 13 | Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência. |
 | `blank` | Documento em branco | começar do zero | 0 | Capa, contracapa e páginas com a identidade visual, sem nenhum texto de exemplo. |
 | `letterhead` | Papel timbrado | começar do zero | 0 | O papel timbrado do MIV: assinatura centralizada no alto, endereço e faixa no pé. Para ofício, memorando ou nota. |
 | `plain` | Folha simples | começar do zero | 0 | Só as páginas, sem capa e sem contracapa: cabeçalho, faixa do MIV no pé e número da página. |

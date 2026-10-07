@@ -23,9 +23,21 @@ const BLANK_META = {
   headerRight: 'DETRAN/CE',
 };
 
+/**
+ * Categorias dos modelos prontos, pela finalidade do documento: organizam a
+ * galeria (filtro) e o catálogo para agentes.
+ */
+export const TEMPLATE_CATEGORIES = [
+  { id: 'manuals', label: 'Manuais e guias', description: 'Ensinar um processo a equipes, parceiros ou ao cidadão' },
+  { id: 'procedures', label: 'Procedimentos e técnicos', description: 'Padronizar uma rotina ou documentar um sistema' },
+  { id: 'management', label: 'Gestão e projetos', description: 'Prestar contas de resultados ou apresentar um projeto' },
+  { id: 'official', label: 'Comunicação oficial', description: 'Comunicados e ofícios em papel timbrado' },
+];
+
 export const TEMPLATES = [
   {
     id: 'manual',
+    category: 'manuals',
     name: 'Manual operacional',
     description: 'Manual completo com sumário, cronograma, passo a passo, tabelas e dúvidas comuns. É a estrutura dos manuais oficiais.',
     design: { ...preset('manual') },
@@ -122,6 +134,7 @@ export const TEMPLATES = [
 
   {
     id: 'guide',
+    category: 'manuals',
     name: 'Guia rápido',
     description: 'Poucas páginas, direto ao ponto: o que muda, como fazer e o que observar. Ideal para comunicar uma regra nova.',
     design: { ...preset('guide') },
@@ -168,6 +181,7 @@ export const TEMPLATES = [
 
   {
     id: 'pop',
+    category: 'procedures',
     name: 'Procedimento (POP)',
     description: 'Procedimento Operacional Padrão: objetivo, responsáveis, materiais, execução, riscos, registros e controle de versões.',
     design: { theme: 'teal', cover: 'minimal', backCover: 'minimal', header: 'rule', footer: 'bar', pageNumber: 'text', sectionStyle: 'number', cardStyle: 'outline' },
@@ -213,6 +227,7 @@ export const TEMPLATES = [
 
   {
     id: 'report',
+    category: 'management',
     name: 'Relatório de resultados',
     description: 'Indicadores em destaque, linha do tempo, comparativos e conclusões. Visual sóbrio para a gestão.',
     design: { ...preset('report') },
@@ -261,6 +276,7 @@ export const TEMPLATES = [
 
   {
     id: 'notice',
+    category: 'official',
     name: 'Comunicado',
     description: 'Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura.',
     design: { ...preset('notice') },
@@ -290,6 +306,7 @@ export const TEMPLATES = [
 
   {
     id: 'project',
+    category: 'management',
     name: 'Apresentação de projeto',
     description: 'Contexto, objetivos, etapas, investimento e equipe, com capa de placa de obra do MIV. Ideal para projetos e obras.',
     design: { ...preset('works') },
@@ -336,6 +353,7 @@ export const TEMPLATES = [
 
   {
     id: 'citizen',
+    category: 'manuals',
     name: 'Cartilha para o cidadão',
     description: 'Linguagem simples, passo a passo, documentos necessários e dúvidas comuns, com capa de totem do MIV.',
     design: { ...preset('totem') },
@@ -372,6 +390,7 @@ export const TEMPLATES = [
 
   {
     id: 'letter',
+    category: 'official',
     name: 'Ofício',
     description: 'Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página.',
     design: { ...preset('notice') },
@@ -399,6 +418,7 @@ export const TEMPLATES = [
 
   {
     id: 'technical',
+    category: 'procedures',
     name: 'Nota técnica',
     description: 'Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência.',
     design: { theme: 'navy', cover: 'envelope', backCover: 'minimal', header: 'logo', footer: 'stripe', pageNumber: 'text', sectionStyle: 'number', cardStyle: 'outline', chapterStyle: 'folder', headingWeight: 'regular' },

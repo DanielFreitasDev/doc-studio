@@ -11,7 +11,7 @@
  */
 import { BLOCK_TYPES, BLOCK_GROUPS, BLOCK_INTENTS, CALLOUT_TONES, TONE_OPTIONS, MAX_TEXT, TABLE_LIMITS } from './schema.js';
 import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DESIGN_PRESETS, DEFAULT_DESIGN, DEFAULT_META, META_GROUPS, PAGE_GEOMETRY } from './design.js';
-import { TEMPLATES, SNIPPETS } from './templates.js';
+import { TEMPLATES, TEMPLATE_CATEGORIES, SNIPPETS } from './templates.js';
 import { OPERATIONS, POSITION_FORMS, OPERATIONS_FORMAT, OPERATIONS_VERSION } from './operations.js';
 import { FILE_FORMAT, FILE_VERSION, MAX_BLOCKS } from './model.js';
 import { BRAND_SOURCE, GRAPHIC_PALETTE, SIGNATURE_COLORS, DERIVED_COLORS, TYPOGRAPHY, LOGOS, BRAND_RULES } from './brand.js';
@@ -188,8 +188,10 @@ export function buildCatalog() {
       fields: META_GROUPS.flatMap((group) => group.fields.map((f) => ({ key: f.key, group: group.title, label: f.label, multiline: f.kind === 'lines' }))),
       note: 'Textos fixos sem formatação; \\n quebra a linha onde o campo aceita várias linhas.',
     },
+    templateCategories: TEMPLATE_CATEGORIES.map(({ id, label, description }) => ({ id, label, description })),
     templates: TEMPLATES.map((t) => ({
       id: t.id, name: t.name, description: t.description, kind: t.group === 'blank' ? 'start' : 'model',
+      ...(t.category ? { category: t.category } : {}),
       blocks: t.blocks.length, design: t.design,
     })),
     snippets: SNIPPETS.map(({ id, name, description, blocks }) => ({ id, name, description, blocks })),

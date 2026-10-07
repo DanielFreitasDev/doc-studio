@@ -9,7 +9,7 @@ import { $, $$, esc, clamp, debounce, moveItem, slugify, announce, isTypingTarge
 import { createStore, createUiState } from './js/state.js';
 import { createBlock, BLOCK_TYPES, TEXT_BLOCK_TYPES, transformBlock, blockPlainText, blockSummary } from './js/schema.js';
 import { createDocument, normalizeDocument, toFilePayload, parseFilePayload, cloneBlock, FILE_VERSION } from './js/model.js';
-import { TEMPLATES, SNIPPETS } from './js/templates.js';
+import { TEMPLATES, TEMPLATE_CATEGORIES, SNIPPETS } from './js/templates.js';
 import { createStorage, createMemoryStorage, preferences } from './js/storage.js';
 import { createAssetRegistry, fileToAsset, isAcceptedImage, isValidAsset, usedAssetIds } from './js/images.js';
 import { createDragController, resolveListDrop, resolvePreviewDrop } from './js/dnd.js';
@@ -810,14 +810,17 @@ async function main() {
     const thumbs = template.then === 'import'
       ? `<span class="template-card__icon"><svg class="icon icon--xl"><use href="#i-pen"/></svg></span>`
       : pagesHtml.slice(0, 2).map((html) => panels.thumbHtml(scopeIds(html, `tpl-${template.id}`), doc.design, 0.13)).join('');
-    const pages = template.group === 'blank' ? '' : `<small>${pagesHtml.length} páginas de exemplo</small>`;
+    const count = pagesHtml.length;
+    const pages = template.group === 'blank' ? '' : `<small>${count} ${count === 1 ? 'página' : 'páginas'} de exemplo</small>`;
+    const category = TEMPLATE_CATEGORIES.find((c) => c.id === template.category);
+    const categoryHtml = category ? `<span class="template-card__category">${esc(category.label)}</span>` : '';
     const peek = template.group === 'blank'
       ? ''
       : `<button type="button" class="btn btn--soft btn--small template-card__peek" data-template-preview="${template.id}"><svg class="icon" aria-hidden="true"><use href="#i-eye"/></svg>Ver páginas<span class="visually-hidden"> de ${esc(template.name)}</span></button>`;
     return `
-      <li class="template-item"><button type="button" class="template-card" data-template="${template.id}">
+      <li class="template-item"${template.category ? ` data-category="${template.category}"` : ''}><button type="button" class="template-card" data-template="${template.id}">
         <span class="template-card__preview" aria-hidden="true">${thumbs}</span>
-        <span class="template-card__text"><strong>${esc(template.name)}</strong><small>${esc(template.description)}</small>${pages}</span>
+        <span class="template-card__text">${categoryHtml}<strong>${esc(template.name)}</strong><small>${esc(template.description)}</small>${pages}</span>
       </button>${peek}</li>`;
   }
 
@@ -849,11 +852,31 @@ async function main() {
     if (focus) $(`[data-template-preview="${CSS.escape(id)}"]`)?.focus();
   }
 
+  /** Filtro da galeria por finalidade (rádios reais: setas do teclado já navegam). */
+  function renderTemplateFilter() {
+    const options = [{ id: 'all', label: 'Todos' }, ...TEMPLATE_CATEGORIES];
+    $('#template-filter').innerHTML = options.map((option) => `
+      <label${option.description ? ` title="${esc(option.description)}"` : ''}><input type="radio" name="template-category" value="${option.id}"${option.id === 'all' ? ' checked' : ''}>${esc(option.label)}</label>`).join('');
+  }
+
+  function filterTemplates(categoryId) {
+    const category = TEMPLATE_CATEGORIES.find((c) => c.id === categoryId);
+    let shown = 0;
+    $$('[data-template-group="model"] > .template-item').forEach((item) => {
+      item.hidden = Boolean(category) && item.dataset.category !== category.id;
+      if (!item.hidden) shown += 1;
+    });
+    $('#template-filter-hint').textContent = category ? `${category.description} · ${shown} ${shown === 1 ? 'modelo' : 'modelos'}` : '';
+  }
+
+  $('#template-filter').addEventListener('change', (event) => filterTemplates(event.target.value));
+
   function renderTemplateGrid() {
     if (templateGridReady) return;
     $$('[data-template-group]').forEach((list) => {
       list.innerHTML = TEMPLATES.filter((t) => (t.group ?? 'model') === list.dataset.templateGroup).map(templateCardHtml).join('');
     });
+    renderTemplateFilter();
     templateGridReady = true;
     preview.renderNow(); // devolve a área de medição ao documento atual
   }

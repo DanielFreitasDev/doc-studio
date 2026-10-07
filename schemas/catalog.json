@@ -2694,12 +2694,35 @@
     ],
     "note": "Textos fixos sem formatação; \\n quebra a linha onde o campo aceita várias linhas."
   },
+  "templateCategories": [
+    {
+      "id": "manuals",
+      "label": "Manuais e guias",
+      "description": "Ensinar um processo a equipes, parceiros ou ao cidadão"
+    },
+    {
+      "id": "procedures",
+      "label": "Procedimentos e técnicos",
+      "description": "Padronizar uma rotina ou documentar um sistema"
+    },
+    {
+      "id": "management",
+      "label": "Gestão e projetos",
+      "description": "Prestar contas de resultados ou apresentar um projeto"
+    },
+    {
+      "id": "official",
+      "label": "Comunicação oficial",
+      "description": "Comunicados e ofícios em papel timbrado"
+    }
+  ],
   "templates": [
     {
       "id": "manual",
       "name": "Manual operacional",
       "description": "Manual completo com sumário, cronograma, passo a passo, tabelas e dúvidas comuns. É a estrutura dos manuais oficiais.",
       "kind": "model",
+      "category": "manuals",
       "blocks": 24,
       "design": {
         "theme": "green",
@@ -2719,6 +2742,7 @@
       "name": "Guia rápido",
       "description": "Poucas páginas, direto ao ponto: o que muda, como fazer e o que observar. Ideal para comunicar uma regra nova.",
       "kind": "model",
+      "category": "manuals",
       "blocks": 9,
       "design": {
         "theme": "teal",
@@ -2738,6 +2762,7 @@
       "name": "Procedimento (POP)",
       "description": "Procedimento Operacional Padrão: objetivo, responsáveis, materiais, execução, riscos, registros e controle de versões.",
       "kind": "model",
+      "category": "procedures",
       "blocks": 12,
       "design": {
         "theme": "teal",
@@ -2755,6 +2780,7 @@
       "name": "Relatório de resultados",
       "description": "Indicadores em destaque, linha do tempo, comparativos e conclusões. Visual sóbrio para a gestão.",
       "kind": "model",
+      "category": "management",
       "blocks": 9,
       "design": {
         "theme": "navy",
@@ -2774,6 +2800,7 @@
       "name": "Comunicado",
       "description": "Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura.",
       "kind": "model",
+      "category": "official",
       "blocks": 8,
       "design": {
         "theme": "green",
@@ -2793,6 +2820,7 @@
       "name": "Apresentação de projeto",
       "description": "Contexto, objetivos, etapas, investimento e equipe, com capa de placa de obra do MIV. Ideal para projetos e obras.",
       "kind": "model",
+      "category": "management",
       "blocks": 8,
       "design": {
         "theme": "green",
@@ -2812,6 +2840,7 @@
       "name": "Cartilha para o cidadão",
       "description": "Linguagem simples, passo a passo, documentos necessários e dúvidas comuns, com capa de totem do MIV.",
       "kind": "model",
+      "category": "manuals",
       "blocks": 7,
       "design": {
         "theme": "sky",
@@ -2831,6 +2860,7 @@
       "name": "Ofício",
       "description": "Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página.",
       "kind": "model",
+      "category": "official",
       "blocks": 8,
       "design": {
         "theme": "green",
@@ -2850,6 +2880,7 @@
       "name": "Nota técnica",
       "description": "Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência.",
       "kind": "model",
+      "category": "procedures",
       "blocks": 13,
       "design": {
         "theme": "navy",
