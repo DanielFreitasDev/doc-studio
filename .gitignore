@@ -1,0 +1,16 @@
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Artefatos de testes no navegador
+.playwright-mcp/
+
+# Arquivos exportados durante testes
+*.docstudio.json
+
+# Configurações pessoais de agentes (não compartilhadas)
+CLAUDE.local.md
+.claude/settings.local.json

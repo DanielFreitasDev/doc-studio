@@ -1,0 +1,80 @@
+/* =============================================================================
+   Impressão / "Salvar como PDF"
+   Imprime somente as páginas A4 da prévia, sem margens do navegador, sem zoom
+   e sem os destaques de seleção do editor.
+   ========================================================================== */
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+html,
+body {
+  height: auto !important;
+  overflow: visible !important;
+  background: #fff !important;
+}
+
+.app {
+  display: block !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.topbar,
+.rail,
+.side-panel,
+.editor-pane,
+.preview-toolbar,
+.bottom-nav,
+.toast-region,
+.skip-link,
+.file-warning,
+.measure-host,
+.drag-ghost,
+.drop-indicator,
+dialog,
+[popover] {
+  display: none !important;
+}
+
+.workspace,
+.preview-pane,
+.preview-scroll {
+  display: block !important;
+  position: static !important;
+  overflow: visible !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+}
+
+.pages {
+  display: block !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  --zoom: 1 !important;
+}
+
+.page {
+  zoom: 1 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  break-after: page;
+  page-break-after: always;
+  break-inside: avoid;
+}
+
+.page:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+.atom,
+.atom:hover,
+.atom.is-selected {
+  outline: none !important;
+  box-shadow: none !important;
+}

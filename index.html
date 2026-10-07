@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>Estúdio de Documentos · Identidade Visual do Ceará</title>
+  <meta name="description" content="Editor visual de manuais e documentos na identidade visual do Governo do Ceará, com pré-visualização em tempo real e exportação para PDF.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f3f5f4" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f1417" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <!-- Aplica o tema salvo antes da primeira pintura para evitar "flash" de tema errado. -->
+  <script>
+    (() => {
+      try {
+        const theme = JSON.parse(localStorage.getItem('doc-studio:app-theme'));
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch { /* armazenamento bloqueado: segue o tema do sistema */ }
+    })();
+  </script>
+
+  <link rel="preload" href="assets/fonts/Kanit-Regular.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="assets/fonts/Kanit-Medium.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="assets/fonts/Kanit-SemiBold.woff" as="font" type="font/woff" crossorigin>
+  <link rel="preload" href="assets/fonts/Maitree-Regular.woff" as="font" type="font/woff" crossorigin>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/document.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+  <!-- Ícones usados na interface (sprite SVG reutilizado via <use>). -->
+  <svg class="icon-sprite" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-grip" viewBox="0 0 24 24"><g class="fill"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></g></symbol>
+      <symbol id="i-chevron-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
+      <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
+      <symbol id="i-more" viewBox="0 0 24 24"><g class="fill"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></g></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+      <symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></symbol>
+      <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 21V9M7 14l5-5 5 5M5 3h14"/></symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+      <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/></symbol>
+      <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+      <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+      <symbol id="i-zoom-in" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></symbol>
+      <symbol id="i-zoom-out" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/></symbol>
+      <symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16zM13.5 6.5l4 4"/></symbol>
+      <symbol id="i-split" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></symbol>
+      <symbol id="i-blocks" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></symbol>
+      <symbol id="i-outline" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><g class="fill"><circle cx="4.5" cy="6" r="1.4"/><circle cx="4.5" cy="12" r="1.4"/><circle cx="4.5" cy="18" r="1.4"/></g></symbol>
+      <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.9 1.5-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.1-4-7.5-9-7.5z"/><g class="fill"><circle cx="7.5" cy="11" r="1.3"/><circle cx="10.5" cy="7.2" r="1.3"/><circle cx="15" cy="7.8" r="1.3"/></g></symbol>
+      <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h6"/></symbol>
+      <symbol id="i-file-plus" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M12 12v6M9 15h6"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></symbol>
+      <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></symbol>
+      <symbol id="i-bold" viewBox="0 0 24 24"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z"/></symbol>
+      <symbol id="i-italic" viewBox="0 0 24 24"><path d="M19 5h-9M14 19H5M15 5L9 19"/></symbol>
+      <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4"/></symbol>
+      <symbol id="i-highlight" viewBox="0 0 24 24"><path d="M3 21h18M7 17l10-10 3 3-10 10H7z"/></symbol>
+      <symbol id="i-strike" viewBox="0 0 24 24"><path d="M5 12h14M16 6.5A4 4 0 0 0 12 5c-2.5 0-4 1.3-4 3 0 1.2.7 2.2 2 2.8M8 17.5A4.4 4.4 0 0 0 12 19c2.5 0 4-1.3 4-3 0-.5-.1-1-.4-1.4"/></symbol>
+      <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19zM12 10v4M12 17h.01"/></symbol>
+      <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8zM19 15l.8 1.7 1.7.8-1.7.8L19 20l-.8-1.7-1.7-.8 1.7-.8z"/></symbol>
+      <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></symbol>
+      <symbol id="i-collapse" viewBox="0 0 24 24"><path d="M7 20l5-5 5 5M7 4l5 5 5-5"/></symbol>
+      <symbol id="i-expand" viewBox="0 0 24 24"><path d="M7 15l5 5 5-5M7 9l5-5 5 5"/></symbol>
+      <!-- Tipos de bloco -->
+      <symbol id="i-section" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></symbol>
+      <symbol id="i-heading" viewBox="0 0 24 24"><path d="M6 4v16M18 4v16M6 12h12"/></symbol>
+      <symbol id="i-paragraph" viewBox="0 0 24 24"><path d="M13 4v16M17 4v16M19 4H9.5a4.5 4.5 0 0 0 0 9H13"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><g class="fill"><circle cx="4.5" cy="6" r="1.4"/><circle cx="4.5" cy="12" r="1.4"/><circle cx="4.5" cy="18" r="1.4"/></g></symbol>
+      <symbol id="i-steps" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M6 8.5v7M11 6h10M11 18h10"/></symbol>
+      <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></symbol>
+      <symbol id="i-callout" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5M12 8h.01"/></symbol>
+      <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+      <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 10v10"/></symbol>
+      <symbol id="i-stats" viewBox="0 0 24 24"><path d="M3 20h18M6 16v-5M11 16V6M16 16V9"/></symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle class="fill" cx="7.5" cy="7.5" r="1.4"/></symbol>
+      <symbol id="i-timeline" viewBox="0 0 24 24"><path d="M3 12h18M6 6v3M12 15v3M18 6v3"/><g class="fill"><circle cx="6" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18" cy="12" r="2"/></g></symbol>
+      <symbol id="i-flow" viewBox="0 0 24 24"><rect x="2" y="9" width="6" height="6" rx="1"/><rect x="16" y="9" width="6" height="6" rx="1"/><path d="M8 12h7M12.5 9.5L15 12l-2.5 2.5"/></symbol>
+      <symbol id="i-faq" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></symbol>
+      <symbol id="i-quote" viewBox="0 0 24 24"><path d="M10 11H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v6c0 2.5-1.5 4-4 4.5M19 11h-4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v6c0 2.5-1.5 4-4 4.5"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></symbol>
+      <symbol id="i-toc" viewBox="0 0 24 24"><path d="M4 6h10M4 12h10M4 18h10M18 6h2M18 12h2M18 18h2"/></symbol>
+      <symbol id="i-divider" viewBox="0 0 24 24"><path d="M3 12h18M8 6h8M8 18h8"/></symbol>
+      <symbol id="i-pagebreak" viewBox="0 0 24 24"><path d="M5 3v5h14V3M5 21v-5h14v5M3 12h2M9 12h2M13 12h2M19 12h2"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip-link" href="#editor-list">Pular para o editor</a>
+
+  <!-- Aviso exibido apenas quando o arquivo é aberto direto do disco (file://), onde módulos ES não carregam. -->
+  <div class="file-warning" id="file-warning" role="alert" hidden>
+    <strong>Abra pelo servidor local.</strong>
+    Os navegadores bloqueiam módulos JavaScript em arquivos abertos direto do disco.
+    Na pasta do projeto, rode <code>python3 -m http.server 8080</code> e acesse <code>http://localhost:8080</code>.
+  </div>
+  <script>
+    if (location.protocol === 'file:') document.getElementById('file-warning').hidden = false;
+  </script>
+
+  <div class="app" id="app" data-pane="editor" data-view="split" data-panel-open="true">
+    <header class="topbar">
+      <div class="topbar__brand">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <rect x="5" y="2" width="22" height="28" rx="3" fill="#fff" stroke="#c9d3cf"/>
+          <path d="M14 2h10a3 3 0 0 1 3 3v12z" fill="#26A737"/>
+          <path d="M5 21l9 9H8a3 3 0 0 1-3-3z" fill="#F04321"/>
+          <path d="M5 16l6 14H8a3 3 0 0 1-3-3z" fill="#2DB39E" opacity=".9"/>
+          <rect x="9" y="11" width="9" height="2" rx="1" fill="#465564"/>
+          <rect x="9" y="15" width="12" height="1.4" rx=".7" fill="#9AA4AD"/>
+        </svg>
+        <h1 class="topbar__title">Estúdio <span>de Documentos</span></h1>
+      </div>
+
+      <div class="topbar__doc">
+        <label class="visually-hidden" for="doc-name">Nome do arquivo</label>
+        <input class="doc-name" id="doc-name" type="text" autocomplete="off" spellcheck="false" maxlength="120">
+        <p class="save-status" id="save-status" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="topbar__actions">
+        <div class="btn-group" role="group" aria-label="Histórico">
+          <button class="icon-btn" type="button" data-action="undo" aria-label="Desfazer (Ctrl+Z)" title="Desfazer (Ctrl+Z)" disabled><svg class="icon"><use href="#i-undo"/></svg></button>
+          <button class="icon-btn" type="button" data-action="redo" aria-label="Refazer (Ctrl+Shift+Z)" title="Refazer (Ctrl+Shift+Z)" disabled><svg class="icon"><use href="#i-redo"/></svg></button>
+        </div>
+
+        <div class="segmented view-switch" role="radiogroup" aria-label="Modo de visualização">
+          <label title="Somente editor (Ctrl+1)"><input type="radio" name="view" value="editor"><svg class="icon"><use href="#i-edit"/></svg><span class="visually-hidden">Somente editor</span></label>
+          <label title="Editor e prévia lado a lado (Ctrl+2)"><input type="radio" name="view" value="split" checked><svg class="icon"><use href="#i-split"/></svg><span class="visually-hidden">Editor e prévia lado a lado</span></label>
+          <label title="Somente prévia (Ctrl+3)"><input type="radio" name="view" value="preview"><svg class="icon"><use href="#i-eye"/></svg><span class="visually-hidden">Somente prévia</span></label>
+        </div>
+
+        <button class="btn btn--ghost hide-compact" type="button" data-action="open-templates"><svg class="icon"><use href="#i-layout"/></svg><span>Modelos</span></button>
+        <button class="btn btn--ghost hide-compact" type="button" data-action="open-documents"><svg class="icon"><use href="#i-folder"/></svg><span>Meus documentos</span></button>
+
+        <button class="icon-btn" type="button" id="more-menu-button" aria-haspopup="menu" aria-expanded="false" aria-controls="more-menu" aria-label="Mais opções" title="Mais opções"><svg class="icon"><use href="#i-more"/></svg></button>
+        <div class="menu" id="more-menu" role="menu" popover aria-label="Mais opções">
+          <button role="menuitem" type="button" data-action="open-templates" class="show-compact"><svg class="icon"><use href="#i-layout"/></svg>Modelos prontos</button>
+          <button role="menuitem" type="button" data-action="open-documents" class="show-compact"><svg class="icon"><use href="#i-folder"/></svg>Meus documentos</button>
+          <button role="menuitem" type="button" data-action="new-document"><svg class="icon"><use href="#i-file-plus"/></svg>Novo documento</button>
+          <button role="menuitem" type="button" data-action="open-import-text"><svg class="icon"><use href="#i-pen"/></svg>Escrever / colar texto…</button>
+          <hr role="separator">
+          <button role="menuitem" type="button" data-action="export-json"><svg class="icon"><use href="#i-download"/></svg>Salvar arquivo (.json)</button>
+          <button role="menuitem" type="button" data-action="import-json"><svg class="icon"><use href="#i-upload"/></svg>Abrir arquivo (.json)…</button>
+          <hr role="separator">
+          <button role="menuitem" type="button" data-action="cycle-app-theme"><svg class="icon"><use href="#i-monitor"/></svg><span data-theme-label>Tema do app: automático</span></button>
+          <button role="menuitem" type="button" data-action="open-shortcuts"><svg class="icon"><use href="#i-keyboard"/></svg>Atalhos e ajuda</button>
+        </div>
+
+        <button class="btn btn--primary" type="button" data-action="export-pdf" title="Exportar PDF (Ctrl+P)" aria-label="Exportar PDF">
+          <svg class="icon" aria-hidden="true"><use href="#i-printer"/></svg><span class="hide-compact">Exportar PDF</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <!-- Trilho de navegação dos painéis laterais (vira abas horizontais no celular). -->
+      <nav class="rail" aria-label="Painéis">
+        <div class="rail__tabs" role="tablist" aria-label="Painéis laterais" aria-orientation="vertical">
+          <button class="rail__tab" role="tab" type="button" id="tab-insert" aria-controls="panel-insert" aria-selected="true" data-tab="insert"><svg class="icon"><use href="#i-blocks"/></svg><span>Inserir</span></button>
+          <button class="rail__tab" role="tab" type="button" id="tab-outline" aria-controls="panel-outline" aria-selected="false" tabindex="-1" data-tab="outline"><svg class="icon"><use href="#i-outline"/></svg><span>Estrutura</span></button>
+          <button class="rail__tab" role="tab" type="button" id="tab-design" aria-controls="panel-design" aria-selected="false" tabindex="-1" data-tab="design"><svg class="icon"><use href="#i-palette"/></svg><span>Design</span></button>
+          <button class="rail__tab" role="tab" type="button" id="tab-document" aria-controls="panel-document" aria-selected="false" tabindex="-1" data-tab="document"><svg class="icon"><use href="#i-file-text"/></svg><span>Textos</span></button>
+        </div>
+        <button class="icon-btn rail__toggle" type="button" data-action="toggle-panel" aria-controls="side-panel" aria-expanded="true" aria-label="Recolher painel lateral" title="Recolher/expandir painel"><svg class="icon"><use href="#i-panel"/></svg></button>
+      </nav>
+
+      <aside class="side-panel" id="side-panel" aria-label="Painel lateral">
+        <section class="panel" id="panel-insert" role="tabpanel" aria-labelledby="tab-insert" tabindex="-1">
+          <header class="panel__header">
+            <h2>Inserir</h2>
+            <p>Clique para adicionar após o bloco selecionado ou arraste para o editor ou para a página.</p>
+          </header>
+          <div class="panel__body" id="insert-palette"></div>
+        </section>
+
+        <section class="panel" id="panel-outline" role="tabpanel" aria-labelledby="tab-outline" tabindex="-1" hidden>
+          <header class="panel__header">
+            <h2>Estrutura</h2>
+            <p>Arraste para reordenar. Clique para ir até o bloco.</p>
+          </header>
+          <div class="panel__body">
+            <dl class="doc-stats" id="doc-stats"></dl>
+            <ol class="outline" id="outline-list" aria-label="Blocos do documento"></ol>
+          </div>
+        </section>
+
+        <section class="panel" id="panel-design" role="tabpanel" aria-labelledby="tab-design" tabindex="-1" hidden>
+          <header class="panel__header">
+            <h2>Design</h2>
+            <p>Tudo segue o Manual de Identidade Visual do Governo do Ceará.</p>
+          </header>
+          <div class="panel__body" id="design-controls"></div>
+        </section>
+
+        <section class="panel" id="panel-document" role="tabpanel" aria-labelledby="tab-document" tabindex="-1" hidden>
+          <header class="panel__header">
+            <h2>Textos fixos</h2>
+            <p>Capa, cabeçalho das páginas e contracapa.</p>
+          </header>
+          <form class="panel__body" id="document-form" autocomplete="off"></form>
+        </section>
+      </aside>
+
+      <main class="editor-pane" id="editor" aria-label="Editor do documento">
+        <div class="editor-toolbar">
+          <h2 class="editor-toolbar__title">Conteúdo <span class="badge" id="block-count">0</span></h2>
+          <div class="editor-toolbar__actions">
+            <button class="btn btn--soft" type="button" data-action="open-import-text"><svg class="icon"><use href="#i-pen"/></svg><span>Escrever texto</span></button>
+            <button class="icon-btn" type="button" data-action="collapse-all" aria-label="Recolher todos os blocos" title="Recolher todos"><svg class="icon"><use href="#i-collapse"/></svg></button>
+            <button class="icon-btn" type="button" data-action="expand-all" aria-label="Expandir todos os blocos" title="Expandir todos"><svg class="icon"><use href="#i-expand"/></svg></button>
+          </div>
+        </div>
+        <ol class="block-list" id="editor-list" tabindex="-1" aria-label="Blocos do documento"></ol>
+        <div class="editor-empty" id="editor-empty" hidden>
+          <svg class="icon icon--xl"><use href="#i-file-plus"/></svg>
+          <h3>Seu documento está vazio</h3>
+          <p>Comece por um modelo, escreva livremente ou adicione blocos um a um.</p>
+          <div class="editor-empty__actions">
+            <button class="btn btn--primary" type="button" data-action="open-templates"><svg class="icon"><use href="#i-layout"/></svg>Escolher modelo</button>
+            <button class="btn btn--soft" type="button" data-action="open-import-text"><svg class="icon"><use href="#i-pen"/></svg>Escrever texto</button>
+            <button class="btn btn--ghost" type="button" data-action="insert-end"><svg class="icon"><use href="#i-plus"/></svg>Inserir bloco</button>
+          </div>
+        </div>
+        <button class="btn btn--soft add-block-end" type="button" data-action="insert-end"><svg class="icon"><use href="#i-plus"/></svg>Adicionar bloco</button>
+      </main>
+
+      <section class="preview-pane" id="preview" aria-label="Pré-visualização das páginas">
+        <div class="preview-toolbar">
+          <p class="preview-toolbar__info" id="page-info" aria-live="polite">—</p>
+          <div class="preview-toolbar__zoom" role="group" aria-label="Zoom da prévia">
+            <button class="icon-btn" type="button" data-action="zoom-out" aria-label="Diminuir zoom"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
+            <output class="zoom-value" id="zoom-value" aria-label="Zoom atual">100%</output>
+            <button class="icon-btn" type="button" data-action="zoom-in" aria-label="Aumentar zoom"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
+            <button class="icon-btn" type="button" data-action="zoom-fit" aria-label="Ajustar à largura" aria-pressed="true" title="Ajustar à largura"><svg class="icon"><use href="#i-fit"/></svg></button>
+          </div>
+        </div>
+        <div class="preview-scroll" id="preview-scroll" tabindex="0" role="region" aria-label="Páginas do documento (role para navegar)">
+          <div class="doc pages" id="pages"></div>
+        </div>
+      </section>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Navegação principal">
+      <button type="button" data-pane-target="editor" aria-current="page"><svg class="icon"><use href="#i-edit"/></svg><span>Editar</span></button>
+      <button type="button" data-pane-target="panel" data-tab-target="insert"><svg class="icon"><use href="#i-blocks"/></svg><span>Inserir</span></button>
+      <button type="button" data-pane-target="panel" data-tab-target="design"><svg class="icon"><use href="#i-palette"/></svg><span>Design</span></button>
+      <button type="button" data-pane-target="preview"><svg class="icon"><use href="#i-eye"/></svg><span>Prévia</span></button>
+    </nav>
+  </div>
+
+  <!-- Área invisível onde os blocos são medidos antes de serem distribuídos nas páginas A4. -->
+  <div class="measure-host" aria-hidden="true"><div class="doc" id="measure-doc"><div class="measure-body" id="measure-body"></div></div></div>
+
+  <!-- Diálogos -->
+  <dialog class="dialog dialog--wide" id="templates-dialog" aria-labelledby="templates-title">
+    <form method="dialog" class="dialog__frame">
+      <div class="dialog__header">
+        <div>
+          <h2 id="templates-title">Comece por um modelo</h2>
+          <p>Cada modelo já vem com capa, estrutura e textos de exemplo. Tudo é editável.</p>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dialog__body">
+        <ul class="template-grid" id="template-grid"></ul>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog--wide" id="documents-dialog" aria-labelledby="documents-title">
+    <form method="dialog" class="dialog__frame">
+      <div class="dialog__header">
+        <div>
+          <h2 id="documents-title">Meus documentos</h2>
+          <p>Salvos automaticamente neste navegador. Para levar a outro computador, use “Salvar arquivo (.json)”.</p>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dialog__body">
+        <ul class="document-list" id="document-list"></ul>
+      </div>
+      <div class="dialog__footer">
+        <button class="btn btn--primary" type="button" data-action="new-document"><svg class="icon"><use href="#i-file-plus"/></svg>Novo documento</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog--wide" id="import-text-dialog" aria-labelledby="import-text-title">
+    <form method="dialog" class="dialog__frame" id="import-text-form">
+      <div class="dialog__header">
+        <div>
+          <h2 id="import-text-title">Escreva ou cole seu texto</h2>
+          <p>O texto vira blocos automaticamente. Funciona com Markdown e com texto colado do Word.</p>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dialog__body import-text">
+        <div class="field import-text__editor">
+          <label for="import-text-input">Texto</label>
+          <textarea id="import-text-input" rows="16" spellcheck="true" placeholder="# Título da seção&#10;Parágrafo de introdução.&#10;&#10;## Subtítulo&#10;- item de lista&#10;1. passo numerado&#10;&#10;> [!ATENÇÃO] Texto do destaque"></textarea>
+        </div>
+        <aside class="import-text__help" aria-labelledby="markdown-help-title">
+          <h3 id="markdown-help-title">Como escrever</h3>
+          <dl class="cheatsheet">
+            <dt><code># Título</code></dt><dd>Nova seção numerada</dd>
+            <dt><code>## Título</code></dt><dd>Subtítulo</dd>
+            <dt><code>- item</code></dt><dd>Lista com marcadores</dd>
+            <dt><code>1. item</code></dt><dd>Passo a passo</dd>
+            <dt><code>&gt; texto</code></dt><dd>Destaque informativo</dd>
+            <dt><code>&gt; [!ATENÇÃO]</code></dt><dd>Destaque de atenção (também <code>[!DICA]</code>, <code>[!ALERTA]</code>, <code>[!SUCESSO]</code>)</dd>
+            <dt><code>| a | b |</code></dt><dd>Tabela (linha de cabeçalho primeiro)</dd>
+            <dt><code>Pergunta?</code> + <code>R: resposta</code></dt><dd>Pergunta e resposta</dd>
+            <dt><code>---</code></dt><dd>Divisor</dd>
+            <dt><code>/quebra</code></dt><dd>Quebra de página</dd>
+            <dt><code>**negrito**</code> <code>*itálico*</code></dt><dd>Formatação no texto</dd>
+          </dl>
+        </aside>
+      </div>
+      <div class="dialog__footer">
+        <fieldset class="segmented segmented--labels">
+          <legend class="visually-hidden">Onde inserir</legend>
+          <label><input type="radio" name="import-mode" value="append" checked><span>Adicionar ao final</span></label>
+          <label><input type="radio" name="import-mode" value="after"><span>Após o bloco selecionado</span></label>
+          <label><input type="radio" name="import-mode" value="replace"><span>Substituir tudo</span></label>
+        </fieldset>
+        <div class="dialog__footer-actions">
+          <button class="btn btn--ghost" value="cancel">Cancelar</button>
+          <button class="btn btn--primary" value="confirm" id="import-text-confirm"><svg class="icon"><use href="#i-check"/></svg>Converter em blocos</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog" id="shortcuts-dialog" aria-labelledby="shortcuts-title">
+    <form method="dialog" class="dialog__frame">
+      <div class="dialog__header">
+        <div>
+          <h2 id="shortcuts-title">Atalhos e ajuda</h2>
+          <p>No Mac, use <kbd>⌘</kbd> no lugar de <kbd>Ctrl</kbd>.</p>
+        </div>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg class="icon"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="dialog__body">
+        <dl class="shortcuts">
+          <dt><kbd>Ctrl</kbd> <kbd>Z</kbd></dt><dd>Desfazer</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>Z</kbd></dt><dd>Refazer</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt><dd>Inserir bloco após o selecionado</dd>
+          <dt><kbd>/</kbd> em um parágrafo vazio</dt><dd>Transformar o parágrafo em outro tipo de bloco</dd>
+          <dt><kbd>Alt</kbd> <kbd>↑</kbd> / <kbd>↓</kbd></dt><dd>Mover o bloco selecionado</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>D</kbd></dt><dd>Duplicar o bloco selecionado</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>B</kbd> / <kbd>I</kbd></dt><dd>Negrito / itálico no texto selecionado</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></dt><dd>Editor, lado a lado, prévia</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>S</kbd></dt><dd>Salvar agora (o salvamento já é automático)</dd>
+          <dt><kbd>Ctrl</kbd> <kbd>P</kbd></dt><dd>Exportar PDF</dd>
+          <dt><kbd>?</kbd></dt><dd>Abrir esta ajuda</dd>
+        </dl>
+        <h3>Para gerar o PDF</h3>
+        <p>Na janela de impressão, escolha <strong>Salvar como PDF</strong>. As margens e o tamanho A4 já vêm configurados. Se o fundo colorido não aparecer, marque <strong>Gráficos de plano de fundo</strong>.</p>
+        <h3>Dicas</h3>
+        <ul class="help-list">
+          <li>Cole um print com <kbd>Ctrl</kbd> <kbd>V</kbd> ou arraste imagens para o editor: vira uma figura numerada.</li>
+          <li>Clique em qualquer trecho da prévia para ir direto ao bloco correspondente.</li>
+          <li>Cole tabelas do Excel na primeira célula de uma tabela para preenchê-la de uma vez.</li>
+        </ul>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog dialog--small" id="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <form method="dialog" class="dialog__frame">
+      <div class="dialog__header"><h2 id="confirm-title">Confirmar</h2></div>
+      <div class="dialog__body"><p id="confirm-message"></p></div>
+      <div class="dialog__footer dialog__footer--end">
+        <button class="btn btn--ghost" value="cancel" autofocus>Cancelar</button>
+        <button class="btn btn--danger" value="confirm" id="confirm-ok">Confirmar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Seletor de bloco (botão "+" e comando "/") -->
+  <div class="block-picker" id="block-picker" popover role="dialog" aria-label="Escolher tipo de bloco">
+    <div class="block-picker__search">
+      <svg class="icon"><use href="#i-search"/></svg>
+      <input type="search" id="block-picker-search" placeholder="Buscar bloco…" aria-label="Buscar tipo de bloco" aria-controls="block-picker-list" autocomplete="off" enterkeyhint="go">
+    </div>
+    <ul class="block-picker__list" id="block-picker-list" role="listbox" aria-label="Tipos de bloco"></ul>
+  </div>
+
+  <div class="menu" id="block-menu" role="menu" popover aria-label="Ações do bloco">
+    <button role="menuitem" type="button" data-block-action="move-up"><svg class="icon"><use href="#i-chevron-up"/></svg>Mover para cima</button>
+    <button role="menuitem" type="button" data-block-action="move-down"><svg class="icon"><use href="#i-chevron-down"/></svg>Mover para baixo</button>
+    <button role="menuitem" type="button" data-block-action="insert-above"><svg class="icon"><use href="#i-plus"/></svg>Inserir bloco acima</button>
+    <button role="menuitem" type="button" data-block-action="insert-below"><svg class="icon"><use href="#i-plus"/></svg>Inserir bloco abaixo</button>
+    <button role="menuitem" type="button" data-block-action="duplicate"><svg class="icon"><use href="#i-copy"/></svg>Duplicar</button>
+    <hr role="separator">
+    <button role="menuitem" type="button" data-block-action="delete" class="menu__danger"><svg class="icon"><use href="#i-trash"/></svg>Excluir bloco</button>
+  </div>
+
+  <input type="file" id="json-file-input" accept=".json,application/json" hidden>
+  <input type="file" id="image-file-input" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="false"></div>
+  <p class="visually-hidden" id="announcer" aria-live="assertive"></p>
+</body>
+</html>
