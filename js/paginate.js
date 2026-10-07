@@ -2,9 +2,11 @@
  * Paginação A4.
  *
  * 1. Renderiza todos os átomos numa coluna invisível com a largura útil da
- *    página (170 mm) e mede a posição real de cada um no navegador.
- * 2. Distribui os átomos em páginas de 252 mm de altura útil (221 mm na
- *    primeira folha com cabeçalho timbrado), respeitando:
+ *    página (170 mm; 257 mm nas páginas em paisagem) e mede a posição real
+ *    de cada um no navegador.
+ * 2. Distribui os átomos em páginas de 252 mm de altura útil (165 mm em
+ *    paisagem; 31 mm a menos na primeira folha com cabeçalho timbrado),
+ *    respeitando:
  *    - quebras forçadas (seção em nova página, quebra de página, capítulo);
  *    - "manter com o próximo" (títulos nunca ficam sozinhos no pé da página);
  *    - repetição do cabeçalho de tabelas que continuam na página seguinte;
@@ -18,12 +20,16 @@ import { createRenderContext, renderBlock, renderCover, renderBackCover, renderC
 import { renderInline } from './markup.js';
 
 const PX_PER_MM = 96 / 25.4;
-const CONTENT_HEIGHT = 252 * PX_PER_MM;
+// Altura útil do corpo da página: A4 em pé e deitado (uma quebra de página escolhe a orientação das seguintes).
+const CONTENT_HEIGHT = { portrait: 252 * PX_PER_MM, landscape: 165 * PX_PER_MM };
 // Cabeçalho "timbrado" (assinatura centralizada do MIV) ocupa o topo da primeira página.
 const LETTERHEAD_OFFSET = 31 * PX_PER_MM;
 const TOLERANCE = 0.75;
 // Controle de linhas viúvas e órfãs: um parágrafo dividido deixa ao menos 2 linhas em cada página.
 const MIN_LINES = 2;
+
+/** A coluna de medição tem a largura útil da orientação do átomo (170 ou 257 mm). */
+const setOrientation = (measureBody, orientation) => measureBody.classList.toggle('measure-body--landscape', orientation === 'landscape');
 
 /* ------------------------------------------------------------------ larguras de tabela */
 /**
@@ -32,9 +38,10 @@ const MIN_LINES = 2;
  * (uma por átomo) com essas larguras fixas, para continuarem alinhadas
  * mesmo quando a tabela é dividida entre páginas.
  */
-function measureTableColumns(block, measureBody, cache) {
-  const key = JSON.stringify([block.header, block.rows, block.keyColumn]);
+function measureTableColumns(block, measureBody, cache, orientation) {
+  const key = JSON.stringify([block.header, block.rows, block.keyColumn, orientation]);
   if (cache.has(key)) return cache.get(key);
+  setOrientation(measureBody, orientation);
 
   const head = block.header.map((cell) => `<th>${renderInline(cell)}</th>`).join('');
   const body = block.rows
@@ -45,6 +52,7 @@ function measureTableColumns(block, measureBody, cache) {
   const total = table.getBoundingClientRect().width || 1;
   const widths = [...table.querySelectorAll('th')].map((th) => Math.round((th.getBoundingClientRect().width / total) * 10000) / 100);
 
+  setOrientation(measureBody, 'portrait');
   if (cache.size > 200) cache.clear();
   cache.set(key, widths);
   return widths;
@@ -122,12 +130,14 @@ function cutParagraph(box, paragraph, start, part) {
  * da primeira coincide com o do parágrafo e o fundo da segunda, com o dele.
  */
 function splitParagraphAtom(atom, available, measureBody) {
+  setOrientation(measureBody, atom.orientation);
   measureBody.innerHTML = atom.html;
   const box = measureBody.firstElementChild;
   const paragraph = box?.querySelector('p');
   const starts = paragraph ? lineStarts(paragraph) : [];
   if (starts.length < MIN_LINES * 2) {
     measureBody.innerHTML = '';
+    setOrientation(measureBody, 'portrait');
     return null;
   }
   // Distância entre o topo do átomo e o topo do primeiro caractere (meia entrelinha).
@@ -153,19 +163,27 @@ function splitParagraphAtom(atom, available, measureBody) {
     ];
   }
   measureBody.innerHTML = '';
+  setOrientation(measureBody, 'portrait');
   return result;
 }
 
 /* ------------------------------------------------------------------ distribuição */
 function measureAtoms(atoms, measureBody) {
-  measureBody.innerHTML = atoms.map((a) => a.html).join('');
-  const origin = measureBody.getBoundingClientRect().top;
-  const elements = measureBody.children;
-  atoms.forEach((a, i) => {
-    const rect = elements[i].getBoundingClientRect();
-    a.top = rect.top - origin;
-    a.bottom = rect.bottom - origin;
-  });
+  // Cada orientação é medida na sua largura; uma página nunca mistura as duas (a quebra separa).
+  for (const orientation of ['portrait', 'landscape']) {
+    const group = atoms.filter((a) => a.orientation === orientation);
+    if (!group.length) continue;
+    setOrientation(measureBody, orientation);
+    measureBody.innerHTML = group.map((a) => a.html).join('');
+    const origin = measureBody.getBoundingClientRect().top;
+    const elements = measureBody.children;
+    group.forEach((a, i) => {
+      const rect = elements[i].getBoundingClientRect();
+      a.top = rect.top - origin;
+      a.bottom = rect.bottom - origin;
+    });
+  }
+  setOrientation(measureBody, 'portrait');
   // Altura do cabeçalho de cada tabela (para quando ele é repetido).
   const headerHeights = new Map();
   for (const a of atoms) {
@@ -180,8 +198,8 @@ function distribute(entries, headerHeights, capacityOf, splitParagraph) {
   let current = null;
   let contentPages = 0;
 
-  const openPage = () => {
-    current = { kind: 'content', atoms: [], capacity: capacityOf(contentPages) };
+  const openPage = (orientation = 'portrait') => {
+    current = { kind: 'content', atoms: [], orientation, capacity: capacityOf(contentPages, orientation) };
     contentPages += 1;
     pages.push(current);
   };
@@ -201,8 +219,8 @@ function distribute(entries, headerHeights, capacityOf, splitParagraph) {
       current = null;
       continue;
     }
-    if (!current) openPage();
-    if (entry.breakBefore && current.atoms.length) openPage();
+    if (!current) openPage(entry.orientation);
+    if (entry.breakBefore && current.atoms.length) openPage(entry.orientation);
 
     let pending = entry;
     let carriedOnce = false;
@@ -217,7 +235,7 @@ function distribute(entries, headerHeights, capacityOf, splitParagraph) {
       const parts = pending.splittable ? splitParagraph(pending, available) : null;
       if (parts) {
         current.atoms.push(parts[0]);
-        openPage();
+        openPage(current.orientation);
         pending = parts[1];
         continue;
       }
@@ -229,7 +247,7 @@ function distribute(entries, headerHeights, capacityOf, splitParagraph) {
       // Leva junto os títulos que ficariam órfãos no pé da página.
       const carried = [];
       while (current.atoms.length > 1 && current.atoms.at(-1).keep) carried.unshift(current.atoms.pop());
-      openPage();
+      openPage(current.orientation);
       current.atoms.push(...carried);
       // Na página nova o parágrafo ainda pode ser dividido; os demais átomos entram direto.
       if (!pending.splittable || carriedOnce) {
@@ -273,16 +291,24 @@ function pageBodyHtml(atoms) {
  * (página de cada seção, blocos que estouram a página, primeira página de cada bloco).
  */
 export function layoutDocument(doc, assets, measureBody, columnCache) {
-  const ctx = createRenderContext(doc, assets, (block) => measureTableColumns(block, measureBody, columnCache));
-  const entries = doc.blocks.flatMap((block) => renderBlock(block, ctx));
+  // A quebra de página define a orientação das páginas seguintes (retrato ou paisagem).
+  let orientation = 'portrait';
+  const ctx = createRenderContext(doc, assets, (block) => measureTableColumns(block, measureBody, columnCache, orientation));
+  const entries = [];
+  for (const block of doc.blocks) {
+    const rendered = renderBlock(block, ctx);
+    rendered.forEach((entry) => { if (entry.kind === 'atom') entry.orientation = orientation; });
+    entries.push(...rendered);
+    if (block.type === 'pagebreak') orientation = block.orientation === 'landscape' ? 'landscape' : 'portrait';
+  }
   const atoms = entries.filter((e) => e.kind === 'atom');
   const headerHeights = measureAtoms(atoms, measureBody);
   const letterhead = doc.design.header === 'letterhead';
-  const capacityOf = (index) => CONTENT_HEIGHT - (letterhead && index === 0 ? LETTERHEAD_OFFSET : 0);
+  const capacityOf = (index, pageOrientation) => CONTENT_HEIGHT[pageOrientation] - (letterhead && index === 0 ? LETTERHEAD_OFFSET : 0);
   const splitParagraph = (atom, available) => splitParagraphAtom(atom, available, measureBody);
   const bodyPages = distribute(entries, headerHeights, capacityOf, splitParagraph);
   // Documento sem conteúdo: mostra uma página timbrada vazia, pronta para receber o texto.
-  if (!bodyPages.length) bodyPages.push({ kind: 'content', atoms: [], capacity: capacityOf(0) });
+  if (!bodyPages.length) bodyPages.push({ kind: 'content', atoms: [], orientation: 'portrait', capacity: capacityOf(0, 'portrait') });
 
   const hasCover = doc.design.cover !== 'none';
   const hasBack = doc.design.backCover !== 'none';
@@ -331,6 +357,7 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
       total,
       idPrefix,
       overflowing: page.overflowing,
+      orientation: page.orientation,
     });
   });
 

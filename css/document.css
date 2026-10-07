@@ -219,6 +219,11 @@
   height: 252mm;
 }
 
+/* Página em paisagem (A4 deitado), escolhida numa quebra de página: corpo de 257 × 165 mm (CONTENT_HEIGHT em js/paginate.js). */
+.page--landscape { width: 297mm; height: 210mm; }
+.page--landscape .page__body { height: 165mm; }
+.page--landscape.page--letterhead .page__body { height: 134mm; }
+
 .page__footer { position: absolute; left: 0; right: 0; bottom: 0; height: 10.5mm; }
 .page__footer--stripe { height: 1.9mm; }
 .page__footer--half { height: 10.9mm; }
@@ -290,6 +295,7 @@
   contain: layout style;
 }
 .measure-body { position: relative; width: 170mm; font-size: 9.6pt; line-height: 1.4; }
+.measure-body--landscape { width: 257mm; }
 
 /* ---------------------------------------------------------------- texto inline */
 .doc strong { font-weight: 600; color: var(--doc-heading); }

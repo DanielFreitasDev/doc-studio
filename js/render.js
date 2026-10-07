@@ -361,7 +361,7 @@ const RENDERERS = {
   },
 
   pagebreak(block) {
-    return [{ kind: 'break', blockId: block.id }];
+    return [{ kind: 'break', blockId: block.id, orientation: block.orientation === 'landscape' ? 'landscape' : 'portrait' }];
   },
 };
 
@@ -571,7 +571,7 @@ function addressHtml(meta) {
   return `<address class="page__address">${first ? `<span>${first}</span>` : ''}${rest ? `<span>${rest}</span>` : ''}</address>`;
 }
 
-export function renderContentPage(doc, assets, { bodyHtml, first, number, total, idPrefix, overflowing }) {
+export function renderContentPage(doc, assets, { bodyHtml, first, number, total, idPrefix, overflowing, orientation = 'portrait' }) {
   const { design } = doc;
   // A meia faixa fica no lado de fora da folha: direita nas páginas ímpares, esquerda nas pares.
   const side = design.footer === 'half' && number % 2 === 0 ? 'left' : 'right';
@@ -583,6 +583,7 @@ export function renderContentPage(doc, assets, { bodyHtml, first, number, total,
     `page--footer-${design.footer}`,
     design.footer === 'half' ? `page--outer-${side}` : '',
     design.header === 'letterhead' && first ? 'page--letterhead' : '',
+    orientation === 'landscape' ? 'page--landscape' : '',
     overflowing ? 'is-overflowing' : '',
   ].filter(Boolean).join(' ');
   return paint(design, `

@@ -8,10 +8,10 @@
 import { $, $$, debounce, clamp, prefersReducedMotion } from './utils.js';
 import { applyDocAttributes, DESIGN_OPTIONS } from './design.js';
 import { layoutDocument } from './paginate.js';
-import { BLOCK_TYPES } from './schema.js';
+import { BLOCK_TYPES, createBlock } from './schema.js';
 import { keys, writeClipboard } from './textmenu.js';
 
-const PAGE_WIDTH_PX = (210 * 96) / 25.4;
+const MM = 96 / 25.4;
 const ZOOM_STEPS = [0.25, 0.33, 0.4, 0.5, 0.6, 0.75, 0.9, 1, 1.25, 1.5, 2];
 
 export function createPreview({ store, ui, assets, actions }) {
@@ -35,7 +35,9 @@ export function createPreview({ store, ui, assets, actions }) {
     applyDocAttributes(pagesEl, doc.design);
     applyDocAttributes(measureDoc, doc.design);
     layout = layoutDocument(doc, assets.renderMap(), measureBody, columnCache);
+    const hadLandscape = Boolean(pagesEl.querySelector('.page--landscape'));
     patchPages(layout.pagesHtml);
+    if (ui.get('zoomFit') && hadLandscape !== Boolean(pagesEl.querySelector('.page--landscape'))) applyZoom();
     highlightSelection();
 
     const overflowKey = [...layout.overflowBlocks].sort().join('|');
@@ -88,9 +90,11 @@ export function createPreview({ store, ui, assets, actions }) {
   }
 
   /* ---------------------------------------------------------------- zoom */
+  /** "Ajustar à largura" cabe a página mais larga (297 mm se houver páginas em paisagem). */
   function fitZoom() {
     const available = scroller.clientWidth - 32;
-    return clamp(available / PAGE_WIDTH_PX, 0.2, 1.25);
+    const widest = (pagesEl.querySelector('.page--landscape') ? 297 : 210) * MM;
+    return clamp(available / widest, 0.2, 1.25);
   }
 
   function applyZoom() {
@@ -251,6 +255,9 @@ export function createPreview({ store, ui, assets, actions }) {
     const current = (key, options) => options.find((option) => option.value === design[key])?.label;
     return [
       { label: 'Nova página depois desta', icon: 'pagebreak', run: () => actions.insertType('pagebreak', after) },
+      page.classList.contains('page--landscape')
+        ? { label: 'Voltar a retrato depois desta', icon: 'pagebreak', run: () => actions.insertBlocks([createBlock('pagebreak', { orientation: 'portrait' })], after, { focus: false }) }
+        : { label: 'Páginas em paisagem depois desta', icon: 'pagebreak', run: () => actions.insertBlocks([createBlock('pagebreak', { orientation: 'landscape' })], after, { focus: false }) },
       { label: 'Inserir bloco no fim desta página', icon: 'plus', run: () => actions.openPicker(page, { index: after }) },
       { separator: true },
       { label: 'Selecionar os blocos desta página', icon: 'select-all', disabled: !onPage.length, run: () => actions.selection.select(onPage) },

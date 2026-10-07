@@ -470,13 +470,19 @@ export const BLOCK_TYPES = {
 
   pagebreak: {
     label: 'Quebra de página',
-    description: 'O próximo bloco começa em nova página',
+    description: 'O próximo bloco começa em nova página, em pé ou deitada',
     icon: 'pagebreak',
     group: 'page',
-    keywords: 'nova pagina salto',
-    defaults: () => ({}),
-    fields: [],
-    summary: () => '',
+    keywords: 'nova pagina salto paisagem horizontal deitada retrato orientacao tabela larga',
+    defaults: () => ({ orientation: 'portrait' }),
+    fields: [
+      {
+        key: 'orientation', kind: 'segmented', label: 'Páginas seguintes',
+        hint: 'Paisagem serve para tabelas largas, fluxos e prints. Para voltar a retrato, use outra quebra de página.',
+        options: [{ value: 'portrait', label: 'Retrato (em pé)' }, { value: 'landscape', label: 'Paisagem (deitada)' }],
+      },
+    ],
+    summary: (b) => (b.orientation === 'landscape' ? 'Páginas seguintes em paisagem' : 'Páginas seguintes em retrato'),
   },
 };
 

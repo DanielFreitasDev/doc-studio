@@ -105,7 +105,8 @@ const RENDER = {
   segmented(field, value, id, path) {
     const options = field.options.map((o) => `
       <label><input type="radio" name="${id}" value="${esc(o.value)}" data-path="${path}"${o.value === value ? ' checked' : ''}><span>${esc(o.label)}</span></label>`).join('');
-    return `<fieldset class="field"><legend class="field__label">${esc(field.label)}</legend><div class="segmented segmented--block">${options}</div></fieldset>`;
+    const described = field.hint ? ` aria-describedby="${id}-hint"` : '';
+    return `<fieldset class="field"${described}><legend class="field__label">${esc(field.label)}</legend><div class="segmented segmented--block">${options}</div>${hint(field, id)}</fieldset>`;
   },
 
   toggle(field, value, id, path) {

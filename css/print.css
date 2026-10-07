@@ -9,6 +9,13 @@
   margin: 0;
 }
 
+/* Páginas de conteúdo em paisagem (quebra de página "Paisagem"): o PDF sai com a folha deitada só nelas. */
+@page landscape {
+  size: A4 landscape;
+  margin: 0;
+}
+.page--landscape { page: landscape; }
+
 html,
 body {
   height: auto !important;
@@ -29,6 +36,7 @@ body {
 .preview-toolbar,
 .bottom-nav,
 .toast-region,
+.selection-bar,
 .skip-link,
 .file-warning,
 .drag-ghost,
