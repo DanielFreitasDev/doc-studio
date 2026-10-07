@@ -65,19 +65,19 @@ function richField(field, value, id, path, mode) {
 }
 
 const RENDER = {
-  text(field, value, id, path) {
+  text(field, value, id, path, context = {}) {
     if (!field.plain) return richField(field, value, id, path, 'single');
-    return `<div class="field">${label(id, field.label)}<input class="input${field.big ? ' input--title' : ''}" id="${id}" type="text" data-path="${path}" value="${esc(value)}"${field.placeholder ? ` placeholder="${esc(field.placeholder)}"` : ''}${field.plain ? ' data-plain' : ''} autocomplete="off" enterkeyhint="next"></div>`;
+    return `<div class="field">${label(id, field.label)}<input class="input${field.big ? ' input--title' : ''}" id="${id}" type="text" data-path="${path}" value="${esc(value)}"${field.placeholder ? ` placeholder="${esc(field.placeholder)}"` : ''}${field.plain ? ' data-plain' : ''}${context.maxLength ? ` maxlength="${context.maxLength}"` : ''} autocomplete="off" enterkeyhint="next"></div>`;
   },
 
   rich(field, value, id, path) {
     return richField(field, value, id, path, 'multi');
   },
 
-  lines(field, value, id, path) {
+  lines(field, value, id, path, context = {}) {
     if (!field.plain) return richField(field, value, id, path, 'lines');
     const described = field.hint ? ` aria-describedby="${id}-hint"` : '';
-    return `<div class="field">${label(id, field.label)}<textarea class="textarea" id="${id}" data-path="${path}" rows="${field.rows ?? 3}"${described}>${esc(value)}</textarea>${hint(field, id)}</div>`;
+    return `<div class="field">${label(id, field.label)}<textarea class="textarea" id="${id}" data-path="${path}" rows="${field.rows ?? 3}"${context.maxLength ? ` maxlength="${context.maxLength}"` : ''}${described}>${esc(value)}</textarea>${hint(field, id)}</div>`;
   },
 
   /** Texto literal em fonte de máquina (bloco de código): sem formatação nem correção ortográfica. */

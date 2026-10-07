@@ -104,6 +104,14 @@ export function setByPath(target, path, value) {
   parent[last] = value;
 }
 
+/**
+ * Corta um texto no limite e diz se cortou. Quem chama avisa a pessoa uma
+ * vez por campo, em vez de perder o excesso em silêncio ao reabrir.
+ */
+export function capText(value, limit) {
+  return typeof value === 'string' && value.length > limit ? { value: value.slice(0, limit), cut: true } : { value, cut: false };
+}
+
 export function moveItem(list, from, to) {
   if (from === to || from < 0 || from >= list.length) return list;
   const [item] = list.splice(from, 1);

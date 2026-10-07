@@ -6,8 +6,8 @@
  * documento é atualizado e a prévia se refaz. O editor só é redesenhado
  * quando a estrutura muda (inclusão, remoção, reordenação, desfazer).
  */
-import { $, $$, esc, icon, getByPath, setByPath, moveItem, clamp } from './utils.js';
-import { BLOCK_TYPES, blockSummary } from './schema.js';
+import { $, $$, esc, icon, getByPath, setByPath, moveItem, clamp, capText } from './utils.js';
+import { BLOCK_TYPES, blockSummary, textLimit, TABLE_LIMITS } from './schema.js';
 import { fieldHtml, readControlValue } from './fields.js';
 import { setupMenu } from './dialogs.js';
 import { isAcceptedImage } from './images.js';
@@ -151,7 +151,9 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     if (control.tagName === 'TEXTAREA') autosize(control);
 
     const block = findBlock(store.doc, id);
-    const value = coerce(block, path, control);
+    const limit = textLimit(block, path);
+    const { value, cut } = capText(coerce(block, path, control), limit);
+    if (cut) warnLimit(limit);
     const discrete = isDiscreteEdit(event);
     if (discrete) store.breakCoalescing();
     store.update((doc) => setByPath(findBlock(doc, id), path, value), {
@@ -161,12 +163,21 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       coalesce: !discrete && (control.type === 'text' || control.tagName === 'TEXTAREA' || control.dataset.rich) ? `${id}:${path}` : null,
     });
     card.querySelector('.block-card__summary').textContent = blockSummary(findBlock(store.doc, id));
+    if (cut) renderCard(id, `[data-path="${CSS.escape(path)}"]`);
 
     // "/" num parágrafo vazio abre o seletor para transformar o bloco.
     if (block.type === 'paragraph' && path === 'text' && value === '/') {
       actions.openPicker(control, { convertId: id });
     }
   });
+
+  /** Aviso de texto longo demais (no máximo um a cada poucos segundos). */
+  let limitWarnedAt = 0;
+  function warnLimit(limit) {
+    if (Date.now() - limitWarnedAt < 4000) return;
+    limitWarnedAt = Date.now();
+    actions.notify(`Este campo aceita até ${limit.toLocaleString('pt-BR')} caracteres; o excesso foi cortado. Divida o texto em mais de um bloco.`, 'error');
+  }
 
   // Ao sair de um campo, a próxima digitação vira um novo passo de "desfazer".
   list.addEventListener('focusout', () => store.breakCoalescing());
@@ -217,17 +228,17 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     store.update((doc) => {
       const block = findBlock(doc, id);
       const columns = block.header.length;
-      if (action === 'add-row') {
+      if (action === 'add-row' && block.rows.length < TABLE_LIMITS.rows) {
         block.rows.push(Array(columns).fill(''));
         focusSelector = `[data-path="rows.${block.rows.length - 1}.0"]`;
-      } else if (action === 'insert-row' && block.rows.length < 400) {
+      } else if (action === 'insert-row' && block.rows.length < TABLE_LIMITS.rows) {
         block.rows.splice(index, 0, Array(columns).fill(''));
         focusSelector = `[data-path="rows.${index}.${column}"]`;
-      } else if (action === 'add-col' && columns < 12) {
+      } else if (action === 'add-col' && columns < TABLE_LIMITS.columns) {
         block.header.push(`Coluna ${columns + 1}`);
         block.rows.forEach((row) => row.push(''));
         focusSelector = `[data-path="header.${columns}"]`;
-      } else if (action === 'insert-col' && columns < 12) {
+      } else if (action === 'insert-col' && columns < TABLE_LIMITS.columns) {
         block.header.splice(index, 0, `Coluna ${index + 1}`);
         block.rows.forEach((row) => row.splice(index, 0, ''));
         focusSelector = `[data-path="header.${index}"]`;
@@ -269,7 +280,7 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       }
       grid.forEach((cells, r) => {
         const rowIndex = startRow + r;
-        if (rowIndex >= 400) return;
+        if (rowIndex >= TABLE_LIMITS.rows) return;
         while (rowIndex >= block.rows.length) block.rows.push(Array(block.header.length).fill(''));
         const target = rowIndex === -1 ? block.header : block.rows[rowIndex];
         cells.forEach((cell, c) => {
@@ -428,8 +439,8 @@ export function createEditor({ store, ui, assets, actions, drag }) {
         label: isHeader ? 'Linha do cabeçalho' : `Linha ${row + 1}`,
         icon: 'row-below',
         submenu: [
-          { label: 'Inserir linha acima', icon: 'row-above', disabled: isHeader || block.rows.length >= 400, run: () => tableAction(id, 'insert-row', row, col) },
-          { label: 'Inserir linha abaixo', icon: 'row-below', disabled: block.rows.length >= 400, run: () => tableAction(id, 'insert-row', row + 1, col) },
+          { label: 'Inserir linha acima', icon: 'row-above', disabled: isHeader || block.rows.length >= TABLE_LIMITS.rows, run: () => tableAction(id, 'insert-row', row, col) },
+          { label: 'Inserir linha abaixo', icon: 'row-below', disabled: block.rows.length >= TABLE_LIMITS.rows, run: () => tableAction(id, 'insert-row', row + 1, col) },
           { separator: true },
           { label: 'Excluir linha', icon: 'row-remove', danger: true, disabled: isHeader || block.rows.length <= 1, run: () => tableAction(id, 'remove-row', row, col) },
         ],

@@ -4,7 +4,7 @@
  */
 import { $, $$, esc, icon, debounce } from './utils.js';
 import { BLOCK_TYPES, BLOCK_GROUPS, blockSummary } from './schema.js';
-import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DESIGN_PRESETS, META_GROUPS, docAttributesHtml } from './design.js';
+import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DESIGN_PRESETS, META_GROUPS, META_MAX_TEXT, docAttributesHtml } from './design.js';
 import { SNIPPETS } from './templates.js';
 import { renderCover, renderBackCover, renderContentPage, brandHtml } from './render.js';
 import { fieldHtml, readControlValue } from './fields.js';
@@ -342,7 +342,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
     documentForm.innerHTML = META_GROUPS.map((group) => `
       <section class="form-section">
         <h3>${esc(group.title)}</h3>
-        ${group.fields.map((field) => fieldHtml(field, store.doc.meta[field.key], { idBase: 'meta' })).join('')}
+        ${group.fields.map((field) => fieldHtml(field, store.doc.meta[field.key], { idBase: 'meta', context: { maxLength: META_MAX_TEXT } })).join('')}
       </section>`).join('');
   }
 
@@ -357,7 +357,9 @@ export function createPanels({ store, ui, assets, actions, drag }) {
     const control = event.target.closest('[data-path]');
     if (!control) return;
     const key = control.dataset.path;
-    store.update((doc) => { doc.meta[key] = control.value; }, { kind: 'meta', coalesce: `meta:${key}` });
+    // O campo tem maxlength; o corte cobre o que vier colado por outros caminhos.
+    const value = control.value.slice(0, META_MAX_TEXT);
+    store.update((doc) => { doc.meta[key] = value; }, { kind: 'meta', coalesce: `meta:${key}` });
   });
   documentForm.addEventListener('submit', (event) => event.preventDefault());
   documentForm.addEventListener('focusout', () => store.breakCoalescing());

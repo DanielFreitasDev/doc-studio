@@ -306,6 +306,9 @@ export function docAttributesHtml(design) {
 
 /* ------------------------------------------------------------------ textos fixos */
 // Textos fixos são exibidos sem formatação (esc), por isso são campos simples (`plain`).
+/** Tamanho máximo de cada texto fixo (capa, cabeçalho, contracapa). */
+export const META_MAX_TEXT = 600;
+
 export const META_GROUPS = [
   {
     title: 'Capa',
@@ -356,7 +359,7 @@ export const DEFAULT_META = Object.freeze({
 export function normalizeMeta(raw = {}) {
   const meta = { ...DEFAULT_META };
   for (const key of Object.keys(DEFAULT_META)) {
-    if (typeof raw[key] === 'string') meta[key] = raw[key].slice(0, 600);
+    if (typeof raw[key] === 'string') meta[key] = raw[key].slice(0, META_MAX_TEXT);
   }
   return meta;
 }

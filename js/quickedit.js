@@ -15,9 +15,9 @@
  * do campo no bloco, ex.: "items.2.title") ou `data-edit-meta` (textos da
  * capa, contracapa e cabeçalho).
  */
-import { esc, getByPath, setByPath, clamp } from './utils.js';
-import { BLOCK_TYPES } from './schema.js';
-import { META_GROUPS } from './design.js';
+import { esc, getByPath, setByPath, clamp, capText } from './utils.js';
+import { BLOCK_TYPES, textLimit } from './schema.js';
+import { META_GROUPS, META_MAX_TEXT } from './design.js';
 import { richArea, richToolbar } from './fields.js';
 import { richMarkup, setRichValue, setRichSelection, isDiscreteEdit, editRichLink, toggleRichFormat } from './richtext.js';
 
@@ -171,7 +171,13 @@ export function createQuickEdit({ store, ui, actions }) {
   function commit(event) {
     if (!session) return;
     const { target, control } = session;
-    const value = control.dataset.rich ? richMarkup(control) : control.value;
+    const limit = target.meta ? META_MAX_TEXT : textLimit(store.doc.blocks.find((b) => b.id === target.blockId), target.path);
+    const { value, cut } = capText(control.dataset.rich ? richMarkup(control) : control.value, limit);
+    if (cut) {
+      if (control.dataset.rich) setRichValue(control, value);
+      else control.value = value;
+      actions.notify(`Este texto aceita até ${limit.toLocaleString('pt-BR')} caracteres; o excesso foi cortado.`, 'error');
+    }
     if (value === currentValue(target)) return;
     const discrete = isDiscreteEdit(event);
     if (discrete) store.breakCoalescing();

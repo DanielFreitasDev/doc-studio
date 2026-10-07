@@ -551,6 +551,19 @@ export const MAX_TEXT = 20000;
 /** Limites de tabela aplicados na normalização (também lidos pela validação). */
 export const TABLE_LIMITS = Object.freeze({ columns: 12, rows: 400, headerCell: 500, cell: 4000 });
 
+/**
+ * Tamanho máximo do texto num caminho do bloco ("text", "rows.2.1"…). O
+ * editor respeita os mesmos limites da importação: sem isso, um texto maior
+ * seria salvo e cortado em silêncio ao reabrir o documento.
+ */
+export function textLimit(block, path) {
+  if (block?.type === 'table') {
+    if (path.startsWith('header.')) return TABLE_LIMITS.headerCell;
+    if (path.startsWith('rows.')) return TABLE_LIMITS.cell;
+  }
+  return MAX_TEXT;
+}
+
 function normalizeField(field, value, fallback) {
   switch (field.kind) {
     case 'toggle':

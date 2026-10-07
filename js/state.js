@@ -88,6 +88,20 @@ export function createStore(initialDoc) {
       emit({ kind: 'replace', source: 'load' });
     },
 
+    /**
+     * Marca do passo mais recente do histórico. O "Desfazer" de um aviso
+     * guarda a marca da ação anunciada e só desfaz se ela ainda for o último
+     * passo (não desfaz outra edição feita depois, nem a mesma duas vezes).
+     */
+    historyMark() {
+      return past.at(-1) ?? null;
+    },
+
+    undoIfLast(mark) {
+      if (!mark || past.at(-1) !== mark) return false;
+      return this.undo();
+    },
+
     /** Encerra a "rajada" de digitação atual (ex.: ao trocar de campo). */
     breakCoalescing() {
       lastCoalesceKey = null;

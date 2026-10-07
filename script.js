@@ -143,11 +143,17 @@ async function main() {
   const imageInput = $('#image-file-input');
 
   /* ================================================================ ações */
-  const notify = (message, tone = 'info', { undo = false } = {}) => toast(message, {
-    tone,
-    actionLabel: undo ? 'Desfazer' : undefined,
-    onAction: undo ? () => store.undo() : undefined,
-  });
+  const notify = (message, tone = 'info', { undo = false } = {}) => {
+    const mark = undo ? store.historyMark() : null;
+    return toast(message, {
+      tone,
+      actionLabel: undo ? 'Desfazer' : undefined,
+      onAction: undo ? () => {
+        // Depois de outra edição (ou de um Ctrl+Z), este botão não desfaz outra coisa por engano.
+        if (!store.undoIfLast(mark)) toast('Essa ação já foi desfeita ou há edições depois dela. Use Ctrl+Z ou o botão Desfazer do topo.', { tone: 'info' });
+      } : undefined,
+    });
+  };
 
   const actions = {
     notify,
@@ -1099,14 +1105,14 @@ async function main() {
    */
   function previewOperations(payload) {
     const incoming = Object.entries(payload.assets ?? {}).filter(([id, asset]) => /^[\w-]{1,64}$/.test(id) && isValidAsset(asset));
+    const conflicts = assetConflicts(Object.fromEntries(assets.ids().map((id) => [id, assets.get(id)])), Object.fromEntries(incoming));
+    if (conflicts.length) return { ok: false, doc: store.doc, changes: [], error: assetConflictMessage(conflicts) };
     const assetIds = new Set([...assets.ids(), ...incoming.map(([id]) => id)]);
     const result = applyOperations(store.doc, payload.operations, { assetIds });
     return { ...result, incoming: Object.fromEntries(incoming), diff: result.ok ? diffDocuments(store.doc, result.doc) : null };
   }
 
   function commitOperations(preview) {
-    const conflicts = assetConflicts(Object.fromEntries(assets.ids().map((id) => [id, assets.get(id)])), Object.fromEntries(incoming));
-    if (conflicts.length) return { ok: false, doc: store.doc, changes: [], error: assetConflictMessage(conflicts) };
     const { doc: next, incoming, changes } = preview;
     assets.merge(incoming);
     store.update((doc) => {
