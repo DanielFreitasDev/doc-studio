@@ -587,7 +587,14 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       void card.offsetWidth;
       card.classList.add('is-flash');
       if (!focus) return;
-      const field = card.querySelector('.block-card__body [data-path]') ?? card.querySelector('[data-drag-handle]');
+      // O campo principal do bloco (`primary` no catálogo) ou o primeiro campo de texto, nunca um
+      // seletor: no Destaque o primeiro campo é o "Tipo", e digitar ali (a barra de espaço marca a
+      // opção) trocaria o tipo em vez de escrever o texto.
+      const primary = BLOCK_TYPES[findBlock(store.doc, id)?.type]?.fields.find((f) => f.primary)?.key;
+      const field = (primary && card.querySelector(`.block-card__body [data-path="${primary}"]`))
+        ?? card.querySelector('.block-card__body :is(input[type="text"], textarea, [contenteditable="true"])[data-path]')
+        ?? card.querySelector('.block-card__body [data-path]')
+        ?? card.querySelector('[data-drag-handle]');
       field?.focus({ preventScroll: true });
       if (!selectText || !field) return;
       if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) field.select();

@@ -296,7 +296,7 @@ export const BLOCK_TYPES = {
     fields: [
       { key: 'tone', kind: 'segmented', label: 'Tipo', options: CALLOUT_TONES },
       { key: 'title', kind: 'text', label: 'Título (opcional)' },
-      { key: 'text', kind: 'rich', label: 'Texto', rows: 3 },
+      { key: 'text', kind: 'rich', label: 'Texto', rows: 3, primary: true },
     ],
     summary: (b) => b.title || b.text,
   },
@@ -310,7 +310,7 @@ export const BLOCK_TYPES = {
     defaults: () => ({ label: 'Mensagem do sistema', text: 'Texto exatamente como aparece na tela.', tone: 'info' }),
     fields: [
       { key: 'label', kind: 'text', label: 'Rótulo', placeholder: 'Ex.: Mensagem na tela', plain: true },
-      { key: 'text', kind: 'rich', label: 'Mensagem', rows: 2 },
+      { key: 'text', kind: 'rich', label: 'Mensagem', rows: 2, primary: true },
       { key: 'tone', kind: 'segmented', label: 'Tipo', options: CALLOUT_TONES },
     ],
     summary: (b) => b.text,
