@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-import { renderInline, safeUrl, stripMarkup } from '../js/markup.js';
+import { renderInline, safeUrl, linkUrl, stripMarkup } from '../js/markup.js';
 import { normalizeDocument, parseFilePayload, toFilePayload, createDocument } from '../js/model.js';
 import { applyOperations, parseOperationsPayload, diffDocuments, assetConflicts } from '../js/operations.js';
 import { createStore } from '../js/state.js';
@@ -15,7 +15,7 @@ import { validateDocument, brandReport } from '../js/validate.js';
 import { contentWidthMm, normalizeDesign, DESIGN_OPTIONS } from '../js/design.js';
 import { markdownToBlocks } from '../js/markdown.js';
 import { TEMPLATES, TEMPLATE_CATEGORIES } from '../js/templates.js';
-import { BLOCK_TYPES } from '../js/schema.js';
+import { BLOCK_TYPES, orientationAt } from '../js/schema.js';
 
 const example = async (name) => parseFilePayload(await readFile(new URL(`../examples/${name}`, import.meta.url), 'utf8'));
 
@@ -218,4 +218,64 @@ test('"Desfazer" do aviso só desfaz a ação anunciada', () => {
   assert.equal(store.undoIfLast(mark), true);
   assert.equal(store.doc.blocks.length, 2);
   assert.equal(store.undoIfLast(mark), false, 'não desfaz duas vezes');
+});
+
+test('operações com nome de método do JavaScript são recusadas', () => {
+  const doc = createDocument({ blocks: [{ type: 'paragraph', text: 'a' }] });
+  for (const op of ['toString', 'constructor', 'hasOwnProperty', '__proto__']) {
+    const result = applyOperations(doc, [{ op }]);
+    assert.equal(result.ok, false, op);
+    assert.match(result.error, /não existe/);
+  }
+});
+
+test('validação acusa textos que a normalização cortaria (tabela e textos fixos)', () => {
+  const report = validateDocument({
+    meta: { description: 'z'.repeat(700) },
+    blocks: [{ type: 'table', header: ['x'.repeat(800)], rows: [['y'.repeat(5000)]] }],
+  });
+  const tooLong = report.issues.filter((issue) => issue.code === 'text-too-long').map((issue) => issue.message);
+  assert.equal(tooLong.length, 3, tooLong.join('\n'));
+});
+
+test('link com apóstrofo vale na validação, no texto e no diálogo; aspas continuam fora do safeUrl', () => {
+  const report = validateDocument({ blocks: [{ type: 'paragraph', text: "[lei](https://pt.wikipedia.org/wiki/Lei_d'Ávila)" }] });
+  assert.equal(report.ok, true, JSON.stringify(report.issues));
+  assert.equal(linkUrl("https://a.com/it's"), 'https://a.com/it%27s');
+  assert.equal(linkUrl("javascript:alert('x')"), '');
+  assert.equal(safeUrl("https://a.com/it's"), '');
+});
+
+test('texto livre maior que os limites continua em outros blocos, sem perder conteúdo', () => {
+  const lines = Array.from({ length: 300 }, (_, i) => `Linha ${i} ${'texto '.repeat(16)}`);
+  const paragraphs = markdownToBlocks(lines.join('\n'));
+  assert.ok(paragraphs.length >= 2);
+  assert.ok(paragraphs.every((block) => block.text.length <= 20000));
+  assert.ok(lines.every((line) => paragraphs.some((block) => block.text.includes(line.trim()))));
+
+  const steps = markdownToBlocks(Array.from({ length: 80 }, (_, i) => `${i + 1}. Passo ${i}`).join('\n'));
+  assert.deepEqual(steps.map((block) => [block.items.length, block.start]), [[60, 1], [20, 61]]);
+  const faq = markdownToBlocks(Array.from({ length: 50 }, (_, i) => `Pergunta ${i}?\nR: resposta ${i}`).join('\n'));
+  assert.deepEqual(faq.map((block) => block.items.length), [40, 10]);
+  const header = Array.from({ length: 15 }, (_, i) => `C${i}`);
+  const [table] = markdownToBlocks(`| ${header.join(' | ')} |\n|${'---|'.repeat(15)}\n| ${header.map((c) => c.toLowerCase()).join(' | ')} |`);
+  assert.equal(table.header.length, 12);
+  assert.equal(table.header.at(-1), 'C11 · C12 · C13 · C14');
+  assert.equal(markdownToBlocks('> [!ATENÇÃO] Confira o CNPJ.')[0].title, 'Confira o CNPJ.');
+});
+
+test('quebra de página nova herda a orientação em vigor na posição', () => {
+  const blocks = [{ type: 'paragraph' }, { type: 'pagebreak', orientation: 'landscape' }, { type: 'table' }, { type: 'table' }];
+  assert.equal(orientationAt(blocks, 1), 'portrait');
+  assert.equal(orientationAt(blocks, 3), 'landscape');
+  assert.equal(orientationAt(blocks, 99), 'landscape');
+});
+
+test('resolução da imagem considera o recorte do formato fixo e da foto da capa', () => {
+  const doc = createDocument({ design: { cover: 'photo', coverImage: 'c' }, blocks: [{ type: 'image', assetId: 'i', width: 100, ratio: 'square', fit: 'cover' }] });
+  const messages = brandReport(doc, { i: { width: 1280, height: 400 }, c: { width: 1280, height: 720 } })
+    .filter((item) => item.rule === 'image-resolution').map((item) => item.message);
+  assert.equal(messages.length, 2, messages.join('\n'));
+  assert.match(messages[0], /60 ppi/);
+  assert.match(messages[1], /Foto da capa: 122 ppi/);
 });

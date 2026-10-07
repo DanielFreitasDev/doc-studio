@@ -123,16 +123,17 @@ test('margem estreita alarga a área útil na prévia e na medição', { skip },
   assert.deepEqual(widths, { measure: 180, body: 180 });
 });
 
-test('campo visual guarda "+", "=" e "~" na ponta de um trecho formatado', { skip }, async () => {
+test('campo visual guarda "+", "=" e "~" na ponta e no meio de um trecho formatado', { skip }, async () => {
+  const html = '<u>C+</u> e <mark>a=</mark> e <s>~b~</s> e <u>C++</u> e <u>Ligue +55 85</u> e <mark>a = b</mark> e <s>x ~ y \\~</s> e <u><b>+1</b> +2</u>';
   const result = await chrome.evaluate(`(async () => {
     const { richMarkup } = await import('/js/richtext.js');
     const { renderInline } = await import('/js/markup.js');
     const field = document.createElement('div');
-    field.innerHTML = '<u>C+</u> e <mark>a=</mark> e <s>~b~</s> e <u>C++</u>';
+    field.innerHTML = ${JSON.stringify(html)};
     const markup = richMarkup(field);
     return { markup, html: renderInline(markup) };
   })()`);
-  assert.equal(result.html, '<u>C+</u> e <mark>a=</mark> e <s>~b~</s> e <u>C++</u>', result.markup);
+  assert.equal(result.html, html.replace('<b>', '<strong>').replace('</b>', '</strong>'), result.markup);
 });
 
 test('texto colado além do limite é cortado com aviso, igual ao que a importação aceita', { skip }, async () => {
@@ -177,6 +178,54 @@ test('Ctrl+B com o cursor parado liga e desliga o negrito do que vem a seguir', 
   const text = await chrome.evaluate(`window.docStudio.store.doc.blocks.find((b) => b.id === 'b_pendente').text`);
   await chrome.evaluate('window.docStudio.store.undo(); window.docStudio.store.undo();');
   assert.equal(text, 'Texto **ab** cd');
+});
+
+test('textos maiores que a página continuam na seguinte, sem cortar nem repetir palavras', { skip }, async () => {
+  const result = await chrome.evaluate(`(async () => {
+    const words = Array.from({ length: 1200 }, (_, i) => 'w' + i).join(' ');
+    const blocks = [
+      { id: 'b_big_li', type: 'list', style: 'ordered', items: 'curto\\n' + words },
+      { id: 'b_big_quote', type: 'quote', text: words, author: 'Autoria' },
+      { id: 'b_big_step', type: 'steps', items: [{ title: 'Um', text: 'x' }, { title: 'Dois', text: words }] },
+      { id: 'b_big_callout', type: 'callout', tone: 'warning', title: 'Atenção', text: words },
+      { id: 'b_big_faq', type: 'faq', items: [{ question: 'Pergunta?', answer: words }] },
+    ];
+    window.docStudio.applyOperations([{ op: 'insert', at: 'end', blocks }]);
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    const counts = {};
+    for (const { id } of blocks) {
+      const parts = [...document.querySelectorAll('#pages .atom[data-block-id="' + id + '"]')];
+      const found = parts.map((el) => el.textContent).join(' ').match(/w\\d+/g) ?? [];
+      counts[id] = { parts: parts.length, words: found.length, unique: new Set(found).size };
+    }
+    const overflow = [...window.docStudio.ui.get('overflowBlocks')];
+    window.docStudio.store.undo();
+    return { counts, overflow };
+  })()`);
+  assert.deepEqual(result.overflow, []);
+  for (const [id, count] of Object.entries(result.counts)) {
+    assert.ok(count.parts >= 2, `${id} dividido em ${count.parts} parte(s)`);
+    assert.deepEqual([count.words, count.unique], [1200, 1200], id);
+  }
+});
+
+test('bloco inserido recebe o foco no texto principal e aparece na prévia', { skip }, async () => {
+  const result = await chrome.evaluate(`(async () => {
+    const { store, ui } = window.docStudio;
+    const last = store.doc.blocks.at(-1).id;
+    ui.set({ selectedId: last });
+    document.querySelector('#preview-scroll').scrollTop = 0;
+    document.querySelector('[data-insert-type="callout"]').click();
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    const block = store.doc.blocks.find((b) => b.type === 'callout' && b.id === ui.get('selectedId'));
+    const focused = document.activeElement?.dataset?.path ?? null;
+    const atom = document.querySelector('#pages .atom[data-block-id="' + block?.id + '"]')?.getBoundingClientRect();
+    const view = document.querySelector('#preview-scroll').getBoundingClientRect();
+    const visible = Boolean(atom) && atom.bottom > view.top && atom.top < view.bottom;
+    store.undo();
+    return { inserted: Boolean(block), focused, visible };
+  })()`);
+  assert.deepEqual(result, { inserted: true, focused: 'text', visible: true });
 });
 
 test('PDF tem as mesmas páginas da prévia, sem imagens rasterizadas', { skip }, async () => {
