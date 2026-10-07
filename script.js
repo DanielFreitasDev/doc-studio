@@ -697,6 +697,7 @@ async function main() {
     status.textContent = 'Salvando…';
     try {
       await storage.save(doc, assets.serialize(usedAssetIds(doc)));
+      tabs?.postMessage({ type: 'saved', id: doc.id, updatedAt: doc.updatedAt });
       preferences.set('last-doc', doc.id);
       status.dataset.state = 'saved';
       status.textContent = storage.persistent ? `Salvo neste navegador às ${formatTime(Date.now())}` : 'Salvo só nesta aba';
@@ -715,6 +716,30 @@ async function main() {
     }
   }
   const saveSoon = debounce(saveNow, 700);
+
+  /*
+   * O mesmo documento aberto em duas abas: cada uma salva o documento inteiro,
+   * então a que salvasse por último apagaria em silêncio o que foi feito na
+   * outra. Quando outra aba salva uma versão mais nova, esta avisa e oferece
+   * recarregar (sem salvar antes, para não sobrescrever a versão nova).
+   */
+  const tabs = 'BroadcastChannel' in window ? new BroadcastChannel('doc-studio') : null;
+  let closeTabNotice = null;
+  tabs?.addEventListener('message', ({ data }) => {
+    if (data?.type !== 'saved' || data.id !== store.doc.id || !(data.updatedAt > store.doc.updatedAt)) return;
+    closeTabNotice?.();
+    closeTabNotice = toast('Este documento foi alterado em outra aba. Recarregue para continuar da versão mais recente.', {
+      tone: 'error', actionLabel: 'Recarregar', onAction: reloadFromStorage, duration: 120000,
+    });
+  });
+  async function reloadFromStorage() {
+    saveSoon.cancel();
+    const record = await storage.load(store.doc.id).catch(() => null);
+    if (!record) return;
+    assets.load(record.assets);
+    store.replace(normalizeDocument(record.doc));
+    notify('Documento atualizado com a versão salva na outra aba.');
+  }
 
   // Pede ao navegador para não apagar os documentos quando faltar espaço (uma vez por sessão).
   let persistenceRequested = false;

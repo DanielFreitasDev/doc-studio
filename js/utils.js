@@ -25,17 +25,35 @@ export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+/**
+ * Adia `fn` até `wait` ms sem novas chamadas. `flush()` executa já o que está
+ * pendente e nada faz se não houver nada pendente: uma aba parada que fecha não
+ * pode regravar a versão antiga do documento por cima da salva em outra aba.
+ */
 export function debounce(fn, wait) {
   let timer = 0;
-  const debounced = (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), wait);
-  };
-  debounced.flush = (...args) => {
-    clearTimeout(timer);
+  let pendingArgs = null;
+  const run = () => {
+    const args = pendingArgs;
+    timer = 0;
+    pendingArgs = null;
     fn(...args);
   };
-  debounced.cancel = () => clearTimeout(timer);
+  const debounced = (...args) => {
+    clearTimeout(timer);
+    pendingArgs = args;
+    timer = setTimeout(run, wait);
+  };
+  debounced.flush = () => {
+    if (!pendingArgs) return;
+    clearTimeout(timer);
+    run();
+  };
+  debounced.cancel = () => {
+    clearTimeout(timer);
+    timer = 0;
+    pendingArgs = null;
+  };
   return debounced;
 }
 
