@@ -765,6 +765,8 @@
 .cover__art, .back__art, .chapter__art { position: absolute; inset: 0; width: 100%; height: 100%; }
 
 .cover__heading { position: absolute; left: 20mm; right: 20mm; top: 24.6%; }
+/* Pasta: a diagonal verde passa a ~123 mm da borda na altura da chamada; o texto quebra antes dela. */
+.cover--folder .cover__heading { right: auto; width: 100mm; }
 .cover__kicker {
   text-wrap: balance;
   font-size: 8.6pt;
