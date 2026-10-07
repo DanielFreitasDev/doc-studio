@@ -21,10 +21,32 @@ export function createBlockPicker({ onChoose }) {
   search.setAttribute('aria-autocomplete', 'list');
   search.setAttribute('aria-expanded', 'false');
 
+  /** Relevância na busca: nome que começa com o texto, nome que contém, palavra-chave, descrição. */
+  function score(type, def, query) {
+    const label = normalizeSearch(def.label);
+    if (label.startsWith(query)) return 0;
+    if (label.includes(query)) return 1;
+    if (normalizeSearch(`${def.keywords} ${type}`).includes(query)) return 2;
+    if (normalizeSearch(def.description).includes(query)) return 3;
+    return -1;
+  }
+
+  const optionHtml = ([type, def]) => `
+    <li class="picker-option" role="option" id="picker-${type}" data-type="${type}" aria-selected="${options.indexOf(type) === active}">
+      <span class="type-icon" data-group="${def.group}">${icon(def.icon)}</span>
+      <span><strong>${esc(def.label)}</strong><small>${esc(def.description)}</small></span>
+    </li>`;
+
   function render() {
     const query = normalizeSearch(search.value);
-    const entries = Object.entries(BLOCK_TYPES).filter(([type, def]) =>
-      !query || normalizeSearch(`${def.label} ${def.description} ${def.keywords} ${type}`).includes(query));
+    // Sem busca: por grupo. Com busca: os mais relevantes primeiro (Enter escolhe o primeiro mostrado).
+    const entries = query
+      ? Object.entries(BLOCK_TYPES)
+        .map((entry) => ({ entry, rank: score(entry[0], entry[1], query) }))
+        .filter(({ rank }) => rank >= 0)
+        .sort((a, b) => a.rank - b.rank)
+        .map(({ entry }) => entry)
+      : BLOCK_GROUPS.flatMap((group) => Object.entries(BLOCK_TYPES).filter(([, def]) => def.group === group.id));
     options = entries.map(([type]) => type);
     active = Math.min(active, Math.max(options.length - 1, 0));
 
@@ -33,21 +55,12 @@ export function createBlockPicker({ onChoose }) {
       search.removeAttribute('aria-activedescendant');
       return;
     }
-    let html = '';
-    for (const group of BLOCK_GROUPS) {
-      const groupEntries = entries.filter(([, def]) => def.group === group.id);
-      if (!groupEntries.length) continue;
-      if (!query) html += `<li class="block-picker__group" role="presentation">${esc(group.label)}</li>`;
-      html += groupEntries.map(([type, def]) => {
-        const index = options.indexOf(type);
-        return `
-          <li class="picker-option" role="option" id="picker-${type}" data-type="${type}" aria-selected="${index === active}">
-            <span class="type-icon" data-group="${def.group}">${icon(def.icon)}</span>
-            <span><strong>${esc(def.label)}</strong><small>${esc(def.description)}</small></span>
-          </li>`;
+    list.innerHTML = query
+      ? entries.map(optionHtml).join('')
+      : BLOCK_GROUPS.map((group) => {
+        const groupEntries = entries.filter(([, def]) => def.group === group.id);
+        return groupEntries.length ? `<li class="block-picker__group" role="presentation">${esc(group.label)}</li>${groupEntries.map(optionHtml).join('')}` : '';
       }).join('');
-    }
-    list.innerHTML = html;
     search.setAttribute('aria-activedescendant', `picker-${options[active]}`);
   }
 
