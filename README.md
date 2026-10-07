@@ -13,7 +13,7 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 ## 2. Funcionalidades
 
 **Escrita**
-- 20 tipos de bloco: seção numerada, subtítulo, parágrafo, lista (marcadores, números ou checklist), citação, passo a passo, cartões, fluxo com setas, linha do tempo, sumário automático com página, destaque (informação, sucesso, atenção, alerta, dica), mensagem do sistema, pergunta e resposta, etiquetas, tabela, indicadores (números grandes ou fichas), glossário, imagem com figura numerada, divisor e quebra de página.
+- 20 tipos de bloco: seção numerada, subtítulo, parágrafo, lista (marcadores, números ou checklist), citação, passo a passo, cartões, fluxo com setas, linha do tempo, sumário automático com página (em linhas ou pontilhado como o do MIV, p. 4), destaque (informação, sucesso, atenção, alerta, dica), mensagem do sistema, pergunta e resposta, etiquetas, tabela, indicadores (números grandes ou fichas), glossário, imagem com figura numerada, divisor e quebra de página.
 - **Escrever com texto livre**: cole ou digite texto (Markdown simples ou texto do Word) e ele vira blocos — `#` vira seção, `1.` vira passo a passo, `> [!ATENÇÃO]` vira destaque, tabelas `| a | b |` viram tabela, "Pergunta?" + "R: resposta" vira pergunta e resposta.
 - Formatação no texto: `**negrito**`, `*itálico*`, `` `código` ``, `==destaque==`, `~~riscado~~` (com barra de botões e Ctrl+B / Ctrl+I).
 - Comando **`/`** num parágrafo vazio e **Ctrl+K** abrem o seletor de blocos com busca.
@@ -36,12 +36,13 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - 9 **estilos prontos** que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Papel timbrado, Identidade do MIV, Apresentação, Evento e Sol do sertão.
 - 9 **capas**, cada uma baseada numa peça do MIV: Pasta (a dos manuais aprovados), Pasta oficial (assinatura vertical centralizada), Arcos (capa do próprio MIV), Painel verde (slide de abertura), Convite, Envelope (verso), Leque (elemento base), Verde pleno (contracapa do MIV) e Minimalista — ou sem capa.
 - 5 **contracapas**: Pasta (verso), Conceito (assinatura em negativo + slogan, como a contracapa do MIV), Verde pleno, Leque e Minimalista — ou sem contracapa.
-- **Cabeçalhos**: texto, texto e linha, texto e assinatura (30 mm, mínimo do MIV), **timbrado** (assinatura centralizada no alto da primeira folha, como o papel timbrado do MIV) ou nenhum.
+- **Cabeçalhos**: texto, texto e linha, texto e assinatura (30 mm, mínimo do MIV), **timbrado** (assinatura centralizada no alto da primeira folha, como o papel timbrado do MIV: vertical, com a secretaria embaixo quando houver, p. 34–35; com órgão parceiro, o par horizontal da p. 36) ou nenhum.
 - **Rodapés**: faixa do papel timbrado, faixa com endereço (papel timbrado completo), **meia faixa** (o rodapé das páginas do próprio MIV, espelhado nas páginas pares), linha fina ou nenhum.
-- **Assinaturas** na ordem do MIV (órgão à esquerda, Governo à direita, sem fio separador, afastados pela largura do escudo): DETRAN/CE + Governo (Infraestrutura), Governo + Secretaria da Infraestrutura, somente Governo do Ceará (horizontal ou vertical), logo próprio + Governo, ou nenhuma.
+- **Assinaturas** na ordem do MIV (órgão à esquerda, Governo à direita, sem fio separador, afastados pela largura do escudo): DETRAN/CE + Governo (Infraestrutura), Governo + Secretaria da Infraestrutura, somente Governo do Ceará, **Governo + conceito** "Cuidar das pessoas, avançar o Ceará." (p. 9), logo próprio + Governo, ou nenhuma. Na capa "Pasta oficial" a assinatura vira **vertical** — com órgão parceiro, a conjunta vertical lado a lado da p. 17.
+- **Página de abertura de capítulo** opcional por seção, em dois estilos: faixas da pasta ou **verde pleno** (degradê e texto em branco, como as p. 2–3 do MIV).
 - 7 **temas de cor** da paleta do grafismo, 3 estilos de título de seção, 3 estilos de cartão, 3 numerações, 2 fontes de texto e 3 espaçamentos (em "Mais ajustes", para não sobrecarregar o painel).
-- Divisor com o **grafismo** do MIV e **página de abertura de capítulo** opcional por seção.
-- Miniaturas das capas mostram seus próprios textos e cores.
+- Divisor com o **grafismo** do MIV.
+- Painel Design pensado para leigos: **atalhos no topo** (Estilos, Capa, Cabeçalho, Rodapé, Contracapa, Assinatura, Cores) e **miniaturas** para capa, cabeçalho, rodapé, contracapa e assinatura, todas com os textos, cores e marcas do próprio documento.
 
 **Arquivos**
 - Salvamento automático no navegador (IndexedDB), lista "Meus documentos" (abrir, duplicar, excluir).
@@ -94,7 +95,8 @@ doc-studio/
     ├── favicon.svg
     ├── fonts/             Kanit e Maitree (WOFF, subconjunto latino) + LICENSE.md
     └── img/               Assinaturas: Governo com Secretaria da Infraestrutura (ceara),
-                           Governo sem secretaria (ceara-state), vertical (ceara-vertical)
+                           Governo sem secretaria (ceara-state), vertical sem e com
+                           secretaria (ceara-vertical, ceara-vertical-secretaria)
                            e DETRAN/CE; versões -negative para fundos coloridos
 ```
 
@@ -148,7 +150,12 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 | 9 | Colar um print (Ctrl+V) com um bloco selecionado | Bloco de imagem após o selecionado; com legenda vira "Figura N" | Nada acontece |
 | 10 | Design → capa "Verde pleno" e contracapa "Conceito" | Fundo em degradê verde → água-marinha; textos, assinatura e slogan em branco | Logo colorido sobre o verde |
 | 10a | Design → Assinatura "DETRAN/CE + Governo" | DETRAN à esquerda, Governo à direita, sem fio entre eles | Ordem invertida ou fio separador |
-| 10b | Mais ajustes → Rodapé "Meia faixa" | Faixa à direita nas páginas ímpares e à esquerda nas pares, número no lado de fora | Faixa sempre do mesmo lado |
+| 10b | Design → Rodapé "Meia faixa" | Faixa à direita nas páginas ímpares e à esquerda nas pares, número no lado de fora | Faixa sempre do mesmo lado |
+| 10c | Design → Assinatura "Governo + conceito"; contracapa "Conceito" | Ao lado da marca, linha e o conceito em **quatro linhas** (CUIDAR / DAS PESSOAS, / AVANÇAR / O CEARÁ.), do topo de "CEARÁ" à base de "GOVERNO DO ESTADO"; verde no papel branco, branco no verde | Conceito em duas ou três linhas quebradas no meio |
+| 10d | Capa "Pasta oficial" com "DETRAN/CE + Governo"; depois "Governo + Secretaria" | DETRAN à esquerda da assinatura vertical, do topo do escudo (sem a coroa) à base do nome; com secretaria, o nome dela centralizado embaixo | Par horizontal pequeno ou secretaria alinhada à esquerda |
+| 10e | Numa seção, ligar "Página inteira de abertura"; Design → Mais ajustes → Abertura "Verde pleno" | Página inteira em degradê verde → água-marinha com número, título e introdução em branco | Página branca ou texto ilegível |
+| 10f | Bloco Sumário → Estilo "Pontilhado (MIV)" | Número, título, pontos até o número da página | Pontos sobre o texto ou página errada |
+| 10g | Design → atalho "Rodapé" (no celular, deslize a fila de atalhos) | O painel rola até as miniaturas de rodapé, que mostram o pé de uma página | Atalho não rola ou miniatura mostra o topo da página |
 | 11 | Criar uma tabela com 80 linhas | A tabela continua nas páginas seguintes repetindo o cabeçalho | Linhas cortadas no pé da página |
 | 12 | Colar um parágrafo enorme (sem linhas em branco) | Aviso laranja no bloco ("maior que a área da página") e contorno vermelho na página | Texto cortado sem aviso |
 | 13 | Exportar PDF | Caixa "Gerar o PDF" com os passos (e avisos, se houver); "Abrir janela de impressão" → Salvar como PDF: mesmo número de páginas da prévia, A4, sem margens brancas, cores do fundo presentes | Páginas extras em branco, margens, ou a caixa aparece no PDF |
@@ -175,8 +182,10 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco · `
 
 ### O que foi verificado no desenvolvimento
 
-Executado com Playwright (Chromium), última rodada em 07/10/2026:
-- todos os modelos e os três "começar do zero" sem páginas cortadas e sem erros no console;
+Executado com Playwright (Chromium), última rodada em 07/10/2026 (depois da segunda auditoria do MIV):
+- todos os modelos e os três "começar do zero" sem páginas cortadas, sem imagens quebradas e sem erros no console;
+- novas assinaturas (conceito, conjunta vertical, vertical com secretaria no timbrado), abertura "Verde pleno" e sumário pontilhado conferidos lado a lado com as p. 3, 4, 9, 17 e 35 do MIV; PDF do Chromium do "Manual operacional" com capa "Pasta oficial", abertura verde e contracapa "Conceito" com 8 páginas, iguais à prévia;
+- painel Design reorganizado sem rolagem horizontal em 320, 390, 759/760, 1024, 1179/1180, 1280 e 1920 px; axe-core sem violações no painel, nos temas claro e escuro;
 - PDF gerado pelo Chromium: Manual operacional (capa Arcos, contracapa Conceito, meia faixa) com 7 páginas e Comunicado em papel timbrado com 1 página, iguais à prévia, fontes Kanit/Maitree embutidas;
 - larguras 320, 360, 390, 559/560, 759/760, 1024, 1179/1180, 1279/1280 e 1920 px sem rolagem horizontal;
 - varredura axe-core (WCAG 2.0/2.1/2.2 A/AA + boas práticas) na tela principal, Design, diálogos (modelos, PDF, ajuda), tema escuro e celular: sem violações na interface. A única ocorrência é o contraste da "chamada" verde (#26a737) dentro das páginas do documento, que é a cor prescrita pelo MIV e foi mantida.
@@ -188,7 +197,7 @@ Executado com Playwright (Chromium), última rodada em 07/10/2026:
 - **Paginação real em A4 (prévia = PDF).** Cada bloco vira "átomos" (uma linha de tabela, um passo, uma linha de cartões). O app mede cada átomo numa coluna invisível com a largura útil da página (170 mm), distribui-os em páginas de 252 mm de altura útil e só então desenha as páginas. Títulos nunca ficam sozinhos no pé da página e tabelas repetem o cabeçalho. Como a medição usa o mesmo CSS da impressão, o PDF sai igual à prévia. *Impacto:* precisão; o custo é recalcular o layout a cada mudança (com atraso de 140 ms e troca só das páginas alteradas).
 - **PDF pela impressão do navegador.** Gerar PDF em JavaScript puro exigiria reimplementar fontes e layout; a impressão nativa com `@page { size: A4; margin: 0 }` produz PDF vetorial, com texto selecionável e fontes embutidas.
 - **Grafismo em SVG com coordenadas medidas no MIV.** As faixas da capa "Pasta", do rodapé e da meia faixa foram medidas no manual oficial e redesenhadas como polígonos com degradê; a capa Arcos e o leque usam setores de anel (arcos SVG), como o elemento base. Sai nítido em qualquer zoom e na impressão.
-- **Assinaturas pelas regras do MIV (p. 15–22).** Órgão à esquerda e Governo à direita, sem fio separador, afastados pela largura do escudo e alinhados pelo centro do escudo; tamanhos mínimos respeitados (com secretaria ≥ 40 mm de largura; sem secretaria ≥ 30 mm). *Impacto:* a ordem das marcas mudou em relação aos dois primeiros manuais (que tinham o Governo à esquerda e um fio entre as marcas).
+- **Assinaturas pelas regras do MIV (p. 15–22).** Órgão à esquerda e Governo à direita, sem fio separador, afastados pela largura do escudo e alinhados pelo centro do escudo; tamanhos mínimos respeitados (com secretaria ≥ 40 mm de largura; sem secretaria ≥ 30 mm). *Impacto:* a ordem das marcas mudou em relação aos dois primeiros manuais (que tinham o Governo à esquerda e um fio entre as marcas). A vertical com secretaria (`ceara-vertical-secretaria.png`) foi montada com as peças originais — a vertical e a linha da secretaria recortada de `ceara.png`, na mesma escala — e centralizada como nas p. 17, 20 e 35; nada foi redesenhado. O conceito "Cuidar das pessoas, avançar o Ceará." tem quebras de linha fixas, porque o MIV (p. 9) define as quatro linhas.
 - **Cores oficiais primeiro.** Cores principais vêm da paleta do grafismo (p. 26) e os tons escuros de texto usam os verdes oficiais da assinatura (#008241, #2a7050) quando existem; os demais tons escuros e os fundos claros são derivados para garantir contraste e estão documentados em `css/document.css`.
 - **Tema claro por padrão.** O `<html>` já nasce com `data-theme="light"`; o escuro e o automático são escolhas explícitas do usuário (pedido do responsável pelo projeto).
 - **Campos de texto comuns + marcação simples, em vez de `contenteditable`.** Edição rica com `contenteditable` é frágil (HTML imprevisível colado do Word, cursor pulando). Com `textarea` e `**negrito**`, o texto é sempre escapado antes de virar HTML — nenhum conteúdo colado ou importado consegue injetar código.
