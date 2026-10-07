@@ -26,6 +26,8 @@ export function createPreview({ store, ui, assets, actions }) {
   let pageHtml = [];
   let layout = null;
   let currentPage = 1;
+  // Bloco a mostrar depois do próximo desenho (recém-inserido ou em edição no editor).
+  let pendingReveal = null;
 
   /* ---------------------------------------------------------------- renderização */
   function renderNow() {
@@ -39,6 +41,11 @@ export function createPreview({ store, ui, assets, actions }) {
     patchPages(layout.pagesHtml);
     if (ui.get('zoomFit') && hadLandscape !== Boolean(pagesEl.querySelector('.page--landscape'))) applyZoom();
     highlightSelection();
+    if (pendingReveal) {
+      const { id, onlyIfHidden } = pendingReveal;
+      pendingReveal = null;
+      if (id === ui.get('selectedId')) revealBlock(id, { onlyIfHidden });
+    }
 
     const overflowKey = [...layout.overflowBlocks].sort().join('|');
     const currentKey = [...ui.get('overflowBlocks')].sort().join('|');
@@ -122,11 +129,26 @@ export function createPreview({ store, ui, assets, actions }) {
     ids.forEach((id) => $$(`.atom[data-block-id="${CSS.escape(id)}"]`, pagesEl).forEach((el) => el.classList.add('is-selected')));
   }
 
-  function revealBlock(id) {
-    const target = pagesEl.querySelector(`.atom[data-block-id="${CSS.escape(id)}"]`);
-    if (!target || scroller.offsetParent === null) return;
+  /**
+   * Rola a prévia até o bloco. Um bloco recém-inserido ainda não está nas
+   * páginas (o desenho espera 140 ms): ele é mostrado logo depois do desenho.
+   * `onlyIfHidden` (digitação no editor) só rola quando nada do bloco aparece,
+   * para não puxar a prévia a cada tecla.
+   */
+  function revealBlock(id, { onlyIfHidden = false } = {}) {
+    if (scroller.offsetParent === null) return;
+    const atoms = pagesEl.querySelectorAll(`.atom[data-block-id="${CSS.escape(id)}"]`);
+    if (!atoms.length) {
+      pendingReveal = { id, onlyIfHidden };
+      return;
+    }
+    const target = atoms[0];
     const box = target.getBoundingClientRect();
     const view = scroller.getBoundingClientRect();
+    if (onlyIfHidden && [...atoms].some((el) => {
+      const rect = el.getBoundingClientRect();
+      return rect.bottom > view.top && rect.top < view.bottom;
+    })) return;
     if (box.top >= view.top + 40 && box.bottom <= view.bottom - 20) return;
     scroller.scrollTo({
       top: scroller.scrollTop + (box.top - view.top) - view.height / 3,
@@ -302,6 +324,9 @@ export function createPreview({ store, ui, assets, actions }) {
   /* ---------------------------------------------------------------- assinaturas */
   store.subscribe((doc, change) => {
     if (change.kind === 'name') return;
+    // Quem digita no editor vê o trecho na prévia, mesmo que ele mude de página.
+    const editing = document.activeElement?.closest?.('.block-card')?.dataset.blockId;
+    if (change.kind === 'content' && editing && editing === ui.get('selectedId')) pendingReveal = { id: editing, onlyIfHidden: true };
     if (change.kind === 'replace' || change.kind === 'design') renderNow();
     else schedule();
   });
