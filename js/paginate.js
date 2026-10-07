@@ -11,7 +11,9 @@
  *    - "manter com o próximo" (títulos nunca ficam sozinhos no pé da página);
  *    - repetição do cabeçalho de tabelas que continuam na página seguinte;
  *    - parágrafos divididos por linha entre páginas, com pelo menos duas
- *      linhas de cada lado (controle de linhas viúvas e órfãs).
+ *      linhas de cada lado (controle de linhas viúvas e órfãs); itens de
+ *      lista, passos, destaques, citações e perguntas maiores que a página
+ *      também são divididos, em vez de cortados.
  * 3. Gera o HTML final de cada página (capa, conteúdo, capítulo, contracapa).
  *
  * Como a medição usa o mesmo CSS da página, prévia e PDF ficam idênticos.
@@ -63,7 +65,7 @@ function measureTableColumns(block, measureBody, cache, orientation) {
   return widths;
 }
 
-/* ------------------------------------------------------------------ parágrafos divididos */
+/* ------------------------------------------------------------------ textos divididos */
 /**
  * Onde começa cada linha visual do parágrafo: o primeiro caractere de cada
  * linha (nó de texto + posição) e o topo dele na tela. Mede caracteres com
@@ -111,50 +113,76 @@ function lineStarts(paragraph) {
   return starts;
 }
 
-/** Copia o átomo com só uma parte do parágrafo (do início ou até o fim). */
-function cutParagraph(box, paragraph, start, part) {
+/** Caminho de um nó a partir da raiz (índices dos filhos), para achar o mesmo ponto numa cópia. */
+function nodePath(root, node) {
+  const path = [];
+  for (let current = node; current !== root; current = current.parentNode) path.unshift([...current.parentNode.childNodes].indexOf(current));
+  return path;
+}
+const resolvePath = (root, path) => path.reduce((node, index) => node.childNodes[index], root);
+
+/**
+ * Copia o átomo com só uma parte do texto: do início até a linha (`head`) ou
+ * dela até o fim (`tail`). O que fica do outro lado do corte é apagado com
+ * `Range.deleteContents()`, que mantém abertos os elementos partidos (negrito,
+ * caixa do destaque, item da lista), então a marcação continua válida.
+ */
+function cutAtom(box, start, part) {
+  const copy = box.cloneNode(true);
+  const node = resolvePath(copy, nodePath(box, start.node));
   const range = document.createRange();
   if (part === 'head') {
-    range.setStart(paragraph, 0);
-    range.setEnd(start.node, start.offset);
+    range.setStart(node, start.offset);
+    range.setEnd(copy, copy.childNodes.length);
   } else {
-    range.setStart(start.node, start.offset);
-    range.setEnd(paragraph, paragraph.childNodes.length);
+    range.setStart(copy, 0);
+    range.setEnd(node, start.offset);
   }
-  const copy = box.cloneNode(true);
+  range.deleteContents();
   copy.classList.add(part === 'head' ? 'is-split-head' : 'is-split-tail');
-  copy.querySelector('p').replaceChildren(range.cloneContents());
   return copy;
 }
 
 /**
- * Divide um parágrafo que não cabe no espaço restante (`available`, em px).
- * Retorna [parte que fica, parte que continua na próxima página] já medidas,
- * ou null se não der para deixar ao menos MIN_LINES linhas de cada lado.
- * As partes recebem posições compatíveis com as medições originais: o topo
- * da primeira coincide com o do parágrafo e o fundo da segunda, com o dele.
+ * Textos do átomo que podem ser divididos: os campos editáveis (`data-edit`)
+ * mais internos, fora de tabelas (uma célula partida desalinharia as colunas).
  */
-function splitParagraphAtom(atom, available, measureBody) {
+const textFields = (box) => [...box.querySelectorAll('[data-edit]')]
+  .filter((el) => !el.closest('table') && !el.querySelector('[data-edit]') && el.textContent.trim());
+
+/**
+ * Divide um átomo de texto que não cabe no espaço restante (`available`, em px)
+ * na linha do texto que atravessa o limite: parágrafos sempre; itens de lista,
+ * passos, destaques, citações e perguntas só quando são maiores que a página
+ * (senão iriam inteiros para a próxima). Retorna [parte que fica, parte que
+ * continua na próxima página] já medidas, ou null se não der para deixar ao
+ * menos MIN_LINES linhas daquele texto de cada lado. As partes recebem posições
+ * compatíveis com as medições originais: o topo da primeira coincide com o do
+ * átomo e o fundo da segunda, com o dele.
+ */
+function splitAtom(atom, available, measureBody) {
   setOrientation(measureBody, atom.orientation);
   measureBody.innerHTML = atom.html;
   const box = measureBody.firstElementChild;
-  const paragraph = box?.querySelector('p');
-  const starts = paragraph ? lineStarts(paragraph) : [];
-  if (starts.length < MIN_LINES * 2) {
-    measureBody.innerHTML = '';
-    setOrientation(measureBody, 'portrait');
-    return null;
-  }
-  // Distância entre o topo do átomo e o topo do primeiro caractere (meia entrelinha).
+  const result = box ? splitBox(atom, box, available, measureBody) : null;
+  measureBody.innerHTML = '';
+  setOrientation(measureBody, 'portrait');
+  return result;
+}
+
+function splitBox(atom, box, available, measureBody) {
   const boxTop = box.getBoundingClientRect().top;
-  const glyphOffset = starts[0].top - boxTop;
+  const field = textFields(box).find((el) => el.getBoundingClientRect().bottom - boxTop > available);
+  const starts = field ? lineStarts(field) : [];
+  if (starts.length < MIN_LINES * 2) return null;
+  // Distância entre o topo do texto e o topo do primeiro caractere (meia entrelinha).
+  const glyphOffset = starts[0].top - field.getBoundingClientRect().top;
   let lines = starts.length - MIN_LINES;
   while (lines >= MIN_LINES && starts[lines].top - glyphOffset - boxTop > available) lines -= 1;
 
-  let result = null;
-  for (; lines >= MIN_LINES && !result; lines -= 1) {
-    const head = cutParagraph(box, paragraph, starts[lines], 'head');
-    const tail = cutParagraph(box, paragraph, starts[lines], 'tail');
+  for (; lines >= MIN_LINES; lines -= 1) {
+    const head = cutAtom(box, starts[lines], 'head');
+    const tail = cutAtom(box, starts[lines], 'tail');
     const holder = document.createElement('div');
     holder.append(head, tail);
     measureBody.append(holder);
@@ -162,14 +190,12 @@ function splitParagraphAtom(atom, available, measureBody) {
     const tailHeight = tail.getBoundingClientRect().height;
     holder.remove();
     if (headHeight > available) continue;
-    result = [
+    return [
       { ...atom, html: head.outerHTML, top: atom.top, bottom: atom.top + headHeight },
       { ...atom, html: tail.outerHTML, top: atom.bottom - tailHeight, bottom: atom.bottom },
     ];
   }
-  measureBody.innerHTML = '';
-  setOrientation(measureBody, 'portrait');
-  return result;
+  return null;
 }
 
 /* ------------------------------------------------------------------ distribuição */
@@ -198,7 +224,7 @@ function measureAtoms(atoms, measureBody) {
   return headerHeights;
 }
 
-function distribute(entries, headerHeights, capacityOf, splitParagraph) {
+function distribute(entries, headerHeights, capacityOf, splitText) {
   const pages = [];
   let current = null;
   let contentPages = 0;
@@ -208,6 +234,8 @@ function distribute(entries, headerHeights, capacityOf, splitParagraph) {
     contentPages += 1;
     pages.push(current);
   };
+  // Parágrafos dividem-se sempre; os demais textos só quando nem uma página inteira os comporta.
+  const canSplit = (a) => a.splittable || (a.splitIfOversized && a.bottom - a.top > current.capacity + TOLERANCE);
   const usedHeight = (page, next) => {
     const first = page.atoms[0] ?? next;
     const repeated = first.repeatHeader ? headerHeights.get(first.group) ?? 0 : 0;
@@ -235,9 +263,9 @@ function distribute(entries, headerHeights, capacityOf, splitParagraph) {
         current.atoms.push(pending);
         break;
       }
-      // Parágrafo longo: as linhas que couberem ficam nesta página.
+      // Texto longo: as linhas que couberem ficam nesta página.
       const available = current.capacity + TOLERANCE - (used - (pending.bottom - pending.top));
-      const parts = pending.splittable ? splitParagraph(pending, available) : null;
+      const parts = canSplit(pending) ? splitText(pending, available) : null;
       if (parts) {
         current.atoms.push(parts[0]);
         openPage(current.orientation);
@@ -254,8 +282,8 @@ function distribute(entries, headerHeights, capacityOf, splitParagraph) {
       while (current.atoms.length > 1 && current.atoms.at(-1).keep) carried.unshift(current.atoms.pop());
       openPage(current.orientation);
       current.atoms.push(...carried);
-      // Na página nova o parágrafo ainda pode ser dividido; os demais átomos entram direto.
-      if (!pending.splittable || carriedOnce) {
+      // Na página nova o texto ainda pode ser dividido; os demais átomos entram direto.
+      if (!canSplit(pending) || carriedOnce) {
         current.atoms.push(pending);
         break;
       }
@@ -310,8 +338,8 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
   const headerHeights = measureAtoms(atoms, measureBody);
   const letterhead = doc.design.header === 'letterhead';
   const capacityOf = (index, pageOrientation) => CONTENT_HEIGHT[pageOrientation] - (letterhead && index === 0 ? LETTERHEAD_OFFSET : 0);
-  const splitParagraph = (atom, available) => splitParagraphAtom(atom, available, measureBody);
-  const bodyPages = distribute(entries, headerHeights, capacityOf, splitParagraph);
+  const splitText = (atom, available) => splitAtom(atom, available, measureBody);
+  const bodyPages = distribute(entries, headerHeights, capacityOf, splitText);
   // Documento sem conteúdo: mostra uma página timbrada vazia, pronta para receber o texto.
   if (!bodyPages.length) bodyPages.push({ kind: 'content', atoms: [], orientation: 'portrait', capacity: capacityOf(0, 'portrait') });
 

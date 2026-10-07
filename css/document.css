@@ -334,6 +334,12 @@
 .b-p--justify { text-align: justify; }
 /* Parágrafo justificado dividido entre páginas: a última linha da primeira parte também é justificada. */
 .is-split-head .b-p--justify { text-align-last: justify; }
+/* Continuação de um texto maior que a página (js/paginate.js): o texto segue na sua coluna, sem repetir marcador, número ou aspas. */
+.is-split-tail .b-li > :only-child,
+.is-split-tail .b-step > :only-child,
+.is-split-tail .b-faq__a:only-child { grid-column: 2; }
+.is-split-tail .b-step::before { top: 0; }
+.is-split-tail .b-quote::before { content: none; }
 .atom--p-lead { margin-bottom: calc(var(--doc-gap) + 2pt); }
 
 /* ---------------------------------------------------------------- subtítulos */

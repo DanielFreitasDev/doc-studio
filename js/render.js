@@ -64,6 +64,8 @@ function atom(block, className, inner, options = {}) {
     keep: Boolean(options.keep),
     group: options.group ? block.id : null,
     repeatHeader: options.repeatHeader ?? null,
+    // Texto maior que uma página inteira é dividido por linha em vez de cortado (js/paginate.js).
+    splitIfOversized: Boolean(options.text),
   };
 }
 
@@ -135,13 +137,13 @@ const RENDERERS = {
       const mark = block.style === 'ordered' ? `${index + 1}.` : block.style === 'check' ? CHECK_SVG : '•';
       const last = index === items.length - 1 ? ' is-last' : '';
       return atom(block, `atom--li${last}`,
-        `<div class="b-li b-li--${block.style}"><span class="b-li__mark" aria-hidden="true">${mark}</span><span${ed('items')}>${renderInline(text)}</span></div>`);
+        `<div class="b-li b-li--${block.style}"><span class="b-li__mark" aria-hidden="true">${mark}</span><span${ed('items')}>${renderInline(text)}</span></div>`, { text: true });
     });
   },
 
   quote(block) {
     const author = block.author ? `<p class="b-quote__author"${ed('author')}>${esc(block.author)}</p>` : '';
-    return [atom(block, 'atom--quote', `<blockquote class="b-quote"><p class="b-quote__text"${ed('text')}>${renderInline(block.text)}</p>${author}</blockquote>`)];
+    return [atom(block, 'atom--quote', `<blockquote class="b-quote"><p class="b-quote__text"${ed('text')}>${renderInline(block.text)}</p>${author}</blockquote>`, { text: true })];
   },
 
   code(block) {
@@ -173,7 +175,7 @@ const RENDERERS = {
             ${item.title ? `<p class="b-step__t"${ed(`items.${index}.title`)}>${renderInline(item.title)}</p>` : ''}
             ${item.text ? `<p class="b-step__b"${ed(`items.${index}.text`)}>${renderInline(item.text)}</p>` : ''}
           </div>
-        </div>`));
+        </div>`, { text: true }));
     });
     return atoms;
   },
@@ -253,7 +255,7 @@ const RENDERERS = {
 
   callout(block) {
     const title = block.title ? `<p class="b-callout__title"${ed('title')}>${renderInline(block.title)}</p>` : '';
-    return [atom(block, 'atom--callout', `<div class="b-callout tone-${calloutTone(block.tone)}">${title}<p class="b-callout__text"${ed('text')}>${renderInline(block.text)}</p></div>`)];
+    return [atom(block, 'atom--callout', `<div class="b-callout tone-${calloutTone(block.tone)}">${title}<p class="b-callout__text"${ed('text')}>${renderInline(block.text)}</p></div>`, { text: true })];
   },
 
   message(block) {
@@ -261,7 +263,7 @@ const RENDERERS = {
       <div class="b-callout tone-${calloutTone(block.tone)}">
         ${block.label ? `<p class="b-callout__label"${ed('label')}>${esc(block.label)}</p>` : ''}
         <p class="b-callout__quote">“<span${ed('text')}>${renderInline(block.text)}</span>”</p>
-      </div>`)];
+      </div>`, { text: true })];
   },
 
   faq(block) {
@@ -275,7 +277,7 @@ const RENDERERS = {
           ${block.answerLabel ? `<p class="b-faq__label"${ed('answerLabel')}>${esc(block.answerLabel)}</p>` : ''}
           <p class="b-faq__at"${ed(`items.${index}.answer`)}>${renderInline(item.answer)}</p>
         </div>
-      </div>`));
+      </div>`, { text: true }));
   },
 
   chips(block) {
@@ -331,7 +333,7 @@ const RENDERERS = {
       const edges = `${index === 0 ? ' is-first' : ''}${index === block.items.length - 1 ? ' is-last' : ''}`;
       return atom(block, `atom--gloss${edges}`,
         `<div class="b-gloss ${tone}">${title}<p><strong${ed(`items.${index}.term`)}>${esc(item.term)}</strong>${item.term && item.definition ? ' — ' : ''}<span${ed(`items.${index}.definition`)}>${renderInline(item.definition)}</span></p></div>`,
-        { group: true });
+        { group: true, text: true });
     });
   },
 
