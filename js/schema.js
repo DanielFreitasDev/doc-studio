@@ -417,13 +417,13 @@ export const BLOCK_TYPES = {
 
   divider: {
     label: 'Divisor',
-    description: 'Linha, faixa colorida ou espaço',
+    description: 'Linha, faixa colorida, grafismo do MIV ou espaço',
     icon: 'divider',
     group: 'page',
     keywords: 'separador linha espaco',
     defaults: () => ({ style: 'line' }),
     fields: [
-      { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'line', label: 'Linha' }, { value: 'accent', label: 'Traço colorido' }, { value: 'brand', label: 'Faixa' }, { value: 'space', label: 'Espaço' }] },
+      { key: 'style', kind: 'segmented', label: 'Estilo', options: [{ value: 'line', label: 'Linha' }, { value: 'accent', label: 'Traço colorido' }, { value: 'brand', label: 'Faixa' }, { value: 'wedge', label: 'Grafismo' }, { value: 'space', label: 'Espaço' }] },
     ],
     summary: () => '',
   },

@@ -3,7 +3,8 @@
  *
  * 1. Renderiza todos os átomos numa coluna invisível com a largura útil da
  *    página (170 mm) e mede a posição real de cada um no navegador.
- * 2. Distribui os átomos em páginas de 252 mm de altura útil, respeitando:
+ * 2. Distribui os átomos em páginas de 252 mm de altura útil (227 mm na
+ *    primeira folha com cabeçalho timbrado), respeitando:
  *    - quebras forçadas (seção em nova página, quebra de página, capítulo);
  *    - "manter com o próximo" (títulos nunca ficam sozinhos no pé da página);
  *    - repetição do cabeçalho de tabelas que continuam na página seguinte.
@@ -16,6 +17,8 @@ import { renderInline } from './markup.js';
 
 const PX_PER_MM = 96 / 25.4;
 const CONTENT_HEIGHT = 252 * PX_PER_MM;
+// Cabeçalho "timbrado" (assinatura centralizada do MIV) ocupa o topo da primeira página.
+const LETTERHEAD_OFFSET = 25 * PX_PER_MM;
 const TOLERANCE = 0.75;
 
 /* ------------------------------------------------------------------ larguras de tabela */
@@ -62,12 +65,14 @@ function measureAtoms(atoms, measureBody) {
   return headerHeights;
 }
 
-function distribute(entries, headerHeights) {
+function distribute(entries, headerHeights, capacityOf) {
   const pages = [];
   let current = null;
+  let contentPages = 0;
 
   const openPage = () => {
-    current = { kind: 'content', atoms: [] };
+    current = { kind: 'content', atoms: [], capacity: capacityOf(contentPages) };
+    contentPages += 1;
     pages.push(current);
   };
   const usedHeight = (page, next) => {
@@ -89,7 +94,7 @@ function distribute(entries, headerHeights) {
     if (!current) openPage();
     if (entry.breakBefore && current.atoms.length) openPage();
 
-    if (current.atoms.length && usedHeight(current, entry) > CONTENT_HEIGHT + TOLERANCE) {
+    if (current.atoms.length && usedHeight(current, entry) > current.capacity + TOLERANCE) {
       // Leva junto os títulos que ficariam órfãos no pé da página.
       const carried = [];
       while (current.atoms.length > 1 && current.atoms.at(-1).keep) carried.unshift(current.atoms.pop());
@@ -101,7 +106,7 @@ function distribute(entries, headerHeights) {
 
   for (const page of pages) {
     if (page.kind !== 'content' || !page.atoms.length) continue;
-    page.overflowing = usedHeight({ atoms: page.atoms }, page.atoms.at(-1)) > CONTENT_HEIGHT + 2;
+    page.overflowing = usedHeight({ atoms: page.atoms }, page.atoms.at(-1)) > page.capacity + 2;
   }
   return pages.filter((page) => page.kind !== 'content' || page.atoms.length);
 }
@@ -136,9 +141,11 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
   const entries = doc.blocks.flatMap((block) => renderBlock(block, ctx));
   const atoms = entries.filter((e) => e.kind === 'atom');
   const headerHeights = measureAtoms(atoms, measureBody);
-  const bodyPages = distribute(entries, headerHeights);
+  const letterhead = doc.design.header === 'letterhead';
+  const capacityOf = (index) => CONTENT_HEIGHT - (letterhead && index === 0 ? LETTERHEAD_OFFSET : 0);
+  const bodyPages = distribute(entries, headerHeights, capacityOf);
   // Documento sem conteúdo: mostra uma página timbrada vazia, pronta para receber o texto.
-  if (!bodyPages.length) bodyPages.push({ kind: 'content', atoms: [] });
+  if (!bodyPages.length) bodyPages.push({ kind: 'content', atoms: [], capacity: capacityOf(0) });
 
   const hasCover = doc.design.cover !== 'none';
   const hasBack = doc.design.backCover !== 'none';
@@ -174,6 +181,7 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
   const fillToc = (html) => html.replace(/data-toc-page="([^"]+)">[^<]*</g,
     (_, id) => `data-toc-page="${id}">${sectionPages.get(id) ?? '–'}<`);
 
+  let contentIndex = 0;
   const pagesHtml = sequence.map((page, index) => {
     const idPrefix = `p${index}`;
     if (page.kind === 'cover') return renderCover(doc, assets, idPrefix);
@@ -181,6 +189,7 @@ export function layoutDocument(doc, assets, measureBody, columnCache) {
     if (page.kind === 'chapter') return page.entry.build(idPrefix);
     return renderContentPage(doc, {
       bodyHtml: fillToc(pageBodyHtml(page.atoms)),
+      first: contentIndex++ === 0,
       number: pageNumber(index),
       total,
       idPrefix,

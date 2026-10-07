@@ -282,6 +282,7 @@ export const TEMPLATES = [
       { type: 'heading', text: 'O que muda', level: '2' },
       { type: 'list', style: 'bullet', items: 'O agendamento passa a ser feito pelo Portal de Serviços.\nO comprovante digital substitui o impresso.\nCasos excepcionais seguem para atendimento presencial.' },
       { type: 'callout', tone: 'info', title: 'Dúvidas', text: 'Entre em contato com a coordenação responsável pelo canal oficial da Diretoria.' },
+      { type: 'paragraph', style: 'normal', text: `Fortaleza, ${longDate()}.` },
       { type: 'divider', style: 'space' },
       { type: 'paragraph', style: 'normal', text: '**Nome do Diretor**\nDiretor de Veículos · DETRAN/CE' },
     ],
@@ -295,6 +296,15 @@ export const TEMPLATES = [
     description: 'Capa, contracapa e páginas com a identidade visual, sem nenhum texto de exemplo.',
     design: { ...preset('manual') },
     meta: BLANK_META,
+    blocks: [],
+  },
+  {
+    id: 'letterhead',
+    group: 'blank',
+    name: 'Papel timbrado',
+    description: 'O papel timbrado do MIV: assinatura centralizada no alto, endereço e faixa no pé. Para ofício, memorando ou nota.',
+    design: { ...preset('notice') },
+    meta: { ...BLANK_META, headerTitle: 'Departamento Estadual de Trânsito do Ceará', headerRight: '' },
     blocks: [],
   },
   {

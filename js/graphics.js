@@ -1,10 +1,16 @@
 /**
  * Grafismo do MIV em SVG vetorial (imprime nítido em qualquer resolução).
  *
- * Cada arte é uma lista de camadas (polígonos em mm sobre a folha A4 de
- * 210 × 297 mm), preenchidas com cor sólida ou degradê linear — exatamente
- * como as faixas do grafismo oficial. As coordenadas das capas "Pasta" e do
- * rodapé foram medidas no próprio Manual de Identidade Visual.
+ * Cada arte é uma lista de camadas (polígonos ou setores de anel em mm sobre
+ * a folha A4 de 210 × 297 mm), preenchidas com cor sólida ou degradê linear —
+ * exatamente como as faixas do grafismo oficial. As coordenadas das capas
+ * "Pasta", da contracapa "Pasta", do rodapé e da meia faixa foram medidas no
+ * próprio Manual de Identidade Visual; Arcos, Painel verde e Convite adaptam
+ * para A4 retrato a capa do MIV (p. 1), o slide (p. 57) e o convite (p. 55).
+ *
+ * Cores: as faixas usam os tons com que a arte em CMYK do MIV aparece na tela
+ * (ex.: #38B53F para C80 Y100), iguais aos dos manuais aprovados; peças novas
+ * usam os valores declarados na paleta do grafismo (p. 26).
  *
  * Os ids dos degradês recebem um prefixo por página para que a mesma página
  * gere sempre o mesmo SVG (a prévia só troca as páginas que mudaram).
@@ -25,16 +31,43 @@ function gradientDef(id, from, to, colors) {
 function renderLayers(layers, idPrefix) {
   const defs = [];
   const shapes = layers.map((layer, index) => {
-    const points = layer.pts.map(([x, y]) => `${round(x)},${round(y)}`).join(' ');
     const opacity = layer.opacity != null ? ` fill-opacity="${layer.opacity}"` : '';
+    let fill = layer.color;
     if (layer.colors) {
       const id = `${idPrefix}-${index}`;
       defs.push(gradientDef(id, layer.from, layer.to, layer.colors));
-      return `<polygon points="${points}" fill="url(#${id})"${opacity}/>`;
+      fill = `url(#${id})`;
     }
-    return `<polygon points="${points}" fill="${layer.color}"${opacity}/>`;
+    if (layer.d) return `<path d="${layer.d}" fill="${fill}"${opacity}/>`;
+    const points = layer.pts.map(([x, y]) => `${round(x)},${round(y)}`).join(' ');
+    return `<polygon points="${points}" fill="${fill}"${opacity}/>`;
   });
   return `<defs>${defs.join('')}</defs>${shapes.join('')}`;
+}
+
+/* ------------------------------------------------------------------ setores de anel (arcos do grafismo) */
+const rad = (deg) => (deg * Math.PI) / 180;
+const polar = (cx, cy, r, deg) => [cx + r * Math.cos(rad(deg)), cy + r * Math.sin(rad(deg))];
+
+/**
+ * Caminho SVG de um setor de anel com centro (cx, cy), raios r1 < r2 e
+ * ângulos a1 < a2 (graus, sentido horário a partir do eixo x). Com r1 = 0
+ * vira uma fatia (raio que sai do centro), como os raios do elemento base.
+ */
+function sectorPath(cx, cy, r1, r2, a1, a2) {
+  const large = a2 - a1 > 180 ? 1 : 0;
+  const p = (r, a) => polar(cx, cy, r, a).map(round).join(' ');
+  const outer = `M ${p(r2, a1)} A ${round(r2)} ${round(r2)} 0 ${large} 1 ${p(r2, a2)}`;
+  const inner = r1 > 0 ? `L ${p(r1, a2)} A ${round(r1)} ${round(r1)} 0 ${large} 0 ${p(r1, a1)}` : `L ${round(cx)} ${round(cy)}`;
+  return `${outer} ${inner} Z`;
+}
+
+/** Camada de setor com degradê ao longo do raio (do raio interno ao externo). */
+function sector({ c: [cx, cy], r1, r2, a1, a2, colors, color }) {
+  const mid = (a1 + a2) / 2;
+  return colors
+    ? { d: sectorPath(cx, cy, r1, r2, a1, a2), colors, from: polar(cx, cy, r1, mid), to: polar(cx, cy, r2, mid) }
+    : { d: sectorPath(cx, cy, r1, r2, a1, a2), color };
 }
 
 function svg(className, layers, idPrefix, { width = PAGE_W, height = PAGE_H } = {}) {
@@ -61,6 +94,27 @@ function footerBarLayers(baseY) {
   ];
 }
 
+/**
+ * Meia faixa: o rodapé das páginas do próprio MIV (ex.: p. 16 e 21). Só a
+ * metade de fora da folha recebe a cunha, que sobe de 0 a 10,9 mm; na ponta
+ * ficam os blocos verde, água-marinha e vermelho. Medida a 300 dpi na p. 21
+ * (paisagem) e estreitada para a largura do A4 retrato.
+ */
+function halfBarLayers(baseY, mirror) {
+  const sx = PAGE_W / 297;
+  const at = (d, y) => [mirror ? d * sx : PAGE_W - d * sx, baseY - y];
+  const top = (d) => 10.9 * (1 - d / 120);
+  return [
+    { pts: [at(120, 0), at(67, 0), at(67, 3), at(120, 0)], color: '#38B53F' },
+    { pts: [at(120, 0), at(67, 3), at(67, top(67))], colors: ['#ED2225', '#F79217'], from: at(120, 0), to: at(67, 0) },
+    { pts: [at(67, 0), at(11, 0), at(11, top(11)), at(67, top(67))], color: '#35AB3F' },
+    { pts: [at(67, 0), at(11, 0), at(11, 0.6), at(67, 0.5)], colors: ['#47B876', '#59C2A9'], from: at(67, 0), to: at(11, 0) },
+    { pts: [at(11, 5), at(0, 5), at(0, top(0)), at(11, top(11))], colors: ['#37AE3F', '#3DB359'], from: at(11, 5), to: at(11, top(11)) },
+    { pts: [at(11, 1.2), at(0, 1.2), at(0, 5), at(11, 5)], color: '#5BC2AE' },
+    { pts: [at(11, 0), at(0, 0), at(0, 1.2), at(11, 1.2)], colors: ['#E62124', '#E93421'], from: at(11, 0), to: at(0, 0) },
+  ];
+}
+
 function stripeLayers(height) {
   const rect = (a, b) => [[a, 0], [b, 0], [b, height], [a, height]];
   return [
@@ -70,10 +124,16 @@ function stripeLayers(height) {
   ];
 }
 
-export function footerArt(style, idPrefix) {
-  if (style === 'bar') return svg('footer-art', footerBarLayers(10.5), idPrefix, { height: 10.5 });
+export function footerArt(style, idPrefix, { mirror = false } = {}) {
+  if (style === 'bar' || style === 'address') return svg('footer-art', footerBarLayers(10.5), idPrefix, { height: 10.5 });
+  if (style === 'half') return svg('footer-art', halfBarLayers(10.9, mirror), idPrefix, { height: 10.9 });
   if (style === 'stripe') return svg('footer-art', stripeLayers(1.9), idPrefix, { height: 1.9 });
   return '';
+}
+
+/** Faixa do grafismo usada como divisor no corpo do texto (proporção da faixa de parede, p. 83). */
+export function dividerArt(idPrefix) {
+  return svg('divider-art', footerBarLayers(10.5), idPrefix, { height: 10.5 });
 }
 
 /* ------------------------------------------------------------------ leque (elemento base) */
@@ -89,35 +149,69 @@ function seededRandom(seed) {
   };
 }
 
+/**
+ * Pares de degradê do elemento base (p. 26): só verde → água-marinha e
+ * laranja → vermelho. O amarelo da paleta não aparece no leque.
+ */
 const FAN_COLORS = [
-  ['#26A737', '#5DB12F'], ['#2DB39E', '#5FCAC9'], ['#F59C00', '#FCCF05'], ['#E94F0E', '#F59C00'],
-  ['#45B16E', '#2DB39E'], ['#46AC33', '#26A737'], ['#E06A0C', '#FCCF05'], ['#38B53F', '#63CBD8'],
+  ['#26A737', '#5FCAC9'], ['#46AC33', '#2DB39E'], ['#26A737', '#45B16E'], ['#45B16E', '#4EC6E0'],
+  ['#F59C00', '#E94F0E'], ['#E06A0C', '#ED2225'], ['#26A737', '#2DB39E'], ['#5DB12F', '#2DB39E'],
 ];
 
+/**
+ * Leque do elemento base: raios retos que saem de um centro, com larguras
+ * variadas (finos e largos) e 1 a 3 segmentos empilhados separados por
+ * vãos brancos. Cores opacas, como no MIV.
+ */
 function fanLayers({ cx, cy, from, to, rays, minR, maxR, seed }) {
   const random = seededRandom(seed);
   const layers = [];
-  const span = to - from;
-  const step = span / rays;
+  const step = (to - from) / rays;
   for (let i = 0; i < rays; i += 1) {
-    const width = step * (0.55 + random() * 0.45);
+    const thin = random() < 0.25;
+    const width = thin ? step * (0.15 + random() * 0.2) : step * (0.75 + random() * 0.25);
     const start = from + i * step + random() * (step - width);
-    const inner = 6 + random() * 26;
-    const outer = minR + random() * (maxR - minR);
-    const [c1, c2] = FAN_COLORS[Math.floor(random() * FAN_COLORS.length)];
-    const rad = (deg) => (deg * Math.PI) / 180;
-    const point = (r, deg) => [cx + r * Math.cos(rad(deg)), cy + r * Math.sin(rad(deg))];
     const end = start + width;
-    const mid = start + width / 2;
-    layers.push({
-      pts: [point(inner, start), point(outer, start), point(outer, mid), point(outer, end), point(inner, end)],
-      colors: [c1, c2],
-      from: point(inner, mid),
-      to: point(outer, mid),
-      opacity: 0.94,
-    });
+    const outer = minR + random() * (maxR - minR);
+    const segments = thin ? 1 : 1 + Math.floor(random() * 3);
+    let inner = random() < 0.4 ? 0 : 6 + random() * 22;
+    const length = (outer - inner) / segments;
+    for (let k = 0; k < segments; k += 1) {
+      const gap = k === 0 ? 0 : 2 + random() * 5;
+      const r1 = inner + gap;
+      const r2 = Math.min(outer, inner + length);
+      if (r2 - r1 > 3) {
+        const [c1, c2] = FAN_COLORS[Math.floor(random() * FAN_COLORS.length)];
+        layers.push(sector({ c: [cx, cy], r1, r2, a1: start, a2: end, colors: [c1, c2] }));
+      }
+      inner = r2;
+    }
   }
   return layers;
+}
+
+/* ------------------------------------------------------------------ arcos (capa do MIV, p. 1) */
+/**
+ * Releitura em retrato da capa do MIV: o centro do leque fica fora da folha
+ * (acima, à esquerda) e a área branca é um setor de anel entre dois raios,
+ * com faixas verdes, água-marinha e laranja ao redor.
+ */
+const ARC_CENTER = [-120, -100];
+const ARC = { r1: 260, r2: 480, a1: 32, a2: 66 };
+function arcLayers() {
+  const c = ARC_CENTER;
+  return [
+    { pts: [F(0, 0), F(1, 0), F(1, 1), F(0, 1)], colors: ['#26A737', '#45B16E', '#2DB39E'], from: F(0, 0.05), to: F(1, 0.3) },
+    sector({ c, r1: 0, r2: ARC.r1, a1: 0, a2: 90, colors: ['#2DB39E', '#45B16E'] }),
+    sector({ c, r1: 150, r2: 200, a1: 30, a2: 50, colors: ['#ED2225', '#F59C00'] }),
+    sector({ c, r1: 200, r2: ARC.r1, a1: 50, a2: 64, colors: ['#26A737', '#4EC6E0'] }),
+    sector({ c, r1: 0, r2: 700, a1: ARC.a2, a2: 69.4, colors: ['#E94F0E', '#F59C00'] }),
+    sector({ c, r1: 0, r2: 700, a1: 69.4, a2: 71.6, colors: ['#26A737', '#45B16E'] }),
+    sector({ c, r1: 0, r2: 700, a1: 71.6, a2: 80, colors: ['#2DB39E', '#4EC6E0'] }),
+    sector({ c, r1: ARC.r2, r2: 700, a1: ARC.a1, a2: ARC.a2, colors: ['#26A737', '#46AC33'] }),
+    sector({ c, r1: ARC.r2, r2: 700, a1: 57, a2: 61, colors: ['#2DB39E', '#5FCAC9'] }),
+    sector({ c, r1: ARC.r1, r2: ARC.r2, a1: ARC.a1, a2: ARC.a2, color: '#FFFFFF' }),
+  ];
 }
 
 /* ------------------------------------------------------------------ capas */
@@ -132,15 +226,30 @@ const COVER_LAYERS = {
     { pts: [F(0, 0.756), F(0.15, 1), F(0, 1)], colors: ['#F35E1F', '#F4721D', '#F7941D'], from: F(0.08, 0.8), to: F(0, 1) },
   ],
 
-  // Releitura em retrato da capa do Manual de Identidade Visual
-  identity: () => [
-    { pts: [F(0, 0), F(1, 0), F(1, 0.17), F(0, 0.4)], colors: ['#3FB83F', '#46BC55', '#52C394'], from: F(0, 0.1), to: F(1, 0.3) },
-    { pts: [F(0, 0.4), F(1, 0.17), F(1, 0.205), F(0, 0.435)], colors: ['#58C7BD', '#5FCAC9'], from: F(0, 0.4), to: F(1, 0.2) },
-    { pts: [F(0, 0), F(0.3, 0), F(0, 0.13)], colors: ['#F04321', '#F26B21'], from: F(0, 0), to: F(0.2, 0.1) },
-    { pts: [F(0, 0.7), F(0.7, 1), F(0.5, 1), F(0, 0.8)], colors: ['#F26B21', '#F7941D'], from: F(0, 0.75), to: F(0.6, 1) },
-    { pts: [F(0, 0.8), F(0.5, 1), F(0, 1)], colors: ['#45BC5E', '#53C49C'], from: F(0, 0.8), to: F(0.3, 1) },
-    { pts: [F(0, 0.9), F(0.22, 1), F(0, 1)], colors: ['#5FCAC9', '#58C7BD'], from: F(0, 0.9), to: F(0.2, 1) },
-    { pts: [F(1, 0.62), F(1, 1), F(0.93, 1)], colors: ['#46BC50', '#52C394'], from: F(1, 0.62), to: F(0.95, 1) },
+  // Mesmas faixas da "Pasta", com a assinatura vertical centralizada (como no MIV)
+  official: () => COVER_LAYERS.folder(),
+
+  // Arcos do grafismo, como a capa do próprio Manual de Identidade Visual (p. 1)
+  identity: arcLayers,
+
+  // Slide de abertura do MIV (p. 57): painel verde à direita e faixas diagonais
+  panel: () => [
+    { pts: [[0, 0], [126, 0], [126, 92], [0, 26]], colors: ['#26A737', '#45B16E', '#2DB39E'], from: [0, 10], to: [126, 60] },
+    { pts: [[0, 0], [22, 0], [0, 12]], colors: ['#ED2225', '#E94F0E'], from: [0, 0], to: [14, 8] },
+    { pts: [[0, 26], [9, 30.7], [0, 96]], colors: ['#2DB39E', '#4EC6E0'], from: [0, 30], to: [0, 96] },
+    { pts: [[0, 142], [140, 297], [112, 297], [0, 172]], colors: ['#26A737', '#45B16E'], from: [0, 150], to: [120, 297] },
+    { pts: [[0, 172], [112, 297], [84, 297], [0, 203]], colors: ['#2DB39E', '#45B16E'], from: [0, 180], to: [100, 297] },
+    { pts: [[0, 203], [84, 297], [58, 297], [0, 232]], colors: ['#E06A0C', '#F59C00'], from: [0, 210], to: [70, 297] },
+    { pts: [[126, 0], [210, 0], [210, 297], [140, 297]], colors: ['#26A737', '#46AC33'], from: [130, 0], to: [210, 297] },
+  ],
+
+  // Convite do MIV (p. 55) em retrato: faixa vertical verde e bloco laranja
+  invite: () => [
+    { pts: [[0, 0], [15.5, 0], [18.5, 151.5], [0, 151.5]], colors: ['#26A737', '#46AC33'], from: [0, 0], to: [0, 151.5] },
+    { pts: [[15.5, 0], [30.5, 0], [48, 139.6], [18.5, 151.5]], colors: ['#26A737', '#45B16E', '#2DB39E'], from: [20, 0], to: [40, 145] },
+    { pts: [[18.5, 151.5], [48, 139.6], [67, 297], [24, 297]], colors: ['#26A737', '#45B16E'], from: [30, 145], to: [50, 297] },
+    { pts: [[48, 139.6], [49.4, 139.6], [68.6, 297], [67, 297]], color: '#4EC6E0' },
+    { pts: [[0, 151.5], [18.5, 151.5], [24, 297], [0, 297]], colors: ['#F59C00', '#E94F0E', '#ED2225'], from: [0, 151.5], to: [0, 297] },
   ],
 
   // Inspirada no envelope do MIV: faixa diagonal com pé laranja
@@ -152,15 +261,11 @@ const COVER_LAYERS = {
     { pts: [F(0, 0.88), F(0.225, 0.88), F(0.3, 1), F(0, 1)], colors: ['#F04321', '#F26B21'], from: F(0, 0.9), to: F(0.3, 1) },
   ],
 
-  fan: () => fanLayers({ cx: 214, cy: 300, from: 182, to: 272, rays: 24, minR: 70, maxR: 152, seed: 2023 }),
+  fan: () => fanLayers({ cx: 214, cy: 300, from: 182, to: 272, rays: 17, minR: 80, maxR: 165, seed: 2023 }),
 
+  // Contracapa do MIV (p. 117): degradê horizontal verde → água-marinha, sem sobreposições
   solid: () => [
-    { pts: [F(0, 0), F(1, 0), F(1, 1), F(0, 1)], colors: ['#21A03A', '#2BAA4F', '#2DB39E'], from: F(0, 0), to: F(1, 1) },
-    { pts: [F(0.22, 0), F(1, 0), F(1, 0.545)], color: '#ffffff', opacity: 0.07 },
-    { pts: [F(0.74, 0), F(1, 0), F(1, 0.135)], color: '#ffffff', opacity: 0.08 },
-    { pts: [F(0, 0.39), F(0.46, 1), F(0, 1)], color: '#0b5e1f', opacity: 0.12 },
-    { pts: [F(1, 0.78), F(1, 1), F(0.74, 1)], colors: ['#F7941D', '#F04321'], from: F(1, 0.8), to: F(0.8, 1) },
-    { pts: [F(1, 0.86), F(1, 1), F(0.86, 1)], colors: ['#F04321', '#ED2225'], from: F(1, 0.9), to: F(0.9, 1) },
+    { pts: [F(0, 0), F(1, 0), F(1, 1), F(0, 1)], colors: ['#26A737', '#45B16E', '#2DB39E'], from: F(0, 0.5), to: F(1, 0.5) },
   ],
 
   minimal: () => [
@@ -178,7 +283,8 @@ const BACK_LAYERS = {
     { pts: [F(0, 0.4), F(0.098, 1), F(0, 1)], colors: ['#F04321', '#F15A24', '#F26B21'], from: F(0, 0.5), to: F(0, 1) },
   ],
   solid: COVER_LAYERS.solid,
-  fan: () => fanLayers({ cx: 214, cy: 300, from: 186, to: 272, rays: 26, minR: 80, maxR: 165, seed: 117 }),
+  concept: COVER_LAYERS.solid,
+  fan: () => fanLayers({ cx: 214, cy: 300, from: 186, to: 272, rays: 18, minR: 90, maxR: 175, seed: 117 }),
   minimal: () => [
     { pts: [F(0, 0), F(1, 0), F(1, 0.012), F(0, 0.012)], colors: ['#26A737', '#2DB39E', '#F59C00'], from: F(0, 0), to: F(1, 0) },
     ...footerBarLayers(PAGE_H),

@@ -5,31 +5,46 @@
  */
 import { monthYear } from './utils.js';
 
+/**
+ * Temas de cor. A cor principal de cada tema vem da paleta do grafismo do MIV
+ * (p. 26) ou da assinatura (p. 11). O segundo tom é a versão escura usada em
+ * textos: a oficial quando existe (#008241 = Pantone 348 C, #2a7050 = 555 C)
+ * ou um escurecimento da cor principal para atingir contraste AA no papel.
+ */
 export const THEMES = [
-  { id: 'green', label: 'Verde institucional', colors: ['#26a737', '#1b7a2a', '#f59c00'] },
+  { id: 'green', label: 'Verde institucional', colors: ['#26a737', '#008241', '#f59c00'] },
   { id: 'teal', label: 'Água-marinha', colors: ['#2db39e', '#1e8576', '#f59c00'] },
   { id: 'orange', label: 'Laranja', colors: ['#e06a0c', '#b4500a', '#26a737'] },
   { id: 'red', label: 'Urucum', colors: ['#e94f0e', '#b83a0a', '#2db39e'] },
   { id: 'gold', label: 'Sol', colors: ['#e4a500', '#8a6400', '#26a737'] },
-  { id: 'leaf', label: 'Folha', colors: ['#45b16e', '#23794a', '#e94f0e'] },
+  { id: 'leaf', label: 'Folha', colors: ['#45b16e', '#2a7050', '#e94f0e'] },
   { id: 'navy', label: 'Grafite', colors: ['#465564', '#2f3b47', '#26a737'] },
 ];
 
+/**
+ * Capas. "mivPage" indica a página do MIV usada como referência; as que não
+ * têm são releituras com os mesmos elementos (faixas, leque, cores).
+ * `dark` = fundo escuro (textos e assinatura em negativo).
+ */
 export const COVERS = [
-  { id: 'folder', label: 'Pasta', description: 'Faixas diagonais nos cantos (modelo "Pasta" do MIV)' },
-  { id: 'identity', label: 'Identidade', description: 'Inspirada na capa do Manual de Identidade Visual' },
-  { id: 'envelope', label: 'Envelope', description: 'Faixa vertical inclinada, texto à esquerda' },
-  { id: 'fan', label: 'Leque', description: 'Elemento base do grafismo em leque' },
-  { id: 'solid', label: 'Verde pleno', description: 'Fundo em degradê com assinatura em negativo', dark: true },
-  { id: 'minimal', label: 'Minimalista', description: 'Branco com linha colorida e rodapé do papel timbrado' },
+  { id: 'folder', label: 'Pasta', description: 'Faixas diagonais nos cantos, como a pasta do MIV (p. 44) e os manuais aprovados' },
+  { id: 'official', label: 'Pasta oficial', description: 'Pasta do MIV com a assinatura vertical centralizada e o título embaixo' },
+  { id: 'identity', label: 'Arcos', description: 'Arcos do grafismo, como a capa do próprio Manual de Identidade Visual' },
+  { id: 'panel', label: 'Painel verde', description: 'Título em painel verde e faixas diagonais (apresentação, MIV p. 57)' },
+  { id: 'invite', label: 'Convite', description: 'Faixa vertical verde com bloco laranja à esquerda (convite, MIV p. 55)' },
+  { id: 'envelope', label: 'Envelope', description: 'Faixa inclinada com pé laranja (verso do envelope, MIV p. 38)' },
+  { id: 'fan', label: 'Leque', description: 'Elemento base do grafismo: raios em leque (MIV p. 26)' },
+  { id: 'solid', label: 'Verde pleno', description: 'Degradê verde → água-marinha com assinatura em negativo (MIV p. 117)', dark: true },
+  { id: 'minimal', label: 'Minimalista', description: 'Branco, com a faixa do papel timbrado no pé' },
   { id: 'none', label: 'Sem capa', description: 'O documento começa direto no conteúdo' },
 ];
 
 export const BACK_COVERS = [
-  { id: 'folder', label: 'Pasta (verso)', description: 'Faixa diagonal, endereço no rodapé' },
-  { id: 'solid', label: 'Verde pleno', description: 'Fundo verde com assinatura centralizada', dark: true },
+  { id: 'folder', label: 'Pasta (verso)', description: 'Faixa diagonal, endereço no rodapé (verso da pasta, MIV p. 44)' },
+  { id: 'concept', label: 'Conceito', description: 'Degradê verde com assinatura e slogan do Governo (contracapa do MIV, p. 117)', dark: true },
+  { id: 'solid', label: 'Verde pleno', description: 'Fundo verde com assinatura e endereço centralizados', dark: true },
   { id: 'fan', label: 'Leque', description: 'Grafismo em leque e endereço' },
-  { id: 'minimal', label: 'Minimalista', description: 'Assinatura e endereço centralizados' },
+  { id: 'minimal', label: 'Minimalista', description: 'Assinatura e endereço centralizados, faixa no pé' },
   { id: 'none', label: 'Sem contracapa', description: 'Termina na última página de conteúdo' },
 ];
 
@@ -37,11 +52,14 @@ export const DESIGN_OPTIONS = {
   header: [
     { value: 'classic', label: 'Texto' },
     { value: 'rule', label: 'Texto e linha' },
-    { value: 'logo', label: 'Com assinatura' },
+    { value: 'logo', label: 'Texto e assinatura' },
+    { value: 'letterhead', label: 'Timbrado' },
     { value: 'none', label: 'Nenhum' },
   ],
   footer: [
-    { value: 'bar', label: 'Faixa do MIV' },
+    { value: 'bar', label: 'Faixa' },
+    { value: 'address', label: 'Faixa e endereço' },
+    { value: 'half', label: 'Meia faixa' },
     { value: 'stripe', label: 'Linha fina' },
     { value: 'none', label: 'Nenhum' },
   ],
@@ -62,17 +80,19 @@ export const DESIGN_OPTIONS = {
   ],
   bodyFont: [
     { value: 'maitree', label: 'Maitree (serifada)' },
-    { value: 'kanit', label: 'Kanit Light' },
+    { value: 'kanit', label: 'Kanit (sem serifa)' },
   ],
   density: [
     { value: 'compact', label: 'Compacta' },
     { value: 'regular', label: 'Padrão' },
     { value: 'airy', label: 'Arejada' },
   ],
+  // Assinaturas conjuntas seguem o MIV (p. 16–18): órgão à esquerda, Governo sempre à direita.
   signature: [
-    { value: 'joint', label: 'Governo do Ceará + DETRAN/CE' },
+    { value: 'joint', label: 'DETRAN/CE + Governo do Ceará (Infraestrutura)' },
+    { value: 'seinfra', label: 'Governo do Ceará + Secretaria da Infraestrutura' },
     { value: 'state', label: 'Somente Governo do Ceará' },
-    { value: 'custom', label: 'Governo do Ceará + logo próprio' },
+    { value: 'custom', label: 'Logo próprio + Governo do Ceará' },
     { value: 'none', label: 'Sem assinatura' },
   ],
 };
@@ -110,11 +130,23 @@ export const DESIGN_PRESETS = [
   },
   {
     id: 'campaign', label: 'Campanha', description: 'Cores fortes e capa de impacto',
-    design: { theme: 'orange', cover: 'solid', backCover: 'fan', header: 'rule', footer: 'bar', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'soft' },
+    design: { theme: 'orange', cover: 'solid', backCover: 'fan', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'soft' },
   },
   {
-    id: 'notice', label: 'Comunicado', description: 'Papel timbrado, sem excessos',
-    design: { theme: 'green', cover: 'minimal', backCover: 'none', header: 'logo', footer: 'stripe', pageNumber: 'text', sectionStyle: 'kicker', cardStyle: 'outline' },
+    id: 'notice', label: 'Papel timbrado', description: 'Assinatura centralizada, endereço e faixa no pé (MIV p. 34)',
+    design: { theme: 'green', cover: 'none', backCover: 'none', header: 'letterhead', footer: 'address', pageNumber: 'text', sectionStyle: 'kicker', cardStyle: 'outline' },
+  },
+  {
+    id: 'miv', label: 'Identidade do MIV', description: 'Capa em arcos e meia faixa, como o próprio manual',
+    design: { theme: 'green', cover: 'identity', backCover: 'concept', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'kicker', cardStyle: 'soft' },
+  },
+  {
+    id: 'panel', label: 'Apresentação', description: 'Painel verde na capa, ideal para projetos',
+    design: { theme: 'green', cover: 'panel', backCover: 'concept', header: 'rule', footer: 'half', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'top' },
+  },
+  {
+    id: 'event', label: 'Evento', description: 'Capa de convite, leve e direta',
+    design: { theme: 'teal', cover: 'invite', backCover: 'minimal', header: 'classic', footer: 'bar', pageNumber: 'circle', sectionStyle: 'number', cardStyle: 'outline' },
   },
   {
     id: 'sertao', label: 'Sol do sertão', description: 'Amarelo-ouro com leque',

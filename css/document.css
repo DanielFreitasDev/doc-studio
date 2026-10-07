@@ -5,12 +5,16 @@
    ========================================================================== */
 
 .doc {
-  /* Tema "Verde institucional" (padrão) */
+  /* Tema "Verde institucional" (padrão).
+     Cores principais: paleta do grafismo do MIV (p. 26). Tons "strong" são as
+     versões escuras para texto: oficiais quando existem (#008241 = Pantone 348 C,
+     #2a7050 = 555 C, da assinatura) ou derivadas para contraste AA no papel.
+     Tons "soft" são fundos claros derivados (8–12% da cor sobre o branco). */
   --doc-primary: #26a737;
-  --doc-primary-strong: #1b7a2a;
+  --doc-primary-strong: #008241;
   --doc-primary-soft: #eaf6ec;
   --doc-accent: #f59c00;
-  --doc-accent-strong: #c2410c;
+  --doc-accent-strong: #b83a0a;
   --doc-accent-soft: #fef2e0;
 
   /* Neutros da assinatura (cor do nome CEARÁ) */
@@ -41,15 +45,15 @@
 /* ---------------------------------------------------------------- temas de cor */
 .doc[data-doc-theme="orange"] {
   --doc-primary: #e06a0c; --doc-primary-strong: #b4500a; --doc-primary-soft: #fef0e2;
-  --doc-accent: #26a737; --doc-accent-strong: #1b7a2a; --doc-accent-soft: #eaf6ec;
+  --doc-accent: #26a737; --doc-accent-strong: #008241; --doc-accent-soft: #eaf6ec;
 }
 .doc[data-doc-theme="teal"] {
   --doc-primary: #2db39e; --doc-primary-strong: #1e8576; --doc-primary-soft: #e4f5f2;
-  --doc-accent: #f59c00; --doc-accent-strong: #c2410c; --doc-accent-soft: #fef2e0;
+  --doc-accent: #f59c00; --doc-accent-strong: #b83a0a; --doc-accent-soft: #fef2e0;
 }
 .doc[data-doc-theme="navy"] {
   --doc-primary: #465564; --doc-primary-strong: #2f3b47; --doc-primary-soft: #edf0f3;
-  --doc-accent: #26a737; --doc-accent-strong: #1b7a2a; --doc-accent-soft: #eaf6ec;
+  --doc-accent: #26a737; --doc-accent-strong: #008241; --doc-accent-soft: #eaf6ec;
 }
 .doc[data-doc-theme="red"] {
   --doc-primary: #e94f0e; --doc-primary-strong: #b83a0a; --doc-primary-soft: #fdeae2;
@@ -57,23 +61,23 @@
 }
 .doc[data-doc-theme="gold"] {
   --doc-primary: #e4a500; --doc-primary-strong: #8a6400; --doc-primary-soft: #fff6d6;
-  --doc-accent: #26a737; --doc-accent-strong: #1b7a2a; --doc-accent-soft: #eaf6ec;
+  --doc-accent: #26a737; --doc-accent-strong: #008241; --doc-accent-soft: #eaf6ec;
 }
 .doc[data-doc-theme="leaf"] {
-  --doc-primary: #45b16e; --doc-primary-strong: #23794a; --doc-primary-soft: #e8f6ee;
+  --doc-primary: #45b16e; --doc-primary-strong: #2a7050; --doc-primary-soft: #e8f6ee;
   --doc-accent: #e94f0e; --doc-accent-strong: #b83a0a; --doc-accent-soft: #fdeae2;
 }
 
-.doc[data-body-font="kanit"] { --doc-body-font: 'Kanit', sans-serif; --doc-body-weight: 300; --doc-body-bold: 500; }
+.doc[data-body-font="kanit"] { --doc-body-font: 'Kanit', sans-serif; --doc-body-weight: 400; --doc-body-bold: 600; }
 .doc[data-density="compact"] { --doc-p-size: 9.1pt; --doc-p-lead: 13pt; --doc-gap: 6pt; }
 .doc[data-density="airy"] { --doc-p-size: 10pt; --doc-p-lead: 15.4pt; --doc-gap: 10pt; }
 
 /* ---------------------------------------------------------------- tons (cores por bloco) */
 .doc .tone-theme  { --t: var(--doc-primary); --t-strong: var(--doc-primary-strong); --t-soft: var(--doc-primary-soft); }
 .doc .tone-accent { --t: var(--doc-accent); --t-strong: var(--doc-accent-strong); --t-soft: var(--doc-accent-soft); }
-.doc .tone-green  { --t: #26a737; --t-strong: #1b7a2a; --t-soft: #eaf6ec; }
+.doc .tone-green  { --t: #26a737; --t-strong: #008241; --t-soft: #eaf6ec; }
 .doc .tone-teal   { --t: #2db39e; --t-strong: #1e8576; --t-soft: #e4f5f2; }
-.doc .tone-orange { --t: #f59c00; --t-strong: #c2410c; --t-soft: #fef2e0; }
+.doc .tone-orange { --t: #f59c00; --t-strong: #b83a0a; --t-soft: #fef2e0; }
 .doc .tone-red    { --t: #e94f0e; --t-strong: #b83a0a; --t-soft: #fdeae2; }
 .doc .tone-navy   { --t: #465564; --t-strong: #2f3b47; --t-soft: #edf0f3; }
 .doc .tone-gold   { --t: #e4a500; --t-strong: #8a6400; --t-soft: #fff6d6; }
@@ -131,7 +135,7 @@
 .page__header-title { font-weight: 500; color: var(--doc-navy); }
 .page__header-sub { font-weight: 400; color: var(--doc-primary); margin-left: 1.4mm; }
 .page__header-right { color: var(--doc-muted); flex: none; }
-.page__header-right img { height: 6.6mm; width: auto; }
+.page__header-right img { height: 9.6mm; width: auto; } /* 30 mm de largura: mínimo do MIV (p. 21) */
 .page__header--rule::after,
 .page__header--logo::after {
   content: "";
@@ -142,7 +146,28 @@
   height: 0.35mm;
   background: var(--doc-brand-rule);
 }
-.page__header--logo { top: 7.6mm; }
+.page__header--logo { top: 6.2mm; }
+.page__header--logo::after { top: calc(100% + 1.4mm); }
+
+/* Papel timbrado (MIV p. 34–36): assinatura centralizada no alto da primeira folha. */
+.page__letterhead { position: absolute; top: 9.6mm; left: 20mm; right: 20mm; display: flex; justify-content: center; }
+.page__letterhead .brand { --brand-h: 17.8mm; }
+.page__letterhead .brand--vertical { --brand-h: 31.9mm; }
+.page--letterhead .page__body { top: 46mm; height: 227mm; }
+
+/* Endereço do papel timbrado, acima da faixa do rodapé (MIV p. 34). */
+.page__address {
+  position: absolute;
+  left: 10mm;
+  bottom: 10.4mm;
+  max-width: 150mm;
+  display: grid;
+  font-size: 7pt;
+  font-style: normal;
+  line-height: 1.45;
+  color: var(--doc-navy);
+}
+.page__address strong { font-weight: 600; }
 
 .page__body {
   position: absolute;
@@ -154,6 +179,7 @@
 
 .page__footer { position: absolute; left: 0; right: 0; bottom: 0; height: 10.5mm; }
 .page__footer--stripe { height: 1.9mm; }
+.page__footer--half { height: 10.9mm; }
 .page__footer svg { width: 100%; height: 100%; }
 
 .page__number {
@@ -186,6 +212,11 @@
   font-weight: 400;
 }
 .page__number--text strong { color: var(--doc-navy); font-weight: 600; }
+/* Com endereço no pé, o círculo vai para a direita; com a meia faixa, para o lado de fora (como no MIV). */
+.page--footer-address .page__number:not(.page__number--text) { left: auto; right: 20mm; }
+.page--outer-right .page__number:not(.page__number--text) { left: auto; right: 11mm; bottom: 15mm; }
+.page--outer-left .page__number:not(.page__number--text) { left: 11mm; bottom: 15mm; }
+.page--outer-left .page__number--text { right: auto; left: 20mm; }
 
 /* ---------------------------------------------------------------- unidades de paginação ("átomos") */
 .atom { display: flow-root; margin: 0 0 var(--doc-gap); }
@@ -602,6 +633,8 @@
 .b-div--accent { width: 34mm; height: 1.1mm; background: var(--doc-brand-rule); }
 .b-div--brand { height: 0.7mm; background: linear-gradient(90deg, #26a737, #2db39e 45%, #f59c00 75%, #e94f0e); }
 .b-div--space { height: 6mm; }
+.b-div--wedge { height: 3.2mm; }
+.b-div--wedge svg { display: block; width: 100%; height: 100%; }
 
 /* =============================================================================
    Capa, abertura de capítulo e contracapa
@@ -628,22 +661,51 @@
 
 .cover__brand { position: absolute; right: 20mm; bottom: 10%; }
 
-/* Assinatura (Governo do Ceará + órgão) */
-.brand { display: flex; align-items: center; gap: 4.5mm; height: 17mm; }
+/* Assinatura conforme o MIV (p. 15–18). --brand-h = altura da assinatura do
+   Governo. O órgão parceiro fica à esquerda, afastado pela largura do escudo
+   (0,746 × altura) e centralizado no corpo do escudo, sem a coroa (58% da
+   altura a partir do topo). Não há fio separador entre as marcas. */
+.brand { --brand-h: 17mm; display: flex; align-items: flex-start; gap: calc(var(--brand-h) * 0.746); height: var(--brand-h); }
 .brand img { height: 100%; width: auto; max-width: none; }
-.brand__sep { align-self: stretch; width: 0.22mm; margin: 1mm 0; background: var(--doc-muted-2); }
-.brand--small { height: 14mm; gap: 3.6mm; }
+.brand .brand__partner { height: calc(var(--brand-h) * 0.8); max-width: calc(var(--brand-h) * 3.2); margin-top: calc(var(--brand-h) * 0.184); object-fit: contain; }
+.brand--vertical { --brand-h: 30mm; }
 
 /* Capa "Pasta" já é o padrão acima. */
 
-/* Capa "Identidade" (inspirada na capa do próprio MIV) */
-.cover--identity .cover__heading { top: 43%; }
-.cover--identity .cover__audience { top: auto; bottom: 25%; }
-.cover--identity .cover__brand { bottom: 7.5%; right: 24mm; }
+/* Capa "Pasta oficial": assinatura vertical centralizada na faixa branca, título embaixo à direita */
+.cover--official .cover__brand { left: 0; right: 0; top: 31%; bottom: auto; display: flex; justify-content: center; }
+.cover--official .brand { --brand-h: 21mm; }
+.cover--official .brand--vertical { --brand-h: 46mm; }
+.cover--official .cover__heading { top: 55%; left: auto; width: 112mm; text-align: right; }
+.cover--official .cover__rule { margin-left: auto; }
+.cover--official .cover__audience { top: auto; bottom: 9%; }
+
+/* Capa "Arcos" (id "identity"): assinatura e título dentro do arco branco */
+.cover--identity .cover__brand { top: 36.5%; bottom: auto; left: 40mm; right: auto; }
+.cover--identity .cover__heading { top: 47%; }
+.cover--identity .cover__audience { top: 72%; }
+
+/* Capa "Painel verde": título em branco no painel à direita, assinatura na área branca */
+.cover--panel .cover__brand { top: 33%; bottom: auto; left: 18mm; right: auto; }
+.cover--panel .cover__heading { top: 39%; left: 134mm; right: 10mm; }
+.cover--panel .cover__title { font-size: 25pt; line-height: 30pt; }
+.cover--panel .cover__subtitle { font-size: 14pt; line-height: 18pt; }
+.cover--panel .cover__audience { top: auto; bottom: 9%; left: 134mm; right: 10mm; text-align: left; }
+.cover--panel .cover__aud-label { margin-right: 0; }
+.cover--panel :is(.cover__kicker, .cover__title, .cover__aud-label, .cover__aud-text) { color: #fff; }
+.cover--panel :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.9); }
+.cover--panel .cover__rule { background: linear-gradient(90deg, #fff, #fccf05); }
+
+/* Capa "Convite": coluna de texto à direita da faixa vertical */
+.cover--invite .cover__brand { top: 11%; bottom: auto; left: 80mm; right: auto; }
+.cover--invite .cover__heading { top: 30%; left: 80mm; }
+.cover--invite .cover__title { font-size: 32pt; line-height: 37pt; }
+.cover--invite .cover__audience { top: 66%; left: 80mm; right: 20mm; text-align: left; }
+.cover--invite .cover__aud-label { margin-right: 0; }
 
 /* Capa "Envelope": tudo numa coluna à esquerda da faixa diagonal */
 .cover--envelope .cover__brand { top: 8.5%; bottom: auto; left: 20mm; right: auto; }
-.cover--envelope .brand { height: 14mm; gap: 3.6mm; }
+.cover--envelope .brand { --brand-h: 14mm; }
 .cover--envelope .cover__heading { top: 27%; right: auto; width: 88mm; }
 .cover--envelope .cover__title { font-size: 31pt; line-height: 36pt; }
 .cover--envelope .cover__subtitle { font-size: 18pt; line-height: 22pt; }
@@ -652,14 +714,14 @@
 
 /* Capa "Leque" (elemento base do grafismo) */
 .cover--fan .cover__brand { top: 7.5%; bottom: auto; left: 20mm; right: auto; }
-.cover--fan .brand { height: 14mm; gap: 3.6mm; }
+.cover--fan .brand { --brand-h: 14mm; }
 .cover--fan .cover__heading { top: 22%; right: 50mm; }
 .cover--fan .cover__audience { top: 50%; left: 20mm; right: auto; text-align: left; }
 .cover--fan .cover__aud-label { margin-right: 0; }
 
 /* Capa "Minimalista" */
 .cover--minimal .cover__brand { top: 7%; bottom: auto; left: 20mm; right: auto; }
-.cover--minimal .brand { height: 14mm; gap: 3.6mm; }
+.cover--minimal .brand { --brand-h: 14mm; }
 .cover--minimal .cover__heading { top: 36%; }
 .cover--minimal .cover__title { font-size: 40pt; line-height: 45pt; }
 .cover--minimal .cover__audience { top: auto; bottom: 15%; left: 20mm; right: auto; text-align: left; }
@@ -672,11 +734,10 @@
 .cover--solid .cover__brand { left: 20mm; right: auto; bottom: 8%; }
 
 .page--dark { color: #fff; }
-.page--dark :is(.cover__kicker, .cover__aud-label, .chapter__kicker) { color: #fff6c7; }
+.page--dark :is(.cover__kicker, .cover__aud-label, .chapter__kicker) { color: #fff; }
 .page--dark :is(.cover__title, .cover__aud-text, .back__title, .back__text) { color: #fff; }
 .page--dark :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.88); }
 .page--dark .cover__rule { background: linear-gradient(90deg, #fff, #fccf05); }
-.page--dark .brand__sep { background: rgb(255 255 255 / 0.7); }
 
 /* Abertura de capítulo */
 .chapter__content { position: absolute; left: 20mm; right: 34mm; top: 38%; }
@@ -688,7 +749,7 @@
 
 /* Contracapa */
 .back__info { position: absolute; left: 23mm; bottom: 11%; max-width: 120mm; }
-.back__info .brand { height: 16mm; gap: 4.2mm; }
+.back__info .brand { --brand-h: 16mm; }
 .back__title { margin-top: 7mm; font-size: 12.5pt; font-weight: 600; line-height: 16pt; color: var(--doc-navy); }
 .back__text { margin-top: 1.6mm; font-size: 9pt; font-weight: 300; line-height: 13pt; color: var(--doc-navy); white-space: pre-line; }
 
@@ -704,6 +765,24 @@
   text-align: center;
 }
 .back--minimal .back__info { top: 46%; }
+
+/* Contracapa "Conceito" (MIV p. 117): assinatura em negativo + fio + slogan, centralizados */
+.back--concept .back__info {
+  left: 20mm;
+  right: 20mm;
+  bottom: auto;
+  top: 46%;
+  max-width: none;
+  translate: 0 -50%;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+.concept { display: flex; align-items: center; gap: 4mm; }
+.concept .brand { --brand-h: 16mm; }
+.concept__rule { align-self: stretch; width: 0.3mm; margin: 1.5mm 0; background: #fff; }
+.slogan { font-size: 10pt; line-height: 1.2; text-align: left; text-transform: uppercase; color: #fff; max-width: 34mm; }
+.slogan strong { font-weight: 700; color: #fff; }
 .back--fan .back__info { left: 20mm; bottom: auto; top: 12%; }
 
 /* Miniaturas (galeria de modelos e painel de design) */

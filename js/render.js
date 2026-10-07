@@ -12,7 +12,7 @@ import { esc, pad2 } from './utils.js';
 import { renderInline } from './markup.js';
 import { ALTERNATE_TONES, CALLOUT_TONES } from './schema.js';
 import { COVERS, BACK_COVERS } from './design.js';
-import { coverArt, backArt, chapterArt, footerArt, CHECK_SVG } from './graphics.js';
+import { coverArt, backArt, chapterArt, footerArt, dividerArt, CHECK_SVG } from './graphics.js';
 
 /* ------------------------------------------------------------------ auxiliares */
 const toneClass = (tone, index = 0) => `tone-${tone === 'alternate' ? ALTERNATE_TONES[index % ALTERNATE_TONES.length] : tone}`;
@@ -317,7 +317,8 @@ const RENDERERS = {
   },
 
   divider(block) {
-    return [atom(block, 'atom--divider', `<span class="b-div b-div--${block.style}" role="presentation"></span>`)];
+    const art = block.style === 'wedge' ? dividerArt(`dv-${block.id}`) : '';
+    return [atom(block, 'atom--divider', `<span class="b-div b-div--${block.style}" role="presentation">${art}</span>`)];
   },
 
   pagebreak(block) {
@@ -349,18 +350,44 @@ export function renderBlock(block, ctx) {
 }
 
 /* ------------------------------------------------------------------ assinatura */
-export function brandHtml(design, assets, { negative = false } = {}) {
-  if (design.signature === 'none') return '';
-  const suffix = negative ? '-negative' : '';
-  const state = `<img src="assets/img/ceara${suffix}.png" alt="Governo do Estado do Ceará" width="1200" height="381">`;
-  let partner = '';
-  if (design.signature === 'joint') {
-    partner = `<img src="assets/img/detran${suffix}.png" alt="DETRAN/CE" width="370" height="416">`;
-  } else if (design.signature === 'custom' && assets[design.customLogo]) {
-    const logo = assets[design.customLogo];
-    partner = `<img src="${esc(logo.url)}" alt="Logo do órgão" width="${logo.width}" height="${logo.height}">`;
+const STATE_ALT = 'Governo do Estado do Ceará';
+const withSecretaria = (design) => design.signature === 'joint' || design.signature === 'seinfra';
+
+/**
+ * Imagem da assinatura do Governo. Com "Secretaria da Infraestrutura" só nas
+ * opções que pedem a secretaria; a versão vertical existe sem secretaria e
+ * só em positivo.
+ */
+function stateLogo(design, { negative, vertical }) {
+  if (vertical) {
+    return `<img class="brand__state brand__state--vertical" src="assets/img/ceara-vertical.png" alt="${STATE_ALT}" width="853" height="735">`;
   }
-  return `<div class="brand">${state}${partner ? `<span class="brand__sep"></span>${partner}` : ''}</div>`;
+  const suffix = negative ? '-negative' : '';
+  const file = withSecretaria(design) ? 'ceara' : 'ceara-state';
+  return `<img class="brand__state" src="assets/img/${file}${suffix}.png" alt="${STATE_ALT}" width="1200" height="382">`;
+}
+
+function partnerLogo(design, assets, negative) {
+  if (design.signature === 'joint') {
+    return `<img class="brand__partner" src="assets/img/detran${negative ? '-negative' : ''}.png" alt="DETRAN/CE" width="370" height="416">`;
+  }
+  const logo = design.signature === 'custom' ? assets[design.customLogo] : null;
+  return logo ? `<img class="brand__partner" src="${esc(logo.url)}" alt="Logo do órgão" width="${logo.width}" height="${logo.height}">` : '';
+}
+
+/**
+ * Assinatura conforme o MIV (p. 15–18): o órgão vem à esquerda e o Governo
+ * sempre à direita, sem fio separador, afastados pela largura do escudo e
+ * alinhados pelo centro do escudo (sem a coroa). `vertical` usa a assinatura
+ * vertical quando não há órgão parceiro (papel timbrado, pasta oficial).
+ */
+export function brandHtml(design, assets, { negative = false, vertical = false } = {}) {
+  if (design.signature === 'none') return '';
+  const partner = partnerLogo(design, assets, negative);
+  // A vertical só existe sem secretaria e em positivo (fundo branco).
+  const useVertical = vertical && !partner && !negative && !withSecretaria(design);
+  const layout = partner ? 'joint' : useVertical ? 'vertical' : 'single';
+  return `<div class="brand brand--${layout}">${partner}${stateLogo(design, { negative, vertical: useVertical })}</div>`;
 }
 
 /* ------------------------------------------------------------------ páginas */
@@ -378,7 +405,7 @@ export function renderCover(doc, assets, idPrefix) {
   return `
     <section class="page page--cover cover--${cover.id}${cover.dark ? ' page--dark' : ''}" aria-label="Capa" data-target="cover">
       ${coverArt(cover.id, idPrefix)}
-      <div class="cover__brand">${brandHtml(design, assets, { negative: cover.dark })}</div>
+      <div class="cover__brand">${brandHtml(design, assets, { negative: cover.dark, vertical: cover.id === 'official' })}</div>
       <div class="cover__heading">
         ${meta.kicker ? `<p class="cover__kicker">${esc(meta.kicker)}</p>` : ''}
         <p class="cover__title">${esc(meta.title)}</p>
@@ -398,18 +425,30 @@ export function renderBackCover(doc, assets, idPrefix) {
     <section class="page page--back back--${back.id}${back.dark ? ' page--dark' : ''}" aria-label="Contracapa" data-target="back">
       ${backArt(back.id, idPrefix)}
       <div class="back__info">
-        ${brandHtml(design, assets, { negative: back.dark })}
+        ${back.id === 'concept' ? conceptLockup(design, assets) : brandHtml(design, assets, { negative: back.dark })}
         ${meta.backTitle ? `<p class="back__title">${esc(meta.backTitle)}</p>` : ''}
         ${meta.backText ? `<p class="back__text">${esc(meta.backText)}</p>` : ''}
       </div>
     </section>`;
 }
 
-function headerHtml(doc) {
+/** Assinatura + slogan do Governo, como na contracapa do MIV (p. 9 e 117). */
+function conceptLockup(design, assets) {
+  const brand = brandHtml(design, assets, { negative: true });
+  const slogan = '<p class="slogan"><strong>Cuidar</strong> das pessoas, <strong>avançar</strong> o Ceará.</p>';
+  return `<div class="concept">${brand}${brand ? '<span class="concept__rule"></span>' : ''}${slogan}</div>`;
+}
+
+function headerHtml(doc, first) {
   const { design, meta } = doc;
   if (design.header === 'none') return '';
+  // Papel timbrado do MIV (p. 34–36): assinatura centralizada só na primeira folha.
+  if (design.header === 'letterhead') {
+    return first ? `<header class="page__letterhead">${brandHtml(design, {}, { vertical: true })}</header>` : '';
+  }
+  // Assinatura no cabeçalho: sem secretaria e com 30 mm de largura (mínimo do MIV, p. 21).
   const right = design.header === 'logo'
-    ? '<img src="assets/img/ceara.png" alt="Governo do Estado do Ceará" width="1200" height="381">'
+    ? `<img src="assets/img/ceara-state.png" alt="${STATE_ALT}" width="1200" height="382">`
     : esc(meta.headerRight);
   return `
     <header class="page__header page__header--${design.header}">
@@ -424,15 +463,34 @@ function pageNumberHtml(design, number, total) {
   return '';
 }
 
-export function renderContentPage(doc, { bodyHtml, number, total, idPrefix, overflowing }) {
-  const footer = doc.design.footer === 'none'
+/** Endereço do papel timbrado: nome do órgão em negrito e contatos separados por "•". */
+function addressHtml(meta) {
+  const lines = nonEmptyLines(meta.backText);
+  const first = [meta.backTitle ? `<strong>${esc(meta.backTitle)}</strong>` : '', lines[0] ? esc(lines[0]) : ''].filter(Boolean).join(' • ');
+  const rest = lines.slice(1).map(esc).join(' • ');
+  return `<address class="page__address">${first ? `<span>${first}</span>` : ''}${rest ? `<span>${rest}</span>` : ''}</address>`;
+}
+
+export function renderContentPage(doc, { bodyHtml, first, number, total, idPrefix, overflowing }) {
+  const { design } = doc;
+  // A meia faixa fica no lado de fora da folha: direita nas páginas ímpares, esquerda nas pares.
+  const side = design.footer === 'half' && number % 2 === 0 ? 'left' : 'right';
+  const footer = design.footer === 'none'
     ? ''
-    : `<div class="page__footer page__footer--${doc.design.footer}">${footerArt(doc.design.footer, idPrefix)}</div>`;
+    : `<div class="page__footer page__footer--${design.footer}">${footerArt(design.footer, idPrefix, { mirror: side === 'left' })}</div>`;
+  const classes = [
+    'page', 'page--content',
+    `page--footer-${design.footer}`,
+    design.footer === 'half' ? `page--outer-${side}` : '',
+    design.header === 'letterhead' && first ? 'page--letterhead' : '',
+    overflowing ? 'is-overflowing' : '',
+  ].filter(Boolean).join(' ');
   return `
-    <section class="page page--content${overflowing ? ' is-overflowing' : ''}" aria-label="Página ${number}">
-      ${headerHtml(doc)}
+    <section class="${classes}" aria-label="Página ${number}">
+      ${headerHtml(doc, first)}
       <div class="page__body">${bodyHtml}</div>
+      ${design.footer === 'address' ? addressHtml(doc.meta) : ''}
       ${footer}
-      ${pageNumberHtml(doc.design, number, total)}
+      ${pageNumberHtml(design, number, total)}
     </section>`;
 }
