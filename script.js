@@ -129,7 +129,7 @@ async function main() {
       if (isCompact()) ui.set({ pane: 'editor' });
       requestAnimationFrame(() => {
         blocks.forEach((block) => editor.markNew(block.id));
-        editor.reveal(blocks[0].id, { focus });
+        editor.reveal(blocks[0].id, { focus, selectText: focus });
       });
       announce(blocks.length === 1 ? `${BLOCK_TYPES[blocks[0].type].label} inserido.` : `${blocks.length} blocos inseridos.`);
     },
@@ -152,7 +152,7 @@ async function main() {
       const block = createBlock(type);
       store.update((doc) => doc.blocks.splice(index, 1, block), { kind: 'structure' });
       ui.set({ selectedId: block.id, selectSource: 'insert' });
-      requestAnimationFrame(() => editor.reveal(block.id, { focus: true }));
+      requestAnimationFrame(() => editor.reveal(block.id, { focus: true, selectText: true }));
       if (type === 'image') actions.chooseImage({ blockId: block.id });
     },
 

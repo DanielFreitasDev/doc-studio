@@ -562,8 +562,12 @@ export function createEditor({ store, ui, assets, actions, drag }) {
   return {
     render,
     renderCard,
-    /** Rola até o cartão e (opcionalmente) foca o primeiro campo. */
-    reveal(id, { focus = false } = {}) {
+    /**
+     * Rola até o cartão e (opcionalmente) foca o primeiro campo. Num bloco
+     * recém-inserido (`selectText`), o texto padrão fica selecionado: digitar
+     * substitui "Nova seção" em vez de se juntar a ele.
+     */
+    reveal(id, { focus = false, selectText = false } = {}) {
       const card = cardOf(id);
       if (!card) return;
       if (ui.get('collapsed').has(id) && focus) toggleCollapse(id);
@@ -571,7 +575,18 @@ export function createEditor({ store, ui, assets, actions, drag }) {
       card.classList.remove('is-flash');
       void card.offsetWidth;
       card.classList.add('is-flash');
-      if (focus) (card.querySelector('.block-card__body [data-path]') ?? card.querySelector('[data-drag-handle]'))?.focus({ preventScroll: true });
+      if (!focus) return;
+      const field = card.querySelector('.block-card__body [data-path]') ?? card.querySelector('[data-drag-handle]');
+      field?.focus({ preventScroll: true });
+      if (!selectText || !field) return;
+      if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) field.select();
+      else if (field.isContentEditable) {
+        const range = document.createRange();
+        range.selectNodeContents(field);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
     },
     /** Animação de entrada de um cartão recém-inserido. */
     markNew(id) {
