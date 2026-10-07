@@ -132,6 +132,18 @@ function groupBy(runs, key) {
   return groups;
 }
 
+/**
+ * Um "+", "=" ou "~" solto na ponta de um trecho formatado encostaria no
+ * marcador ("C+" sublinhado viraria "++C+++"): ali ele precisa de escape.
+ */
+function guardEdges(core, char) {
+  if (!'+=~'.includes(char)) return core;
+  let text = core;
+  if (text.endsWith(char) && !text.endsWith(`\\${char}`)) text = `${text.slice(0, -1)}\\${char}`;
+  if (text.startsWith(char)) text = `\\${text}`;
+  return text;
+}
+
 /** Monta a marcação de uma linha, aninhando na ordem que renderInline() entende. */
 function emit(runs, level = 0) {
   if (level >= NESTING.length) return runs.map((run) => escapeMarkup(run.text)).join('');
@@ -144,7 +156,7 @@ function emit(runs, level = 0) {
     if (!core) return inner;
     const marked = key === 'link'
       ? `[${core}](${value.replace(/\)/g, '%29').replace(/\s/g, '%20')})`
-      : `${FORMATS[key].marker}${core}${FORMATS[key].marker}`;
+      : `${FORMATS[key].marker}${guardEdges(core, FORMATS[key].marker[0])}${FORMATS[key].marker}`;
     return `${lead}${marked}${trail}`;
   }).join('');
 }

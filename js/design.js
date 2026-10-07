@@ -269,7 +269,8 @@ const VALID = {
   ...Object.fromEntries(Object.entries(DESIGN_OPTIONS).map(([key, options]) => [key, options.map((o) => o.value)])),
 };
 
-export function normalizeDesign(raw = {}) {
+export function normalizeDesign(raw) {
+  if (!raw || typeof raw !== 'object') raw = {};
   const design = { ...DEFAULT_DESIGN };
   for (const [key, allowed] of Object.entries(VALID)) {
     if (allowed.includes(raw[key])) design[key] = raw[key];
@@ -305,10 +306,10 @@ export function docAttributesHtml(design) {
 }
 
 /* ------------------------------------------------------------------ textos fixos */
-// Textos fixos são exibidos sem formatação (esc), por isso são campos simples (`plain`).
 /** Tamanho máximo de cada texto fixo (capa, cabeçalho, contracapa). */
 export const META_MAX_TEXT = 600;
 
+// Textos fixos são exibidos sem formatação (esc), por isso são campos simples (`plain`).
 export const META_GROUPS = [
   {
     title: 'Capa',
@@ -356,7 +357,8 @@ export const DEFAULT_META = Object.freeze({
   backWeb: 'www.detran.ce.gov.br',
 });
 
-export function normalizeMeta(raw = {}) {
+export function normalizeMeta(raw) {
+  if (!raw || typeof raw !== 'object') raw = {};
   const meta = { ...DEFAULT_META };
   for (const key of Object.keys(DEFAULT_META)) {
     if (typeof raw[key] === 'string') meta[key] = raw[key].slice(0, META_MAX_TEXT);

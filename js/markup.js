@@ -16,6 +16,7 @@ const ESCAPABLE = /\\([\\*_`=~+[\]])/g;
 // Marcadores internos (área de uso privado do Unicode) para trechos já prontos.
 const SLOT = /\uE000(\d+)\uE001/g;
 const HAS_SLOT = /\uE000\d+\uE001/;
+const ENTITIES = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
 
 const RULES = [
   [/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>'],
@@ -43,7 +44,9 @@ export function renderInline(text) {
   html = html.replace(/`([^`\n]+)`/g, (_, code) => keep(`<code>${code}</code>`));
   // Link: a URL fica guardada (as regras seguintes não podem mexer nela) e o texto do link continua formatável.
   html = html.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, (match, label, url) => {
-    const href = safeUrl(url.replaceAll('&amp;', '&'));
+    // A URL já passou por esc(): volta ao texto original e codifica aspas e sinais (it's → it%27s).
+    const raw = url.replace(/&(amp|lt|gt|quot|#39);/g, (entity) => ENTITIES[entity]).replace(/["'<>]/g, (char) => `%${char.charCodeAt(0).toString(16).toUpperCase()}`);
+    const href = safeUrl(raw);
     return href ? `${keep(`<a href="${esc(href)}">`)}${label}${keep('</a>')}` : match;
   });
   for (const [pattern, replacement] of RULES) html = html.replace(pattern, replacement);
@@ -51,7 +54,6 @@ export function renderInline(text) {
   return html.replace(/\n/g, '<br>');
 }
 
-const ENTITIES = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" };
 
 /** Texto sem marcações (para resumos, títulos de arquivo e sumário). */
 export function stripMarkup(text) {
