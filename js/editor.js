@@ -378,7 +378,7 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     zone.classList.remove('is-over');
     const file = [...(event.dataTransfer?.files ?? [])].find(isAcceptedImage);
     if (file) actions.setBlockImage(zone.closest('.block-card').dataset.blockId, file);
-    else actions.notify('Solte um arquivo PNG, JPG, WEBP ou GIF.', 'error');
+    else actions.notify('Solte um arquivo PNG, JPG, WEBP, GIF ou SVG.', 'error');
   });
 
   /* ---------------------------------------------------------------- reações ao estado */

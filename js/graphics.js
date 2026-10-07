@@ -70,9 +70,11 @@ function sector({ c: [cx, cy], r1, r2, a1, a2, colors, color }) {
     : { d: sectorPath(cx, cy, r1, r2, a1, a2), color };
 }
 
-function svg(className, layers, idPrefix, { width = PAGE_W, height = PAGE_H } = {}) {
-  return `<svg class="${className}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true" focusable="false">${renderLayers(layers, idPrefix)}</svg>`;
+function svg(className, layers, idPrefix, { width = PAGE_W, height = PAGE_H, before = '' } = {}) {
+  return `<svg class="${className}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true" focusable="false">${before}${renderLayers(layers, idPrefix)}</svg>`;
 }
+
+const pointsAttr = (pts) => pts.map(([x, y]) => `${round(x)},${round(y)}`).join(' ');
 
 /* ------------------------------------------------------------------ rodapé do papel timbrado */
 /**
@@ -124,7 +126,36 @@ function stripeLayers(height) {
   ];
 }
 
+/**
+ * Faixas em camadas do fundo de palco e da vinheta (MIV p. 62 e 98–113): cunha
+ * que sobe da esquerda para a direita, em três trechos verde → água-marinha,
+ * com a faixa laranja embaixo do lado direito. `rise` é a altura na direita.
+ */
+function stageLayers(baseY, rise, { x1 = 75, x2 = 148 } = {}) {
+  const top = (x) => baseY - (rise * x) / PAGE_W;
+  const band = (x) => baseY - rise * 0.12 - ((rise * 0.42) * (x - x1)) / (PAGE_W - x1);
+  return [
+    { pts: [[0, baseY], [x1, top(x1)], [x1 + 1.5, baseY]], colors: ['#38B53F', '#5FCAC9'], from: [0, baseY], to: [x1, baseY] },
+    { pts: [[x1, top(x1)], [x2, top(x2)], [x2, band(x2)], [x1, band(x1)]], colors: ['#47BD6A', '#55C5B2'], from: [x1, baseY], to: [x2, baseY] },
+    { pts: [[x2, top(x2)], [PAGE_W, top(PAGE_W)], [PAGE_W, band(PAGE_W)], [x2, band(x2)]], colors: ['#38B53F', '#5FCAC9'], from: [x2, baseY], to: [PAGE_W, baseY] },
+    { pts: [[x1, band(x1)], [PAGE_W, band(PAGE_W)], [PAGE_W, baseY], [x1 + 1.5, baseY]], colors: ['#F15A24', '#F7941D'], from: [x1, baseY], to: [PAGE_W, baseY] },
+  ];
+}
+
+/** Faixa fina e inclinada do alto do certificado (MIV p. 52). */
+function topBandLayers() {
+  return [
+    { pts: [[24, 0], [196, 0], [196, 1.2], [24, 3.4]], colors: ['#26A737', '#38B53F'], from: [24, 0], to: [196, 0] },
+    { pts: [[178, 0], [210, 0], [210, 1.6], [178, 1.6]], color: '#5FCAC9' },
+  ];
+}
+
+export function headerArt(style, idPrefix) {
+  return style === 'band' ? svg('header-art', topBandLayers(), idPrefix, { height: 4 }) : '';
+}
+
 export function footerArt(style, idPrefix, { mirror = false } = {}) {
+  if (style === 'layers') return svg('footer-art', stageLayers(14, 14), idPrefix, { height: 14 });
   if (style === 'bar' || style === 'address') return svg('footer-art', footerBarLayers(10.5), idPrefix, { height: 10.5 });
   if (style === 'half') return svg('footer-art', halfBarLayers(10.9, mirror), idPrefix, { height: 10.9 });
   if (style === 'stripe') return svg('footer-art', stripeLayers(1.9), idPrefix, { height: 1.9 });
@@ -273,7 +304,60 @@ const COVER_LAYERS = {
     { pts: [F(0.78, 0), F(1, 0), F(1, 0.1)], colors: ['#46BC50', '#54C4A0'], from: F(0.8, 0), to: F(1, 0.1) },
     ...footerBarLayers(PAGE_H),
   ],
+
+  // Totem de evento (MIV p. 115): degradê verde no alto com borda em arco,
+  // área branca e raios coloridos no pé, saindo de um centro acima deles.
+  totem: totemLayers,
+
+  // Placa de obra (MIV p. 76): área branca à esquerda e painel verde à direita,
+  // separados por faixas verticais vermelho → laranja e água-marinha.
+  sign: () => [
+    { pts: [[124, 0], [210, 0], [210, 297], [129, 297]], colors: ['#38B53F', '#45B16E', '#58C7BD'], from: [130, 0], to: [210, 297] },
+    { pts: [[112.6, 0], [121.4, 0], [121.6, 15], [112.8, 15]], color: '#38B53F' },
+    { pts: [[119.6, 0], [122.6, 0], [122.6, 8], [119.6, 8]], color: '#ED2225' },
+    { pts: [[112.8, 15], [121.6, 15], [124.6, 196], [116.4, 196]], colors: ['#ED2225', '#F26B21', '#F7941D'], from: [0, 15], to: [0, 196] },
+    { pts: [[116.4, 196], [124.6, 196], [126.6, 297], [118.6, 297]], colors: ['#45B16E', '#5FCAC9'], from: [0, 196], to: [0, 297] },
+    { pts: [[124.6, 196], [125.6, 196], [127.7, 297], [126.6, 297]], color: '#F7941D' },
+    { pts: [[121.6, 0], [124, 0], [129, 297], [126.6, 297]], color: '#5FCAC9' },
+  ],
+
+  // Fundo de palco e vinheta (MIV p. 62 e 98–113): faixas em camadas no pé e
+  // a faixa vertical estreita na borda esquerda.
+  stage: () => [
+    ...stageLayers(PAGE_H, 78, { x1: 75, x2: 146 }),
+    ...edgeStripLayers(),
+  ],
+
+  // Certificado (MIV p. 52): faixa fina no alto e a faixa do papel timbrado no pé.
+  certificate: () => [
+    ...topBandLayers(),
+    ...footerBarLayers(PAGE_H),
+  ],
 };
+
+/** Faixa vertical estreita da borda esquerda do fundo de palco (MIV p. 104). */
+function edgeStripLayers() {
+  return [
+    { pts: [[0, 0], [4.2, 0], [4.2, 52], [0, 52]], colors: ['#ED2225', '#F26B21'], from: [0, 0], to: [0, 52] },
+    { pts: [[4.2, 0], [10.6, 0], [10.2, 52], [4.2, 52]], colors: ['#45B16E', '#38B53F'], from: [0, 0], to: [0, 52] },
+    { pts: [[0, 52], [10.2, 52], [0.8, 297], [0, 297]], colors: ['#5FCAC9', '#45B16E', '#38B53F'], from: [0, 52], to: [0, 297] },
+  ];
+}
+
+function totemLayers() {
+  // Centro e raio medidos para o branco terminar a 93% da altura no meio e a 80% nas bordas.
+  const c = [105, 111.9];
+  const r1 = 164.1;
+  const rays = [
+    [28, 42, ['#5FCAC9', '#45B16E']], [42, 56, ['#ED2225', '#F7941D']], [56, 72, ['#38B53F', '#45B16E']],
+    [72, 80, ['#45B16E', '#38B53F']], [80, 100, ['#38B53F', '#5DB12F']], [100, 120, ['#F7941D', '#F26B21']],
+    [120, 136, ['#38B53F', '#45B16E']], [136, 152, ['#F7941D', '#F59C00']],
+  ];
+  return [
+    { d: 'M 0 0 L 210 0 L 210 110 Q 105 98 0 110 Z', colors: ['#3DB54A', '#45B16E', '#5BC4C0'], from: [40, 0], to: [190, 115] },
+    ...rays.map(([a1, a2, colors]) => sector({ c, r1, r2: 320, a1, a2, colors })),
+  ];
+}
 
 const BACK_LAYERS = {
   // Modelo "Pasta – Verso" do MIV
@@ -289,6 +373,15 @@ const BACK_LAYERS = {
     { pts: [F(0, 0), F(1, 0), F(1, 0.012), F(0, 0.012)], colors: ['#26A737', '#2DB39E', '#F59C00'], from: F(0, 0), to: F(1, 0) },
     ...footerBarLayers(PAGE_H),
   ],
+  identity: arcLayers,
+  stage: COVER_LAYERS.stage,
+  // Vinheta do MIV (p. 62): branco, canto superior em faixas e camadas no pé.
+  vignette: () => [
+    { pts: [[0, 0], [20, 0], [0, 26]], colors: ['#F26B21', '#ED2225'], from: [0, 0], to: [12, 14] },
+    { pts: [[20, 0], [34, 0], [0, 44], [0, 26]], colors: ['#45B16E', '#5FCAC9'], from: [0, 0], to: [20, 30] },
+    ...stageLayers(PAGE_H, 62, { x1: 70, x2: 140 }),
+  ],
+  certificate: COVER_LAYERS.certificate,
 };
 
 const CHAPTER_LAYERS = () => [
@@ -303,7 +396,37 @@ const CHAPTER_SOLID_LAYERS = () => [
   { pts: [F(0, 0), F(1, 0), F(1, 1), F(0, 1)], colors: ['#3FB45D', '#49BA7E', '#56C0A3'], from: F(0, 0), to: F(1, 1) },
 ];
 
-export function coverArt(id, idPrefix) {
+/**
+ * Capa "Foto" (slide com foto do MIV, p. 56): a foto ocupa o alto da folha,
+ * recortada por uma diagonal; faixas verde, água-marinha e laranja passam por
+ * cima das bordas. Sem foto, o recorte recebe o degradê verde do MIV.
+ */
+const PHOTO_CLIP = [[0, 0], [210, 0], [210, 150], [0, 118]];
+function photoLayers() {
+  return [
+    { pts: [[0, 0], [98, 0], [0, 74]], colors: ['#5DB12F', '#26A737'], from: [0, 0], to: [60, 40], opacity: 0.94 },
+    { pts: [[0, 112], [210, 144], [210, 157], [0, 124]], colors: ['#2DB39E', '#4EC6E0'], from: [0, 0], to: [210, 0] },
+    { pts: [[96, 138.6], [210, 157], [210, 186]], colors: ['#26A737', '#45B16E'], from: [96, 150], to: [210, 175] },
+    { pts: [[0, 236], [33, 297], [0, 297]], colors: ['#ED2225', '#F59C00'], from: [0, 240], to: [20, 297] },
+    { pts: [[0, 214], [12, 236], [0, 236]], colors: ['#2DB39E', '#4EC6E0'], from: [0, 214], to: [0, 236] },
+  ];
+}
+
+function photoBackground(idPrefix, photoUrl) {
+  const clip = `${idPrefix}-clip`;
+  const fill = `${idPrefix}-photo`;
+  const content = photoUrl
+    ? `<image href="${photoUrl}" x="0" y="0" width="210" height="150" preserveAspectRatio="xMidYMid slice" clip-path="url(#${clip})"/>`
+    : `<polygon points="${pointsAttr(PHOTO_CLIP)}" fill="url(#${fill})"/>`;
+  return `<defs><clipPath id="${clip}"><polygon points="${pointsAttr(PHOTO_CLIP)}"/></clipPath>${gradientDef(fill, [0, 0], [210, 150], ['#45B16E', '#2DB39E', '#5FCAC9'])}</defs>${content}`;
+}
+
+/**
+ * `photoUrl` só é usado pela capa "Foto". A URL vem do registro de imagens
+ * (blob: criado pelo próprio app) e é escapada por quem chama.
+ */
+export function coverArt(id, idPrefix, { photoUrl = '' } = {}) {
+  if (id === 'photo') return svg('cover__art', photoLayers(), idPrefix, { before: photoBackground(idPrefix, photoUrl) });
   const layers = COVER_LAYERS[id];
   return layers ? svg('cover__art', layers(), idPrefix) : '';
 }
@@ -317,8 +440,16 @@ export function backArt(id, idPrefix) {
  * Arte da página de abertura de capítulo: "folder" (faixas da pasta) ou
  * "solid" (degradê diagonal verde → água-marinha das p. 2–3 do MIV).
  */
+const CHAPTER_STYLES = {
+  folder: CHAPTER_LAYERS,
+  solid: CHAPTER_SOLID_LAYERS,
+  // Fundo de palco (MIV p. 104) e arcos da capa do MIV (p. 1).
+  stage: () => [...stageLayers(PAGE_H, 70, { x1: 75, x2: 146 }), ...edgeStripLayers()],
+  arcs: arcLayers,
+};
+
 export function chapterArt(idPrefix, style = 'folder') {
-  return svg('chapter__art', style === 'solid' ? CHAPTER_SOLID_LAYERS() : CHAPTER_LAYERS(), idPrefix);
+  return svg('chapter__art', (CHAPTER_STYLES[style] ?? CHAPTER_LAYERS)(), idPrefix);
 }
 
 /** Ícone de "check" usado em cartões e listas do documento. */

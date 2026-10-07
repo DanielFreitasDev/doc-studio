@@ -7,11 +7,13 @@
  */
 import { uid, dataUrlToBlob } from './utils.js';
 
-const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml'];
 const MAX_INPUT_BYTES = 20 * 1024 * 1024;
-const MAX_DIMENSION = 2400;
-const KEEP_ORIGINAL_BYTES = 1.5 * 1024 * 1024;
-const DATA_URL_PREFIX = /^data:image\/(png|jpeg|webp|gif);base64,/;
+const MAX_SVG_BYTES = 4 * 1024 * 1024;
+// 3508 px = lado maior de uma folha A4 a 300 dpi: fotos de capa e prints saem nítidos no PDF.
+const MAX_DIMENSION = 3508;
+const KEEP_ORIGINAL_BYTES = 2.5 * 1024 * 1024;
+const DATA_URL_PREFIX = /^data:image\/(png|jpeg|webp|gif|svg\+xml);base64,/;
 const BASE64_BODY = /^[A-Za-z0-9+/]+={0,2}$/;
 
 export function isAcceptedImage(file) {
@@ -28,12 +30,33 @@ function readAsDataUrl(file) {
 }
 
 /**
+ * SVG (logo vetorial): guardado como está e exibido só por <img>/<image>, que
+ * nunca executam scripts do arquivo. O tamanho vem dos atributos ou do viewBox.
+ */
+async function svgToAsset(file) {
+  if (file.size > MAX_SVG_BYTES) throw new Error('Arquivo SVG muito grande (máximo de 4 MB).');
+  const dataUrl = await readAsDataUrl(file);
+  const image = new Image();
+  image.src = dataUrl;
+  try {
+    await image.decode();
+  } catch {
+    throw new Error('Não foi possível ler o SVG. Confira se o arquivo é uma imagem válida.');
+  }
+  const width = image.naturalWidth || 1000;
+  const height = image.naturalHeight || 1000;
+  return { dataUrl, width, height, name: (file.name || 'imagem').slice(0, 120) };
+}
+
+/**
  * Valida e prepara um arquivo de imagem. Imagens enormes são reduzidas para
- * no máximo 2400 px no maior lado (suficiente para impressão A4 nítida).
+ * no máximo 3508 px no maior lado (A4 a 300 dpi: impressão nítida). SVG
+ * continua vetorial.
  */
 export async function fileToAsset(file) {
-  if (!isAcceptedImage(file)) throw new Error('Formato não suportado. Use PNG, JPG, WEBP ou GIF.');
+  if (!isAcceptedImage(file)) throw new Error('Formato não suportado. Use PNG, JPG, WEBP, GIF ou SVG.');
   if (file.size > MAX_INPUT_BYTES) throw new Error('Imagem muito grande (máximo de 20 MB).');
+  if (file.type === 'image/svg+xml') return svgToAsset(file);
 
   let bitmap;
   try {
@@ -58,7 +81,8 @@ export async function fileToAsset(file) {
     const context = canvas.getContext('2d');
     context.imageSmoothingQuality = 'high';
     context.drawImage(bitmap, 0, 0, finalWidth, finalHeight);
-    dataUrl = canvas.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.9);
+    // PNG e WEBP podem ter transparência (logos): continuam PNG. Fotos viram JPEG de alta qualidade.
+    dataUrl = canvas.toDataURL(['image/png', 'image/webp'].includes(file.type) ? 'image/png' : 'image/jpeg', 0.92);
   }
   bitmap.close?.();
 
@@ -136,5 +160,6 @@ export function usedAssetIds(doc) {
   const ids = new Set();
   for (const block of doc.blocks) if (block.type === 'image' && block.assetId) ids.add(block.assetId);
   if (doc.design.customLogo) ids.add(doc.design.customLogo);
+  if (doc.design.coverImage) ids.add(doc.design.coverImage);
   return ids;
 }

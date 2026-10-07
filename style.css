@@ -11,6 +11,9 @@
 @font-face { font-family: 'Kanit'; font-weight: 500; font-display: swap; src: url('assets/fonts/Kanit-Medium.woff') format('woff'); }
 @font-face { font-family: 'Kanit'; font-weight: 600; font-display: swap; src: url('assets/fonts/Kanit-SemiBold.woff') format('woff'); }
 @font-face { font-family: 'Kanit'; font-weight: 700; font-display: swap; src: url('assets/fonts/Kanit-Bold.woff') format('woff'); }
+/* ExtraBold e Black: os pesos dos títulos do próprio MIV (opção "Títulos extra fortes"). */
+@font-face { font-family: 'Kanit'; font-weight: 800; font-display: swap; src: url('assets/fonts/Kanit-ExtraBold.woff') format('woff'); }
+@font-face { font-family: 'Kanit'; font-weight: 900; font-display: swap; src: url('assets/fonts/Kanit-Black.woff') format('woff'); }
 @font-face { font-family: 'Maitree'; font-weight: 400; font-display: swap; src: url('assets/fonts/Maitree-Regular.woff') format('woff'); }
 @font-face { font-family: 'Maitree'; font-weight: 600; font-display: swap; src: url('assets/fonts/Maitree-SemiBold.woff') format('woff'); }
 @font-face { font-family: 'Maitree'; font-weight: 700; font-display: swap; src: url('assets/fonts/Maitree-Bold.woff') format('woff'); }

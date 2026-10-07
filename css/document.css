@@ -147,6 +147,9 @@
   background: var(--doc-brand-rule);
 }
 .page__header--logo { top: 6.2mm; }
+/* Cabeçalho "Faixa no topo": faixa fina e inclinada do certificado do MIV (p. 52). */
+.page__header-art { position: absolute; top: 0; left: 0; right: 0; height: 4mm; }
+.page__header-art svg { display: block; width: 100%; height: 100%; }
 .page__header--logo::after { top: calc(100% + 1.4mm); }
 
 /* Papel timbrado (MIV p. 34–36): assinatura centralizada no alto da primeira folha. */
@@ -183,6 +186,7 @@
 .page__footer { position: absolute; left: 0; right: 0; bottom: 0; height: 10.5mm; }
 .page__footer--stripe { height: 1.9mm; }
 .page__footer--half { height: 10.9mm; }
+.page__footer--layers { height: 14mm; }
 .page__footer svg { width: 100%; height: 100%; }
 
 .page__number {
@@ -740,7 +744,7 @@
 .cover--panel .cover__heading { top: 39%; left: 134mm; right: 10mm; }
 .cover--panel .cover__title { font-size: 25pt; line-height: 30pt; }
 .cover--panel .cover__subtitle { font-size: 14pt; line-height: 18pt; }
-.cover--panel .cover__audience { top: auto; bottom: 9%; left: 134mm; right: 10mm; text-align: left; }
+.cover--panel .cover__audience { top: auto; bottom: 9%; left: 146mm; right: 10mm; text-align: left; }
 .cover--panel .cover__aud-label { margin-right: 0; }
 .cover--panel :is(.cover__kicker, .cover__title, .cover__aud-label, .cover__aud-text) { color: #fff; }
 .cover--panel :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.9); }
@@ -797,6 +801,11 @@
 .chapter__rule { display: block; width: 34mm; height: 1.1mm; margin-top: 5mm; background: var(--doc-brand-rule); }
 .chapter__intro { margin-top: 6mm; max-width: 130mm; }
 
+/* Abertura "Palco": texto acima das faixas em camadas. "Arcos": dentro do arco branco. */
+.chapter--stage .chapter__content { top: 24%; left: 24mm; }
+.chapter--arcs .chapter__content { top: 41%; left: 40mm; right: 24mm; }
+.chapter--arcs .chapter__num { font-size: 72pt; }
+
 /* Abertura "Verde pleno" (MIV p. 2–3): título em Kanit Bold e texto em branco sobre o degradê. */
 .chapter--solid .chapter__content { left: 92mm; right: 18mm; top: 34%; }
 .chapter--solid .chapter__num { font-size: 72pt; color: rgb(255 255 255 / 0.35); }
@@ -804,6 +813,60 @@
 .chapter--solid .chapter__rule { background: linear-gradient(90deg, #fff, #fccf05); }
 .chapter--solid .chapter__intro, .chapter--solid .chapter__intro strong { color: #fff; }
 .chapter--solid .chapter__intro { font-family: 'Kanit', sans-serif; font-weight: 400; }
+
+/* Capa "Foto" (slide com foto, MIV p. 56): foto no alto, título na área branca, assinatura no pé à direita */
+.cover--photo .cover__heading { top: 54%; }
+.cover--photo .cover__brand { bottom: 6%; }
+.cover--photo .cover__audience { top: auto; bottom: 12%; left: 20mm; right: auto; max-width: 95mm; text-align: left; }
+.cover--photo .cover__aud-label { margin-right: 0; }
+
+/* Capa "Totem" (MIV p. 115): título em branco no degradê, público no meio, assinatura vertical sobre os raios */
+.cover--totem :is(.cover__heading, .cover__audience) { left: 18mm; right: 18mm; max-width: none; text-align: center; }
+.cover--totem .cover__heading { top: 8.5%; }
+.cover--totem :is(.cover__kicker, .cover__title) { color: #fff; }
+.cover--totem :is(.cover__subtitle, .cover__desc) { color: rgb(255 255 255 / 0.92); }
+.cover--totem .cover__rule { margin-inline: auto; background: linear-gradient(90deg, #fff, #fccf05); }
+.cover--totem .cover__audience { top: 42%; }
+.cover--totem .cover__aud-label { margin-right: -0.55em; }
+.cover--totem .cover__aud-text { font-style: italic; font-weight: 300; font-size: 14pt; line-height: 18pt; }
+.cover--totem .cover__brand { left: 0; right: 0; top: 60%; bottom: auto; display: flex; justify-content: center; }
+.cover--totem .brand--vertical { --brand-h: 33mm; }
+.cover--totem .brand--joint-vertical { --brand-h: 29mm; }
+.cover--totem .brand:not(.brand--vertical, .brand--joint-vertical) { --brand-h: 15mm; }
+
+/* Capa "Placa" (placa de obra, MIV p. 76): assinatura vertical e conceito na área branca, título no painel verde */
+.cover--sign .cover__brand { left: 0; right: auto; width: 112mm; top: 15%; bottom: auto; display: flex; justify-content: center; }
+.cover--sign .brand--vertical { --brand-h: 44mm; }
+.cover--sign .brand--joint-vertical { --brand-h: 30mm; }
+.cover--sign .brand:not(.brand--vertical, .brand--joint-vertical) { --brand-h: 13mm; }
+.cover--sign .cover__heading { top: 11%; left: 137mm; right: 9mm; }
+.cover--sign :is(.cover__kicker, .cover__title, .cover__aud-label, .cover__aud-text) { color: #fff; }
+.cover--sign .cover__title { font-size: 25pt; line-height: 29pt; text-transform: uppercase; }
+.cover--sign :is(.cover__subtitle, .cover__desc, .cover__version) { color: rgb(255 255 255 / 0.92); }
+.cover--sign .cover__subtitle { font-size: 14pt; line-height: 18pt; }
+.cover--sign .cover__rule { background: linear-gradient(90deg, #fff, #fccf05); }
+.cover--sign .cover__audience { top: auto; bottom: 9%; left: 137mm; right: 9mm; text-align: left; }
+.cover--sign .cover__aud-label { margin-right: 0; }
+.cover__concept { position: absolute; left: 0; width: 112mm; bottom: 13%; display: flex; justify-content: center; }
+.cover__concept .slogan { --brand-h: 56mm; font-family: 'Kanit', sans-serif; font-size: calc(var(--brand-h) * 0.142); line-height: calc(var(--brand-h) * 0.167); text-transform: uppercase; color: var(--doc-navy); }
+
+/* Capa "Palco" (fundo de palco e vinheta, MIV p. 62 e 104): tudo centralizado */
+.cover--stage .cover__brand { left: 0; right: 0; top: 8%; bottom: auto; display: flex; justify-content: center; }
+.cover--stage .brand { --brand-h: 15mm; }
+.cover--stage :is(.cover__heading, .cover__audience) { left: 22mm; right: 22mm; max-width: none; text-align: center; }
+.cover--stage .cover__heading { top: 27%; }
+.cover--stage .cover__rule { margin-inline: auto; }
+.cover--stage .cover__audience { top: 51%; }
+
+/* Capa "Certificado" (MIV p. 52): clássica e centralizada */
+.cover--certificate .cover__brand { left: 0; right: 0; top: 9%; bottom: auto; display: flex; justify-content: center; }
+.cover--certificate .brand { --brand-h: 15mm; }
+.cover--certificate :is(.cover__heading, .cover__audience) { left: 24mm; right: 24mm; max-width: none; text-align: center; }
+.cover--certificate .cover__heading { top: 33%; }
+.cover--certificate .cover__kicker { letter-spacing: 0.42em; margin-right: -0.42em; }
+.cover--certificate .cover__title { font-weight: 400; font-size: 34pt; line-height: 40pt; letter-spacing: 0.02em; }
+.cover--certificate .cover__rule { margin-inline: auto; }
+.cover--certificate .cover__audience { top: auto; bottom: 16%; }
 
 /* Contracapa */
 .back__info { position: absolute; left: 23mm; bottom: 11%; max-width: 120mm; }
@@ -836,10 +899,34 @@
   justify-items: center;
   text-align: center;
 }
+/* Contracapa "Vinheta" (MIV p. 62), "Palco" e "Certificado": tudo centralizado em papel branco. */
+.back--vignette .back__info, .back--stage .back__info, .back--certificate .back__info {
+  left: 20mm;
+  right: 20mm;
+  bottom: auto;
+  top: 44%;
+  max-width: none;
+  translate: 0 -50%;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+.back--stage .back__info { top: 38%; }
+/* Contracapa "Arcos": assinatura e endereço dentro do arco branco, como a capa do MIV. */
+.back--identity .back__info { left: 40mm; top: 38%; bottom: auto; }
+.back__web { margin-top: 2.6mm; font-size: 9pt; font-weight: 500; letter-spacing: 0.06em; color: var(--doc-primary-strong); }
+.page--dark .back__web { color: #fff; }
+
 /* Sem assinatura, o conceito aparece sozinho e maior, para não sumir na página. */
 .concept { --brand-h: 32mm; }
-.concept .slogan { font-size: calc(var(--brand-h) * 0.142); line-height: calc(var(--brand-h) * 0.167); text-transform: uppercase; color: #fff; }
+.concept .slogan { font-size: calc(var(--brand-h) * 0.142); line-height: calc(var(--brand-h) * 0.167); text-transform: uppercase; color: #26a737; }
+.concept--negative .slogan { color: #fff; }
 .back--fan .back__info { left: 20mm; bottom: auto; top: 12%; }
+
+/* Títulos extra fortes: os pesos Kanit ExtraBold e Black dos títulos do MIV. */
+.doc[data-heading-weight="strong"] :is(.cover__title, .b-section__title, .chapter__title, .b-toc__title, .b-h2) { font-weight: 800; }
+.doc[data-heading-weight="strong"] :is(.chapter__num, .b-section__bignum, .b-kpi__v) { font-weight: 900; }
+.doc[data-heading-weight="strong"] .cover--certificate .cover__title { font-weight: 600; }
 
 /* Miniaturas (galeria de modelos e painel de design) */
 .thumb { --zoom: 0.16; display: inline-block; }

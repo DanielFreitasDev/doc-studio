@@ -19,6 +19,7 @@ export const THEMES = [
   { id: 'gold', label: 'Sol', colors: ['#e4a500', '#8a6400', '#26a737'] },
   { id: 'leaf', label: 'Folha', colors: ['#45b16e', '#2a7050', '#e94f0e'] },
   { id: 'navy', label: 'Grafite', colors: ['#465564', '#2f3b47', '#26a737'] },
+  { id: 'sky', label: 'Azul', colors: ['#4ec6e0', '#1b7389', '#f59c00'] },
 ];
 
 /**
@@ -36,6 +37,11 @@ export const COVERS = [
   { id: 'fan', label: 'Leque', description: 'Elemento base do grafismo: raios em leque (MIV p. 26)' },
   { id: 'solid', label: 'Verde pleno', description: 'Degradê verde → água-marinha com assinatura em negativo (MIV p. 117)', dark: true },
   { id: 'minimal', label: 'Minimalista', description: 'Branco, com a faixa do papel timbrado no pé' },
+  { id: 'photo', label: 'Foto', description: 'Sua foto no alto, recortada pelas faixas (slide com foto, MIV p. 56)' },
+  { id: 'totem', label: 'Totem', description: 'Degradê verde em arco, assinatura vertical e raios no pé (totem, MIV p. 115)' },
+  { id: 'sign', label: 'Placa', description: 'Painel verde à direita com o título em branco (placa de obra, MIV p. 76)' },
+  { id: 'stage', label: 'Palco', description: 'Título centralizado e faixas em camadas no pé (fundo de palco, MIV p. 104)' },
+  { id: 'certificate', label: 'Certificado', description: 'Clássica e centralizada, com faixa fina no alto (certificado, MIV p. 52)' },
   { id: 'none', label: 'Sem capa', description: 'O documento começa direto no conteúdo' },
 ];
 
@@ -45,6 +51,10 @@ export const BACK_COVERS = [
   { id: 'solid', label: 'Verde pleno', description: 'Fundo verde com assinatura e endereço centralizados', dark: true },
   { id: 'fan', label: 'Leque', description: 'Grafismo em leque e endereço' },
   { id: 'minimal', label: 'Minimalista', description: 'Assinatura e endereço centralizados, faixa no pé' },
+  { id: 'vignette', label: 'Vinheta', description: 'Fundo branco com assinatura e conceito em cores (vinheta, MIV p. 62)' },
+  { id: 'identity', label: 'Arcos', description: 'Arcos do grafismo da capa do MIV, com assinatura e endereço' },
+  { id: 'stage', label: 'Palco', description: 'Faixas em camadas no pé, assinatura centralizada (fundo de palco, MIV p. 104)' },
+  { id: 'certificate', label: 'Certificado', description: 'Faixa fina no alto e faixa do timbrado no pé (MIV p. 52)' },
   { id: 'none', label: 'Sem contracapa', description: 'Termina na última página de conteúdo' },
 ];
 
@@ -54,6 +64,7 @@ export const DESIGN_OPTIONS = {
     { value: 'rule', label: 'Texto e linha' },
     { value: 'logo', label: 'Texto e assinatura' },
     { value: 'letterhead', label: 'Timbrado' },
+    { value: 'band', label: 'Faixa no topo' },
     { value: 'none', label: 'Nenhum' },
   ],
   footer: [
@@ -61,6 +72,7 @@ export const DESIGN_OPTIONS = {
     { value: 'address', label: 'Faixa e endereço' },
     { value: 'half', label: 'Meia faixa' },
     { value: 'stripe', label: 'Linha fina' },
+    { value: 'layers', label: 'Camadas' },
     { value: 'none', label: 'Nenhum' },
   ],
   pageNumber: [
@@ -82,6 +94,11 @@ export const DESIGN_OPTIONS = {
     { value: 'maitree', label: 'Maitree (serifada)' },
     { value: 'kanit', label: 'Kanit (sem serifa)' },
   ],
+  // O MIV usa Kanit ExtraBold/Black nos títulos; os manuais aprovados, Kanit Bold/SemiBold.
+  headingWeight: [
+    { value: 'regular', label: 'Padrão (manuais aprovados)' },
+    { value: 'strong', label: 'Extra forte (como o MIV)' },
+  ],
   density: [
     { value: 'compact', label: 'Compacta' },
     { value: 'regular', label: 'Padrão' },
@@ -100,6 +117,8 @@ export const DESIGN_OPTIONS = {
   chapterStyle: [
     { value: 'folder', label: 'Faixas (pasta)' },
     { value: 'solid', label: 'Verde pleno (MIV)' },
+    { value: 'stage', label: 'Palco' },
+    { value: 'arcs', label: 'Arcos' },
   ],
 };
 
@@ -116,7 +135,9 @@ export const DEFAULT_DESIGN = Object.freeze({
   density: 'regular',
   signature: 'joint',
   chapterStyle: 'folder',
+  headingWeight: 'regular',
   customLogo: '',
+  coverImage: '',
   numberSections: true,
   countCover: true,
 });
@@ -159,7 +180,30 @@ export const DESIGN_PRESETS = [
     id: 'sertao', label: 'Sol do sertão', description: 'Amarelo-ouro com leque',
     design: { theme: 'gold', cover: 'fan', backCover: 'fan', header: 'classic', footer: 'bar', pageNumber: 'circle', sectionStyle: 'number', cardStyle: 'top', chapterStyle: 'folder' },
   },
+  {
+    id: 'stage', label: 'Evento (palco)', description: 'Capa de fundo de palco, centralizada, com faixas em camadas',
+    design: { theme: 'green', cover: 'stage', backCover: 'vignette', header: 'band', footer: 'layers', pageNumber: 'circle', sectionStyle: 'kicker', cardStyle: 'soft', chapterStyle: 'stage' },
+  },
+  {
+    id: 'works', label: 'Obras e projetos', description: 'Capa de placa de obra, títulos fortes como no MIV',
+    design: { theme: 'green', cover: 'sign', backCover: 'stage', header: 'rule', footer: 'bar', pageNumber: 'circle', sectionStyle: 'number', cardStyle: 'top', chapterStyle: 'solid', headingWeight: 'strong' },
+  },
+  {
+    id: 'photo', label: 'Com foto', description: 'Sua foto na capa, recortada pelas faixas do MIV',
+    design: { theme: 'teal', cover: 'photo', backCover: 'vignette', header: 'rule', footer: 'layers', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'soft', chapterStyle: 'arcs' },
+  },
+  {
+    id: 'certificate', label: 'Clássico', description: 'Centralizado e sóbrio, como o certificado do MIV',
+    design: { theme: 'navy', cover: 'certificate', backCover: 'certificate', header: 'band', footer: 'bar', pageNumber: 'text', sectionStyle: 'kicker', cardStyle: 'outline', chapterStyle: 'folder' },
+  },
+  {
+    id: 'totem', label: 'Campanha (totem)', description: 'Degradê verde em arco e raios coloridos',
+    design: { theme: 'sky', cover: 'totem', backCover: 'concept', header: 'classic', footer: 'half', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'soft', chapterStyle: 'solid', headingWeight: 'strong' },
+  },
 ];
+
+// Estilos prontos sem peso de título explícito usam o padrão.
+for (const preset of DESIGN_PRESETS) preset.design.headingWeight ??= 'regular';
 
 const VALID = {
   theme: THEMES.map((t) => t.id),
@@ -177,6 +221,7 @@ export function normalizeDesign(raw = {}) {
     if (typeof raw[key] === 'boolean') design[key] = raw[key];
   }
   design.customLogo = typeof raw.customLogo === 'string' ? raw.customLogo.slice(0, 64) : '';
+  design.coverImage = typeof raw.coverImage === 'string' ? raw.coverImage.slice(0, 64) : '';
   return design;
 }
 
@@ -188,6 +233,7 @@ export function docAttributes(design) {
     'data-card-style': design.cardStyle,
     'data-body-font': design.bodyFont,
     'data-density': design.density,
+    'data-heading-weight': design.headingWeight,
   };
 }
 
@@ -226,6 +272,7 @@ export const META_GROUPS = [
     fields: [
       { key: 'backTitle', kind: 'text', label: 'Nome do órgão' },
       { key: 'backText', kind: 'lines', label: 'Endereço e contatos', rows: 3 },
+      { key: 'backWeb', kind: 'text', label: 'Site e redes sociais', placeholder: 'Ex.: www.detran.ce.gov.br · @perfil do órgão' },
     ],
   },
 ];
@@ -243,6 +290,7 @@ export const DEFAULT_META = Object.freeze({
   headerRight: 'DETRAN/CE · Diretoria de Veículos',
   backTitle: 'Departamento Estadual de Trânsito do Ceará',
   backText: 'Av. Godofredo Maciel, 2900 · Maraponga\nCEP: 60710-903 · Fortaleza-Ceará\nFone: (85) 3195.2300',
+  backWeb: 'www.detran.ce.gov.br',
 });
 
 export function normalizeMeta(raw = {}) {

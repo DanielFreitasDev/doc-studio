@@ -32,7 +32,7 @@ const isOverlayPanel = () => matchMedia('(min-width: 760px) and (max-width: 1179
 /** Espera as fontes principais: a paginação depende das medidas reais do texto. */
 async function waitForFonts() {
   if (!document.fonts?.load) return;
-  const faces = ['300 12px Kanit', '400 12px Kanit', '500 12px Kanit', '600 12px Kanit', '700 12px Kanit', '400 12px Maitree', '700 12px Maitree'];
+  const faces = ['300 12px Kanit', '400 12px Kanit', '500 12px Kanit', '600 12px Kanit', '700 12px Kanit', '800 12px Kanit', '900 12px Kanit', '400 12px Maitree', '700 12px Maitree'];
   const timeout = new Promise((resolve) => setTimeout(resolve, 3000));
   await Promise.race([Promise.all(faces.map((face) => document.fonts.load(face))), timeout]);
 }
@@ -211,6 +211,20 @@ async function main() {
       actions.chooseImage({ logo: true });
     },
 
+    chooseCoverPhoto() {
+      actions.chooseImage({ coverPhoto: true });
+    },
+
+    async setCoverPhoto(file) {
+      try {
+        const id = assets.add(await fileToAsset(file));
+        store.update((doc) => { doc.design.coverImage = id; doc.design.cover = 'photo'; }, { kind: 'design' });
+        notify('Foto da capa aplicada.');
+      } catch (error) {
+        notify(error.message, 'error');
+      }
+    },
+
     async setBlockImage(blockId, file) {
       try {
         const id = assets.add(await fileToAsset(file));
@@ -227,7 +241,7 @@ async function main() {
     async addImageFiles(files, index) {
       const accepted = files.filter(isAcceptedImage);
       if (!accepted.length) {
-        notify('Nenhuma imagem compatível (use PNG, JPG, WEBP ou GIF).', 'error');
+        notify('Nenhuma imagem compatível (use PNG, JPG, WEBP, GIF ou SVG).', 'error');
         return;
       }
       const blocks = [];
@@ -294,6 +308,7 @@ async function main() {
     pendingImageTarget = null;
     if (!file || !target) return;
     if (target.logo) actions.setLogo(file);
+    else if (target.coverPhoto) actions.setCoverPhoto(file);
     else if (target.blockId) actions.setBlockImage(target.blockId, file);
   });
 

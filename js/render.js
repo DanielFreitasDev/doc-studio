@@ -12,7 +12,7 @@ import { esc, pad2 } from './utils.js';
 import { renderInline } from './markup.js';
 import { ALTERNATE_TONES, CALLOUT_TONES } from './schema.js';
 import { COVERS, BACK_COVERS } from './design.js';
-import { coverArt, backArt, chapterArt, footerArt, dividerArt, CHECK_SVG } from './graphics.js';
+import { coverArt, backArt, chapterArt, footerArt, headerArt, dividerArt, CHECK_SVG } from './graphics.js';
 
 /* ------------------------------------------------------------------ auxiliares */
 const toneClass = (tone, index = 0) => `tone-${tone === 'alternate' ? ALTERNATE_TONES[index % ALTERNATE_TONES.length] : tone}`;
@@ -73,13 +73,14 @@ const RENDERERS = {
     if (block.opener) {
       // Página inteira de abertura: o título não se repete na página de conteúdo.
       // "Verde pleno" reproduz as páginas de abertura do MIV (p. 2–3): degradê e texto em branco.
-      const solid = ctx.design.chapterStyle === 'solid';
+      const style = ctx.design.chapterStyle;
+      const dark = style === 'solid';
       return [{
         kind: 'chapter',
         blockId: block.id,
         build: (idPrefix) => `
-          <section class="page page--chapter${solid ? ' chapter--solid page--dark' : ''}" aria-label="Abertura: ${esc(block.title)}">
-            ${chapterArt(idPrefix, solid ? 'solid' : 'folder')}
+          <section class="page page--chapter chapter--${style}${dark ? ' page--dark' : ''}" aria-label="Abertura: ${esc(block.title)}">
+            ${chapterArt(idPrefix, style)}
             <div class="chapter__content atom" data-block-id="${esc(block.id)}">
               ${num ? `<p class="chapter__num">${num}</p>` : ''}
               ${block.kicker ? `<p class="chapter__kicker">${esc(block.kicker)}</p>` : ''}
@@ -411,6 +412,9 @@ export function brandHtml(design, assets, { negative = false, vertical = false, 
 }
 
 /* ------------------------------------------------------------------ páginas */
+/** Capas com a assinatura vertical (fundo branco atrás da marca, como no MIV). */
+const VERTICAL_BRAND_COVERS = new Set(['official', 'totem', 'sign']);
+
 export function renderCover(doc, assets, idPrefix) {
   const { design, meta } = doc;
   const cover = COVERS.find((c) => c.id === design.cover);
@@ -422,10 +426,13 @@ export function renderCover(doc, assets, idPrefix) {
          ${meta.version ? `<p class="cover__version">${esc(meta.version)}</p>` : ''}
        </div>`
     : '';
+  const photo = cover.id === 'photo' ? assets[design.coverImage] : null;
+  // Placa de obra (MIV p. 76): o conceito do Governo ocupa o pé da área branca.
+  const concept = cover.id === 'sign' ? `<div class="cover__concept">${SLOGAN_HTML}</div>` : '';
   return `
     <section class="page page--cover cover--${cover.id}${cover.dark ? ' page--dark' : ''}" aria-label="Capa" data-target="cover">
-      ${coverArt(cover.id, idPrefix)}
-      <div class="cover__brand">${brandHtml(design, assets, { negative: cover.dark, vertical: cover.id === 'official' })}</div>
+      ${coverArt(cover.id, idPrefix, { photoUrl: photo ? esc(photo.url) : '' })}
+      <div class="cover__brand">${brandHtml(design, assets, { negative: cover.dark, vertical: VERTICAL_BRAND_COVERS.has(cover.id) })}</div>
       <div class="cover__heading">
         ${meta.kicker ? `<p class="cover__kicker">${esc(meta.kicker)}</p>` : ''}
         <p class="cover__title">${esc(meta.title)}</p>
@@ -434,6 +441,7 @@ export function renderCover(doc, assets, idPrefix) {
         ${meta.description ? `<p class="cover__desc">${esc(meta.description)}</p>` : ''}
       </div>
       ${audience}
+      ${concept}
     </section>`;
 }
 
@@ -445,24 +453,25 @@ export function renderBackCover(doc, assets, idPrefix) {
     <section class="page page--back back--${back.id}${back.dark ? ' page--dark' : ''}" aria-label="Contracapa" data-target="back">
       ${backArt(back.id, idPrefix)}
       <div class="back__info">
-        ${back.id === 'concept' ? conceptLockup(design, assets) : brandHtml(design, assets, { negative: back.dark })}
+        ${back.id === 'concept' || back.id === 'vignette' ? conceptLockup(design, assets, { negative: Boolean(back.dark) }) : brandHtml(design, assets, { negative: back.dark })}
         ${meta.backTitle ? `<p class="back__title">${esc(meta.backTitle)}</p>` : ''}
         ${meta.backText ? `<p class="back__text">${esc(meta.backText)}</p>` : ''}
+        ${meta.backWeb ? `<p class="back__web">${esc(meta.backWeb)}</p>` : ''}
       </div>
     </section>`;
 }
 
 /**
- * Assinatura + conceito do Governo, como na contracapa do MIV (p. 117).
- * Se a assinatura escolhida já traz o conceito, não o repete; sem
- * assinatura, mostra só o conceito.
+ * Assinatura + conceito do Governo: em negativo na contracapa do MIV (p. 117),
+ * em cores na vinheta (p. 62). Se a assinatura escolhida já traz o conceito,
+ * não o repete; sem assinatura, mostra só o conceito.
  */
-function conceptLockup(design, assets) {
-  if (design.signature === 'none') return `<div class="concept">${SLOGAN_HTML}</div>`;
-  return brandHtml(design, assets, { negative: true, concept: true });
+function conceptLockup(design, assets, { negative = true } = {}) {
+  if (design.signature === 'none') return `<div class="concept${negative ? ' concept--negative' : ''}">${SLOGAN_HTML}</div>`;
+  return brandHtml(design, assets, { negative, concept: true });
 }
 
-function headerHtml(doc, assets, first) {
+function headerHtml(doc, assets, first, idPrefix) {
   const { design, meta } = doc;
   if (design.header === 'none') return '';
   // Papel timbrado do MIV (p. 34–36): assinatura centralizada só na primeira
@@ -475,6 +484,7 @@ function headerHtml(doc, assets, first) {
     ? `<img src="assets/img/ceara-state.svg" alt="${STATE_ALT}" width="1258" height="400">`
     : esc(meta.headerRight);
   return `
+    ${design.header === 'band' ? `<div class="page__header-art">${headerArt('band', `${idPrefix}-h`)}</div>` : ''}
     <header class="page__header page__header--${design.header}">
       <span class="page__header-left"><span class="page__header-title">${esc(meta.headerTitle)}</span>${meta.headerSubtitle ? `<span class="page__header-sub">${esc(meta.headerSubtitle)}</span>` : ''}</span>
       <span class="page__header-right">${right}</span>
@@ -511,7 +521,7 @@ export function renderContentPage(doc, assets, { bodyHtml, first, number, total,
   ].filter(Boolean).join(' ');
   return `
     <section class="${classes}" aria-label="Página ${number}">
-      ${headerHtml(doc, assets, first)}
+      ${headerHtml(doc, assets, first, idPrefix)}
       <div class="page__body">${bodyHtml}</div>
       ${design.footer === 'address' ? addressHtml(doc.meta) : ''}
       ${footer}

@@ -188,8 +188,11 @@ export function createPanels({ store, ui, assets, actions, drag }) {
     const presets = DESIGN_PRESETS.map((preset) => {
       const theme = THEMES.find((t) => t.id === preset.design.theme);
       return `<li><button type="button" class="preset-card" data-preset="${preset.id}">
-        <span class="preset-card__swatches">${theme.colors.map((c) => `<span style="background:${c}"></span>`).join('')}</span>
-        <strong>${esc(preset.label)}</strong><small>${esc(preset.description)}</small>
+        <span class="preset-card__thumb" data-thumb="preset:${preset.id}" aria-hidden="true"></span>
+        <span class="preset-card__text">
+          <span class="preset-card__swatches">${theme.colors.map((c) => `<span style="background:${c}"></span>`).join('')}</span>
+          <strong>${esc(preset.label)}</strong><small>${esc(preset.description)}</small>
+        </span>
       </button></li>`;
     }).join('');
 
@@ -209,7 +212,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
         <p class="design-group__hint">Aplica capa, cores e estilos de uma vez. O conteúdo não muda.</p>
         <ul class="choice-grid choice-grid--wide">${presets}</ul>
       </section>
-      ${choiceGroup({ title: 'Capa', name: 'cover', options: COVERS, id: 'design-cover' })}
+      ${choiceGroup({ title: 'Capa', name: 'cover', options: COVERS, id: 'design-cover', extra: '<div class="logo-upload" id="cover-photo-upload"></div>' })}
       <button type="button" class="btn btn--soft btn--small design-texts-link" data-action="edit-texts">${icon('file-text', 'icon--sm')}Editar os textos da capa e da contracapa</button>
       ${choiceGroup({ title: 'Cabeçalho das páginas', name: 'header', options: DESIGN_OPTIONS.header, variant: 'top', id: 'design-header' })}
       ${choiceGroup({ title: 'Rodapé das páginas', name: 'footer', options: DESIGN_OPTIONS.footer, variant: 'bottom', id: 'design-footer', hint: 'A faixa colorida do pé das páginas, como no papel timbrado e nas páginas do MIV.' })}
@@ -217,7 +220,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       ${choiceGroup({ title: 'Assinatura', name: 'signature', options: DESIGN_OPTIONS.signature, variant: 'brand', id: 'design-signature', hint: 'Usada na capa, na contracapa e no timbrado, sempre na ordem do MIV.', extra: '<div class="logo-upload" id="logo-upload"></div>' })}
       <fieldset class="design-group" id="design-theme"><legend>Tema de cores</legend><ul class="swatch-grid">${swatches}</ul></fieldset>
       <details class="design-more" id="design-more"${preferences.get('design-more-open', false) ? ' open' : ''}>
-      <summary>Mais ajustes <small>títulos, cartões, numeração, abertura de capítulo, fonte e espaçamento</small></summary>
+      <summary>Mais ajustes <small>títulos, cartões, numeração, abertura de capítulo, peso dos títulos, fonte e espaçamento</small></summary>
       ${segmentedGroup('Títulos de seção', 'sectionStyle', DESIGN_OPTIONS.sectionStyle)}
       ${segmentedGroup('Cartões', 'cardStyle', DESIGN_OPTIONS.cardStyle)}
       <fieldset class="design-group"><legend>Numeração</legend>
@@ -228,6 +231,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
         </div>
       </fieldset>
       ${segmentedGroup('Página de abertura de capítulo', 'chapterStyle', DESIGN_OPTIONS.chapterStyle, 'Vale para as seções marcadas com “Página inteira de abertura de capítulo”.')}
+      ${segmentedGroup('Peso dos títulos', 'headingWeight', DESIGN_OPTIONS.headingWeight, 'O MIV usa Kanit ExtraBold nos títulos; os manuais aprovados, Kanit SemiBold.')}
       ${segmentedGroup('Fonte do texto corrido', 'bodyFont', DESIGN_OPTIONS.bodyFont, 'O MIV usa Maitree no texto e Kanit nos títulos.')}
       ${segmentedGroup('Espaçamento', 'density', DESIGN_OPTIONS.density)}
       </details>`;
@@ -243,12 +247,22 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       else if (control.type === 'checkbox') control.checked = Boolean(value);
       else control.value = value;
     });
+    const photo = $('#cover-photo-upload');
+    if (design.cover === 'photo') {
+      const asset = assets.renderMap()[design.coverImage];
+      photo.innerHTML = `
+        ${asset ? `<img src="${esc(asset.url)}" alt="Foto atual da capa" width="${asset.width}" height="${asset.height}">` : ''}
+        <button type="button" class="btn btn--soft btn--small" data-action="choose-cover-photo">${icon('image', 'icon--sm')}${asset ? 'Trocar foto da capa' : 'Escolher foto da capa'}</button>
+        ${asset ? `<button type="button" class="btn btn--ghost btn--small" data-action="remove-cover-photo">${icon('trash', 'icon--sm')}Remover</button>` : ''}`;
+    } else {
+      photo.innerHTML = '';
+    }
     const logo = $('#logo-upload');
     if (design.signature === 'custom') {
       const asset = assets.renderMap()[design.customLogo];
       logo.innerHTML = `
         ${asset ? `<img src="${esc(asset.url)}" alt="Logo atual" width="${asset.width}" height="${asset.height}">` : ''}
-        <button type="button" class="btn btn--soft btn--small" data-action="choose-logo">${icon('upload', 'icon--sm')}${asset ? 'Trocar logo' : 'Enviar logo (PNG)'}</button>`;
+        <button type="button" class="btn btn--soft btn--small" data-action="choose-logo">${icon('upload', 'icon--sm')}${asset ? 'Trocar logo' : 'Enviar logo (SVG ou PNG)'}</button>`;
     } else {
       logo.innerHTML = '';
     }
@@ -268,8 +282,16 @@ export function createPanels({ store, ui, assets, actions, drag }) {
     $$('[data-thumb]', designRoot).forEach((slot) => {
       const [key, id] = slot.dataset.thumb.split(':');
       if (id === 'none') return;
-      const preview = { ...doc, design: { ...doc.design, [key]: id } };
       const prefix = `t-${key}-${id}`;
+      if (key === 'preset') {
+        // Estilo pronto: a capa (ou, sem capa, a primeira página) com os textos do documento.
+        const preset = DESIGN_PRESETS.find((p) => p.id === id);
+        const presetDoc = { ...doc, design: { ...doc.design, ...preset.design } };
+        const html = presetDoc.design.cover !== 'none' ? renderCover(presetDoc, map, prefix) : sampleContentPage(presetDoc, map, prefix);
+        slot.innerHTML = thumbHtml(html, presetDoc.design, 0.1);
+        return;
+      }
+      const preview = { ...doc, design: { ...doc.design, [key]: id } };
       if (key === 'signature') {
         const placeholder = id === 'custom' && !map[doc.design.customLogo] ? '<span class="thumb-logo" aria-hidden="true">Seu logo</span>' : '';
         slot.innerHTML = `<span class="thumb-brand" aria-hidden="true">${placeholder}${brandHtml(preview.design, map)}</span>`;
@@ -290,6 +312,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
     const value = readControlValue(control);
     store.update((doc) => { doc.design[key] = value; }, { kind: 'design' });
     if (key === 'signature' && value === 'custom' && !store.doc.design.customLogo) actions.chooseLogo();
+    if (key === 'cover' && value === 'photo' && !store.doc.design.coverImage) actions.chooseCoverPhoto();
   });
 
   designRoot.addEventListener('click', (event) => {
@@ -310,6 +333,8 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       return;
     }
     if (event.target.closest('[data-action="choose-logo"]')) actions.chooseLogo();
+    if (event.target.closest('[data-action="choose-cover-photo"]')) actions.chooseCoverPhoto();
+    if (event.target.closest('[data-action="remove-cover-photo"]')) store.update((doc) => { doc.design.coverImage = ''; }, { kind: 'design' });
     if (event.target.closest('[data-action="edit-texts"]')) actions.openPanel('document');
   });
 
