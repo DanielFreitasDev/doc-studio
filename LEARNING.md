@@ -33,6 +33,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Apresentação como formato do documento](docs/learning/decision-apresentacao-como-formato.md) — slides 16:9 do MIV sobre os mesmos blocos; tela 240 × 135 mm pela proporção dos corpos; seção = tela com "(continuação)".
 - [Paisagem pela quebra de página](docs/learning/decision-paisagem-por-quebra-de-pagina.md) — A4 deitado só no conteúdo, a partir de uma quebra; capas do MIV ficam em retrato.
 - [Formatação pendente com o cursor parado](docs/learning/decision-formatacao-pendente-no-cursor.md) — Ctrl+B sem seleção vale para o próximo texto digitado; IME recebe o formato no `compositionend`.
+- [Diagrama vetorial por SVG gerado do PDF](docs/learning/decision-diagrama-vetorial-por-svg-do-pdf.md) — diagrama em HTML → PDF do tamanho do desenho → `pdftocairo -svg`; texto em curvas, página deitada, letras ≥ 19 px a 0,1 mm/px.
 
 ## Abordagens que NÃO funcionaram
 - [Filtro CSS de cinza transforma o PDF em imagem](docs/learning/failed-filtro-css-cinza-rasteriza-pdf.md) — `filter` no documento rasteriza a página no Chromium; use cores cinza reais.
