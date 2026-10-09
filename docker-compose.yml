@@ -1,0 +1,7 @@
+services:
+  doc-studio:
+    image: registry.detran.ce.gov.br/administrativo/doc-studio:latest
+    container_name: doc-studio
+    restart: unless-stopped
+    ports:
+      - "8090:80"
