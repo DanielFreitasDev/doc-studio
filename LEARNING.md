@@ -21,6 +21,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [display próprio anula o popover fechado](docs/learning/gotcha-display-de-popover-fechado.md) — declare `display` só em `:popover-open`; no seletor base o popover fechado fica na tela.
 - [Testes com node --test e scripts sob CSP](docs/learning/gotcha-testes-automaticos-node-e-csp.md) — `node --test tests/` falha no Node 24; com a CSP, injete axe por `evaluate`; exclusões do axe vão no contexto.
 - [Fontes são subconjuntos latinos](docs/learning/gotcha-fontes-subconjunto-latino.md) — ⋯ ✓ ≤ emoji viram fonte do sistema no PDF; cobertura em `TYPOGRAPHY.glyphRanges`, conferida pelo `check`.
+- [PNG em escala 2× muda a paginação](docs/learning/gotcha-png-em-escala-2x-muda-a-paginacao.md) — `render --png` padrão repagina em 2× e pode divergir do PDF; confira a contagem ou use `--scale 1`.
 
 ## Decisões de arquitetura
 - [Paginação por átomos e PDF pela impressão](docs/learning/decision-paginacao-por-atomos.md) — blocos medidos com o CSS real; prévia e PDF são o mesmo DOM; parágrafos divididos por linha; outros textos só quando maiores que a página.
