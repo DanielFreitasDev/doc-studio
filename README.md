@@ -117,6 +117,7 @@ doc-studio/
 ├── Dockerfile             Imagem do app: nginx sem root servindo só os arquivos do navegador
 ├── compose.yaml           `docker compose up`: porta, endurecimento e reconstrução automática (watch)
 ├── .dockerignore          Lista de permissão do que entra no build (o resto nunca vai para a imagem)
+├── .env.example           Modelo comentado das variáveis do Compose (copie para .env, que fica fora do Git)
 ├── docker/
 │   └── nginx.conf         Servidor do contêiner: cache, compressão e cabeçalhos de segurança
 ├── css/
@@ -202,7 +203,7 @@ docker compose logs -f           # acessos e erros do servidor
 docker compose down              # para e remove o contêiner
 ```
 
-Sem o Compose, o mesmo app com `docker build -t doc-studio .` e `docker run --rm -p 127.0.0.1:8080:8080 doc-studio`. Porta e interface vêm de variáveis (no terminal ou num arquivo `.env` ao lado do `compose.yaml`): `DOCSTUDIO_PORT=9000` muda a porta; `DOCSTUDIO_HOST=0.0.0.0` abre o app para a rede (o padrão `127.0.0.1` deixa só este computador acessar).
+Sem o Compose, o mesmo app com `docker build -t doc-studio .` e `docker run --rm -p 127.0.0.1:8080:8080 doc-studio`. Porta e interface vêm de variáveis, no terminal ou num arquivo `.env` ao lado do `compose.yaml` (`cp .env.example .env`; o modelo explica cada uma): `DOCSTUDIO_PORT=9000` muda a porta; `DOCSTUDIO_HOST=0.0.0.0` abre o app para a rede (o padrão `127.0.0.1` deixa só este computador acessar). Sem `.env`, valem esses padrões; `docker compose config --environment` mostra os valores em uso.
 
 O contêiner é um nginx sem root, com o sistema de arquivos só de leitura, que publica apenas `index.html`, `style.css`, `script.js`, `css/`, `js/` e `assets/` (documentação, testes, CLI e exemplos ficam fora da imagem, de ~9 MB). Para usar em rede, coloque-o atrás de um proxy com HTTPS (o da empresa, Caddy, Traefik): copiar e colar blocos usa a área de transferência do navegador, que só funciona em `https://` ou em `localhost`. A CLI (`tools/docstudio.mjs`) não faz parte da imagem: ela roda no computador, com Node e Chrome.
 

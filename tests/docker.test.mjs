@@ -8,6 +8,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
@@ -39,6 +40,14 @@ before(async () => {
 after(async () => {
   if (skip) return;
   await compose('down', '--rmi', 'local');
+});
+
+test('.env.example documenta exatamente as variáveis do compose.yaml', async () => {
+  const read = (file) => readFile(new URL(`../${file}`, import.meta.url), 'utf8');
+  const used = new Set([...(await read('compose.yaml')).matchAll(/\$\{(\w+)/g)].map((m) => m[1]));
+  const documented = new Set([...(await read('.env.example')).matchAll(/^(\w+)=/gm)].map((m) => m[1]));
+  assert.ok(used.size > 0, 'nenhuma variável encontrada no compose.yaml');
+  assert.deepEqual([...documented].sort(), [...used].sort());
 });
 
 test('contêiner saudável, sem root, só leitura e sem capabilities', { skip }, async () => {

@@ -4,7 +4,7 @@
 #   docker compose watch           →  idem, e reconstrói a cada arquivo salvo
 #   docker compose down            →  para e remove o contêiner
 #
-# Variáveis (no ambiente ou num arquivo .env ao lado deste):
+# Variáveis (no terminal ou num .env ao lado deste; modelo em .env.example):
 #   DOCSTUDIO_PORT  porta no computador (padrão 8080)
 #   DOCSTUDIO_HOST  interface publicada (padrão 127.0.0.1, só este computador;
 #                   0.0.0.0 abre para a rede — prefira um proxy com HTTPS)
