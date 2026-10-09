@@ -1,0 +1,40 @@
+# Estúdio de Documentos em contêiner.
+#
+#   docker compose up -d --build   →  http://localhost:8080
+#   docker compose watch           →  idem, e reconstrói a cada arquivo salvo
+#   docker compose down            →  para e remove o contêiner
+#
+# Variáveis (no ambiente ou num arquivo .env ao lado deste):
+#   DOCSTUDIO_PORT  porta no computador (padrão 8080)
+#   DOCSTUDIO_HOST  interface publicada (padrão 127.0.0.1, só este computador;
+#                   0.0.0.0 abre para a rede — prefira um proxy com HTTPS)
+name: doc-studio
+
+services:
+  web:
+    build: .
+    ports:
+      - "${DOCSTUDIO_HOST:-127.0.0.1}:${DOCSTUDIO_PORT:-8080}:8080"
+    restart: unless-stopped
+    # Endurecimento: sistema de arquivos só de leitura (o nginx escreve só em
+    # /tmp, em memória), nenhuma capability do Linux e sem ganho de privilégio.
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    # Driver "local": logs comprimidos e com rotação (o json-file padrão cresce sem limite).
+    logging:
+      driver: local
+    # Arquivos estáticos: a imagem é refeita em poucos segundos a cada mudança.
+    develop:
+      watch:
+        - { action: rebuild, path: index.html }
+        - { action: rebuild, path: style.css }
+        - { action: rebuild, path: script.js }
+        - { action: rebuild, path: css }
+        - { action: rebuild, path: js }
+        - { action: rebuild, path: assets }
+        - { action: rebuild, path: docker/nginx.conf }

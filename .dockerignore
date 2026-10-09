@@ -1,0 +1,13 @@
+# Lista de permissão: o contexto de build leva só o que o app usa no
+# navegador e a configuração do nginx. Documentação, testes, CLI, exemplos,
+# .git, artefatos de teste e documentos exportados (*.docstudio.json, que
+# podem ter dados pessoais) nunca entram na imagem.
+# Pasta nova carregada pelo app? Inclua aqui e num COPY do Dockerfile.
+*
+!index.html
+!style.css
+!script.js
+!css/
+!js/
+!assets/
+!docker/nginx.conf

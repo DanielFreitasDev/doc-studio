@@ -114,6 +114,11 @@ doc-studio/
 ├── style.css              Tokens de design, reset, casca responsiva do app
 ├── script.js              Ponto de entrada: cria estado e módulos, define as ações
 ├── README.md
+├── Dockerfile             Imagem do app: nginx sem root servindo só os arquivos do navegador
+├── compose.yaml           `docker compose up`: porta, endurecimento e reconstrução automática (watch)
+├── .dockerignore          Lista de permissão do que entra no build (o resto nunca vai para a imagem)
+├── docker/
+│   └── nginx.conf         Servidor do contêiner: cache, compressão e cabeçalhos de segurança
 ├── css/
 │   ├── components.css     Botões, campos, cartões de bloco, painéis, diálogos, avisos
 │   ├── document.css       A página A4 e a tela 16:9 na identidade visual (blocos, capas, temas)
@@ -156,7 +161,7 @@ doc-studio/
 ├── tools/
 │   ├── docstudio.mjs      Linha de comando para agentes e automação (Node 22.4+, sem dependências)
 │   └── lib/               Arquivos e imagens, Chrome via CDP, geração de esquemas e catálogos, caracteres das fontes
-├── tests/                 Testes automáticos (node --test): contrato sem navegador e o app no Chrome sem interface
+├── tests/                 Testes automáticos (node --test): contrato sem navegador, o app no Chrome sem interface e a imagem Docker
 ├── schemas/               JSON Schema do documento e das operações, catálogo e marca (gerados)
 ├── docs/ai/               Guia, formato, catálogo (gerado), regras da marca (gerado), prompt e exemplos
 ├── examples/              Documentos escritos como um agente faria (.source.json) e montados (.docstudio.json)
@@ -174,7 +179,7 @@ doc-studio/
 
 ## 4. Tecnologias utilizadas
 
-HTML5, CSS3 e JavaScript (ES2023) puros, sem bibliotecas, frameworks ou etapa de build. A ferramenta de linha de comando usa só o Node (módulos `http`, `fs`, `child_process` e o `WebSocket` nativo) e o Chrome/Chromium já instalado, pelo Chrome DevTools Protocol (`Page.printToPDF`, `Page.captureScreenshot`). Recursos nativos usados: módulos ES, `<dialog>`, Popover API (menus, menu de contexto, edição na página, barra flutuante), `contenteditable` com eventos `beforeinput` (Input Events), `DOMParser` (limpeza do que é colado), eventos `copy`/`cut`/`paste` e Clipboard API, páginas nomeadas do CSS (`@page landscape`), Pointer Events, IndexedDB, `structuredClone`, `ResizeObserver`, `IntersectionObserver`, View Transitions (quando há suporte), CSS Grid/Flexbox, Container Queries, `color-mix()`, `:has()`, `zoom`, `scrollbar-gutter`, `::-webkit-scrollbar`/`scrollbar-color`, `field-sizing` (com alternativa em JS), `@page`, SVG (grafismo, assinaturas e capa com foto).
+HTML5, CSS3 e JavaScript (ES2023) puros, sem bibliotecas, frameworks ou etapa de build. A ferramenta de linha de comando usa só o Node (módulos `http`, `fs`, `child_process` e o `WebSocket` nativo) e o Chrome/Chromium já instalado, pelo Chrome DevTools Protocol (`Page.printToPDF`, `Page.captureScreenshot`). Para publicar em contêiner (opcional): Docker com Compose e a imagem `nginxinc/nginx-unprivileged` (nginx 1.30, Alpine). Recursos nativos usados: módulos ES, `<dialog>`, Popover API (menus, menu de contexto, edição na página, barra flutuante), `contenteditable` com eventos `beforeinput` (Input Events), `DOMParser` (limpeza do que é colado), eventos `copy`/`cut`/`paste` e Clipboard API, páginas nomeadas do CSS (`@page landscape`), Pointer Events, IndexedDB, `structuredClone`, `ResizeObserver`, `IntersectionObserver`, View Transitions (quando há suporte), CSS Grid/Flexbox, Container Queries, `color-mix()`, `:has()`, `zoom`, `scrollbar-gutter`, `::-webkit-scrollbar`/`scrollbar-color`, `field-sizing` (com alternativa em JS), `@page`, SVG (grafismo, assinaturas e capa com foto).
 
 ## 5. Como executar
 
@@ -186,7 +191,20 @@ python3 -m http.server 8080
 
 Acesse `http://localhost:8080`. Se você abrir o `index.html` direto do disco, a página mostra um aviso com essa instrução.
 
-Para publicar, basta copiar a pasta para qualquer servidor de arquivos estáticos (Apache, Nginx, IIS, GitHub Pages, Firebase Hosting). Não há back-end: os documentos ficam no navegador de cada usuário.
+Para publicar, basta copiar a pasta para qualquer servidor de arquivos estáticos (Apache, Nginx, IIS, GitHub Pages, Firebase Hosting) ou usar a imagem Docker abaixo. Não há back-end: os documentos ficam no navegador de cada usuário.
+
+**Com Docker.** Precisa só do Docker (Engine 25+ ou Docker Desktop, com o Compose). Na pasta do projeto:
+
+```bash
+docker compose up -d --build     # http://localhost:8080 (reinicia sozinho com o computador)
+docker compose watch             # para desenvolver: a imagem é refeita a cada arquivo salvo (~3 s)
+docker compose logs -f           # acessos e erros do servidor
+docker compose down              # para e remove o contêiner
+```
+
+Sem o Compose, o mesmo app com `docker build -t doc-studio .` e `docker run --rm -p 127.0.0.1:8080:8080 doc-studio`. Porta e interface vêm de variáveis (no terminal ou num arquivo `.env` ao lado do `compose.yaml`): `DOCSTUDIO_PORT=9000` muda a porta; `DOCSTUDIO_HOST=0.0.0.0` abre o app para a rede (o padrão `127.0.0.1` deixa só este computador acessar).
+
+O contêiner é um nginx sem root, com o sistema de arquivos só de leitura, que publica apenas `index.html`, `style.css`, `script.js`, `css/`, `js/` e `assets/` (documentação, testes, CLI e exemplos ficam fora da imagem, de ~9 MB). Para usar em rede, coloque-o atrás de um proxy com HTTPS (o da empresa, Caddy, Traefik): copiar e colar blocos usa a área de transferência do navegador, que só funciona em `https://` ou em `localhost`. A CLI (`tools/docstudio.mjs`) não faz parte da imagem: ela roda no computador, com Node e Chrome.
 
 Navegadores recomendados: Chrome/Edge 120+, Firefox 126+ e Safari 17+.
 
@@ -303,6 +321,8 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 65 | Bloco Imagem com "Título ao lado" e alinhamento "Direita" | Texto à esquerda e imagem à direita, como a tela com gráfico do MIV (p. 58); na apresentação, a imagem não passa de 56 mm de altura | Imagem embaixo do texto ou tela estourada |
 | 66 | Com parágrafos alinhados de formas diferentes, Ctrl+A na lista de blocos → **Editar** na barra → Parágrafo → Alinhamento "Justificado"; depois Ctrl+Z | Todos os parágrafos justificados no editor e na prévia (os outros blocos não mudam); "Está diferente entre os blocos" some; Ctrl+Z volta todos de uma vez e o painel mostra de novo os valores diferentes; Esc fecha e devolve o foco a Editar | Só um parágrafo muda, vários passos de desfazer ou painel com valores antigos |
 | 66a | Ctrl + clique em dois parágrafos → botão direito → Alinhamento → Centralizado | Os dois centralizados, aviso "Alinhamento: Centralizado em 2 blocos." com "Desfazer" | Item ausente ou só um bloco muda |
+| 67 | `docker compose up -d --build` e abrir `http://localhost:8080` | `docker compose ps` mostra "(healthy)"; o app abre com as fontes Kanit/Maitree, cria um documento e exporta o PDF como no servidor local | Contêiner "unhealthy", fonte do sistema na prévia ou erro 404 no console |
+| 68 | Com `docker compose watch` rodando, alterar um texto em `index.html` e recarregar a página | A mudança aparece em poucos segundos, sem "recarregar sem cache" | Página antiga até limpar o cache do navegador |
 
 ### Edge cases
 
@@ -321,6 +341,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 ### Ferramentas úteis
 
 - Validador W3C (https://validator.w3.org/nu/) para o `index.html`.
+- `docker build --check .` (regras do Dockerfile) e um verificador de vulnerabilidades da imagem (Docker Scout ou Trivy) antes de publicar.
 - Lighthouse (Chrome DevTools) para desempenho e acessibilidade.
 - axe DevTools para varredura de acessibilidade WCAG 2.2.
 
@@ -414,7 +435,8 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - **Textos maiores que a página divididos, não cortados.** A divisão por linha dos parágrafos foi generalizada: no átomo que não cabe, o campo de texto que cruza o limite é partido com `Range.deleteContents()` numa cópia (a caixa do destaque, o item da lista e os negritos partidos continuam abertos), e a continuação segue na mesma coluna. Blocos menores que a página continuam indo inteiros para a seguinte (um destaque partido no pé da página sem necessidade seria pior de ler); tabelas ficam de fora, porque uma célula partida desalinharia as colunas.
 - **Conceito do Governo só ao lado da marca.** O MIV (p. 9, 62, 117) nunca mostra "Cuidar das pessoas, avançar o Ceará." solto nem junto de órgão parceiro; a capa Placa usa no lugar a frase de campanha da placa de obra (p. 76).
 - **Cobertura das fontes como fato da marca.** Kanit e Maitree estão no projeto como subconjunto latino; a lista de caracteres fica em `js/brand.js`, extraída dos arquivos de fonte e conferida pelo `check`, e a verificação avisa símbolos que cairiam numa fonte do sistema (diferente em cada computador) dentro do PDF.
-- **Testes com o executor nativo do Node.** `node --test` não precisa de pacote: os testes do contrato rodam sem navegador e os do app usam o mesmo Chrome via CDP do `docstudio render`.
+- **Testes com o executor nativo do Node.** `node --test` não precisa de pacote: os testes do contrato rodam sem navegador e os do app usam o mesmo Chrome via CDP do `docstudio render`. Com Docker disponível, `tests/docker.test.mjs` sobe o `compose.yaml` numa porta livre, confere o endurecimento e abre o app do contêiner no Chrome (um arquivo esquecido na imagem aparece como erro de carregamento); sem Docker, é pulado.
+- **Docker com nginx sem root, sem etapa de build.** O app são arquivos estáticos, então a imagem é só um servidor web com os arquivos copiados: sem Node nem *multi-stage* (uma etapa de build não teria o que compilar). A base é a variante *unprivileged* do nginx oficial (a mesma do guia de React da documentação do Docker), fixada por tag e digest; o `compose.yaml` acrescenta sistema de arquivos só de leitura, nenhuma *capability* do Linux e `no-new-privileges`. O `.dockerignore` é uma lista de permissão, para que um documento exportado na pasta (`*.docstudio.json`, com dados pessoais) ou o `.git` nunca entrem no build. HTML, CSS e JS saem com `Cache-Control: no-cache` (revalidação por ETag), porque os nomes dos arquivos não têm hash: uma imagem nova chega ao navegador sem recarregar sem cache. A política de segurança continua no `<meta>` do `index.html`; o nginx só acrescenta o que o `<meta>` não expressa (`frame-ancestors`, impedindo o app dentro de um `<iframe>` de outro site). *Alternativas descartadas:* servir pela CLI em Node (imagem maior e servidor feito para desenvolvimento) e as Docker Hardened Images (exigem login no registro). *Impacto:* para atualizar o nginx, troque a tag e o digest no `Dockerfile`; HTTPS fica com o proxy da frente.
 - **Sem PWA/instalação.** Não foi pedido; marcado como *não aplicável*. O app já funciona sem internet depois de carregado, porque não depende de rede.
 
 ## 9. Boas práticas adotadas
@@ -448,6 +470,7 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - Importar PDF e `.docx` como material para agentes direto na interface (hoje o agente lê esses arquivos por conta própria).
 - Versão monocromática da assinatura (MIV p. 13, brasão em traço), que o MIV reserva para "último caso"; hoje a impressão em uma cor usa a escala de cinza da p. 12.
 - PWA instalável com funcionamento offline garantido por service worker, se houver demanda.
+- Publicar a imagem num registro (GitHub Container Registry) por um fluxo de CI, com imagens para `linux/amd64` e `linux/arm64` (a base já tem as duas), e atualizar o digest do nginx com o Dependabot ou o Renovate.
 
 ## 11. Licenças de terceiros
 

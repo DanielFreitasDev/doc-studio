@@ -12,6 +12,9 @@ Thumbs.db
 *.docstudio.json
 !examples/*.docstudio.json
 
+# Variáveis locais do Docker Compose (porta, interface)
+.env
+
 # Configurações pessoais de agentes (não compartilhadas)
 CLAUDE.local.md
 .claude/settings.local.json
