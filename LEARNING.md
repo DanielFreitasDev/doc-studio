@@ -11,6 +11,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Colunas de tabela partiam palavras](docs/learning/bug-colunas-de-tabela-partindo-palavras.md) — `anywhere` zera a largura mínima na medição; `break-word` deixa a URL dominar; mínimo da maior palavra até 40 mm.
 - [Aba parada sobrescrevia o documento](docs/learning/bug-aba-parada-sobrescreve-documento.md) — `flush()` salvava sem nada pendente; agora só o pendente, e abas avisam pelo BroadcastChannel.
 - [Marcador no meio do trecho formatado](docs/learning/bug-marcador-no-meio-do-trecho.md) — "+", "=" e "~" dentro de sublinhado/destaque/riscado precisam de escape em qualquer posição.
+- [Barra fixa com left 50% quebrava linha](docs/learning/bug-barra-fixa-com-left-50-quebrava-linha.md) — `fixed` + `left: 50%` só tem meia tela para encolher; `width: max-content` na barra da seleção.
 
 ## Pegadinhas de ambiente, dependências e bibliotecas
 - [Utilitários de visibilidade perdem para os componentes](docs/learning/gotcha-especificidade-dos-utilitarios-de-visibilidade.md) — `components.css` carrega depois; use `.topbar .hide-compact` e similares.

@@ -1699,6 +1699,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
+  /* Com left: 50%, a largura "disponível" seria só meia tela: max-content evita quebrar linha à toa. */
+  width: max-content;
   max-width: calc(100vw - 2 * var(--space-3));
   padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
   border: 1px solid var(--border);
