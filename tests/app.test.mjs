@@ -228,6 +228,49 @@ test('bloco inserido recebe o foco no texto principal e aparece na prévia', { s
   assert.deepEqual(result, { inserted: true, focused: 'text', visible: true });
 });
 
+test('edição em conjunto: uma opção muda todos os blocos do tipo num passo de desfazer', { skip }, async () => {
+  const result = await chrome.evaluate(`(async () => {
+    const { store, ui, applyOperations } = window.docStudio;
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    applyOperations([{ op: 'insert', at: 'end', blocks: [
+      { type: 'paragraph', id: 'p_bulk_1', text: 'Primeiro.' },
+      { type: 'paragraph', id: 'p_bulk_2', text: 'Segundo.', align: 'center' },
+      { type: 'divider', id: 'd_bulk' },
+    ] }]);
+    const aligns = () => store.doc.blocks.filter((b) => b.id.startsWith('p_bulk')).map((b) => b.align);
+    ui.set({ selectedIds: new Set(['p_bulk_1', 'p_bulk_2', 'd_bulk']), selectedId: 'd_bulk', selectSource: 'multi' });
+    document.querySelector('[data-selection="edit"]').click();
+    await wait(100);
+    const panel = document.querySelector('#bulk-edit');
+    const groups = [...panel.querySelectorAll('[data-type]')].map((g) => g.dataset.type);
+    const mixed = Boolean(panel.querySelector('[data-type="paragraph"] [data-key="align"][data-mixed]'));
+    panel.querySelector('[data-type="paragraph"] input[data-path="align"][value="justify"]').click();
+    await wait(700);
+    const applied = aligns();
+    const justified = document.querySelectorAll('#pages [data-block-id^="p_bulk"] .b-p--justify').length;
+    const cards = document.querySelectorAll('.block-card[data-block-id^="p_bulk"] input[data-path="align"][value="justify"]:checked').length;
+    store.undo();
+    await wait(100);
+    const undone = aligns();
+    const mixedAgain = Boolean(panel.querySelector('[data-type="paragraph"] [data-key="align"][data-mixed]'));
+    panel.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    const closed = !panel.matches(':popover-open');
+    store.undo();
+    return { groups, mixed, applied, justified, cards, undone, mixedAgain, closed };
+  })()`);
+  assert.deepEqual(result, {
+    groups: ['paragraph', 'divider'],
+    mixed: true,
+    applied: ['justify', 'justify'],
+    justified: 2,
+    cards: 2,
+    undone: ['left', 'center'],
+    mixedAgain: true,
+    closed: true,
+  });
+  assert.deepEqual(errors(), []);
+});
+
 test('apresentação: telas 16:9 do MIV na prévia, no painel Design e no PDF', { skip }, async () => {
   const state = await chrome.evaluate(`(async () => {
     const { store, applyOperations } = window.docStudio;

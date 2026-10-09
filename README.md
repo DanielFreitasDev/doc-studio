@@ -39,7 +39,8 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 
 **Organização**
 - **Arrastar e soltar** blocos no editor, no painel Estrutura e **direto na página da prévia** (onde soltar, entra). Também por teclado (setas na alça) e por menu.
-- **Seleção de vários blocos**: Ctrl + clique e Shift + clique no editor, na Estrutura ou na prévia; Ctrl+A na lista seleciona todos. Uma barra mostra duplicar, copiar, recortar, mover e excluir; Delete exclui (com "Desfazer"), Esc desfaz a seleção.
+- **Seleção de vários blocos**: Ctrl + clique e Shift + clique no editor, na Estrutura ou na prévia; Ctrl+A na lista seleciona todos. Uma barra mostra editar, duplicar, copiar, recortar, mover e excluir; Delete exclui (com "Desfazer"), Esc desfaz a seleção.
+- **Edição em conjunto**: com vários blocos selecionados (por exemplo, Ctrl+A na lista), **Editar** na barra da seleção abre as opções dos blocos agrupadas por tipo ("Parágrafo · 12 blocos → Alinhamento", "Imagem · 3 blocos → Largura"). Escolher uma opção muda todos os blocos daquele tipo de uma vez, num só passo de desfazer; opções que estão diferentes entre os blocos aparecem como "diferente entre os blocos". Só opções (alinhamento, estilo, cor, interruptores, largura) entram; os textos continuam sendo editados bloco a bloco.
 - **Copiar, recortar e colar blocos** (Ctrl+C / X / V fora de um texto, ou botão direito): leva os blocos com as imagens, inclusive para outro documento ou aba. Texto comum colado fora de um campo vira blocos.
 - **Páginas em paisagem**: numa quebra de página, "Páginas seguintes: Paisagem" deixa as folhas seguintes deitadas (tabelas largas, fluxos, prints); outra quebra volta ao retrato. Capa, contracapa e aberturas continuam em retrato.
 - Painel Estrutura com estatísticas (páginas, blocos, palavras).
@@ -56,7 +57,7 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
   - **capa, contracapa, cabeçalho e rodapé na prévia**: editar os textos e trocar estilo, assinatura, tema de cores e numeração ali mesmo;
   - **texto da página**: "Editar este texto aqui" (o mesmo do duplo clique);
   - **página da prévia**: nova página, páginas em paisagem depois desta, inserir bloco no fim, selecionar, duplicar ou excluir o conteúdo da página, cabeçalho, rodapé e numeração;
-  - **vários blocos selecionados**: duplicar, copiar, recortar, mover e excluir o grupo;
+  - **vários blocos selecionados**: duplicar, copiar, recortar, mover e excluir o grupo; com blocos de um tipo só, as opções dele (ex.: Alinhamento → Justificado em todos os parágrafos); "Editar em conjunto…" abre o painel com todas as opções;
   - **paleta Inserir**: inserir no início, no fim ou acima/abaixo do bloco selecionado; **Meus documentos**: abrir, renomear, duplicar, baixar cópia e excluir (com confirmação); **fundo da prévia**: zoom e PDF.
 - Onde o app não tem ação útil (botões, nome do documento, painel Textos), o menu do navegador continua. **Shift + botão direito** sempre abre o menu do navegador (corretor ortográfico, por exemplo).
 - No celular, segurar o dedo sobre um bloco ou sobre a capa abre o menu como folha inferior; nos campos de texto fica o menu do próprio sistema (copiar/colar).
@@ -136,6 +137,7 @@ doc-studio/
 │   ├── formatbar.js       Barra de formatação flutuante sobre a seleção
 │   ├── quickedit.js       Edição direta na página da prévia (campo flutuante)
 │   ├── selection.js       Seleção de vários blocos, copiar/recortar/colar blocos
+│   ├── bulkedit.js        Edição em conjunto: a mesma opção em vários blocos selecionados
 │   ├── panels.js          Painel lateral: Inserir, Estrutura, Design, Textos
 │   ├── picker.js          Seletor de bloco (botão +, Ctrl+K, comando /)
 │   ├── dnd.js             Arrastar e soltar com Pointer Events (mouse e toque)
@@ -286,7 +288,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 50 | Design → Mais ajustes → Margens laterais "Estreita"; exportar o PDF | Texto e cabeçalho a 15 mm das bordas (180 mm úteis); capa igual; PDF com o mesmo número de páginas da prévia | Texto sobre o número da página ou páginas a mais no PDF |
 | 51 | No fim de um parágrafo: Ctrl+B, digitar "ab", Ctrl+B, digitar " cd" | "ab" em negrito e " cd" normal; o botão **B** acompanha | Palavra "negrito" inserida ou tudo em negrito |
 | 52 | Excluir um bloco, digitar em outro campo e clicar "Desfazer" no aviso | Aviso explicando que há edições depois; a digitação continua lá (use Ctrl+Z) | A digitação some e o bloco continua excluído |
-| 53 | `node --test` | 44 testes passando (com Chrome instalado) | Falha ou teste pulado sem motivo |
+| 53 | `node --test` | 45 testes passando (com Chrome instalado) | Falha ou teste pulado sem motivo |
 | 54 | Colar num item de lista (ou num Destaque) um texto de ~1.500 palavras | O item continua na página seguinte, alinhado na mesma coluna, sem repetir o número; nenhum aviso de texto cortado | Texto cortado no pé ou aviso "sairá cortado" |
 | 55 | Inserir → Destaque e digitar logo em seguida | O texto substitui "Explique o ponto…"; o tipo continua "Atenção"; a prévia rola até o destaque | Tipo muda para "Informação" ou a prévia fica na capa |
 | 56 | Inserir → Assinatura, "Adicionar signatário", duplo clique no nome na prévia | Linha para assinar com nome e cargo, dois lado a lado; o nome muda na página | Signatários empilhados ou sem linha |
@@ -299,6 +301,8 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 63 | Num documento A4, Design → Formato → "Apresentação 16:9"; depois "Desfazer" no aviso | Capa e contracapa passam para as das telas; cabeçalho, rodapé e margens somem do painel; cada seção abre uma tela; o "Desfazer" volta ao A4 com as capas anteriores | Capa A4 esticada na tela ou opções da folha que não fazem nada |
 | 64 | Apresentação: lista longa numa seção | A tela seguinte repete o título com "(continuação)"; a verificação sugere dividir a seção | Tela sem título ou lista cortada |
 | 65 | Bloco Imagem com "Título ao lado" e alinhamento "Direita" | Texto à esquerda e imagem à direita, como a tela com gráfico do MIV (p. 58); na apresentação, a imagem não passa de 56 mm de altura | Imagem embaixo do texto ou tela estourada |
+| 66 | Com parágrafos alinhados de formas diferentes, Ctrl+A na lista de blocos → **Editar** na barra → Parágrafo → Alinhamento "Justificado"; depois Ctrl+Z | Todos os parágrafos justificados no editor e na prévia (os outros blocos não mudam); "Está diferente entre os blocos" some; Ctrl+Z volta todos de uma vez e o painel mostra de novo os valores diferentes; Esc fecha e devolve o foco a Editar | Só um parágrafo muda, vários passos de desfazer ou painel com valores antigos |
+| 66a | Ctrl + clique em dois parágrafos → botão direito → Alinhamento → Centralizado | Os dois centralizados, aviso "Alinhamento: Centralizado em 2 blocos." com "Desfazer" | Item ausente ou só um bloco muda |
 
 ### Edge cases
 
@@ -356,6 +360,11 @@ Quinta auditoria (07/10/2026), com Playwright:
 - **PDF** (`page.pdf()` do Chromium) nos 12 modelos e começos do zero: mesmo número de páginas da prévia, **nenhuma imagem rasterizada**, fontes embutidas, texto selecionável (`pdftotext`) e link clicável (`/URI`); documento com páginas em paisagem: 8 páginas, as deitadas com 841,92 × 594,96 pt;
 - **Firefox e WebKit**: o mesmo fluxo de texto visual (negrito, itálico pela barra, Enter, escape) e a edição na página, com resultado idêntico ao do Chromium e sem erros;
 - **axe-core** (WCAG 2.0/2.1/2.2 A/AA + boas práticas) na tela principal, com a seleção de vários blocos, a edição na página, o diálogo de link, a barra flutuante e a galeria: sem violações na interface depois de corrigir os popovers fechados (estavam na tela, vazios) e nomear a barra da seleção. O único contraste acusado continua sendo o das cores do MIV dentro das páginas (miniaturas da galeria).
+
+Edição em conjunto (09/10/2026), com Playwright e `node --test`:
+- **Chromium** (1440, 768 e 390 px): Ctrl+A no manual de exemplo (47 blocos de 15 tipos) → Editar → Parágrafo → Justificado: os três parágrafos mudam no editor e na prévia, um passo de desfazer, painel atualizado depois do Ctrl+Z, Esc devolvendo o foco ao botão; menu do botão direito com dois parágrafos (Alinhamento "Vários" → Justificado, aviso com "Desfazer"); painel acima da barra da seleção em todas as larguras, sem rolagem horizontal e sem erros no console; a barra da seleção deixou de quebrar linha em telas largas;
+- **axe-core** (WCAG 2.0/2.1/2.2 A/AA + boas práticas) no painel aberto e na barra da seleção, temas claro e escuro: sem violações;
+- teste automático "edição em conjunto" em `tests/app.test.mjs` (45 testes no total).
 
 Menu do botão direito (07/10/2026), com Playwright:
 - **Chromium** (1440, 1280 e 390 px, temas claro e escuro): menus de texto, bloco (editor, prévia e Estrutura), célula, item, capa, rodapé, paleta, "Escrever texto" e Meus documentos; cada ação conferida no documento (formatação e prévia, recortar/copiar/colar com a área de transferência real, tipo do destaque, transformar + "Desfazer", linha e coluna da tabela + Ctrl+Z, linhas viram passo a passo + Ctrl+Z nativo do campo, confirmação ao excluir documento, download da cópia); menu e submenu dentro da tela nas bordas; teclado (Shift+F10, setas, Esc devolvendo o foco); folha inferior com "Voltar"; Shift + botão direito, botões da barra e nome do documento mantêm o menu do navegador; toque longo simulado: campo de texto mantém o menu do sistema e bloco abre a folha;
@@ -433,6 +442,7 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - Notas do apresentador e modo de apresentação em tela cheia dentro do app (hoje o PDF é aberto em tela cheia no leitor de PDF).
 - Margens superior e inferior configuráveis (hoje só a lateral; as de cima e de baixo dependem do cabeçalho e da faixa do rodapé).
 - Comentários e revisão entre colegas.
+- Alinhamento padrão do texto no Design (ex.: "Justificado" para o documento todo, inclusive nos parágrafos novos); hoje a edição em conjunto aplica aos parágrafos existentes.
 - Ampliar os testes automáticos para arrastar e soltar, menus de contexto e seleção múltipla (hoje validados à mão e por scripts do Playwright fora do repositório).
 - Assistente de IA dentro do app (painel "Criar com IA"): a arquitetura já tem a API (`window.docStudio.applyOperations`, `check`, `report`) e a revisão de alterações; falta a conexão com um modelo, que exige escolher fornecedor e um back-end para a chave de acesso.
 - Importar PDF e `.docx` como material para agentes direto na interface (hoje o agente lê esses arquivos por conta própria).

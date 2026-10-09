@@ -7,7 +7,7 @@
  */
 import { $, $$, esc, clamp, debounce, moveItem, slugify, announce, isTypingTarget, downloadBlob, formatTime, formatDateTime } from './js/utils.js';
 import { createStore, createUiState } from './js/state.js';
-import { createBlock, createBlockAt, BLOCK_TYPES, TEXT_BLOCK_TYPES, transformBlock, blockPlainText, blockSummary } from './js/schema.js';
+import { createBlock, createBlockAt, BLOCK_TYPES, TEXT_BLOCK_TYPES, transformBlock, blockPlainText, blockSummary, normalizeField } from './js/schema.js';
 import { createDocument, normalizeDocument, toFilePayload, parseFilePayload, cloneBlock, FILE_VERSION } from './js/model.js';
 import { TEMPLATES, TEMPLATE_CATEGORIES, SNIPPETS } from './js/templates.js';
 import { createStorage, createMemoryStorage, preferences } from './js/storage.js';
@@ -30,6 +30,7 @@ import { setupRichText, handleRichShortcut, editRichLink, richFieldOf } from './
 import { createQuickEdit } from './js/quickedit.js';
 import { setupFormatBar } from './js/formatbar.js';
 import { createBlockSelection } from './js/selection.js';
+import { createBulkEdit, bulkField, fieldMenuItems, valueLabel } from './js/bulkedit.js';
 import { validateDocument, brandReport, contentAdvice } from './js/validate.js';
 import { applyOperations, parseOperationsPayload, diffDocuments, assetConflicts, assetConflictMessage, OPERATIONS_FORMAT, OPERATIONS_VERSION } from './js/operations.js';
 
@@ -360,6 +361,30 @@ async function main() {
       }, { kind: 'block', blockId: id, external: true });
     },
 
+    /**
+     * Edição em conjunto: o mesmo valor de uma opção (alinhamento, cor,
+     * interruptor...) em vários blocos, num passo de desfazer. Blocos sem essa
+     * opção ou que já a têm ficam como estão. Retorna quantos mudaram.
+     */
+    setBlocksField(ids, key, value, { coalesce = null, notice = false } = {}) {
+      const set = new Set(ids);
+      const next = (block) => {
+        const field = bulkField(block.type, key);
+        return field ? normalizeField(field, value, block[key]) : block[key];
+      };
+      const targets = store.doc.blocks.filter((block) => set.has(block.id) && next(block) !== block[key]).map((block) => block.id);
+      if (!targets.length) return 0;
+      store.update((doc) => {
+        doc.blocks.forEach((block) => { if (targets.includes(block.id)) block[key] = next(block); });
+      }, { kind: 'block', blockId: targets[0], blockIds: targets, external: true, source: 'bulk', coalesce });
+      if (notice) {
+        const sample = store.doc.blocks.find((block) => block.id === targets[0]);
+        const field = bulkField(sample.type, key);
+        notify(`${field.label}: ${valueLabel(field, sample[key])} em ${targets.length} ${targets.length === 1 ? 'bloco' : 'blocos'}.`, 'info', { undo: true });
+      }
+      return targets.length;
+    },
+
     /** Transforma um bloco de texto em outro tipo, mantendo o texto (ex.: parágrafo → destaque). */
     transformBlock(id, type) {
       const index = actions.indexOf(id);
@@ -436,38 +461,11 @@ async function main() {
       const last = store.doc.blocks.length - 1;
       const collapsed = ui.get('collapsed').has(id);
 
-      const properties = definition.fields.flatMap((field) => {
-        if (field.kind === 'toggle') {
-          return [{ label: field.label, checked: Boolean(block[field.key]), run: () => actions.setBlockField(id, field.key, !block[field.key]) }];
-        }
-        if (field.kind === 'range' && field.presets) {
-          return [{
-            label: field.label,
-            hint: `${block[field.key]}${field.unit ?? ''}`,
-            icon: 'fit',
-            submenu: field.presets.map((preset) => ({
-              label: `${preset.label} (${preset.value}${field.unit ?? ''})`,
-              radio: true,
-              checked: preset.value === block[field.key],
-              run: () => actions.setBlockField(id, field.key, preset.value),
-            })),
-          }];
-        }
-        if (field.kind !== 'segmented' && field.kind !== 'swatches') return [];
-        const current = field.options.find((option) => option.value === block[field.key]);
-        return [{
-          label: field.label,
-          hint: current?.label,
-          icon: field.kind === 'swatches' ? 'palette' : 'layout',
-          submenu: field.options.map((option) => ({
-            label: option.label,
-            radio: true,
-            checked: option.value === block[field.key],
-            swatch: field.kind === 'swatches' ? option.swatch : undefined,
-            run: () => actions.setBlockField(id, field.key, option.value),
-          })),
-        }];
-      });
+      // Opções do formulário (mesma montagem do menu da seleção de vários, js/bulkedit.js).
+      const properties = fieldMenuItems(
+        definition.fields.map((field) => ({ field, mixed: false, value: block[field.key] })),
+        (key, value) => actions.setBlockField(id, key, value),
+      );
 
       const transform = TEXT_BLOCK_TYPES.includes(block.type) && {
         label: 'Transformar em',
@@ -621,6 +619,8 @@ async function main() {
   const quickEdit = createQuickEdit({ store, ui, actions });
   const selection = createBlockSelection({ store, ui, assets, actions });
   actions.selection = selection;
+  const bulkEdit = createBulkEdit({ store, ui, actions, selection });
+  actions.openBulkEdit = () => bulkEdit.open();
   actions.editInPage = (element) => quickEdit.editAt(element);
   const panels = createPanels({ store, ui, assets, actions, drag });
 

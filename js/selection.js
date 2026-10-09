@@ -4,7 +4,8 @@
  * Seleção: Ctrl (⌘ no Mac) + clique junta ou tira um bloco; Shift + clique
  * seleciona do bloco atual até o clicado; Ctrl+A na lista de blocos seleciona
  * todos; Esc volta a um só. Vale no editor, na Estrutura e na prévia. Com mais
- * de um bloco, uma barra mostra o que dá para fazer com eles.
+ * de um bloco, uma barra mostra o que dá para fazer com eles, inclusive mudar
+ * opções de todos de uma vez (edição em conjunto, js/bulkedit.js).
  *
  * Copiar/recortar/colar blocos usa os eventos nativos copy/cut/paste (Ctrl+C,
  * Ctrl+X, Ctrl+V), sem pedir permissão ao navegador. O conteúdo vai como texto
@@ -17,6 +18,7 @@ import { $, esc, isTypingTarget } from './utils.js';
 import { normalizeBlock, blockPlainText } from './schema.js';
 import { cloneBlock } from './model.js';
 import { markdownToBlocks } from './markdown.js';
+import { bulkGroups, fieldMenuItems } from './bulkedit.js';
 
 const CLIPBOARD_ATTRIBUTE = 'data-doc-studio-blocks';
 const CLIPBOARD_VERSION = 1;
@@ -299,6 +301,11 @@ export function createBlockSelection({ store, ui, assets, actions }) {
     const list = ids();
     const indexes = list.map(actions.indexOf);
     const contiguous = indexes.every((index, i) => i === 0 || index === indexes[i - 1] + 1);
+    // Edição em conjunto (js/bulkedit.js): com um tipo só, as opções dele aqui mesmo; com vários, o painel.
+    const groups = bulkGroups(store.doc.blocks.filter((block) => list.includes(block.id))).filter((group) => group.fields.length);
+    const options = groups.length === 1
+      ? fieldMenuItems(groups[0].fields, (key, value) => actions.setBlocksField(groups[0].ids, key, value, { notice: true }))
+      : [];
     return {
       title: `${list.length} blocos selecionados`,
       icon: 'blocks',
@@ -307,6 +314,9 @@ export function createBlockSelection({ store, ui, assets, actions }) {
         { label: 'Copiar', icon: 'clipboard', shortcut: 'Ctrl+C', run: () => copyMany(list) },
         { label: 'Recortar', icon: 'scissors', shortcut: 'Ctrl+X', run: () => copyMany(list, { cut: true }) },
         { label: 'Copiar para IA (JSON)', icon: 'sparkles', run: () => actions.copyForAi(list) },
+        { separator: true },
+        ...options,
+        { label: 'Editar em conjunto…', icon: 'edit', disabled: !groups.length, run: () => actions.openBulkEdit() },
         { separator: true },
         { label: 'Mover para cima', icon: 'chevron-up', shortcut: 'Alt+↑', disabled: !contiguous || indexes[0] === 0, run: () => moveMany(-1, list) },
         { label: 'Mover para baixo', icon: 'chevron-down', shortcut: 'Alt+↓', disabled: !contiguous || indexes.at(-1) === store.doc.blocks.length - 1, run: () => moveMany(1, list) },

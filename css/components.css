@@ -1720,6 +1720,38 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 @media (max-width: 559.98px) {
   .selection-bar__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+/* Edição em conjunto (js/bulkedit.js): painel acima da barra da seleção; posição e altura vêm do JS. */
+.bulk-edit {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-3);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.bulk-edit:popover-open { display: grid; animation: pop-in var(--dur-med) var(--ease); transform-origin: bottom; }
+.bulk-edit:not([popover]):not([hidden]) { display: grid; z-index: var(--z-toast); }
+.bulk-edit__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.bulk-edit__title { margin: 0; font-size: var(--text-md); font-weight: 600; }
+.bulk-edit__hint, .bulk-edit__rest, .bulk-edit__empty { margin: 0; font-size: var(--text-xs); color: var(--text-muted); }
+.bulk-edit__empty { font-size: var(--text-sm); }
+.bulk-edit__group { display: grid; gap: var(--space-3); min-width: 0; padding-top: var(--space-3); border-top: 1px solid var(--border); }
+.bulk-edit__group-title { display: flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--text-sm); font-weight: 600; }
+.bulk-edit__group-title span { font-weight: 400; color: var(--text-muted); }
+.bulk-edit__field { display: grid; gap: var(--space-1); min-width: 0; }
+.bulk-edit__mixed { display: none; margin: 0; font-size: var(--text-xs); color: var(--text-muted); }
+.bulk-edit__field[data-mixed] .bulk-edit__mixed { display: block; }
+/* Interruptor com valores diferentes: botão no meio do trilho. */
+.bulk-edit .switch input:indeterminate { background: color-mix(in srgb, var(--primary) 45%, var(--border-strong)); }
+.bulk-edit .switch input:indeterminate::after { translate: 8px 0; }
+@media (prefers-reduced-motion: reduce) { .bulk-edit:popover-open { animation: none; } }
+
 /* Com a barra da seleção na tela, os avisos sobem para não cobri-la. */
 body:has(#selection-bar:not([hidden])) .toast-region { bottom: calc(76px + 64px + env(safe-area-inset-bottom)); }
 @media (min-width: 760px) {

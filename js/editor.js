@@ -545,7 +545,7 @@ export function createEditor({ store, ui, assets, actions, drag }) {
     else if (change.kind === 'block') {
       // renderCard é chamado por quem originou a mudança (com o foco certo);
       // aqui só garante consistência se a mudança veio de outro lugar.
-      if (change.external) renderCard(change.blockId);
+      if (change.external) (change.blockIds ?? [change.blockId]).forEach((id) => renderCard(id));
     }
     counter.textContent = doc.blocks.length;
   });

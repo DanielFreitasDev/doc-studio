@@ -597,7 +597,7 @@ export function textLimit(block, path) {
   return MAX_TEXT;
 }
 
-function normalizeField(field, value, fallback) {
+export function normalizeField(field, value, fallback) {
   switch (field.kind) {
     case 'toggle':
       return typeof value === 'boolean' ? value : Boolean(fallback);

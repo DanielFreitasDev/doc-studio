@@ -35,6 +35,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Paisagem pela quebra de página](docs/learning/decision-paisagem-por-quebra-de-pagina.md) — A4 deitado só no conteúdo, a partir de uma quebra; capas do MIV ficam em retrato.
 - [Formatação pendente com o cursor parado](docs/learning/decision-formatacao-pendente-no-cursor.md) — Ctrl+B sem seleção vale para o próximo texto digitado; IME recebe o formato no `compositionend`.
 - [Diagrama vetorial por SVG gerado do PDF](docs/learning/decision-diagrama-vetorial-por-svg-do-pdf.md) — diagrama em HTML → PDF do tamanho do desenho → `pdftocairo -svg`; texto em curvas, página deitada, letras ≥ 19 px a 0,1 mm/px.
+- [Edição em conjunto agrupada por tipo](docs/learning/decision-edicao-em-conjunto-por-tipo.md) — opções da seleção por tipo de bloco (não a interseção), nunca textos, um passo de desfazer; menu usa a mesma montagem.
 
 ## Abordagens que NÃO funcionaram
 - [Filtro CSS de cinza transforma o PDF em imagem](docs/learning/failed-filtro-css-cinza-rasteriza-pdf.md) — `filter` no documento rasteriza a página no Chromium; use cores cinza reais.
