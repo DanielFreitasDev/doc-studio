@@ -185,6 +185,8 @@
                 "sign",
                 "stage",
                 "certificate",
+                "slide-panel",
+                "slide-photo",
                 "none"
               ]
             },
@@ -200,7 +202,16 @@
                 "stage",
                 "certificate",
                 "backdrop",
+                "slide-fan",
+                "slide-vignette",
+                "slide-solid",
                 "none"
+              ]
+            },
+            "format": {
+              "enum": [
+                "a4",
+                "slides"
               ]
             },
             "header": {
@@ -1411,6 +1422,16 @@
         "frame": {
           "type": "boolean",
           "description": "Moldura fina"
+        },
+        "sideTitle": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Título ao lado da imagem (opcional)"
+        },
+        "sideText": {
+          "type": "string",
+          "maxLength": 20000,
+          "description": "Texto ao lado da imagem (opcional)"
         }
       }
     },

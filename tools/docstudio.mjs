@@ -13,7 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createDocument, normalizeDocument, toFilePayload } from '../js/model.js';
 import { BLOCK_TYPES, blockSummary } from '../js/schema.js';
-import { THEMES, DESIGN_PRESETS, contentWidthMm } from '../js/design.js';
+import { THEMES, DESIGN_PRESETS, contentWidthMm, isSlides, coverUsesPhoto } from '../js/design.js';
 import { TEMPLATES } from '../js/templates.js';
 import { validateDocument, brandReport, contentAdvice, effectivePpi, maxImageWidth } from '../js/validate.js';
 import { applyOperations, diffDocuments, parseOperationsPayload, assetConflicts, assetConflictMessage } from '../js/operations.js';
@@ -176,7 +176,8 @@ const commands = {
       const asset = dims[block.assetId];
       if (block.type !== 'image' || !asset) return '';
       if (asset.svg) return ' [SVG vetorial]';
-      return ` [${asset.width} px · ${effectivePpi(asset.width, (contentWidthMm('portrait', doc.design.margins) * block.width) / 100)} ppi a ${block.width}% · máx. ${maxImageWidth(asset.width, 'portrait', doc.design.margins)}%]`;
+      const orientation = isSlides(doc.design) ? 'slide' : 'portrait';
+      return ` [${asset.width} px · ${effectivePpi(asset.width, (contentWidthMm(orientation, doc.design.margins) * block.width) / 100)} ppi a ${block.width}% · máx. ${maxImageWidth(asset.width, orientation, doc.design.margins)}%]`;
     };
     const rows = doc.blocks.map((block, index) => ({ index, id: block.id, type: block.type, label: BLOCK_TYPES[block.type].label, summary: blockSummary(block), image: imageInfo(block) }));
     if (options.json) {
@@ -266,9 +267,10 @@ const commands = {
         const contentPages = report.pages.filter((p) => p.kind === 'content').length;
         const flag = page.overflowing ? '  ✖ ESTOURA'
           : page.fill > 1.005 ? '  ⚠ passa da área útil'
-            : page.kind === 'content' && contentPages > 1 && page.fill != null && page.fill < 0.2 ? '  ⚠ quase vazia'
-              : page.words > 700 ? '  ⚠ densa' : '';
-        console.log(`  p. ${String(page.number).padStart(2)} ${page.kind.padEnd(7)} ${page.orientation === 'landscape' ? 'paisagem' : 'retrato '}${fill} ${String(page.words).padStart(4)} palavras${flag}  ${page.blocks.join(' ')}`);
+            // Telas de apresentação costumam ter pouco texto: "quase vazia" só vale para a folha.
+            : page.kind === 'content' && contentPages > 1 && page.fill != null && page.fill < 0.2 && page.orientation !== 'slide' ? '  ⚠ quase vazia'
+              : page.words > (page.orientation === 'slide' ? 90 : 700) ? '  ⚠ densa' : '';
+        console.log(`  p. ${String(page.number).padStart(2)} ${page.kind.padEnd(7)} ${{ landscape: 'paisagem', slide: 'tela 16:9' }[page.orientation] ?? 'retrato '}${fill} ${String(page.words).padStart(4)} palavras${flag}  ${page.blocks.join(' ')}`);
       }
       const layoutIssues = appCheck.issues.filter((i) => /Página \d+|passa do tamanho/.test(i.message));
       printIssues('Paginação', layoutIssues);
@@ -282,7 +284,7 @@ const commands = {
         const text = pdf.toString('latin1');
         const pdfPages = (text.match(/\/Type\s*\/Page\b(?!s)/g) ?? []).length;
         const rasters = (text.match(/\/Subtype\s*\/Image/g) ?? []).length;
-        const userImages = check.doc.blocks.filter((b) => b.type === 'image' && b.assetId && !assetDimensions(assets)[b.assetId]?.svg).length + (check.doc.design.cover === 'photo' && check.doc.design.coverImage ? 1 : 0);
+        const userImages = check.doc.blocks.filter((b) => b.type === 'image' && b.assetId && !assetDimensions(assets)[b.assetId]?.svg).length + (coverUsesPhoto(check.doc.design.cover) && check.doc.design.coverImage ? 1 : 0);
         console.log(`\nPDF: ${out} (${(pdf.length / 1024).toFixed(0)} KB, ${pdfPages || '?'} página(s)${pdfPages && pdfPages !== report.pageCount ? ` ✖ a prévia tem ${report.pageCount}` : ''}, ${rasters} imagem(ns) rasterizada(s) para ${userImages} foto(s)/print(s) do documento${rasters > userImages ? ' ⚠ confira com pdfimages -list' : ''}).`);
         // Fontes embutidas fora do MIV (e da monoespaçada do código): sinal de caractere que Kanit e Maitree não têm.
         const fonts = new Set([...text.matchAll(/\/FontName\s*\/(?:[A-Z]{6}\+)?([\w-]+)/g)].map((match) => match[1]));

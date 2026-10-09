@@ -4,7 +4,7 @@
  */
 import { $, $$, esc, icon, debounce } from './utils.js';
 import { BLOCK_TYPES, BLOCK_GROUPS, blockSummary } from './schema.js';
-import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DESIGN_PRESETS, META_GROUPS, META_MAX_TEXT, docAttributesHtml } from './design.js';
+import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DESIGN_PRESETS, META_GROUPS, META_MAX_TEXT, docAttributesHtml, fitsFormat, coverUsesPhoto, isSlides } from './design.js';
 import { SNIPPETS } from './templates.js';
 import { renderCover, renderBackCover, renderContentPage, brandHtml } from './render.js';
 import { fieldHtml, readControlValue } from './fields.js';
@@ -160,35 +160,37 @@ export function createPanels({ store, ui, assets, actions, drag }) {
    * "page" = página inteira; "top"/"bottom" = faixa do alto ou do pé de uma
    * página de conteúdo; "brand" = só a assinatura.
    */
-  function choiceGroup({ title, name, options, variant = 'page', hint = '', id = '', extra = '' }) {
+  function choiceGroup({ title, name, options, variant = 'page', hint = '', id = '', extra = '', only = '' }) {
     const items = options.map((option) => {
       const value = option.id ?? option.value;
       const none = value === 'none';
+      // Capas e contracapas: só as do formato atual aparecem (data-format; "any" serve para os dois).
+      const format = name === 'cover' || name === 'backCover' ? ` data-format="${option.format ?? 'a4'}"` : '';
       return `
-      <li><label class="choice choice--${variant}" title="${esc(option.description ?? '')}">
+      <li${format}><label class="choice choice--${variant}" title="${esc(option.description ?? '')}">
         <input type="radio" name="design-${name}" value="${value}" data-design-key="${name}">
         <span class="choice__thumb choice__thumb--${variant}${none ? ' choice__thumb--none' : ''}" data-thumb="${name}:${value}">${none ? icon('x', 'icon--xl') : ''}</span>
         <span>${esc(option.label)}</span>
       </label></li>`;
     }).join('');
-    return `<fieldset class="design-group"${id ? ` id="${id}"` : ''}><legend>${esc(title)}</legend>${hint ? `<p class="design-group__hint">${esc(hint)}</p>` : ''}<ul class="choice-grid choice-grid--${variant}">${items}</ul>${extra}</fieldset>`;
+    return `<fieldset class="design-group"${id ? ` id="${id}"` : ''}${only ? ` data-only-format="${only}"` : ''}><legend>${esc(title)}</legend>${hint ? `<p class="design-group__hint">${esc(hint)}</p>` : ''}<ul class="choice-grid choice-grid--${variant}">${items}</ul>${extra}</fieldset>`;
   }
 
-  function segmentedGroup(title, key, options, hint = '') {
+  function segmentedGroup(title, key, options, hint = '', only = '') {
     const radios = options.map((o) => `<label${o.description ? ` title="${esc(o.description)}"` : ''}><input type="radio" name="design-${key}" value="${o.value}" data-design-key="${key}"><span>${esc(o.label)}</span></label>`).join('');
-    return `<fieldset class="design-group"><legend>${esc(title)}</legend>${hint ? `<p class="design-group__hint">${esc(hint)}</p>` : ''}<div class="segmented segmented--block">${radios}</div></fieldset>`;
+    return `<fieldset class="design-group"${only ? ` data-only-format="${only}"` : ''}><legend>${esc(title)}</legend>${hint ? `<p class="design-group__hint">${esc(hint)}</p>` : ''}<div class="segmented segmented--block">${radios}</div></fieldset>`;
   }
 
   // Atalhos do topo do painel: o painel é longo e o leigo procura "capa", "rodapé"...
   const DESIGN_SECTIONS = [
-    ['design-presets', 'Estilos'], ['design-cover', 'Capa'], ['design-header', 'Cabeçalho'], ['design-footer', 'Rodapé'],
+    ['design-format', 'Formato'], ['design-presets', 'Estilos'], ['design-cover', 'Capa'], ['design-header', 'Cabeçalho', 'a4'], ['design-footer', 'Rodapé', 'a4'],
     ['design-back', 'Contracapa'], ['design-signature', 'Assinatura'], ['design-theme', 'Cores'], ['design-more', 'Mais'],
   ];
 
   function renderDesign() {
     const presets = DESIGN_PRESETS.map((preset) => {
       const theme = THEMES.find((t) => t.id === preset.design.theme);
-      return `<li><button type="button" class="preset-card" data-preset="${preset.id}">
+      return `<li data-format="${preset.design.format}"><button type="button" class="preset-card" data-preset="${preset.id}">
         <span class="preset-card__thumb" data-thumb="preset:${preset.id}" aria-hidden="true"></span>
         <span class="preset-card__text">
           <span class="preset-card__swatches">${theme.colors.map((c) => `<span style="background:${c}"></span>`).join('')}</span>
@@ -204,10 +206,16 @@ export function createPanels({ store, ui, assets, actions, drag }) {
         <span>${esc(theme.label)}</span>
       </label></li>`).join('');
 
-    const jump = DESIGN_SECTIONS.map(([target, label]) => `<li><a href="#${target}" data-design-jump="${target}">${esc(label)}</a></li>`).join('');
+    const jump = DESIGN_SECTIONS.map(([target, label, only]) => `<li${only ? ` data-only-format="${only}"` : ''}><a href="#${target}" data-design-jump="${target}">${esc(label)}</a></li>`).join('');
+    const formats = DESIGN_OPTIONS.format.map((o) => `
+      <label class="format-option"><input type="radio" name="design-format" value="${o.value}" data-design-key="format">
+        <span class="format-option__shape format-option__shape--${o.value}" aria-hidden="true"></span>
+        <span><strong>${esc(o.label)}</strong><small>${esc(o.description)}</small></span>
+      </label>`).join('');
 
     designRoot.innerHTML = `
       <nav class="design-jump" aria-label="Ir para"><ul>${jump}</ul></nav>
+      <fieldset class="design-group" id="design-format"><legend>Formato</legend><div class="format-options">${formats}</div></fieldset>
       <section class="design-group" id="design-presets">
         <h3 class="design-group__title">${icon('sparkles', 'icon--sm')}Estilos prontos</h3>
         <p class="design-group__hint">Aplica capa, cores e estilos de uma vez. O conteúdo não muda.</p>
@@ -215,15 +223,16 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       </section>
       ${choiceGroup({ title: 'Capa', name: 'cover', options: COVERS, id: 'design-cover', extra: '<div class="logo-upload" id="cover-photo-upload"></div>' })}
       <button type="button" class="btn btn--soft btn--small design-texts-link" data-action="edit-texts">${icon('file-text', 'icon--sm')}Editar os textos da capa e da contracapa</button>
-      ${choiceGroup({ title: 'Cabeçalho das páginas', name: 'header', options: DESIGN_OPTIONS.header, variant: 'top', id: 'design-header' })}
-      ${choiceGroup({ title: 'Rodapé das páginas', name: 'footer', options: DESIGN_OPTIONS.footer, variant: 'bottom', id: 'design-footer', hint: 'A faixa colorida do pé das páginas, como no papel timbrado e nas páginas do MIV.' })}
-      ${choiceGroup({ title: 'Contracapa', name: 'backCover', options: BACK_COVERS, id: 'design-back' })}
-      ${choiceGroup({ title: 'Assinatura', name: 'signature', options: DESIGN_OPTIONS.signature, variant: 'brand', id: 'design-signature', hint: 'Usada na capa, na contracapa e no timbrado, sempre na ordem do MIV.', extra: '<div class="logo-upload" id="logo-upload"></div>' })}
+      ${choiceGroup({ title: 'Cabeçalho das páginas', name: 'header', options: DESIGN_OPTIONS.header, variant: 'top', id: 'design-header', only: 'a4' })}
+      ${choiceGroup({ title: 'Rodapé das páginas', name: 'footer', options: DESIGN_OPTIONS.footer, variant: 'bottom', id: 'design-footer', hint: 'A faixa colorida do pé das páginas, como no papel timbrado e nas páginas do MIV.', only: 'a4' })}
+      <p class="design-group__hint design-slides-note" data-only-format="slides">Nas telas, a assinatura fica no alto à direita e a faixa do grafismo no pé, como no padrão de telas para datashow do MIV (p. 58).</p>
+      ${choiceGroup({ title: 'Contracapa (encerramento)', name: 'backCover', options: BACK_COVERS, id: 'design-back' })}
+      ${choiceGroup({ title: 'Assinatura', name: 'signature', options: DESIGN_OPTIONS.signature, variant: 'brand', id: 'design-signature', hint: 'Usada na capa, na contracapa, no timbrado e nas telas, sempre na ordem do MIV.', extra: '<div class="logo-upload" id="logo-upload"></div>' })}
       <fieldset class="design-group" id="design-theme"><legend>Tema de cores</legend><ul class="swatch-grid">${swatches}</ul></fieldset>
       ${segmentedGroup('Impressão', 'colorMode', DESIGN_OPTIONS.colorMode, 'Para impressora preto e branco: capa, faixas e assinaturas em tons de cinza, na correspondência de cores do MIV (p. 12).')}
       <details class="design-more" id="design-more"${preferences.get('design-more-open', false) ? ' open' : ''}>
       <summary>Mais ajustes <small>títulos, cartões, numeração, abertura de capítulo, peso dos títulos, fonte, espaçamento e margens</small></summary>
-      ${segmentedGroup('Títulos de seção', 'sectionStyle', DESIGN_OPTIONS.sectionStyle)}
+      ${segmentedGroup('Títulos de seção', 'sectionStyle', DESIGN_OPTIONS.sectionStyle, '', 'a4')}
       ${segmentedGroup('Cartões', 'cardStyle', DESIGN_OPTIONS.cardStyle)}
       <fieldset class="design-group"><legend>Numeração</legend>
         <div class="option-list">
@@ -232,11 +241,11 @@ export function createPanels({ store, ui, assets, actions, drag }) {
           <label class="switch"><input type="checkbox" role="switch" data-design-key="numberSections"><span>Numerar as seções (01, 02…)</span></label>
         </div>
       </fieldset>
-      ${segmentedGroup('Página de abertura de capítulo', 'chapterStyle', DESIGN_OPTIONS.chapterStyle, 'Vale para as seções marcadas com “Página inteira de abertura de capítulo”.')}
+      ${segmentedGroup('Página de abertura de capítulo', 'chapterStyle', DESIGN_OPTIONS.chapterStyle, 'Vale para as seções marcadas com “Página inteira de abertura de capítulo”.', 'a4')}
       ${segmentedGroup('Peso dos títulos', 'headingWeight', DESIGN_OPTIONS.headingWeight, 'O MIV usa Kanit ExtraBold nos títulos; os manuais aprovados, Kanit SemiBold.')}
-      ${segmentedGroup('Fonte do texto corrido', 'bodyFont', DESIGN_OPTIONS.bodyFont, 'O MIV usa Maitree no texto e Kanit nos títulos.')}
+      ${segmentedGroup('Fonte do texto corrido', 'bodyFont', DESIGN_OPTIONS.bodyFont, 'O MIV usa Maitree no texto e Kanit nos títulos.', 'a4')}
       ${segmentedGroup('Espaçamento', 'density', DESIGN_OPTIONS.density)}
-      ${segmentedGroup('Margens laterais', 'margins', DESIGN_OPTIONS.margins, 'Estreita 15 mm, padrão 20 mm, larga 25 mm. Vale para o texto e o cabeçalho das páginas de conteúdo; capas e faixas seguem o MIV.')}
+      ${segmentedGroup('Margens laterais', 'margins', DESIGN_OPTIONS.margins, 'Estreita 15 mm, padrão 20 mm, larga 25 mm. Vale para o texto e o cabeçalho das páginas de conteúdo; capas e faixas seguem o MIV.', 'a4')}
       </details>`;
     $('.design-more', designRoot).addEventListener('toggle', (event) => preferences.set('design-more-open', event.target.open));
     syncDesign();
@@ -250,8 +259,12 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       else if (control.type === 'checkbox') control.checked = Boolean(value);
       else control.value = value;
     });
+    // Só as opções do formato atual (folha A4 ou telas da apresentação).
+    $$('[data-only-format]', designRoot).forEach((el) => { el.hidden = el.dataset.onlyFormat !== design.format; });
+    $$('#design-cover li[data-format], #design-back li[data-format]', designRoot).forEach((li) => { li.hidden = !fitsFormat({ format: li.dataset.format }, design.format); });
+    $$('#design-presets li[data-format]', designRoot).forEach((li) => { li.hidden = li.dataset.format !== design.format; });
     const photo = $('#cover-photo-upload');
-    if (design.cover === 'photo') {
+    if (coverUsesPhoto(design.cover)) {
       const asset = assets.renderMap()[design.coverImage];
       photo.innerHTML = `
         ${asset ? `<img src="${esc(asset.url)}" alt="Foto atual da capa" width="${asset.width}" height="${asset.height}">` : ''}
@@ -291,9 +304,11 @@ export function createPanels({ store, ui, assets, actions, drag }) {
         const preset = DESIGN_PRESETS.find((p) => p.id === id);
         const presetDoc = { ...doc, design: { ...doc.design, ...preset.design } };
         const html = presetDoc.design.cover !== 'none' ? renderCover(presetDoc, map, prefix) : sampleContentPage(presetDoc, map, prefix);
-        slot.innerHTML = thumbHtml(html, presetDoc.design, 0.1);
+        slot.innerHTML = thumbHtml(html, presetDoc.design, isSlides(presetDoc.design) ? 0.088 : 0.1);
         return;
       }
+      // Capas e contracapas escondidas (de outro formato) não precisam de miniatura.
+      if (slot.closest('li')?.hidden) return;
       const preview = { ...doc, design: { ...doc.design, [key]: id } };
       if (key === 'signature') {
         const placeholder = id === 'custom' && !map[doc.design.customLogo] ? '<span class="thumb-logo" aria-hidden="true">Seu logo</span>' : '';
@@ -303,7 +318,7 @@ export function createPanels({ store, ui, assets, actions, drag }) {
       const html = key === 'cover' ? renderCover(preview, map, prefix)
         : key === 'backCover' ? renderBackCover(preview, map, prefix)
           : sampleContentPage(preview, map, prefix);
-      slot.innerHTML = thumbHtml(html, preview.design, key === 'header' || key === 'footer' ? 0.17 : 0.115);
+      slot.innerHTML = thumbHtml(html, preview.design, key === 'header' || key === 'footer' ? 0.17 : isSlides(preview.design) ? 0.1 : 0.115);
     });
   }
   const refreshThumbnailsSoon = debounce(refreshThumbnails, 300);

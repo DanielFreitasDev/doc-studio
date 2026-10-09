@@ -6,7 +6,7 @@
  * o que mantém a rolagem estável e evita piscar imagens.
  */
 import { $, $$, debounce, clamp, prefersReducedMotion } from './utils.js';
-import { applyDocAttributes, DESIGN_OPTIONS } from './design.js';
+import { applyDocAttributes, DESIGN_OPTIONS, isSlides } from './design.js';
 import { layoutDocument } from './paginate.js';
 import { BLOCK_TYPES, createBlock } from './schema.js';
 import { keys, writeClipboard } from './textmenu.js';
@@ -37,9 +37,9 @@ export function createPreview({ store, ui, assets, actions }) {
     applyDocAttributes(pagesEl, doc.design);
     applyDocAttributes(measureDoc, doc.design);
     layout = layoutDocument(doc, assets.renderMap(), measureBody, columnCache);
-    const hadLandscape = Boolean(pagesEl.querySelector('.page--landscape'));
+    const widthBefore = widestPageMm();
     patchPages(layout.pagesHtml);
-    if (ui.get('zoomFit') && hadLandscape !== Boolean(pagesEl.querySelector('.page--landscape'))) applyZoom();
+    if (ui.get('zoomFit') && widthBefore !== widestPageMm()) applyZoom();
     highlightSelection();
     if (pendingReveal) {
       const { id, onlyIfHidden } = pendingReveal;
@@ -118,11 +118,13 @@ export function createPreview({ store, ui, assets, actions }) {
   }
 
   /* ---------------------------------------------------------------- zoom */
-  /** "Ajustar à largura" cabe a página mais larga (297 mm se houver páginas em paisagem). */
+  /** Largura (mm) da página mais larga: 297 com páginas em paisagem, 240 nas telas da apresentação. */
+  const widestPageMm = () => (pagesEl.querySelector('.page--landscape') ? 297 : pagesEl.querySelector('.page--slide') ? 240 : 210);
+
+  /** "Ajustar à largura" cabe a página mais larga. */
   function fitZoom() {
     const available = scroller.clientWidth - 32;
-    const widest = (pagesEl.querySelector('.page--landscape') ? 297 : 210) * MM;
-    return clamp(available / widest, 0.2, 1.25);
+    return clamp(available / (widestPageMm() * MM), 0.2, 1.25);
   }
 
   function applyZoom() {
@@ -298,6 +300,20 @@ export function createPreview({ store, ui, assets, actions }) {
       label: option.label, radio: true, checked: design[key] === option.value, run: () => actions.setDesign(key, option.value),
     }));
     const current = (key, options) => options.find((option) => option.value === design[key])?.label;
+    if (isSlides(design)) {
+      // Na apresentação todas as telas são 16:9: sem orientação, cabeçalho, rodapé e margens da folha.
+      return [
+        { label: 'Nova tela depois desta', icon: 'pagebreak', run: () => actions.insertType('pagebreak', after) },
+        { label: 'Inserir bloco no fim desta tela', icon: 'plus', run: () => actions.openPicker(page, { index: after }) },
+        { separator: true },
+        { label: 'Selecionar os blocos desta tela', icon: 'select-all', disabled: !onPage.length, run: () => actions.selection.select(onPage) },
+        { label: 'Duplicar o conteúdo da tela', icon: 'copy', disabled: !whole.length, run: () => actions.duplicatePage(whole) },
+        { label: 'Excluir o conteúdo da tela', icon: 'trash', danger: true, disabled: !whole.length, run: () => actions.selection.removeMany(whole) },
+        { separator: true },
+        { label: 'Numeração', icon: 'outline', hint: current('pageNumber', DESIGN_OPTIONS.pageNumber), submenu: radio('pageNumber', DESIGN_OPTIONS.pageNumber) },
+        { separator: true },
+      ];
+    }
     return [
       { label: 'Nova página depois desta', icon: 'pagebreak', run: () => actions.insertType('pagebreak', after) },
       page.classList.contains('page--landscape')
@@ -333,11 +349,13 @@ export function createPreview({ store, ui, assets, actions }) {
       return {
         number: index + 1,
         kind,
-        orientation: page.classList.contains('page--landscape') ? 'landscape' : 'portrait',
+        orientation: page.classList.contains('page--slide') ? 'slide' : page.classList.contains('page--landscape') ? 'landscape' : 'portrait',
         blocks,
         fill,
         words,
         overflowing: page.classList.contains('is-overflowing'),
+        // Tela que continua uma seção (título repetido com "(continuação)").
+        continued: Boolean(page.querySelector('.atom--continued')),
       };
     });
   }

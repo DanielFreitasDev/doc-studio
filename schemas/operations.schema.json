@@ -511,7 +511,10 @@
                   "works",
                   "photo",
                   "certificate",
-                  "totem"
+                  "totem",
+                  "slides",
+                  "slides-photo",
+                  "slides-numbers"
                 ]
               }
             }

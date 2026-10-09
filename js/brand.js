@@ -82,6 +82,21 @@ export const TYPOGRAPHY = {
   ],
 };
 
+/**
+ * Padrão de telas para datashow (MIV p. 56–60): o formato "slides" do app.
+ * Os corpos do MIV valem para a tela de ~165 mm de largura das amostras; na
+ * tela do app (240 × 135 mm, js/design.js) eles são multiplicados por 240/165.
+ */
+export const SLIDES = {
+  pages: [56, 57, 58, 59, 60, 62],
+  aspect: '16:9',
+  mivScreenWidthMm: 165,
+  title: { family: 'Kanit', weight: 700, pt: 19 },
+  subtitle: { family: 'Kanit', weight: 500, pt: 11 },
+  text: { family: 'Kanit', weight: 400, pt: 7 },
+  rule: 'Telas brancas com a assinatura horizontal no alto à direita, título em Kanit Bold, subtítulo em Kanit Medium e texto em Kanit Regular, e a faixa do grafismo no pé; abertura em painel verde (p. 57) ou com foto entre os arcos (p. 56); encerramento com a assinatura (p. 58 e 60).',
+};
+
 /** Caracteres de um texto que as fontes do MIV não têm (sem repetir; quebras de linha e tabulação não contam). */
 export function missingGlyphs(text) {
   const missing = new Set();
@@ -120,6 +135,7 @@ export const BRAND_RULES = [
   { id: 'grayscale', page: 12, enforcedBy: 'renderer', text: 'Para impressão P&B use a escala de cinza do MIV (tabela de correspondência da p. 12), nunca um filtro sobre a página.' },
   { id: 'monochrome-last-resort', page: 13, enforcedBy: 'manual', text: 'A versão monocromática é último caso; prefira cores ou escala de cinza.' },
   { id: 'text-contrast', page: null, enforcedBy: 'validator', text: 'Texto em cor sobre o papel precisa de contraste mínimo de 4,5:1 (WCAG AA); por isso os títulos usam os tons escuros.' },
+  { id: 'slides-pattern', page: 58, enforcedBy: 'renderer', text: 'Apresentações seguem o padrão de telas para datashow (p. 56–60): 16:9, assinatura no alto à direita, título Kanit Bold, subtítulo Kanit Medium e texto Kanit Regular nas proporções do MIV (19 : 11 : 7), faixa do grafismo no pé; uma seção por tela.' },
   { id: 'image-resolution', page: null, enforcedBy: 'validator', text: 'Fotos e prints com pelo menos 150 ppi no tamanho impresso (ideal 300 ppi) para não pixelar no PDF.' },
 ];
 

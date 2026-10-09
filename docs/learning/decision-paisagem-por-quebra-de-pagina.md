@@ -4,8 +4,9 @@ description: páginas de conteúdo em A4 deitado a partir de uma quebra de pági
 type: project
 category: decision
 date: 2026-10-07
+updated: 2026-10-09
 ---
-A orientação é escolhida na quebra de página ("Páginas seguintes: retrato ou paisagem"), como a quebra de seção do Word. Não existe documento inteiro em paisagem.
+A orientação é escolhida na quebra de página ("Páginas seguintes: retrato ou paisagem"), como a quebra de seção do Word. Não existe documento A4 inteiro em paisagem; apresentações são o formato próprio de telas 16:9 com capas redesenhadas (ver [decision-apresentacao-como-formato.md](decision-apresentacao-como-formato.md)), onde a quebra só abre uma tela nova.
 
 **Problema/Contexto:** o pedido da quinta auditoria incluía avaliar orientação paisagem. As capas, contracapas e aberturas de capítulo são peças do MIV desenhadas para A4 em pé (`js/graphics.js`, coordenadas em 210 × 297 mm com `preserveAspectRatio="none"`): esticá-las deforma arcos, leque e totem.
 

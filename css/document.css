@@ -1062,6 +1062,114 @@
 
 .back--fan .back__info { left: 20mm; bottom: auto; top: 12%; }
 
+/* =============================================================================
+   Apresentação: telas 16:9 para datashow (MIV p. 56–62)
+   Tela de 240 × 135 mm (js/design.js, PAGE_GEOMETRY.slide). Corpos do MIV
+   (título 19 pt, subtítulo 11 pt, texto 7 pt numa tela de ~165 mm) × 240/165;
+   posições medidas nas telas planas da p. 58. Texto corrido em Kanit Regular,
+   como pede o MIV para as telas (a opção de fonte do texto vale só na folha A4).
+   ========================================================================== */
+.doc[data-format="slides"] {
+  --doc-body-font: 'Kanit', sans-serif;
+  --doc-body-weight: 400;
+  --doc-body-bold: 600;
+  --doc-p-size: 10.2pt;
+  --doc-p-lead: 15pt;
+  /* Título das telas no verde do MIV (contraste ≥ 3:1, texto grande); temas claros usam o tom escuro. */
+  --doc-slide-title: var(--doc-primary);
+}
+.doc[data-format="slides"]:is([data-doc-theme="teal"], [data-doc-theme="gold"], [data-doc-theme="leaf"], [data-doc-theme="sky"]) { --doc-slide-title: var(--doc-primary-strong); }
+
+.page--slide { width: 240mm; height: 135mm; }
+.measure-body--slide { width: 191mm; }
+/* Corpo de 191 × 83 mm: 34 mm da esquerda (texto das telas do MIV), 15 mm da direita, abaixo da assinatura. */
+.page--slide .page__body { top: 32mm; left: 34mm; right: 15mm; height: 83mm; }
+
+/* Assinatura horizontal no alto à direita (MIV p. 58): 34 mm de largura (mínimo 30 mm, p. 21);
+   com secretaria ou órgão parceiro, 40 mm. */
+.slide__brand { position: absolute; top: 12.6mm; right: 9.9mm; }
+.slide__brand .brand { --brand-h: 10.8mm; }
+.slide__brand .brand:has(.brand__partner, .brand__state--secretaria-h) { --brand-h: 12.8mm; }
+
+.page__footer--slide { height: 10mm; }
+/* Número: acima da parte baixa da faixa, alinhado ao texto; "Página X de Y" à direita, acima da parte alta. */
+.page--slide .page__number { left: 34mm; bottom: 4.2mm; }
+.page--slide .page__number--text { left: auto; right: 15mm; bottom: 12.4mm; }
+
+/* Título da tela: Kanit Bold 27,5 pt; subtítulo Kanit Medium 16 pt (19 e 11 pt no MIV). */
+.atom--slide-title { margin-bottom: 5mm; }
+.b-slide-title__kicker { margin-bottom: 1.4mm; font-size: 8.4pt; font-weight: 600; line-height: 1.2; letter-spacing: 0.3em; text-transform: uppercase; color: var(--doc-primary-strong); }
+.b-slide-title__title { font-size: 27.5pt; font-weight: 700; line-height: 1.12; color: var(--doc-slide-title, var(--doc-primary-strong)); }
+.b-slide-title__sub { margin-top: 1.6mm; font-size: 16pt; font-weight: 500; line-height: 1.25; color: var(--doc-primary-strong); }
+.b-slide-title__sub strong { color: inherit; }
+.b-slide-title__cont { font-size: 0.5em; font-weight: 400; color: var(--doc-muted); }
+.atom--continued { margin-bottom: 4mm; }
+.atom--continued .b-slide-title__title { font-size: 20pt; }
+
+/* Abertura "Painel verde" (MIV p. 57 e 59): assinatura na faixa branca, título em branco no painel. */
+.page--slide .cover__heading { top: 38mm; left: 24mm; right: auto; width: 88mm; }
+.page--slide .cover__kicker { font-size: 8pt; letter-spacing: 0.16em; }
+.page--slide .cover__title { margin-top: 2.6mm; font-size: 30pt; line-height: 34pt; color: var(--doc-navy); }
+.page--slide .cover__subtitle { margin-top: 2mm; font-size: 16pt; font-weight: 500; line-height: 20pt; color: var(--doc-navy); }
+.page--slide .cover__desc { margin-top: 3.4mm; font-size: 10pt; line-height: 14pt; }
+.page--slide .cover__version { position: absolute; left: 24mm; top: 12mm; margin: 0; font-size: 8.5pt; }
+
+.cover--slide-panel .cover__brand { left: 32mm; top: 47mm; right: auto; bottom: auto; }
+.cover--slide-panel .brand { --brand-h: 21mm; }
+.cover--slide-panel .brand:has(.brand__partner) { --brand-h: 17mm; }
+.cover--slide-panel .cover__heading { top: 36mm; left: 163mm; right: 9mm; width: auto; }
+.cover--slide-panel .cover__title { font-size: 24pt; line-height: 28pt; }
+.cover--slide-panel .cover__subtitle { font-size: 14pt; font-weight: 400; line-height: 18pt; }
+.cover--slide-panel :is(.cover__kicker, .cover__title, .cover__subtitle, .cover__desc, .cover__version) { color: #fff; }
+.cover--slide-panel .cover__version { top: auto; left: 163mm; right: 9mm; bottom: 9mm; font-weight: 400; }
+
+/* Abertura "Foto e arcos" (MIV p. 56): título em grafite à esquerda; Governo + conceito no canto branco de baixo. */
+.cover--slide-photo .cover__brand { left: auto; right: 6mm; top: auto; bottom: 5mm; }
+.cover--slide-photo .brand { --brand-h: 11mm; }
+.cover--slide-photo .brand:has(.brand__state--secretaria-h) { --brand-h: 12.8mm; }
+
+/* Abertura de seção: a composição da abertura (p. 57), número na faixa branca e título no painel. */
+.chapter--slide .chapter__num { position: absolute; left: 44mm; top: 42mm; font-size: 80pt; color: color-mix(in srgb, var(--doc-primary) 32%, #fff); }
+.chapter--slide .chapter__content { left: 163mm; right: 9mm; top: 34mm; }
+.chapter--slide :is(.chapter__kicker, .chapter__title, .chapter__intro, .chapter__intro strong) { color: #fff; }
+.chapter--slide .chapter__kicker { margin-top: 0; letter-spacing: 0.24em; }
+.chapter--slide .chapter__title { margin-top: 2mm; font-size: 24pt; font-weight: 700; line-height: 28pt; }
+.chapter--slide .chapter__intro { margin-top: 4mm; max-width: none; font-family: 'Kanit', sans-serif; font-size: 11pt; font-weight: 400; line-height: 15pt; }
+
+/* Encerramentos: assinatura centralizada na área branca ("Leque", p. 58 e 60) ou na tela (p. 62 e 117). */
+.page--slide .back__info { left: 20mm; right: 20mm; top: 50%; bottom: auto; max-width: none; translate: 0 -50%; display: grid; justify-items: center; text-align: center; }
+.page--slide .back__title { margin-top: 5mm; font-size: 11pt; line-height: 14pt; }
+.page--slide .back__text { font-size: 8.6pt; line-height: 12pt; }
+.page--slide .back__web { margin-top: 2mm; font-size: 8.6pt; }
+.back--slide-fan .back__info { left: 132mm; right: 14mm; top: 60%; }
+.back--slide-fan .brand { --brand-h: 22mm; }
+.back--slide-fan .brand:has(.brand__partner) { --brand-h: 16mm; }
+.back--slide-vignette .back__info { top: 47%; }
+:is(.back--slide-vignette, .back--slide-solid) .brand { --brand-h: 22mm; }
+
+/* Blocos nas telas: corpos um pouco maiores que na folha, para a leitura a distância (texto do MIV: 10,2 pt). */
+.doc[data-format="slides"] .b-toc__title { margin-bottom: 5mm; font-size: 27.5pt; font-weight: 700; line-height: 1.12; color: var(--doc-slide-title, var(--doc-primary-strong)); }
+.doc[data-format="slides"] .b-toc__item { font-size: 11.5pt; }
+.doc[data-format="slides"] :is(.b-card__t, .b-flow__t, .b-step__t) { font-size: 12pt; line-height: 15pt; }
+.doc[data-format="slides"] :is(.b-card__b, .b-flow__b, .b-tl__b, .b-callout__text, .b-faq__at) { font-size: 9.6pt; line-height: 13.4pt; }
+.doc[data-format="slides"] :is(.b-tl__t, .b-callout__title, .b-kpi__l) { font-size: 11pt; line-height: 14pt; }
+.doc[data-format="slides"] .b-kpi__s { font-size: 9pt; line-height: 12pt; }
+.doc[data-format="slides"] .b-kpi__v { font-size: min(30pt, calc(100cqi / (var(--chars, 1) * 0.62))); }
+
+/* Imagem com texto ao lado (telas com foto e com gráfico, MIV p. 58): vale nos documentos também. */
+.b-fig-side { display: grid; grid-template-columns: var(--fig-w, 50%) minmax(0, 1fr); align-items: center; gap: 7mm; }
+.b-fig-side--right { grid-template-columns: minmax(0, 1fr) var(--fig-w, 50%); }
+.b-fig-side--right .b-fig { order: 2; }
+.b-fig-side .b-fig { justify-items: stretch; }
+.b-fig-side .b-fig figcaption { max-width: none; text-align: left; }
+.b-fig__title { margin-bottom: 2.4mm; font-size: 14pt; font-weight: 600; line-height: 1.2; color: var(--doc-heading); }
+.b-fig__text + .b-fig__text { margin-top: 2.4mm; }
+/* Nas telas a imagem cabe abaixo do título (83 mm úteis): até 56 mm de altura, recortada como a foto da tela do MIV (p. 58)
+   quando está ao lado do texto, encaixada quando está sozinha. */
+.doc[data-format="slides"] .b-fig img { max-height: 56mm; object-fit: contain; }
+.doc[data-format="slides"] .b-fig-side img { object-fit: cover; }
+.doc[data-format="slides"] .b-fig__title { font-size: 21pt; font-weight: 700; line-height: 1.12; color: var(--doc-slide-title, var(--doc-primary-strong)); }
+
 /* Títulos extra fortes: os pesos Kanit ExtraBold e Black dos títulos do MIV. */
 .doc[data-heading-weight="strong"] :is(.cover__title, .b-section__title, .chapter__title, .b-toc__title, .b-h2) { font-weight: 800; }
 .doc[data-heading-weight="strong"] :is(.chapter__num, .b-section__bignum, .b-kpi__v) { font-weight: 900; }

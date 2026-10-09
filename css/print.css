@@ -1,6 +1,6 @@
 /* =============================================================================
    Impressão / "Salvar como PDF"
-   Imprime somente as páginas A4 da prévia, sem margens do navegador, sem zoom
+   Imprime somente as páginas da prévia (folhas A4 ou telas 16:9), sem margens do navegador, sem zoom
    e sem os destaques de seleção do editor.
    ========================================================================== */
 
@@ -15,6 +15,13 @@
   margin: 0;
 }
 .page--landscape { page: landscape; }
+
+/* Apresentação (formato "slides"): todas as páginas são telas 16:9 de 240 × 135 mm (MIV p. 56–60). */
+@page slide {
+  size: 240mm 135mm;
+  margin: 0;
+}
+.page--slide { page: slide; }
 
 html,
 body {

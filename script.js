@@ -21,7 +21,7 @@ import { toast, openDialog, enableBackdropClose, confirmDialog, setupMenu } from
 import { markdownToBlocks } from './js/markdown.js';
 import { layoutDocument } from './js/paginate.js';
 import { renderCover, renderBackCover } from './js/render.js';
-import { applyDocAttributes, docAttributesHtml, DESIGN_LABELS, designValueLabel, META_GROUPS, THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS } from './js/design.js';
+import { applyDocAttributes, docAttributesHtml, DESIGN_LABELS, designValueLabel, META_GROUPS, THEMES, DESIGN_OPTIONS, isSlides, coversFor, backCoversFor, coverUsesPhoto, mergeDesign } from './js/design.js';
 import { setupTooltips } from './js/tooltip.js';
 import { setupControls } from './js/controls.js';
 import { createContextMenu } from './js/contextmenu.js';
@@ -296,7 +296,11 @@ async function main() {
     async setCoverPhoto(file) {
       try {
         const id = await loadAsset(file);
-        store.update((doc) => { doc.design.coverImage = id; doc.design.cover = 'photo'; }, { kind: 'design' });
+        // A capa atual continua se já usa foto; senão vai para a capa com foto do formato (folha ou tela).
+        store.update((doc) => {
+          doc.design.coverImage = id;
+          if (!coverUsesPhoto(doc.design.cover)) doc.design.cover = isSlides(doc.design) ? 'slide-photo' : 'photo';
+        }, { kind: 'design' });
         notify('Foto da capa aplicada.');
       } catch (error) {
         notify(error.message, 'error');
@@ -337,9 +341,15 @@ async function main() {
     /** Muda uma opção de design (painel Design e menu de contexto da prévia usam a mesma regra). */
     setDesign(key, value) {
       if (store.doc.design[key] === value) return;
-      store.update((doc) => { doc.design[key] = value; }, { kind: 'design' });
+      // A troca de formato leva junto capa e encerramento do formato novo (mergeDesign, js/design.js).
+      store.update((doc) => { Object.assign(doc.design, mergeDesign(doc.design, { [key]: value })); }, { kind: 'design' });
+      if (key === 'format') {
+        notify(value === 'slides'
+          ? 'Agora é uma apresentação 16:9, no padrão de telas do MIV: cada seção começa uma tela.'
+          : 'Agora é um documento em folhas A4.', 'info', { undo: true });
+      }
       if (key === 'signature' && value === 'custom' && !store.doc.design.customLogo) actions.chooseLogo();
-      if (key === 'cover' && value === 'photo' && !store.doc.design.coverImage) actions.chooseCoverPhoto();
+      if (key === 'cover' && coverUsesPhoto(value) && !store.doc.design.coverImage) actions.chooseCoverPhoto();
     },
 
     /** Muda um campo simples do bloco (cor, estilo, interruptor) fora do formulário dele. */
@@ -528,8 +538,8 @@ async function main() {
             items: [
               texts('Editar textos da capa'),
               { separator: true },
-              choice('Estilo da capa', 'layout', 'cover', COVERS),
-              design.cover === 'photo' && { label: design.coverImage ? 'Trocar foto da capa…' : 'Escolher foto da capa…', icon: 'image', run: () => actions.chooseCoverPhoto() },
+              choice('Estilo da capa', 'layout', 'cover', coversFor(design.format)),
+              coverUsesPhoto(design.cover) && { label: design.coverImage ? 'Trocar foto da capa…' : 'Escolher foto da capa…', icon: 'image', run: () => actions.chooseCoverPhoto() },
               signature,
               theme,
               { separator: true },
@@ -540,7 +550,7 @@ async function main() {
           return {
             title: 'Contracapa',
             icon: 'layout',
-            items: [texts('Editar textos da contracapa'), { separator: true }, choice('Estilo da contracapa', 'layout', 'backCover', BACK_COVERS), signature, theme, { separator: true }, more('design-back')],
+            items: [texts('Editar textos da contracapa'), { separator: true }, choice('Estilo da contracapa', 'layout', 'backCover', backCoversFor(design.format)), signature, theme, { separator: true }, more('design-back')],
           };
         case 'header':
           return {
@@ -549,6 +559,8 @@ async function main() {
             items: [texts('Editar textos do cabeçalho'), { separator: true }, choice('Estilo do cabeçalho', 'layout', 'header', DESIGN_OPTIONS.header), { separator: true }, more('design-header')],
           };
         case 'footer':
+          // Nas telas a faixa do pé é a do MIV (p. 58): só a numeração muda.
+          if (isSlides(design)) return { title: 'Pé das telas', icon: 'layout', items: [choice('Numeração', 'outline', 'pageNumber', DESIGN_OPTIONS.pageNumber), { separator: true }, more('design-more')] };
           return {
             title: 'Rodapé das páginas',
             icon: 'layout',
@@ -872,9 +884,13 @@ async function main() {
     templatePages.set(template.id, { pagesHtml, design: doc.design });
     const thumbs = template.then === 'import'
       ? `<span class="template-card__icon"><svg class="icon icon--xl"><use href="#i-pen"/></svg></span>`
-      : pagesHtml.slice(0, 2).map((html) => panels.thumbHtml(scopeIds(html, `tpl-${template.id}`), doc.design, 0.13)).join('');
+      // Folhas: capa e primeira página; telas (deitadas): só a abertura, maior.
+      : isSlides(doc.design)
+        ? panels.thumbHtml(scopeIds(pagesHtml[0], `tpl-${template.id}`), doc.design, 0.2)
+        : pagesHtml.slice(0, 2).map((html) => panels.thumbHtml(scopeIds(html, `tpl-${template.id}`), doc.design, 0.13)).join('');
     const count = pagesHtml.length;
-    const pages = template.group === 'blank' ? '' : `<small>${count} ${count === 1 ? 'página' : 'páginas'} de exemplo</small>`;
+    const unit = isSlides(doc.design) ? ['tela', 'telas'] : ['página', 'páginas'];
+    const pages = template.group === 'blank' ? '' : `<small>${count} ${count === 1 ? unit[0] : unit[1]} de exemplo</small>`;
     const category = TEMPLATE_CATEGORIES.find((c) => c.id === template.category);
     const categoryHtml = category ? `<span class="template-card__category">${esc(category.label)}</span>` : '';
     const peek = template.group === 'blank'
@@ -895,9 +911,10 @@ async function main() {
     const grid = $('#template-grid');
     const section = $('#template-preview');
     $('#template-preview-title').textContent = template.name;
-    $('#template-preview-description').textContent = `${template.description} ${data.pagesHtml.length} páginas.`;
+    const slides = isSlides(data.design);
+    $('#template-preview-description').textContent = `${template.description} ${data.pagesHtml.length} ${slides ? 'telas' : 'páginas'}.`;
     $('#template-preview-pages').innerHTML = data.pagesHtml.map((html, index) =>
-      `<figure class="template-preview__page">${panels.thumbHtml(scopeIds(html, `tpv-${template.id}-${index}`), data.design, 0.3)}<figcaption>Página ${index + 1}</figcaption></figure>`).join('');
+      `<figure class="template-preview__page">${panels.thumbHtml(scopeIds(html, `tpv-${template.id}-${index}`), data.design, slides ? 0.26 : 0.3)}<figcaption>${slides ? 'Tela' : 'Página'} ${index + 1}</figcaption></figure>`).join('');
     section.dataset.template = templateId;
     grid.classList.add('is-previewing');
     section.hidden = false;
@@ -979,7 +996,7 @@ async function main() {
       const { meta, design } = normalizeDocument({ ...item, blocks: [] });
       if (design.signature === 'custom') design.signature = 'state';
       const html = design.cover !== 'none' ? renderCover({ meta, design }, {}, `doc-${item.id}`) : renderBackCover({ meta, design }, {}, `doc-${item.id}`);
-      const thumb = html ? `<div class="doc thumb" ${docAttributesHtml(design)} style="--zoom:0.055">${html}</div>` : '';
+      const thumb = html ? `<div class="doc thumb" ${docAttributesHtml(design)} style="--zoom:${isSlides(design) ? 0.048 : 0.055}">${html}</div>` : '';
       return `
         <li class="document-row${current ? ' is-current' : ''}" data-id="${esc(item.id)}">
           <span class="document-row__thumb" aria-hidden="true">${thumb}</span>
@@ -1092,6 +1109,10 @@ async function main() {
     overflow.forEach((id) => add('error', `${BLOCK_TYPES[store.doc.blocks[actions.indexOf(id)]?.type]?.label ?? 'Um bloco'} passa do tamanho da página e sairá cortado. Divida o conteúdo em mais blocos.`, { blockId: id }));
     const pages = preview.pageReport();
     const contentPages = pages.filter((page) => page.kind === 'content');
+    if (isSlides(doc.design)) {
+      slideChecks(contentPages, add);
+      return { items, brand: brandReport(doc, assets.dimensions()), pages };
+    }
     contentPages.forEach((page, index) => {
       if (page.words > DENSE_PAGE_WORDS) add('info', `Página ${page.number}: ${page.words} palavras, muito densa. Considere listas, passo a passo ou dividir o texto.`, { blockId: page.blocks[0] });
       const last = index === contentPages.length - 1;
@@ -1104,6 +1125,20 @@ async function main() {
 
     const brand = brandReport(doc, assets.dimensions());
     return { items, brand, pages };
+  }
+
+  // Numa tela de apresentação o texto é apoio para quem fala: o MIV mostra poucas linhas por tela (p. 58).
+  const DENSE_SLIDE_WORDS = 90;
+
+  /** Telas densas e seções que continuam em outra tela (com o título repetido). */
+  function slideChecks(contentPages, add) {
+    for (const page of contentPages) {
+      if (page.words > DENSE_SLIDE_WORDS) add('info', `Tela ${page.number}: ${page.words} palavras. Numa apresentação, prefira poucas linhas por tela: tópicos curtos, números em destaque ou uma imagem.`, { blockId: page.blocks[0] });
+    }
+    const continued = contentPages.filter((page) => page.continued);
+    for (const page of continued) {
+      add('info', `Tela ${page.number}: o conteúdo da seção anterior não coube em uma tela e continua aqui com “(continuação)”. Se preferir, divida a seção em duas.`, { blockId: page.blocks[0] });
+    }
   }
 
   const LEVEL_ICON = { error: 'warning', warning: 'warning', info: 'info', ok: 'check' };

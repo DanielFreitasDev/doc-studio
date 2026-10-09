@@ -63,6 +63,12 @@ export const IMAGE_RATIOS = [
   { value: 'portrait', label: 'Retrato', ratio: '3 / 4' },
 ];
 
+/** O bloco de imagem tem título ou texto ao lado? */
+export const hasSideText = (block) => Boolean(block.sideTitle?.trim() || block.sideText?.trim());
+
+/** Largura da imagem (% da coluna) quando há texto ao lado: a escolhida, entre 30% e 70% (100% vira metade). */
+export const sideImageWidth = (block) => (block.width > 70 ? 50 : Math.max(30, block.width));
+
 /** Paleta usada quando um bloco está em "Alternar cores". */
 export const ALTERNATE_TONES = ['theme', 'teal', 'accent', 'navy'];
 
@@ -458,8 +464,8 @@ export const BLOCK_TYPES = {
     description: 'Print ou foto com legenda numerada',
     icon: 'image',
     group: 'media',
-    keywords: 'figura print foto captura tela',
-    defaults: () => ({ assetId: '', caption: '', width: 100, align: 'center', ratio: 'original', fit: 'cover', focus: 'center', frame: true }),
+    keywords: 'figura print foto captura tela lado a lado texto ao lado grafico',
+    defaults: () => ({ assetId: '', caption: '', width: 100, align: 'center', ratio: 'original', fit: 'cover', focus: 'center', frame: true, sideTitle: '', sideText: '' }),
     fields: [
       { key: 'assetId', kind: 'image', label: 'Imagem' },
       { key: 'caption', kind: 'text', label: 'Legenda', placeholder: 'Ex.: Tela de confirmação dos dados' },
@@ -474,8 +480,11 @@ export const BLOCK_TYPES = {
       { key: 'fit', kind: 'segmented', label: 'No formato escolhido', options: [{ value: 'cover', label: 'Preencher (corta as bordas)' }, { value: 'contain', label: 'Encaixar (imagem inteira)' }] },
       { key: 'focus', kind: 'segmented', label: 'Parte que aparece ao cortar', options: [{ value: 'top', label: 'Topo' }, { value: 'center', label: 'Centro' }, { value: 'bottom', label: 'Base' }] },
       { key: 'frame', kind: 'toggle', label: 'Moldura fina' },
+      // Imagem e texto lado a lado, como as telas com foto e com gráfico do MIV (p. 58).
+      { key: 'sideTitle', kind: 'text', label: 'Título ao lado da imagem (opcional)', placeholder: 'Ex.: Nova unidade de atendimento' },
+      { key: 'sideText', kind: 'rich', label: 'Texto ao lado da imagem (opcional)', rows: 3, hint: 'Com texto ao lado, a imagem fica à esquerda (ou à direita, no alinhamento “Direita”) com a largura escolhida, entre 30% e 70%, e o texto ocupa o resto.' },
     ],
-    summary: (b) => b.caption || (b.assetId ? 'Imagem' : 'Sem imagem'),
+    summary: (b) => b.caption || stripMarkup(b.sideTitle) || (b.assetId ? 'Imagem' : 'Sem imagem'),
   },
 
   divider: {
@@ -501,7 +510,7 @@ export const BLOCK_TYPES = {
     fields: [
       {
         key: 'orientation', kind: 'segmented', label: 'Páginas seguintes',
-        hint: 'Paisagem serve para tabelas largas, fluxos e prints. Para voltar a retrato, use outra quebra de página.',
+        hint: 'Paisagem serve para tabelas largas, fluxos e prints. Para voltar a retrato, use outra quebra de página. Nas apresentações, a quebra só começa uma tela nova (todas são 16:9).',
         options: [{ value: 'portrait', label: 'Retrato (em pé)' }, { value: 'landscape', label: 'Paisagem (deitada)' }],
       },
     ],

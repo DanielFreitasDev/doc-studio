@@ -228,6 +228,69 @@ test('bloco inserido recebe o foco no texto principal e aparece na prévia', { s
   assert.deepEqual(result, { inserted: true, focused: 'text', visible: true });
 });
 
+test('apresentação: telas 16:9 do MIV na prévia, no painel Design e no PDF', { skip }, async () => {
+  const state = await chrome.evaluate(`(async () => {
+    const { store, applyOperations } = window.docStudio;
+    const sections = store.doc.blocks.filter((b) => b.type === 'section' && !b.opener).map((b) => b.id);
+    applyOperations([{ op: 'setDesign', set: { format: 'slides' } }]);
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    const mm = (px) => Math.round((px * 25.4) / 96);
+    const pages = [...document.querySelectorAll('#pages > .page')];
+    const content = pages.find((p) => p.classList.contains('page--content'));
+    const zoom = content.getBoundingClientRect().width / content.offsetWidth;
+    const hidden = (selector) => document.querySelector(selector).hidden;
+    return {
+      design: { format: store.doc.design.format, cover: store.doc.design.cover, backCover: store.doc.design.backCover },
+      allSlides: pages.every((p) => p.classList.contains('page--slide')),
+      page: [mm(content.offsetWidth), mm(content.offsetHeight)],
+      // A coluna de medição só fica na largura da tela enquanto mede os átomos (js/paginate.js).
+      measure: (() => {
+        const measureBody = document.querySelector('#measure-body');
+        measureBody.classList.add('measure-body--slide');
+        const width = mm(measureBody.getBoundingClientRect().width);
+        measureBody.classList.remove('measure-body--slide');
+        return width;
+      })(),
+      body: mm(content.querySelector('.page__body').getBoundingClientRect().width / zoom),
+      brand: Boolean(content.querySelector('.slide__brand .brand')),
+      // Cada seção começa uma tela: o título é o primeiro átomo da página onde aparece.
+      sectionsOnTop: sections.every((id) => {
+        const title = document.querySelector('.atom--slide-title[data-block-id="' + id + '"]:not(.atom--continued)');
+        return title && title.parentElement.firstElementChild === title;
+      }),
+      formatChecked: document.querySelector('[name="design-format"][value="slides"]').checked,
+      headerGroupHidden: hidden('#design-header'),
+      a4CoverHidden: document.querySelector('#design-cover input[value="folder"]').closest('li').hidden,
+      slideCoverShown: !document.querySelector('#design-cover input[value="slide-panel"]').closest('li').hidden,
+    };
+  })()`);
+  assert.deepEqual(state.design, { format: 'slides', cover: 'slide-panel', backCover: 'slide-fan' });
+  assert.equal(state.allSlides, true);
+  assert.deepEqual(state.page, [240, 135]);
+  assert.equal(state.measure, 191);
+  assert.equal(state.body, 191);
+  assert.equal(state.brand, true);
+  assert.equal(state.sectionsOnTop, true);
+  assert.equal(state.formatChecked, true);
+  assert.equal(state.headerGroupHidden, true);
+  assert.equal(state.a4CoverHidden, true);
+  assert.equal(state.slideCoverShown, true);
+  const report = await chrome.evaluate('window.docStudio.report()');
+  assert.deepEqual(report.overflowBlocks, []);
+  assert.ok(report.pages.every((p) => p.orientation === 'slide'));
+  const { data } = await chrome.page('Page.printToPDF', { printBackground: true, preferCSSPageSize: true });
+  const pdf = Buffer.from(data, 'base64').toString('latin1');
+  assert.equal((pdf.match(/\/Type\s*\/Page\b(?!s)/g) ?? []).length, report.pageCount);
+  // 240 × 135 mm = 680 × 383 pt; nenhuma imagem rasterizada (o exemplo não tem fotos).
+  const box = /\/MediaBox\s*\[\s*0 0 ([\d.]+) ([\d.]+)\s*\]/.exec(pdf);
+  assert.deepEqual([Math.round(Number(box[1])), Math.round(Number(box[2]))], [680, 383]);
+  assert.equal((pdf.match(/\/Subtype\s*\/Image/g) ?? []).length, 0);
+  await chrome.evaluate('window.docStudio.store.undo()');
+  await settle();
+  assert.equal(await chrome.evaluate('window.docStudio.store.doc.design.format'), 'a4');
+  assert.deepEqual(errors(), []);
+});
+
 test('PDF tem as mesmas páginas da prévia, sem imagens rasterizadas', { skip }, async () => {
   await chrome.page('Page.navigate', { url: `http://127.0.0.1:${port}/index.html?render=${DOC_ROUTE}` });
   const state = await waitFor(chrome, 'document.documentElement.dataset.renderState');

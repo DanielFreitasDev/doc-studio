@@ -18,7 +18,7 @@
  * Sem dependência do DOM: roda no navegador e no Node.
  */
 import { BLOCK_TYPES, BLOCK_ID, normalizeBlock, transformBlock, blockPlainText, TEXT_BLOCK_TYPES, expandIntent } from './schema.js';
-import { normalizeDesign, normalizeMeta, DESIGN_PRESETS } from './design.js';
+import { normalizeDesign, normalizeMeta, mergeDesign, DESIGN_PRESETS } from './design.js';
 import { validateDocument } from './validate.js';
 import { uid, setByPath, getByPath, isSafeKey } from './utils.js';
 
@@ -205,7 +205,8 @@ const HANDLERS = {
     if (!op.set || typeof op.set !== 'object') fail('“set” precisa ser um objeto { opção: valor }.');
     const errors = validateDocument({ design: op.set, blocks: [] }, { assetIds: context.assetIds }).issues.filter((i) => i.level !== 'info');
     if (errors.length) fail(errors.map((e) => e.message).join(' '));
-    doc.design = normalizeDesign({ ...doc.design, ...op.set });
+    // Uma capa de outro formato troca o formato junto (ex.: "slide-panel" vira apresentação).
+    doc.design = mergeDesign(doc.design, op.set);
     return `Aparência: ${Object.entries(op.set).map(([k, v]) => `${k} = ${v}`).join(', ')}.`;
   },
 

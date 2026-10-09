@@ -13,8 +13,8 @@
  *
  * Sem dependência do DOM: roda no navegador e no Node (ferramenta de linha de comando).
  */
-import { BLOCK_TYPES, BLOCK_ID, MAX_TEXT, TABLE_LIMITS, BLOCK_INTENTS, IMAGE_RATIOS, expandIntent } from './schema.js';
-import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DEFAULT_DESIGN, DEFAULT_META, META_MAX_TEXT, contentWidthMm } from './design.js';
+import { BLOCK_TYPES, BLOCK_ID, MAX_TEXT, TABLE_LIMITS, BLOCK_INTENTS, IMAGE_RATIOS, expandIntent, hasSideText, sideImageWidth } from './schema.js';
+import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DEFAULT_DESIGN, DEFAULT_META, META_MAX_TEXT, contentWidthMm, fitsFormat, coverUsesPhoto, isSlides, normalizeDesign } from './design.js';
 import { MAX_BLOCKS } from './model.js';
 import { stripMarkup, linkUrl } from './markup.js';
 import { GRAPHIC_PALETTE, SIGNATURE_COLORS, TYPOGRAPHY, contrastRatio, missingGlyphs } from './brand.js';
@@ -280,6 +280,16 @@ function validateDesign(report, design, assetIds) {
       report.error('missing-asset', `design · ${key}: a imagem “${value}” não existe nas imagens do arquivo (assets).`, extra);
     }
   }
+  // Capa e contracapa precisam ser do formato (folha A4 ou telas da apresentação); a normalização troca as que não servem.
+  if (DESIGN_VALUES.format.includes(design.format)) {
+    const fixed = normalizeDesign(design);
+    for (const [key, list] of [['cover', COVERS], ['backCover', BACK_COVERS]]) {
+      const option = list.find((o) => o.id === design[key]);
+      if (option && !fitsFormat(option, design.format)) {
+        report.warning('format-mismatch', `design · ${key}: “${design[key]}” é ${option.format === 'slides' ? 'das telas de apresentação' : 'da folha A4'} e não serve para o formato “${design.format}”; será usada “${fixed[key]}”.`, { field: `design.${key}` });
+      }
+    }
+  }
 }
 
 function finish(report) {
@@ -291,11 +301,13 @@ function finish(report) {
 const OFFICIAL_HEX = new Set([...GRAPHIC_PALETTE, ...SIGNATURE_COLORS].map((c) => c.hex));
 
 /** Largura impressa de uma imagem (mm) para estimar a resolução. */
-// Área da foto na capa "Foto" (js/graphics.js, photoBackground).
-const COVER_PHOTO_MM = [210, 150];
+// Área da foto na capa "Foto" (js/graphics.js, photoBackground) e na abertura "Foto e arcos" (slidePhotoBackground).
+const COVER_PHOTO_MM = { photo: [210, 150], 'slide-photo': [122, 116] };
 
 function printedWidthMm(block, orientation, margins) {
-  return (contentWidthMm(orientation, margins) * block.width) / 100;
+  // Com texto ao lado, a imagem ocupa só a coluna dela (js/render.js).
+  const width = hasSideText(block) ? sideImageWidth(block) : block.width;
+  return (contentWidthMm(orientation, margins) * width) / 100;
 }
 
 /** Maior largura do bloco de imagem (%, em passos de 5) que mantém a resolução mínima. */
@@ -374,14 +386,15 @@ export function brandReport(doc, assets = null) {
   const cover = COVERS.find((c) => c.id === design.cover);
   const back = BACK_COVERS.find((c) => c.id === design.backCover);
   add('ok', 'layout', `Capa “${cover.label}”, contracapa “${back.label}”, cabeçalho e rodapé do catálogo registrado.`);
-  if (design.cover === 'photo' && !design.coverImage) add('error', 'layout', 'Capa “Foto” sem foto: escolha a imagem da capa ou outra capa.');
+  if (coverUsesPhoto(design.cover) && !design.coverImage) add('error', 'layout', `Capa “${cover.label}” sem foto: escolha a imagem da capa ou outra capa.`);
+  if (isSlides(design)) add('ok', 'slides-pattern', 'Apresentação no padrão de telas para datashow do MIV (p. 56–60): 16:9, assinatura no alto à direita, títulos e texto em Kanit nas proporções do manual e faixa do grafismo no pé.');
   if (design.colorMode === 'gray') add('ok', 'grayscale', 'Escala de cinza pela tabela de correspondência do MIV (p. 12); o PDF continua vetorial.');
 
   if (assets) {
-    let orientation = 'portrait';
+    let orientation = isSlides(design) ? 'slide' : 'portrait';
     let checked = 0;
     for (const block of doc.blocks) {
-      if (block.type === 'pagebreak') orientation = block.orientation === 'landscape' ? 'landscape' : 'portrait';
+      if (block.type === 'pagebreak' && !isSlides(design)) orientation = block.orientation === 'landscape' ? 'landscape' : 'portrait';
       if (block.type !== 'image' || !block.assetId) continue;
       const asset = assets[block.assetId];
       if (!asset) continue;
@@ -395,9 +408,9 @@ export function brandReport(doc, assets = null) {
         add('warning', 'image-resolution', `Imagem ${label}: ${ppi} ppi no tamanho impresso (mínimo ${IMAGE_PPI.minimum}). Pode pixelar no PDF: use um arquivo maior ou diminua a largura para até ${maxWidth}%.`, { blockId: block.id });
       }
     }
-    if (design.cover === 'photo' && design.coverImage && assets[design.coverImage] && !assets[design.coverImage].svg) {
-      // A foto preenche a área do alto da capa (210 × 150 mm, recortada como no slide da p. 56 do MIV).
-      const [areaW, areaH] = COVER_PHOTO_MM;
+    if (coverUsesPhoto(design.cover) && design.coverImage && assets[design.coverImage] && !assets[design.coverImage].svg) {
+      // A foto preenche a área recortada da capa (alto da folha, ou entre os arcos da tela, como no slide da p. 56 do MIV).
+      const [areaW, areaH] = COVER_PHOTO_MM[design.cover];
       const ppi = boxPpi(assets[design.coverImage], areaW, areaH);
       const need = (mm) => Math.ceil((mm / MM_PER_INCH) * IMAGE_PPI.minimum);
       if (ppi < IMAGE_PPI.minimum) add('warning', 'image-resolution', `Foto da capa: ${ppi} ppi na área da foto (mínimo ${IMAGE_PPI.minimum}). Use uma foto com pelo menos ${need(areaW)} × ${need(areaH)} px.`);
@@ -425,6 +438,12 @@ export function contentAdvice(doc) {
   if (sample) add('warning', 'sample-text', 'O documento ainda tem textos marcados como “(exemplo)”.', sample.id);
 
   const sections = blocks.filter((b) => b.type === 'section');
+  if (isSlides(design)) {
+    // Cada tela do MIV tem título (p. 58): conteúdo antes da primeira seção fica numa tela sem título.
+    const firstSection = blocks.findIndex((b) => b.type === 'section');
+    const untitled = blocks.slice(0, firstSection < 0 ? blocks.length : firstSection).find((b) => !['pagebreak', 'toc'].includes(b.type));
+    if (untitled) add('info', 'slide-without-title', 'Há conteúdo antes da primeira seção: essa tela fica sem título. Comece cada tela com um bloco “Seção”.', untitled.id);
+  }
   if (blocks.some((b) => b.type === 'toc') && !sections.length) add('warning', 'toc-without-sections', 'Há um sumário, mas nenhum bloco “Seção”: o sumário ficará vazio.', blocks.find((b) => b.type === 'toc').id);
   if (!sections.length && blocks.length > 12) add('info', 'no-sections', 'Documento longo sem seções: use blocos “Seção” para organizar e alimentar o sumário.');
 

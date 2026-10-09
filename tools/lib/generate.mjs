@@ -222,15 +222,16 @@ export function catalogMarkdown() {
     ['`countCover`', catalog.design.booleans.countCover],
     ['`customLogo` / `coverImage`', 'ids de imagem em `assets`'],
   ]), '');
-  lines.push('### Capas', '', table(['id', 'nome', 'descrição'], catalog.design.covers.map((c) => [`\`${c.id}\``, c.label, c.description])), '');
-  lines.push('### Contracapas', '', table(['id', 'nome', 'descrição'], catalog.design.backCovers.map((c) => [`\`${c.id}\``, c.label, c.description])), '');
+  const formatLabel = (c) => ({ slides: 'apresentação', any: 'os dois' }[c.format] ?? 'folha A4');
+  lines.push('### Capas', '', catalog.design.formats, '', table(['id', 'nome', 'formato', 'descrição'], catalog.design.covers.map((c) => [`\`${c.id}\``, c.label, formatLabel(c), c.description])), '');
+  lines.push('### Contracapas', '', table(['id', 'nome', 'formato', 'descrição'], catalog.design.backCovers.map((c) => [`\`${c.id}\``, c.label, formatLabel(c), c.description])), '');
   lines.push('### Assinaturas', '', table(['id', 'nome', 'descrição'], catalog.design.signature.map((c) => [`\`${c.id}\``, c.label, c.description ?? ''])), '');
   lines.push('## Estilos prontos (`applyPreset`)', '', 'Mudam só a aparência, nunca o conteúdo.', '', table(['id', 'nome', 'descrição', 'design'], catalog.presets.map((p) => [`\`${p.id}\``, p.label, p.description, `\`${JSON.stringify(p.design)}\``])), '');
   lines.push('## Modelos de documento (`docstudio new --template`)', '', table(['id', 'nome', 'tipo', 'blocos', 'descrição'], catalog.templates.map((t) => [`\`${t.id}\``, t.name, t.kind === 'start' ? 'começar do zero' : (catalog.templateCategories.find((c) => c.id === t.category)?.label ?? 'modelo com exemplo'), t.blocks, t.description])), '');
   lines.push('## Textos fixos (`meta`)', '', catalog.meta.note, '', table(['campo', 'grupo', 'rótulo', 'várias linhas'], catalog.meta.fields.map((f) => [`\`${f.key}\``, f.group, f.label, f.multiline ? 'sim' : 'não'])), '');
   lines.push('## Operações (arquivo `.ops.json`)', '', `Posições: ${catalog.operations.positions.join(', ')}.`, '', table(['op', 'o que faz', 'campos'], Object.entries(catalog.operations.list).map(([name, o]) => [`\`${name}\``, o.summary, Object.entries(o.fields).map(([k, v]) => `\`${k}\`: ${v}`).join('; ')])), '');
   lines.push('## Combinações prontas (snippets)', '', table(['id', 'nome', 'blocos'], catalog.snippets.map((s) => [`\`${s.id}\``, s.name, s.blocks.map((b) => b.type).join(', ')])), '');
-  lines.push('## Página e imagens', '', `A4 com margens laterais de 20 mm (padrão): área útil ${catalog.page.contentWidthMm.portrait} × ${catalog.page.contentHeightMm.portrait} mm em retrato e ${catalog.page.contentWidthMm.landscape} × ${catalog.page.contentHeightMm.landscape} mm em paisagem. A opção \`margins\` muda só a largura: \`narrow\` (${catalog.page.marginsMm.narrow} mm, ${210 - 2 * catalog.page.marginsMm.narrow} mm úteis em retrato) para tabelas largas e \`wide\` (${catalog.page.marginsMm.wide} mm, ${210 - 2 * catalog.page.marginsMm.wide} mm). Imagens: ${catalog.images.types.join(', ')}; resolução mínima ${catalog.images.minimumPpi} ppi no tamanho impresso (ideal ${catalog.images.idealPpi}).`, '');
+  lines.push('## Página e imagens', '', `A4 com margens laterais de 20 mm (padrão): área útil ${catalog.page.contentWidthMm.portrait} × ${catalog.page.contentHeightMm.portrait} mm em retrato e ${catalog.page.contentWidthMm.landscape} × ${catalog.page.contentHeightMm.landscape} mm em paisagem. A opção \`margins\` muda só a largura: \`narrow\` (${catalog.page.marginsMm.narrow} mm, ${210 - 2 * catalog.page.marginsMm.narrow} mm úteis em retrato) para tabelas largas e \`wide\` (${catalog.page.marginsMm.wide} mm, ${210 - 2 * catalog.page.marginsMm.wide} mm). Apresentação (\`format: "slides"\`): telas 16:9 de ${catalog.page.slide.pageMm.join(' × ')} mm com área útil de ${catalog.page.slide.contentWidthMm} × ${catalog.page.slide.contentHeightMm} mm, sem cabeçalho, rodapé ou margens do design (a assinatura e a faixa do pé seguem o MIV, p. 58). Imagens: ${catalog.images.types.join(', ')}; resolução mínima ${catalog.images.minimumPpi} ppi no tamanho impresso (ideal ${catalog.images.idealPpi}).`, '');
   return `${lines.join('\n')}\n`;
 }
 
@@ -269,6 +270,7 @@ export function brandMarkdown() {
       ['Texto corrido', brand.typography.body.family, `${brand.typography.body.rule} (MIV p. ${brand.typography.body.page}). Opção: \`design.bodyFont: "kanit"\`.`],
       ['Comandos e textos de tela', brand.typography.monospace.family, brand.typography.monospace.rule],
       ['Conceito', brand.typography.concept.family, `${brand.typography.concept.rule} (MIV p. ${brand.typography.concept.page})`],
+      ['Telas de apresentação', brand.slides.title.family, `Título ${brand.slides.title.pt} pt Bold, subtítulo ${brand.slides.subtitle.pt} pt Medium e texto ${brand.slides.text.pt} pt Regular numa tela de ~${brand.slides.mivScreenWidthMm} mm (MIV p. 58); o app aplica as mesmas proporções na tela de 240 mm. ${brand.slides.rule}`],
     ]),
     '',
     '## Paleta do grafismo (MIV p. 26)',

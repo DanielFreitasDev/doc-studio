@@ -10,9 +10,9 @@
  */
 import { esc, pad2 } from './utils.js';
 import { renderInline, stripMarkup } from './markup.js';
-import { ALTERNATE_TONES, CALLOUT_TONES, IMAGE_RATIOS } from './schema.js';
-import { COVERS, BACK_COVERS } from './design.js';
-import { coverArt, backArt, chapterArt, footerArt, headerArt, dividerArt, grayscaleSvg, CHECK_SVG } from './graphics.js';
+import { ALTERNATE_TONES, CALLOUT_TONES, IMAGE_RATIOS, hasSideText, sideImageWidth } from './schema.js';
+import { COVERS, BACK_COVERS, isSlides } from './design.js';
+import { coverArt, backArt, chapterArt, footerArt, headerArt, dividerArt, slideArt, slideFooterArt, grayscaleSvg, CHECK_SVG } from './graphics.js';
 
 /* ------------------------------------------------------------------ auxiliares */
 const toneClass = (tone, index = 0) => `tone-${tone === 'alternate' ? ALTERNATE_TONES[index % ALTERNATE_TONES.length] : tone}`;
@@ -79,6 +79,7 @@ const NUMERIC_CELL = /^(?=.*\d)[\s\d.,%+\-−–()R$€º°/]+$/;
 /* ------------------------------------------------------------------ blocos */
 const RENDERERS = {
   section(block, ctx) {
+    if (isSlides(ctx.design)) return slideSection(block, ctx);
     const number = ctx.sectionNumbers.get(block.id);
     const num = number ? pad2(number) : '';
     const showKicker = block.kicker || (num && ctx.design.sectionStyle !== 'number');
@@ -365,8 +366,16 @@ const RENDERERS = {
 
   image(block, ctx) {
     const asset = ctx.assets[block.assetId];
+    const sideHtml = () => {
+      const title = block.sideTitle ? `<h3 class="b-fig__title"${ed('sideTitle')}>${renderInline(block.sideTitle)}</h3>` : '';
+      const text = paragraphs(block.sideText).map((part) => `<p class="b-p b-fig__text"${ed('sideText')}>${renderInline(part)}</p>`).join('');
+      return `<div class="b-fig-side__text">${title}${text}</div>`;
+    };
+    // Imagem e texto lado a lado (telas com foto e com gráfico do MIV, p. 58): a imagem fica do lado escolhido.
+    const sideLayout = (figure) => `<div class="b-fig-side b-fig-side--${block.align === 'right' ? 'right' : 'left'}" style="--fig-w:${sideImageWidth(block)}%">${figure}${sideHtml()}</div>`;
     if (!asset) {
-      return [atom(block, 'atom--figure', '<figure class="b-fig"><div class="b-fig__empty">Escolha uma imagem no editor</div></figure>')];
+      const empty = '<figure class="b-fig"><div class="b-fig__empty">Escolha uma imagem no editor</div></figure>';
+      return [atom(block, 'atom--figure', hasSideText(block) ? sideLayout(empty) : empty)];
     }
     let caption = '';
     if (block.caption) {
@@ -377,6 +386,13 @@ const RENDERERS = {
     // Formato fixo: a imagem preenche (recorta, mostrando a parte escolhida) ou encaixa na proporção.
     const ratio = IMAGE_RATIOS.find((option) => option.value === block.ratio)?.ratio;
     const shape = ratio ? `;aspect-ratio:${ratio};object-fit:${block.fit === 'contain' ? 'contain' : 'cover'};object-position:50% ${{ top: '0%', bottom: '100%' }[block.focus] ?? '50%'}` : '';
+    if (hasSideText(block)) {
+      return [atom(block, 'atom--figure', sideLayout(`
+        <figure class="b-fig${block.frame ? ' b-fig--frame' : ''}">
+          <img src="${esc(asset.url)}" alt="${alt}" width="${asset.width}" height="${asset.height}" style="width:100%${shape}" decoding="async">
+          ${caption}
+        </figure>`))];
+    }
     return [atom(block, 'atom--figure', `
       <figure class="b-fig b-fig--${block.align}${block.frame ? ' b-fig--frame' : ''}">
         <img src="${esc(asset.url)}" alt="${alt}" width="${asset.width}" height="${asset.height}" style="width:${block.width}%${shape}" decoding="async">
@@ -393,6 +409,43 @@ const RENDERERS = {
     return [{ kind: 'break', blockId: block.id, orientation: block.orientation === 'landscape' ? 'landscape' : 'portrait' }];
   },
 };
+
+/**
+ * Seção numa apresentação (MIV p. 58): cada seção começa uma tela nova, com
+ * o título em Kanit Bold e a introdução como subtítulo em Kanit Medium, sem o
+ * número nem a linha colorida dos documentos (a numeração fica no sumário e
+ * na tela de abertura da seção). Se o conteúdo passar da tela, a seguinte
+ * repete o título com "(continuação)" (`lead`, em js/paginate.js).
+ */
+function slideSection(block, ctx) {
+  const number = ctx.sectionNumbers.get(block.id);
+  const num = number ? pad2(number) : '';
+  const kicker = block.kicker ? `<p class="b-slide-title__kicker"${ed('kicker')}>${esc(block.kicker)}</p>` : '';
+  const intro = paragraphs(block.intro).map((text) => `<p class="b-slide-title__sub"${ed('intro')}>${renderInline(text)}</p>`).join('');
+  if (block.opener) {
+    // Tela inteira de abertura da seção: a composição da tela de abertura do MIV (p. 57), com o número na faixa branca.
+    return [{
+      kind: 'chapter',
+      blockId: block.id,
+      build: (idPrefix) => paint(ctx.design, `
+        <section class="page page--slide page--chapter chapter--slide" aria-label="Abertura: ${esc(stripMarkup(block.title))}">
+          ${slideArt('slide-panel', idPrefix, { className: 'chapter__art' })}
+          ${num ? `<p class="chapter__num">${num}</p>` : ''}
+          <div class="chapter__content atom" data-block-id="${esc(block.id)}">
+            ${block.kicker ? `<p class="chapter__kicker"${ed('kicker')}>${esc(block.kicker)}</p>` : ''}
+            <h2 class="chapter__title"${ed('title')}>${renderInline(block.title)}</h2>
+            ${intro.replaceAll('b-slide-title__sub', 'chapter__intro')}
+          </div>
+        </section>`),
+    }];
+  }
+  const html = `<div class="b-slide-title">${kicker}<h2 class="b-slide-title__title"${ed('title')}>${renderInline(block.title)}</h2>${intro}</div>`;
+  const result = atom(block, 'atom--section atom--slide-title', html, { keep: true });
+  result.breakBefore = true;
+  result.sectionId = block.id;
+  result.lead = `<div class="atom atom--section atom--slide-title atom--continued" data-block-id="${esc(block.id)}"><div class="b-slide-title"><h2 class="b-slide-title__title">${renderInline(block.title)} <span class="b-slide-title__cont">(continuação)</span></h2></div></div>`;
+  return [result];
+}
 
 /**
  * Prepara o contexto de renderização: numeração de seções, lista do sumário,
@@ -434,7 +487,8 @@ function stateLogo(design, { negative, vertical }) {
   }
   const suffix = `${negative ? '-negative' : ''}${graySuffix(design)}`;
   const file = withSecretaria(design) ? 'ceara' : 'ceara-state';
-  return `<img class="brand__state" src="assets/img/${file}${suffix}.svg" alt="${STATE_ALT}" width="1258" height="400">`;
+  // A classe marca a versão com secretaria, que tem largura mínima maior (40 mm, MIV p. 21).
+  return `<img class="brand__state${withSecretaria(design) ? ' brand__state--secretaria-h' : ''}" src="assets/img/${file}${suffix}.svg" alt="${STATE_ALT}" width="1258" height="400">`;
 }
 
 /**
@@ -483,6 +537,7 @@ export function renderCover(doc, assets, idPrefix) {
   const { design, meta } = doc;
   const cover = COVERS.find((c) => c.id === design.cover);
   if (!cover || cover.id === 'none') return '';
+  if (cover.format === 'slides') return renderSlideCover(doc, assets, cover, idPrefix);
   const audience = meta.audience || meta.version
     ? `<div class="cover__audience">
          ${meta.audienceLabel && meta.audience ? `<p class="cover__aud-label"${edMeta('audienceLabel')}>${esc(meta.audienceLabel)}</p>` : ''}
@@ -546,6 +601,7 @@ export function renderBackCover(doc, assets, idPrefix) {
   const { design, meta } = doc;
   const back = BACK_COVERS.find((c) => c.id === design.backCover);
   if (!back || back.id === 'none') return '';
+  if (back.format === 'slides') return renderSlideBack(doc, assets, back, idPrefix);
   return paint(design, `
     <section class="page page--back back--${back.id}${back.dark ? ' page--dark' : ''}" aria-label="Contracapa" data-target="back">
       ${backArt(back.id, idPrefix)}
@@ -606,8 +662,73 @@ function addressHtml(meta) {
   return `<address class="page__address">${first ? `<span>${first}</span>` : ''}${rest ? `<span>${rest}</span>` : ''}</address>`;
 }
 
+/* ------------------------------------------------------------------ telas de apresentação */
+/**
+ * Tela de abertura (MIV p. 56 e 57): chamada, título, subtítulo e linha de
+ * apoio; a versão e data ficam no pé. O público da capa do documento não
+ * entra (o MIV não o mostra nas telas). "Painel verde" leva a assinatura
+ * escolhida na faixa branca (com o órgão parceiro, p. 59); "Foto e arcos", a
+ * assinatura do Governo com o conceito no canto branco de baixo (p. 56).
+ */
+function renderSlideCover(doc, assets, cover, idPrefix) {
+  const { design, meta } = doc;
+  const photo = cover.photo ? assets[design.coverImage] : null;
+  const brand = cover.id === 'slide-photo' ? conceptLockup(design, assets, { negative: false }) : brandHtml(design, assets);
+  return paint(design, `
+    <section class="page page--slide page--cover cover--${cover.id}" aria-label="Capa" data-target="cover">
+      ${slideArt(cover.id, idPrefix, { photoUrl: photo ? esc(photo.url) : '' })}
+      ${brand ? `<div class="cover__brand">${brand}</div>` : ''}
+      <div class="cover__heading">
+        ${meta.kicker ? `<p class="cover__kicker"${edMeta('kicker')}>${esc(meta.kicker)}</p>` : ''}
+        <p class="cover__title"${edMeta('title')}>${esc(meta.title)}</p>
+        ${meta.subtitle ? `<p class="cover__subtitle"${edMeta('subtitle')}>${esc(meta.subtitle)}</p>` : ''}
+        ${meta.description ? `<p class="cover__desc"${edMeta('description')}>${esc(meta.description)}</p>` : ''}
+      </div>
+      ${meta.version ? `<p class="cover__version"${edMeta('version')}>${esc(meta.version)}</p>` : ''}
+    </section>`);
+}
+
+/**
+ * Tela de encerramento: "Leque" (MIV p. 58 e 60) com a assinatura escolhida
+ * na área branca; "Vinheta" (p. 62) e "Verde pleno" (p. 117) com a
+ * assinatura do Governo e o conceito. Os contatos da contracapa, quando
+ * preenchidos, ficam embaixo da assinatura.
+ */
+function renderSlideBack(doc, assets, back, idPrefix) {
+  const { design, meta } = doc;
+  const brand = back.id === 'slide-fan' ? brandHtml(design, assets) : conceptLockup(design, assets, { negative: Boolean(back.dark) });
+  return paint(design, `
+    <section class="page page--slide page--back back--${back.id}${back.dark ? ' page--dark' : ''}" aria-label="Contracapa" data-target="back">
+      ${slideArt(back.id, idPrefix, { className: 'back__art' })}
+      <div class="back__info">
+        ${brand}
+        ${meta.backTitle ? `<p class="back__title"${edMeta('backTitle')}>${esc(meta.backTitle)}</p>` : ''}
+        ${meta.backText ? `<p class="back__text"${edMeta('backText')}>${esc(meta.backText)}</p>` : ''}
+        ${meta.backWeb ? `<p class="back__web"${edMeta('backWeb')}>${esc(meta.backWeb)}</p>` : ''}
+      </div>
+    </section>`);
+}
+
+/**
+ * Tela de conteúdo (MIV p. 58): assinatura horizontal no alto à direita
+ * (sem o conceito, que fica na abertura), corpo e a faixa do grafismo no pé.
+ * Cabeçalho, rodapé e margens do design valem só para a folha A4.
+ */
+function renderSlidePage(doc, assets, { bodyHtml, number, total, idPrefix, overflowing }) {
+  const { design } = doc;
+  const brand = brandHtml(design.signature === 'concept' ? { ...design, signature: 'state' } : design, assets);
+  return paint(design, `
+    <section class="page page--slide page--content${overflowing ? ' is-overflowing' : ''}" aria-label="Tela ${number}">
+      ${brand ? `<div class="slide__brand">${brand}</div>` : ''}
+      <div class="page__body">${bodyHtml}</div>
+      <div class="page__footer page__footer--slide">${slideFooterArt(idPrefix)}</div>
+      ${pageNumberHtml(design, number, total)}
+    </section>`);
+}
+
 export function renderContentPage(doc, assets, { bodyHtml, first, number, total, idPrefix, overflowing, orientation = 'portrait' }) {
   const { design } = doc;
+  if (isSlides(design)) return renderSlidePage(doc, assets, { bodyHtml, number, total, idPrefix, overflowing });
   // A meia faixa fica no lado de fora da folha: direita nas páginas ímpares, esquerda nas pares.
   const side = design.footer === 'half' && number % 2 === 0 ? 'left' : 'right';
   const footer = design.footer === 'none'

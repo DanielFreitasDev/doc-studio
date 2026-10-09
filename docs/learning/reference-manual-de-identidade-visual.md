@@ -4,7 +4,7 @@ description: onde estão o MIV e os manuais de referência, de que página vem c
 type: reference
 category: reference
 date: 2026-10-07
-updated: 2026-10-07
+updated: 2026-10-09
 ---
 O padrão visual do app vem do Manual de Identidade Visual do Governo do Ceará e de dois manuais já aprovados pela chefia. Cada arte em `js/graphics.js` cita a página do MIV em que se baseia.
 
@@ -13,7 +13,7 @@ O padrão visual do app vem do Manual de Identidade Visual do Governo do Ceará 
 **Por que importa:** sem a referência, ajustes "a olho" afastam o resultado do padrão oficial; e o MIV tem erros de digitação que enganam quem copia os números.
 
 **Como aplicar:**
-- MIV: `/home/daniel/desenvolvimento/documentacao/manuais/MANUAL DE IDENTIDADE VISUAL 2023.pdf` (117 páginas em paisagem, máquina do mantenedor). Páginas mais usadas: 2–3 (aberturas em degradê, #3FB45D → #56C0A3 na tela), 4 (sumário pontilhado), 9 (assinatura com o conceito), 10 (Kanit Light a Black), 11 (cores da assinatura), 14 (controle de fundo), 15–22 (área de proteção, assinaturas conjuntas, reduções, usos proibidos), 26 (elemento base e paleta do grafismo), 34–36 (papel timbrado), 38 e 44 (envelope e pasta), 50 (crachá: assinatura com "Secretaria da Infraestrutura" em vetor), 52 (certificado), 55 (convite), 56–57 (slides, com foto), 62 (vinheta), 76 (placa de obra), 98–113 (fundo de palco; o 104 é o mais limpo), 115 (totem), 1 e 117 (capa e contracapa do próprio MIV, com site e redes).
+- MIV: `/home/daniel/desenvolvimento/documentacao/manuais/MANUAL DE IDENTIDADE VISUAL 2023.pdf` (117 páginas em paisagem, máquina do mantenedor). Páginas mais usadas: 2–3 (aberturas em degradê, #3FB45D → #56C0A3 na tela), 4 (sumário pontilhado), 9 (assinatura com o conceito), 10 (Kanit Light a Black), 11 (cores da assinatura), 14 (controle de fundo), 15–22 (área de proteção, assinaturas conjuntas, reduções, usos proibidos), 26 (elemento base e paleta do grafismo), 34–36 (papel timbrado), 38 e 44 (envelope e pasta), 50 (crachá: assinatura com "Secretaria da Infraestrutura" em vetor), 52 (certificado), 55 (convite), 56–60 (cap. 14, telas para datashow: as p. 56, 57 e 59 são fotos de telão em perspectiva, as p. 58 e 60 são planas e servem para medir), 62 (vinheta, plana), 76 (placa de obra), 98–113 (fundo de palco; o 104 é o mais limpo), 115 (totem), 1 e 117 (capa e contracapa do próprio MIV, com site e redes).
 - Os títulos do próprio MIV usam Kanit ExtraBold e Black (`pdffonts` lista as duas); o texto das secretarias na p. 8 é Isidora Sans (fonte comercial, não disponível), por isso a linha da secretaria vem recortada em vetor da p. 50, não digitada.
 - Para recortar uma página do MIV por coordenadas em pt, `pdftoppm -x -y -W -H` usa pixels na resolução escolhida (`pt × dpi / 72`); no zsh do mantenedor, a vírgula decimal do locale quebra contas com `printf`/`bc` (use Python).
 - Manuais de referência aprovados: `manual-despachante-emplacamento-externo-g003.pdf` e `manual-coleta-externa-primeiro-emplacamento-2026-10-06.pdf` (pasta `Downloads` do mantenedor, outubro de 2026).

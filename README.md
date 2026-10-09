@@ -15,7 +15,7 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 ## 2. Funcionalidades
 
 **Escrita**
-- 22 tipos de bloco: seção numerada, subtítulo, parágrafo (à esquerda, justificado, centralizado ou à direita, para local e data de ofícios), lista (marcadores, números ou checklist), citação, **código ou texto de tela** (comandos e configurações em fonte de máquina, com numeração opcional), passo a passo, cartões, fluxo com setas, linha do tempo, sumário automático com página (em linhas ou pontilhado como o do MIV, p. 4), destaque (informação, sucesso, atenção, alerta, dica), mensagem do sistema, pergunta e resposta, etiquetas, tabela, indicadores (números grandes ou fichas), glossário, imagem com figura numerada, **assinatura** (linha para assinar, nome e cargo de até três pessoas lado a lado, para ofícios, comunicados e atas), divisor e quebra de página (em retrato ou **paisagem**).
+- 22 tipos de bloco: seção numerada, subtítulo, parágrafo (à esquerda, justificado, centralizado ou à direita, para local e data de ofícios), lista (marcadores, números ou checklist), citação, **código ou texto de tela** (comandos e configurações em fonte de máquina, com numeração opcional), passo a passo, cartões, fluxo com setas, linha do tempo, sumário automático com página (em linhas ou pontilhado como o do MIV, p. 4), destaque (informação, sucesso, atenção, alerta, dica), mensagem do sistema, pergunta e resposta, etiquetas, tabela, indicadores (números grandes ou fichas), glossário, imagem com figura numerada (opcionalmente com **título e texto ao lado**, como as telas com foto e com gráfico do MIV, p. 58), **assinatura** (linha para assinar, nome e cargo de até três pessoas lado a lado, para ofícios, comunicados e atas), divisor e quebra de página (em retrato ou **paisagem**).
 - **Texto visual, sem marcação**: o negrito aparece em negrito, o link sublinhado. Selecione o texto e use a barra (fixa nos textos longos, flutuante sobre a seleção nos de uma linha), o botão direito ou Ctrl+B / I / U / K: negrito, itálico, sublinhado, riscado, destaque, texto de tela e **link** (clicável no PDF). Colar do Word ou do navegador mantém negrito, itálico, sublinhado, riscado e links; o resto vira texto limpo.
 - **Edição direto na página**: clique duas vezes num texto da prévia (capa, contracapa, cabeçalho, títulos, passos, células de tabela, legendas…) e digite ali mesmo; a página se atualiza por baixo. No celular, basta um toque.
 - **Escrever com texto livre** (recurso avançado): cole ou digite texto (Markdown simples ou texto do Word) e ele vira blocos — `#` vira seção, `1.` vira passo a passo, `> [!ATENÇÃO]` vira destaque, tabelas `| a | b |` viram tabela, "Pergunta?" + "R: resposta" vira pergunta e resposta, um trecho entre ``` vira bloco de código.
@@ -29,6 +29,13 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - Tabelas aceitam **colar células do Excel/Word** de uma vez.
 - Imagens: **cole um print (Ctrl+V)**, arraste arquivos para o editor ou para a página, ou escolha o arquivo (PNG, JPG, WEBP, GIF ou **SVG vetorial**). Com legenda, vira "Figura N". Largura, **alinhamento** (esquerda, centro, direita), **formato** (original, 16:9, 4:3, quadrado, retrato), **preencher ou encaixar** e a parte que aparece ao cortar (topo, centro, base). Fotos são mantidas até 3508 px (A4 a 300 dpi).
 - Cores dos blocos escolhidas numa **paleta de amostras** (com o nome da cor), não numa lista.
+
+**Apresentações (telas 16:9 do MIV)**
+- Em **Design → Formato**, escolha **Documento A4** ou **Apresentação 16:9**. A apresentação segue o "Padrão de telas para datashow" do MIV (cap. 14, p. 56–60): telas de 240 × 135 mm, assinatura horizontal no alto à direita, título em Kanit Bold, subtítulo em Kanit Medium e texto em Kanit Regular nas proporções do manual (19 : 11 : 7) e a faixa do grafismo no pé, medida na p. 58.
+- **Cada seção é uma tela**: o título da seção vira o título da tela e a introdução, o subtítulo. Se o conteúdo não couber, a tela seguinte repete o título com "(continuação)" e a verificação avisa.
+- **Aberturas**: Painel verde (p. 57; com órgão parceiro, p. 59) e Foto e arcos (sua foto entre os arcos, com o Governo + conceito, p. 56). **Encerramentos**: Leque (p. 58 e 60), Vinheta (p. 62) e Verde pleno (p. 117). A seção com "Página inteira de abertura" vira uma tela de abertura de seção, com o número na faixa branca.
+- Todos os blocos funcionam nas telas (indicadores, fluxo, linha do tempo, tabela, sumário como "Agenda"…), com corpos um pouco maiores; imagens com até 56 mm de altura, para caber abaixo do título.
+- 3 estilos prontos de apresentação, o modelo **Apresentação em telas** e a **Apresentação em branco**. O PDF sai com páginas de 240 × 135 mm, vetorial, pronto para projetar em tela cheia.
 
 **Organização**
 - **Arrastar e soltar** blocos no editor, no painel Estrutura e **direto na página da prévia** (onde soltar, entra). Também por teclado (setas na alça) e por menu.
@@ -55,13 +62,13 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 - No celular, segurar o dedo sobre um bloco ou sobre a capa abre o menu como folha inferior; nos campos de texto fica o menu do próprio sistema (copiar/colar).
 
 **Começar**
-- **Começar do zero**: Documento em branco (capa, contracapa e páginas, sem texto de exemplo), Papel timbrado (o do MIV, sem capa), Folha simples (sem capa nem contracapa) ou "Já tenho o texto" (cola o texto e ele vira o documento).
-- 9 **modelos prontos** com textos de exemplo, organizados **por finalidade** (filtro no topo da galeria: Manuais e guias, Procedimentos e técnicos, Gestão e projetos, Comunicação oficial): Manual operacional, Guia rápido, Procedimento (POP), Relatório de resultados, Comunicado, Apresentação de projeto (capa de placa de obra), Cartilha para o cidadão (capa de totem), Ofício (papel timbrado) e **Nota técnica** (requisitos, comandos, mensagens de erro e links).
+- **Começar do zero**: Documento em branco (capa, contracapa e páginas, sem texto de exemplo), Papel timbrado (o do MIV, sem capa), Folha simples (sem capa nem contracapa), **Apresentação em branco** (telas 16:9) ou "Já tenho o texto" (cola o texto e ele vira o documento).
+- 10 **modelos prontos** com textos de exemplo, organizados **por finalidade** (filtro no topo da galeria: Manuais e guias, Procedimentos e técnicos, Gestão e projetos, Comunicação oficial): Manual operacional, Guia rápido, Procedimento (POP), Relatório de resultados, Comunicado, Apresentação de projeto (capa de placa de obra), **Apresentação em telas** (16:9, padrão de telas do MIV), Cartilha para o cidadão (capa de totem), Ofício (papel timbrado) e **Nota técnica** (requisitos, comandos, mensagens de erro e links).
 - **"Ver páginas"** em cada modelo mostra todas as páginas em tamanho legível antes de escolher.
 - Na primeira visita, fechar a galeria deixa um documento em branco; escolher um modelo descarta esse documento se ele não foi editado.
 
 **Design (tudo do MIV)**
-- 14 **estilos prontos**, com miniatura da capa, que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Papel timbrado, Identidade do MIV, Apresentação, Evento, Sol do sertão, Evento (palco), Obras e projetos, Com foto, Clássico e Campanha (totem).
+- 17 **estilos prontos**, com miniatura da capa, que trocam só a aparência: Manual institucional, Guia rápido, Relatório executivo, Campanha, Papel timbrado, Identidade do MIV, Apresentação, Evento, Sol do sertão, Evento (palco), Obras e projetos, Com foto, Clássico e Campanha (totem) para a folha A4; Apresentação do MIV, Apresentação com foto e Apresentação de resultados para as telas 16:9. O painel mostra só os do formato escolhido.
 - 14 **capas**, cada uma baseada numa peça do MIV: Pasta (a dos manuais aprovados), Pasta oficial (assinatura vertical centralizada), Arcos (capa do próprio MIV), Painel verde (slide de abertura), Convite, Envelope (verso), Leque (elemento base), Verde pleno (contracapa do MIV), Minimalista, **Foto** (sua foto recortada pelas faixas, como o slide da p. 56), **Totem** (p. 115), **Placa** (placa de obra, p. 76, com a frase de campanha sob a assinatura), **Palco** (fundo de palco, p. 104) e **Certificado** (p. 52) — ou sem capa.
 - 10 **contracapas**: Pasta (verso), Conceito (assinatura em negativo + slogan, como a contracapa do MIV), Verde pleno, Leque, Minimalista, **Vinheta** (assinatura e conceito em cores, p. 62), **Arcos**, **Palco**, **Certificado** e **Backdrop** (quadros verdes e brancos com as assinaturas alternadas, como o backdrop de eventos da p. 116: com o DETRAN/CE, a versão "vinculadas e autarquias"; só com o Governo, a "institucional") — ou sem contracapa. Todas mostram site e redes sociais, como a p. 117.
 - **Cabeçalhos**: texto, texto e linha, texto e assinatura (30 mm, mínimo do MIV), **timbrado** (assinatura centralizada no alto da primeira folha, como o papel timbrado do MIV: vertical, com a secretaria embaixo quando houver, p. 34–35; com órgão parceiro, o par horizontal da p. 36), **faixa no topo** (certificado, p. 52) ou nenhum.
@@ -85,7 +92,7 @@ O Estúdio transforma esse padrão em uma ferramenta: você escreve o conteúdo 
 **Arquivos**
 - Salvamento automático no navegador (IndexedDB), lista "Meus documentos" (abrir, duplicar, excluir). Com o mesmo documento aberto em duas abas, uma avisa quando a outra salva ("Recarregar"), em vez de apagar o trabalho dela em silêncio.
 - **Salvar/abrir arquivo `.json`** para levar o documento a outro computador ou guardar versão.
-- **Exportar PDF** pela impressão do navegador: A4, sem margens, fontes embutidas, texto selecionável. A prévia e o PDF são idênticos.
+- **Exportar PDF** pela impressão do navegador: A4 (ou telas 16:9 de 240 × 135 mm, na apresentação), sem margens, fontes embutidas, texto selecionável. A prévia e o PDF são idênticos.
 
 **Interface**
 - Celular: uma área por vez com navegação inferior (Editar, Inserir, Design, Prévia).
@@ -108,7 +115,7 @@ doc-studio/
 ├── README.md
 ├── css/
 │   ├── components.css     Botões, campos, cartões de bloco, painéis, diálogos, avisos
-│   ├── document.css       A página A4 na identidade visual (blocos, capas, temas)
+│   ├── document.css       A página A4 e a tela 16:9 na identidade visual (blocos, capas, temas)
 │   └── print.css          Impressão/PDF: só as páginas, sem margens, sem zoom
 ├── js/
 │   ├── boot.js            Script clássico do <head>: tema antes da primeira pintura e aviso de file://
@@ -119,9 +126,9 @@ doc-studio/
 │   ├── templates.js       Modelos de documento e combinações prontas
 │   ├── markup.js          Formatação inline segura (**negrito** etc.)
 │   ├── markdown.js        Texto livre → blocos
-│   ├── graphics.js        Grafismo do MIV em SVG (capas, rodapé, leque)
+│   ├── graphics.js        Grafismo do MIV em SVG (capas, telas, rodapé, leque)
 │   ├── render.js          Blocos → HTML das páginas (capa, conteúdo, capítulo, contracapa)
-│   ├── paginate.js        Medição e quebra em páginas A4
+│   ├── paginate.js        Medição e quebra em páginas A4 e telas 16:9
 │   ├── preview.js         Prévia, zoom, sincronia com o editor e impressão
 │   ├── editor.js          Cartões de bloco, edição, itens, tabela, teclado
 │   ├── fields.js          Geração dos campos de formulário a partir do catálogo
@@ -196,7 +203,7 @@ node --test                                         # testes automáticos (sem C
 1. Na primeira abertura, escolha como começar: **em branco**, **papel timbrado**, **colando um texto** ou por um **modelo pronto** (fechar a galeria = documento em branco).
 2. Troque os textos da capa clicando duas vezes neles, na prévia (ou em **Textos**, no painel lateral).
 3. No editor, edite os blocos — ou clique duas vezes em qualquer texto da prévia. Para formatar, selecione e use a barra. Para adicionar: painel **Inserir** (clique ou arraste), botão **+** entre blocos, **Ctrl+K**, ou `/` num parágrafo vazio. Para escrever de uma vez: **Escrever texto**.
-4. Em **Design**, troque capa, contracapa, cores e estilos — a prévia muda na hora. Na capa **Foto**, o app pede a imagem (depois, "Trocar foto da capa").
+4. Em **Design**, troque o formato (documento A4 ou apresentação 16:9), capa, contracapa, cores e estilos — a prévia muda na hora. Na capa **Foto**, o app pede a imagem (depois, "Trocar foto da capa").
 5. Clique em **Exportar PDF**: revise os avisos (se houver), clique em "Abrir janela de impressão" e escolha "Salvar como PDF".
 6. Para levar o trabalho a outro computador: menu **⋯ → Baixar cópia de segurança** (arquivo `.docstudio.json`); no outro, **Abrir cópia de segurança**.
 
@@ -279,7 +286,7 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 50 | Design → Mais ajustes → Margens laterais "Estreita"; exportar o PDF | Texto e cabeçalho a 15 mm das bordas (180 mm úteis); capa igual; PDF com o mesmo número de páginas da prévia | Texto sobre o número da página ou páginas a mais no PDF |
 | 51 | No fim de um parágrafo: Ctrl+B, digitar "ab", Ctrl+B, digitar " cd" | "ab" em negrito e " cd" normal; o botão **B** acompanha | Palavra "negrito" inserida ou tudo em negrito |
 | 52 | Excluir um bloco, digitar em outro campo e clicar "Desfazer" no aviso | Aviso explicando que há edições depois; a digitação continua lá (use Ctrl+Z) | A digitação some e o bloco continua excluído |
-| 53 | `node --test` | 39 testes passando (com Chrome instalado) | Falha ou teste pulado sem motivo |
+| 53 | `node --test` | 44 testes passando (com Chrome instalado) | Falha ou teste pulado sem motivo |
 | 54 | Colar num item de lista (ou num Destaque) um texto de ~1.500 palavras | O item continua na página seguinte, alinhado na mesma coluna, sem repetir o número; nenhum aviso de texto cortado | Texto cortado no pé ou aviso "sairá cortado" |
 | 55 | Inserir → Destaque e digitar logo em seguida | O texto substitui "Explique o ponto…"; o tipo continua "Atenção"; a prévia rola até o destaque | Tipo muda para "Informação" ou a prévia fica na capa |
 | 56 | Inserir → Assinatura, "Adicionar signatário", duplo clique no nome na prévia | Linha para assinar com nome e cargo, dois lado a lado; o nome muda na página | Signatários empilhados ou sem linha |
@@ -288,6 +295,10 @@ Atalhos: `Ctrl+Z`/`Ctrl+Shift+Z` desfazer/refazer · `Ctrl+K` inserir bloco (den
 | 59 | Duplo clique no título da capa, digitar e apertar Enter | O campo fecha e o título não ganha linha vazia; Shift+Enter quebra a linha | Linha vazia no título ou campo continua aberto |
 | 60 | Num parágrafo, digitar "Menu ⋯ ✓" e abrir ⋯ → Verificar documento | Aviso "Caracteres fora das fontes do MIV (⋯ ✓)" | Nenhum aviso |
 | 61 | Tabela com 7 colunas (uma com "Atendimento" e outra com "R$ 120,00") | Nenhuma palavra partida; valores alinhados à direita | "Atendiment" numa linha e "o" na outra |
+| 62 | Modelos → "Apresentação em telas"; exportar o PDF | Telas 16:9 (240 × 135 mm): abertura em painel verde, assinatura no alto à direita das telas, faixa do grafismo no pé, encerramento em leque; PDF com o mesmo número de telas e sem imagens rasterizadas | Página A4, telas cortadas ou PDF com outro tamanho |
+| 63 | Num documento A4, Design → Formato → "Apresentação 16:9"; depois "Desfazer" no aviso | Capa e contracapa passam para as das telas; cabeçalho, rodapé e margens somem do painel; cada seção abre uma tela; o "Desfazer" volta ao A4 com as capas anteriores | Capa A4 esticada na tela ou opções da folha que não fazem nada |
+| 64 | Apresentação: lista longa numa seção | A tela seguinte repete o título com "(continuação)"; a verificação sugere dividir a seção | Tela sem título ou lista cortada |
+| 65 | Bloco Imagem com "Título ao lado" e alinhamento "Direita" | Texto à esquerda e imagem à direita, como a tela com gráfico do MIV (p. 58); na apresentação, a imagem não passa de 56 mm de altura | Imagem embaixo do texto ou tela estourada |
 
 ### Edge cases
 
@@ -353,6 +364,7 @@ Menu do botão direito (07/10/2026), com Playwright:
 - regressões: barra de formatação, Ctrl+B (agora também nas células de tabela e sem efeito nos campos que não aceitam formatação) e painel Design.
 
 Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
+- **Apresentações (telas 16:9), em 2026-10-09**: modelo "Apresentação em telas", troca de formato de um manual A4 e documentos com foto na abertura, abertura de seção, imagem com texto ao lado, lista que continua em outra tela e escala de cinza, renderizados pelo `docstudio render` e conferidos lado a lado com as telas do MIV (p. 56–62): PDF de 240 × 135 mm (680 × 383 pt) com as mesmas telas da prévia, só Kanit, nenhuma imagem rasterizada além da foto; painel Design e galeria em 1440, 820 e 390 px sem rolagem horizontal nem erros no console; **44 testes automáticos** (`node --test`), 13 no app real.
 - **Chromium**: os 11 modelos e "começar do zero" e o "Manual operacional" com os 14 estilos prontos, mais escala de cinza com Backdrop (26 combinações): sem páginas cortadas, sem imagens quebradas e sem erros no console; todas as capas, contracapas, cabeçalhos, rodapés e aberturas conferidos lado a lado com as páginas citadas do MIV;
 - **PDF** (`page.pdf()` do Chromium) nas 26 combinações: A4, mesmo número de páginas da prévia, **nenhuma imagem rasterizada** (`pdfimages`), fontes Kanit e Maitree embutidas (`pdffonts`); recorte a 600 dpi do Backdrop com o brasão nítido. Com foto na capa em escala de cinza, só a foto vira imagem (300 dpi);
 - **parágrafo dividido entre páginas** em Chromium, Firefox e WebKit: mesma paginação nos três (9 páginas), texto íntegro (as partes juntas são iguais ao original) e o PDF com o mesmo número de páginas da prévia, inclusive com o cabeçalho timbrado e forçando o recálculo com a mídia de impressão ativa. Custo medido: 66 ms para paginar 31 páginas com 25 divisões;
@@ -373,6 +385,7 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - **Campo visual por cima de uma marcação segura.** O usuário edita num campo `contenteditable` e vê a formatação, mas o documento guarda só a marcação simples (`**negrito**`, `[link](https://…)`), sempre escapada antes de virar HTML. *Por quê:* guardar o HTML do campo traria código colado do Word e risco de injeção; deixar a marcação visível obrigava o leigo a decorá-la. Formatar não usa `document.execCommand` (cada navegador gera um HTML diferente): a seleção vira um intervalo de caracteres, a formatação é aplicada num modelo de "trechos" e o campo é redesenhado. O que é colado passa por um `DOMParser` e só mantém negrito, itálico, sublinhado, riscado e links `http(s)`, `mailto:` e `tel:`. *Impacto:* nenhum conteúdo colado ou importado injeta código, e o comportamento é igual no Chromium, Firefox e WebKit (testado).
 - **Edição na página por um campo flutuante.** As páginas são redesenhadas a cada mudança (e a paginação pode levar o texto para outra página); por isso o duplo clique abre um campo sobre o trecho, e a página continua sendo exatamente o que vai para o PDF. Cada texto renderizado leva o caminho do seu campo (`data-edit`).
 - **Blocos na área de transferência pelos eventos nativos.** `copy`/`cut`/`paste` não pedem permissão ao navegador. O texto vai legível (cola no Word) e o HTML carrega os blocos e as imagens em JSON; ao colar, cada bloco é reconstruído campo a campo, como na importação de arquivo.
+- **Apresentação como formato do documento, não como outro editor.** `design.format: "slides"` troca a folha pela tela 16:9 e reaproveita blocos, paginação, edição e PDF: a paginação ganha a orientação "slide" (191 × 83 mm úteis), cada seção força uma tela nova e a tela que continua uma seção repete o título. *Por quê:* um editor de slides à parte duplicaria todos os blocos e a validação; o MIV pede uma tela com título e conteúdo, que é exatamente uma seção. A tela tem 240 × 135 mm porque, nessa largura, o texto do MIV (7 pt numa tela de ~165 mm) fica com 10,2 pt, perto do corpo dos blocos (9,6 pt): todos os blocos servem sem uma segunda tabela de tamanhos. *Impacto:* capas e contracapas passam a ter formato; trocar o formato troca as duas para as do formato novo (e uma capa de tela num documento A4 muda o formato junto), e o painel só mostra as opções que valem.
 - **Paisagem pela quebra de página.** As capas do MIV são peças em pé; esticá-las deformaria arcos e leque. Por isso a orientação deitada vale para as páginas de conteúdo a partir de uma quebra de página, e o PDF sai com folhas de tamanhos diferentes (`@page landscape`).
 - **Formulários gerados a partir de um catálogo.** Cada tipo de bloco declara seus campos uma vez (`schema.js`); o editor monta os formulários e a importação valida arquivos com essa mesma definição. Novo tipo de bloco = uma entrada no catálogo + um renderizador.
 - **Estado com histórico e "rajadas" de digitação.** Toda mudança passa pelo `store`; digitação contínua no mesmo campo vira um único passo de desfazer. O editor não se redesenha enquanto você digita (o cursor fica intacto); só a prévia.
@@ -415,7 +428,9 @@ Rodada anterior em 07/10/2026 (quarta auditoria), com Playwright:
 - Foto em escala de cinza convertida uma vez em canvas, em vez do filtro CSS, que reamostra a foto e a moldura no PDF.
 - Menu de contexto dentro de um landmark (o axe-core aponta "region", boa prática; não é critério WCAG).
 - Reduzir o tamanho dos SVG das assinaturas (160–220 KB cada): a contracapa Backdrop repete 21 assinaturas e acrescenta cerca de 1,5 MB ao PDF.
-- Documento inteiro em paisagem (apresentações e fundos de palco no formato original do MIV), com capas redesenhadas a partir das peças horizontais do MIV (p. 1, 56–57, 104, 116–117); hoje a paisagem vale para as páginas de conteúdo.
+- Documento inteiro em paisagem A4 (fundos de palco no formato original do MIV, p. 104, 116) — as apresentações já têm o formato 16:9 próprio.
+- Bloco de gráfico (barras, como a tela com gráfico do MIV, p. 58) desenhado em SVG a partir de uma tabela; hoje o gráfico entra como imagem ao lado do texto.
+- Notas do apresentador e modo de apresentação em tela cheia dentro do app (hoje o PDF é aberto em tela cheia no leitor de PDF).
 - Margens superior e inferior configuráveis (hoje só a lateral; as de cima e de baixo dependem do cabeçalho e da faixa do rodapé).
 - Comentários e revisão entre colegas.
 - Ampliar os testes automáticos para arrastar e soltar, menus de contexto e seleção múltipla (hoje validados à mão e por scripts do Playwright fora do repositório).

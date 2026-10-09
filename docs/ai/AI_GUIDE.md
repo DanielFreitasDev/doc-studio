@@ -72,6 +72,8 @@ Códigos de saída: `0` ok, `1` erro de validação/renderização (nada é grav
 - Tabelas: até 12 colunas; tabelas largas (> 5 colunas) em páginas paisagem (`pagebreak` com `orientation: "landscape"` antes e `"portrait"` depois).
 - Nova página: `section` com `newPage: true` para capítulos grandes; deixe a paginação cuidar do resto (títulos nunca ficam órfãos, tabelas repetem o cabeçalho, parágrafos se dividem por linha).
 
+**Apresentação (telas 16:9 para datashow).** Quando pedirem slides, apresentação ou "telas", use `design.format: "slides"` (ou o estilo pronto `slides`, `slides-photo` ou `slides-numbers`; modelo `slides`). Cada `section` é uma tela: `title` vira o título da tela e `intro`, o subtítulo (uma linha). Regras do MIV (p. 56–60): pouco texto por tela — até ~5 tópicos curtos ou um bloco visual (`stats`, `flow`, `timeline`, `cards`, `table` pequena); foto ou gráfico ao lado do texto com o bloco `image` e `sideTitle`/`sideText`; agenda com `toc` antes da primeira seção. Capas: `slide-panel` (padrão) ou `slide-photo` (exige `coverImage`); contracapas: `slide-fan`, `slide-vignette`, `slide-solid`. Cabeçalho, rodapé, margens e fonte do texto não valem nas telas. No `render`, "(continuação)" num título ou `⚠ densa` (> 90 palavras) pede para dividir a seção.
+
 ## 6. Inspecionar o resultado (obrigatório antes de concluir)
 
 - `render` lista cada página: tipo, ocupação da área útil, palavras e os ids dos blocos. Sinais de problema:

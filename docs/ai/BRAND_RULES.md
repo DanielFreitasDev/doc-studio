@@ -27,6 +27,7 @@ Fonte: Manual de Identidade Visual do Governo do Estado do Ceará 2023–2026 (M
 | `grayscale` | p. 12 | o app aplica sozinho (não há como errar pelo documento) | Para impressão P&B use a escala de cinza do MIV (tabela de correspondência da p. 12), nunca um filtro sobre a página. |
 | `monochrome-last-resort` | p. 13 | conferência humana | A versão monocromática é último caso; prefira cores ou escala de cinza. |
 | `text-contrast` | — | conferido por `docstudio validate` e “Verificar documento” | Texto em cor sobre o papel precisa de contraste mínimo de 4,5:1 (WCAG AA); por isso os títulos usam os tons escuros. |
+| `slides-pattern` | p. 58 | o app aplica sozinho (não há como errar pelo documento) | Apresentações seguem o padrão de telas para datashow (p. 56–60): 16:9, assinatura no alto à direita, título Kanit Bold, subtítulo Kanit Medium e texto Kanit Regular nas proporções do MIV (19 : 11 : 7), faixa do grafismo no pé; uma seção por tela. |
 | `image-resolution` | — | conferido por `docstudio validate` e “Verificar documento” | Fotos e prints com pelo menos 150 ppi no tamanho impresso (ideal 300 ppi) para não pixelar no PDF. |
 
 ## Tipografia
@@ -37,6 +38,7 @@ Fonte: Manual de Identidade Visual do Governo do Estado do Ceará 2023–2026 (M
 | Texto corrido | Maitree | Maitree no texto corrido, pela legibilidade no digital e no impresso. (MIV p. 10). Opção: `design.bodyFont: "kanit"`. |
 | Comandos e textos de tela | DejaVu Sans Mono (ou a monoespaçada do sistema) | Exceção funcional, fora do MIV: só no bloco “Código ou texto de tela” e na formatação `texto de tela`, para comandos, códigos e textos literais. |
 | Conceito | Kanit | “Cuidar das pessoas, avançar o Ceará.” em quatro linhas; verbos em Kanit Bold, o resto em Kanit Regular. (MIV p. 9) |
+| Telas de apresentação | Kanit | Título 19 pt Bold, subtítulo 11 pt Medium e texto 7 pt Regular numa tela de ~165 mm (MIV p. 58); o app aplica as mesmas proporções na tela de 240 mm. Telas brancas com a assinatura horizontal no alto à direita, título em Kanit Bold, subtítulo em Kanit Medium e texto em Kanit Regular, e a faixa do grafismo no pé; abertura em painel verde (p. 57) ou com foto entre os arcos (p. 56); encerramento com a assinatura (p. 58 e 60). |
 
 ## Paleta do grafismo (MIV p. 26)
 

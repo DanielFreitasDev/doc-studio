@@ -48,7 +48,7 @@ Título numerado com chamada e linha colorida.
 
 - **Use para:** Abrir cada assunto principal (capítulo). Alimenta o sumário e recebe número automático.
 - **Evite:** Subdivisões dentro de um assunto (use Subtítulo). Seções sem conteúdo.
-- **No PDF:** Nunca fica sozinha no pé da página. "newPage" começa em folha nova; "opener" cria uma página inteira de abertura.
+- **No PDF:** Nunca fica sozinha no pé da página. "newPage" começa em folha nova; "opener" cria uma página inteira de abertura. Na apresentação (design.format "slides") cada seção é uma tela: título e "intro" viram título e subtítulo da tela; se o conteúdo não couber, a tela seguinte repete o título com "(continuação)".
 
 | campo | rótulo | valores |
 | --- | --- | --- |
@@ -438,9 +438,9 @@ Padrão:
 
 Print ou foto com legenda numerada.
 
-- **Use para:** Prints de tela e fotos. Com legenda vira "Figura N" e a legenda é o texto alternativo. Prints: moldura e largura 100% (ou 60–80% para prints de celular).
+- **Use para:** Prints de tela e fotos. Com legenda vira "Figura N" e a legenda é o texto alternativo. Prints: moldura e largura 100% (ou 60–80% para prints de celular). "sideTitle"/"sideText" põem título e texto ao lado da imagem (a imagem fica com "width" entre 30% e 70%, à esquerda ou à direita conforme "align"): é a tela com foto e a tela com gráfico do MIV (p. 58).
 - **Evite:** Imagens decorativas sem função; imagens com menos de 150 ppi no tamanho impresso.
-- **No PDF:** Não se divide; a imagem mantém a resolução original (até 3508 px) e o PDF a embute sem perda.
+- **No PDF:** Não se divide; a imagem mantém a resolução original (até 3508 px) e o PDF a embute sem perda. Nas telas da apresentação a imagem tem no máximo 56 mm de altura.
 
 | campo | rótulo | valores |
 | --- | --- | --- |
@@ -452,11 +452,13 @@ Print ou foto com legenda numerada.
 | `fit` | No formato escolhido | `cover` Preencher (corta as bordas) · `contain` Encaixar (imagem inteira) |
 | `focus` | Parte que aparece ao cortar | `top` Topo · `center` Centro · `bottom` Base |
 | `frame` | Moldura fina | `true` / `false` |
+| `sideTitle` | Título ao lado da imagem (opcional) | texto com formatação* |
+| `sideText` | Texto ao lado da imagem (opcional) | texto com formatação* |
 
 Padrão:
 
 ```json
-{"type":"image","assetId":"","caption":"","width":100,"align":"center","ratio":"original","fit":"cover","focus":"center","frame":true}
+{"type":"image","assetId":"","caption":"","width":100,"align":"center","ratio":"original","fit":"cover","focus":"center","frame":true,"sideTitle":"","sideText":""}
 ```
 
 ### Página
@@ -485,7 +487,7 @@ O próximo bloco começa em nova página, em pé ou deitada.
 
 - **Use para:** Forçar nova página; "orientation": "landscape" deixa as páginas seguintes deitadas (tabelas largas), outra quebra em "portrait" volta.
 - **Evite:** Ajustar espaçamento: a paginação já evita títulos órfãos e buracos.
-- **No PDF:** A capa, a contracapa e as aberturas são sempre em retrato.
+- **No PDF:** A capa, a contracapa e as aberturas são sempre em retrato. Na apresentação a quebra só começa uma tela nova (a orientação não vale: todas são 16:9).
 
 | campo | rótulo | valores |
 | --- | --- | --- |
@@ -504,8 +506,9 @@ Escolha sempre entre as opções registradas; não existe CSS, cor ou fonte livr
 | opção | valores |
 | --- | --- |
 | `theme` | `green` Verde institucional (#26a737) · `teal` Água-marinha (#2db39e) · `orange` Laranja (#e06a0c) · `red` Urucum (#e94f0e) · `gold` Sol (#e4a500) · `leaf` Folha (#45b16e) · `navy` Grafite (#465564) · `sky` Azul (#56a7b2) |
-| `cover` | `folder` Pasta · `official` Pasta oficial · `identity` Arcos · `panel` Painel verde · `invite` Convite · `envelope` Envelope · `fan` Leque · `solid` Verde pleno · `minimal` Minimalista · `photo` Foto · `totem` Totem · `sign` Placa · `stage` Palco · `certificate` Certificado · `none` Sem capa |
-| `backCover` | `folder` Pasta (verso) · `concept` Conceito · `solid` Verde pleno · `fan` Leque · `minimal` Minimalista · `vignette` Vinheta · `identity` Arcos · `stage` Palco · `certificate` Certificado · `backdrop` Backdrop · `none` Sem contracapa |
+| `cover` | `folder` Pasta · `official` Pasta oficial · `identity` Arcos · `panel` Painel verde · `invite` Convite · `envelope` Envelope · `fan` Leque · `solid` Verde pleno · `minimal` Minimalista · `photo` Foto · `totem` Totem · `sign` Placa · `stage` Palco · `certificate` Certificado · `slide-panel` Painel verde · `slide-photo` Foto e arcos · `none` Sem capa |
+| `backCover` | `folder` Pasta (verso) · `concept` Conceito · `solid` Verde pleno · `fan` Leque · `minimal` Minimalista · `vignette` Vinheta · `identity` Arcos · `stage` Palco · `certificate` Certificado · `backdrop` Backdrop · `slide-fan` Leque · `slide-vignette` Vinheta · `slide-solid` Verde pleno · `none` Sem contracapa |
+| `format` | `a4` Documento A4 · `slides` Apresentação 16:9 |
 | `header` | `classic` Texto · `rule` Texto e linha · `logo` Texto e assinatura · `letterhead` Timbrado · `band` Faixa no topo · `none` Nenhum |
 | `footer` | `bar` Faixa · `address` Faixa e endereço · `half` Meia faixa · `stripe` Linha fina · `layers` Camadas · `none` Nenhum |
 | `pageNumber` | `circle` Círculo · `text` Página X de Y · `none` Sem número |
@@ -524,39 +527,46 @@ Escolha sempre entre as opções registradas; não existe CSS, cor ou fonte livr
 
 ### Capas
 
-| id | nome | descrição |
-| --- | --- | --- |
-| `folder` | Pasta | Faixas diagonais nos cantos, como a pasta do MIV (p. 44) e os manuais aprovados |
-| `official` | Pasta oficial | Pasta do MIV com a assinatura vertical centralizada e o título embaixo |
-| `identity` | Arcos | Arcos do grafismo, como a capa do próprio Manual de Identidade Visual |
-| `panel` | Painel verde | Título em painel verde e faixas diagonais (apresentação, MIV p. 57) |
-| `invite` | Convite | Faixa vertical verde com bloco laranja à esquerda (convite, MIV p. 55) |
-| `envelope` | Envelope | Faixa inclinada com pé laranja (verso do envelope, MIV p. 38) |
-| `fan` | Leque | Elemento base do grafismo: raios em leque (MIV p. 26) |
-| `solid` | Verde pleno | Degradê verde → água-marinha com assinatura em negativo (MIV p. 117) |
-| `minimal` | Minimalista | Branco, com a faixa do papel timbrado no pé |
-| `photo` | Foto | Sua foto no alto, recortada pelas faixas (slide com foto, MIV p. 56) |
-| `totem` | Totem | Degradê verde em arco, assinatura vertical e raios no pé (totem, MIV p. 115) |
-| `sign` | Placa | Painel verde à direita com o título em branco (placa de obra, MIV p. 76) |
-| `stage` | Palco | Título centralizado e faixas em camadas no pé (fundo de palco, MIV p. 104) |
-| `certificate` | Certificado | Clássica e centralizada, com faixa fina no alto (certificado, MIV p. 52) |
-| `none` | Sem capa | O documento começa direto no conteúdo |
+Capas e contracapas sem "format" são da folha A4; "slides" só servem para a apresentação; "any" para os dois. Trocar a capa por uma de outro formato troca design.format junto.
+
+| id | nome | formato | descrição |
+| --- | --- | --- | --- |
+| `folder` | Pasta | folha A4 | Faixas diagonais nos cantos, como a pasta do MIV (p. 44) e os manuais aprovados |
+| `official` | Pasta oficial | folha A4 | Pasta do MIV com a assinatura vertical centralizada e o título embaixo |
+| `identity` | Arcos | folha A4 | Arcos do grafismo, como a capa do próprio Manual de Identidade Visual |
+| `panel` | Painel verde | folha A4 | Título em painel verde e faixas diagonais (apresentação, MIV p. 57) |
+| `invite` | Convite | folha A4 | Faixa vertical verde com bloco laranja à esquerda (convite, MIV p. 55) |
+| `envelope` | Envelope | folha A4 | Faixa inclinada com pé laranja (verso do envelope, MIV p. 38) |
+| `fan` | Leque | folha A4 | Elemento base do grafismo: raios em leque (MIV p. 26) |
+| `solid` | Verde pleno | folha A4 | Degradê verde → água-marinha com assinatura em negativo (MIV p. 117) |
+| `minimal` | Minimalista | folha A4 | Branco, com a faixa do papel timbrado no pé |
+| `photo` | Foto | folha A4 | Sua foto no alto, recortada pelas faixas (slide com foto, MIV p. 56) |
+| `totem` | Totem | folha A4 | Degradê verde em arco, assinatura vertical e raios no pé (totem, MIV p. 115) |
+| `sign` | Placa | folha A4 | Painel verde à direita com o título em branco (placa de obra, MIV p. 76) |
+| `stage` | Palco | folha A4 | Título centralizado e faixas em camadas no pé (fundo de palco, MIV p. 104) |
+| `certificate` | Certificado | folha A4 | Clássica e centralizada, com faixa fina no alto (certificado, MIV p. 52) |
+| `slide-panel` | Painel verde | apresentação | Assinatura na faixa branca diagonal e título no painel verde (tela de abertura, MIV p. 57 e 59) |
+| `slide-photo` | Foto e arcos | apresentação | Título à esquerda, sua foto entre os arcos e assinatura com o conceito (tela de abertura, MIV p. 56) |
+| `none` | Sem capa | os dois | O documento começa direto no conteúdo |
 
 ### Contracapas
 
-| id | nome | descrição |
-| --- | --- | --- |
-| `folder` | Pasta (verso) | Faixa diagonal, endereço no rodapé (verso da pasta, MIV p. 44) |
-| `concept` | Conceito | Degradê verde com assinatura e slogan do Governo (contracapa do MIV, p. 117) |
-| `solid` | Verde pleno | Fundo verde com assinatura e endereço centralizados |
-| `fan` | Leque | Grafismo em leque e endereço |
-| `minimal` | Minimalista | Assinatura e endereço centralizados, faixa no pé |
-| `vignette` | Vinheta | Fundo branco com assinatura e conceito em cores (vinheta, MIV p. 62) |
-| `identity` | Arcos | Arcos do grafismo da capa do MIV, com assinatura e endereço |
-| `stage` | Palco | Faixas em camadas no pé, assinatura centralizada (fundo de palco, MIV p. 104) |
-| `certificate` | Certificado | Faixa fina no alto e faixa do timbrado no pé (MIV p. 52) |
-| `backdrop` | Backdrop | Quadros verdes e brancos com as assinaturas alternadas (backdrop de eventos, MIV p. 116) |
-| `none` | Sem contracapa | Termina na última página de conteúdo |
+| id | nome | formato | descrição |
+| --- | --- | --- | --- |
+| `folder` | Pasta (verso) | folha A4 | Faixa diagonal, endereço no rodapé (verso da pasta, MIV p. 44) |
+| `concept` | Conceito | folha A4 | Degradê verde com assinatura e slogan do Governo (contracapa do MIV, p. 117) |
+| `solid` | Verde pleno | folha A4 | Fundo verde com assinatura e endereço centralizados |
+| `fan` | Leque | folha A4 | Grafismo em leque e endereço |
+| `minimal` | Minimalista | folha A4 | Assinatura e endereço centralizados, faixa no pé |
+| `vignette` | Vinheta | folha A4 | Fundo branco com assinatura e conceito em cores (vinheta, MIV p. 62) |
+| `identity` | Arcos | folha A4 | Arcos do grafismo da capa do MIV, com assinatura e endereço |
+| `stage` | Palco | folha A4 | Faixas em camadas no pé, assinatura centralizada (fundo de palco, MIV p. 104) |
+| `certificate` | Certificado | folha A4 | Faixa fina no alto e faixa do timbrado no pé (MIV p. 52) |
+| `backdrop` | Backdrop | folha A4 | Quadros verdes e brancos com as assinaturas alternadas (backdrop de eventos, MIV p. 116) |
+| `slide-fan` | Leque | apresentação | Raios do grafismo à esquerda e a assinatura na área branca (tela de encerramento, MIV p. 58 e 60) |
+| `slide-vignette` | Vinheta | apresentação | Fundo branco, assinatura com o conceito e faixas em camadas no pé (vinheta, MIV p. 62) |
+| `slide-solid` | Verde pleno | apresentação | Degradê verde com a assinatura e o conceito em negativo (MIV p. 117) |
+| `none` | Sem contracapa | os dois | Termina na última página de conteúdo |
 
 ### Assinaturas
 
@@ -575,20 +585,23 @@ Mudam só a aparência, nunca o conteúdo.
 
 | id | nome | descrição | design |
 | --- | --- | --- | --- |
-| `manual` | Manual institucional | O visual dos manuais oficiais | `{"theme":"green","cover":"folder","backCover":"folder","header":"classic","footer":"bar","pageNumber":"circle","sectionStyle":"kicker","cardStyle":"soft","chapterStyle":"folder","headingWeight":"regular"}` |
-| `guide` | Guia rápido | Leve, direto e arejado | `{"theme":"teal","cover":"envelope","backCover":"minimal","header":"rule","footer":"stripe","pageNumber":"circle","sectionStyle":"band","cardStyle":"top","chapterStyle":"folder","headingWeight":"regular"}` |
-| `report` | Relatório executivo | Sóbrio, com números em evidência | `{"theme":"navy","cover":"identity","backCover":"solid","header":"logo","footer":"bar","pageNumber":"text","sectionStyle":"number","cardStyle":"outline","chapterStyle":"folder","headingWeight":"regular"}` |
-| `campaign` | Campanha | Cores fortes e capa de impacto | `{"theme":"orange","cover":"solid","backCover":"fan","header":"rule","footer":"half","pageNumber":"circle","sectionStyle":"band","cardStyle":"soft","chapterStyle":"solid","headingWeight":"regular"}` |
-| `notice` | Papel timbrado | Assinatura centralizada, endereço e faixa no pé (MIV p. 34) | `{"theme":"green","cover":"none","backCover":"none","header":"letterhead","footer":"address","pageNumber":"text","sectionStyle":"kicker","cardStyle":"outline","chapterStyle":"folder","headingWeight":"regular"}` |
-| `miv` | Identidade do MIV | Capa em arcos e meia faixa, como o próprio manual | `{"theme":"green","cover":"identity","backCover":"concept","header":"rule","footer":"half","pageNumber":"circle","sectionStyle":"kicker","cardStyle":"soft","chapterStyle":"solid","headingWeight":"regular"}` |
-| `panel` | Apresentação | Painel verde na capa, ideal para projetos | `{"theme":"green","cover":"panel","backCover":"concept","header":"rule","footer":"half","pageNumber":"circle","sectionStyle":"band","cardStyle":"top","chapterStyle":"solid","headingWeight":"regular"}` |
-| `event` | Evento | Capa de convite, leve e direta | `{"theme":"teal","cover":"invite","backCover":"minimal","header":"classic","footer":"bar","pageNumber":"circle","sectionStyle":"number","cardStyle":"outline","chapterStyle":"folder","headingWeight":"regular"}` |
-| `sertao` | Sol do sertão | Amarelo-ouro com leque | `{"theme":"gold","cover":"fan","backCover":"fan","header":"classic","footer":"bar","pageNumber":"circle","sectionStyle":"number","cardStyle":"top","chapterStyle":"folder","headingWeight":"regular"}` |
-| `stage` | Evento (palco) | Capa de fundo de palco, centralizada, com faixas em camadas | `{"theme":"green","cover":"stage","backCover":"vignette","header":"band","footer":"layers","pageNumber":"circle","sectionStyle":"kicker","cardStyle":"soft","chapterStyle":"stage","headingWeight":"regular"}` |
-| `works` | Obras e projetos | Capa de placa de obra, títulos fortes como no MIV | `{"theme":"green","cover":"sign","backCover":"stage","header":"rule","footer":"bar","pageNumber":"circle","sectionStyle":"number","cardStyle":"top","chapterStyle":"solid","headingWeight":"strong"}` |
-| `photo` | Com foto | Sua foto na capa, recortada pelas faixas do MIV | `{"theme":"teal","cover":"photo","backCover":"vignette","header":"rule","footer":"layers","pageNumber":"circle","sectionStyle":"band","cardStyle":"soft","chapterStyle":"arcs","headingWeight":"regular"}` |
-| `certificate` | Clássico | Centralizado e sóbrio, como o certificado do MIV | `{"theme":"navy","cover":"certificate","backCover":"certificate","header":"band","footer":"bar","pageNumber":"text","sectionStyle":"kicker","cardStyle":"outline","chapterStyle":"folder","headingWeight":"regular"}` |
-| `totem` | Campanha (totem) | Degradê verde em arco e raios coloridos | `{"theme":"sky","cover":"totem","backCover":"concept","header":"classic","footer":"half","pageNumber":"circle","sectionStyle":"band","cardStyle":"soft","chapterStyle":"solid","headingWeight":"strong"}` |
+| `manual` | Manual institucional | O visual dos manuais oficiais | `{"theme":"green","cover":"folder","backCover":"folder","header":"classic","footer":"bar","pageNumber":"circle","sectionStyle":"kicker","cardStyle":"soft","chapterStyle":"folder","headingWeight":"regular","format":"a4"}` |
+| `guide` | Guia rápido | Leve, direto e arejado | `{"theme":"teal","cover":"envelope","backCover":"minimal","header":"rule","footer":"stripe","pageNumber":"circle","sectionStyle":"band","cardStyle":"top","chapterStyle":"folder","headingWeight":"regular","format":"a4"}` |
+| `report` | Relatório executivo | Sóbrio, com números em evidência | `{"theme":"navy","cover":"identity","backCover":"solid","header":"logo","footer":"bar","pageNumber":"text","sectionStyle":"number","cardStyle":"outline","chapterStyle":"folder","headingWeight":"regular","format":"a4"}` |
+| `campaign` | Campanha | Cores fortes e capa de impacto | `{"theme":"orange","cover":"solid","backCover":"fan","header":"rule","footer":"half","pageNumber":"circle","sectionStyle":"band","cardStyle":"soft","chapterStyle":"solid","headingWeight":"regular","format":"a4"}` |
+| `notice` | Papel timbrado | Assinatura centralizada, endereço e faixa no pé (MIV p. 34) | `{"theme":"green","cover":"none","backCover":"none","header":"letterhead","footer":"address","pageNumber":"text","sectionStyle":"kicker","cardStyle":"outline","chapterStyle":"folder","headingWeight":"regular","format":"a4"}` |
+| `miv` | Identidade do MIV | Capa em arcos e meia faixa, como o próprio manual | `{"theme":"green","cover":"identity","backCover":"concept","header":"rule","footer":"half","pageNumber":"circle","sectionStyle":"kicker","cardStyle":"soft","chapterStyle":"solid","headingWeight":"regular","format":"a4"}` |
+| `panel` | Apresentação | Painel verde na capa, ideal para projetos | `{"theme":"green","cover":"panel","backCover":"concept","header":"rule","footer":"half","pageNumber":"circle","sectionStyle":"band","cardStyle":"top","chapterStyle":"solid","headingWeight":"regular","format":"a4"}` |
+| `event` | Evento | Capa de convite, leve e direta | `{"theme":"teal","cover":"invite","backCover":"minimal","header":"classic","footer":"bar","pageNumber":"circle","sectionStyle":"number","cardStyle":"outline","chapterStyle":"folder","headingWeight":"regular","format":"a4"}` |
+| `sertao` | Sol do sertão | Amarelo-ouro com leque | `{"theme":"gold","cover":"fan","backCover":"fan","header":"classic","footer":"bar","pageNumber":"circle","sectionStyle":"number","cardStyle":"top","chapterStyle":"folder","headingWeight":"regular","format":"a4"}` |
+| `stage` | Evento (palco) | Capa de fundo de palco, centralizada, com faixas em camadas | `{"theme":"green","cover":"stage","backCover":"vignette","header":"band","footer":"layers","pageNumber":"circle","sectionStyle":"kicker","cardStyle":"soft","chapterStyle":"stage","headingWeight":"regular","format":"a4"}` |
+| `works` | Obras e projetos | Capa de placa de obra, títulos fortes como no MIV | `{"theme":"green","cover":"sign","backCover":"stage","header":"rule","footer":"bar","pageNumber":"circle","sectionStyle":"number","cardStyle":"top","chapterStyle":"solid","headingWeight":"strong","format":"a4"}` |
+| `photo` | Com foto | Sua foto na capa, recortada pelas faixas do MIV | `{"theme":"teal","cover":"photo","backCover":"vignette","header":"rule","footer":"layers","pageNumber":"circle","sectionStyle":"band","cardStyle":"soft","chapterStyle":"arcs","headingWeight":"regular","format":"a4"}` |
+| `certificate` | Clássico | Centralizado e sóbrio, como o certificado do MIV | `{"theme":"navy","cover":"certificate","backCover":"certificate","header":"band","footer":"bar","pageNumber":"text","sectionStyle":"kicker","cardStyle":"outline","chapterStyle":"folder","headingWeight":"regular","format":"a4"}` |
+| `totem` | Campanha (totem) | Degradê verde em arco e raios coloridos | `{"theme":"sky","cover":"totem","backCover":"concept","header":"classic","footer":"half","pageNumber":"circle","sectionStyle":"band","cardStyle":"soft","chapterStyle":"solid","headingWeight":"strong","format":"a4"}` |
+| `slides` | Apresentação do MIV | Abertura em painel verde e encerramento em leque, como as telas do MIV | `{"format":"slides","theme":"green","cover":"slide-panel","backCover":"slide-fan","pageNumber":"none","cardStyle":"soft","headingWeight":"regular"}` |
+| `slides-photo` | Apresentação com foto | Sua foto na abertura, entre os arcos do MIV, e vinheta no fim | `{"format":"slides","theme":"green","cover":"slide-photo","backCover":"slide-vignette","pageNumber":"none","cardStyle":"soft","headingWeight":"regular"}` |
+| `slides-numbers` | Apresentação de resultados | Sóbria, com números de página e encerramento em verde pleno | `{"format":"slides","theme":"navy","cover":"slide-panel","backCover":"slide-solid","pageNumber":"circle","cardStyle":"outline","headingWeight":"regular"}` |
 
 ## Modelos de documento (`docstudio new --template`)
 
@@ -600,12 +613,14 @@ Mudam só a aparência, nunca o conteúdo.
 | `report` | Relatório de resultados | Gestão e projetos | 9 | Indicadores em destaque, linha do tempo, comparativos e conclusões. Visual sóbrio para a gestão. |
 | `notice` | Comunicado | Comunicação oficial | 7 | Comunicado ou nota técnica em papel timbrado: título, contexto, orientação e assinatura. |
 | `project` | Apresentação de projeto | Gestão e projetos | 8 | Contexto, objetivos, etapas, investimento e equipe, com capa de placa de obra do MIV. Ideal para projetos e obras. |
+| `slides` | Apresentação em telas | Gestão e projetos | 12 | Apresentação 16:9 para datashow no padrão de telas do MIV: abertura em painel verde, agenda, uma seção por tela, números, etapas, foto com texto e encerramento. |
 | `citizen` | Cartilha para o cidadão | Manuais e guias | 7 | Linguagem simples, passo a passo, documentos necessários e dúvidas comuns, com capa de totem do MIV. |
 | `letter` | Ofício | Comunicação oficial | 8 | Ofício em papel timbrado do MIV: número, destinatário, assunto, texto e assinatura, em uma página. |
 | `technical` | Nota técnica | Procedimentos e técnicos | 13 | Documento técnico de sistema: requisitos, configuração com comandos, procedimento, mensagens de erro e links de referência. |
 | `blank` | Documento em branco | começar do zero | 0 | Capa, contracapa e páginas com a identidade visual, sem nenhum texto de exemplo. |
 | `letterhead` | Papel timbrado | começar do zero | 0 | O papel timbrado do MIV: assinatura centralizada no alto, endereço e faixa no pé. Para ofício, memorando ou nota. |
 | `plain` | Folha simples | começar do zero | 0 | Só as páginas, sem capa e sem contracapa: cabeçalho, faixa do MIV no pé e número da página. |
+| `slides-blank` | Apresentação em branco | começar do zero | 0 | Telas 16:9 no padrão do MIV: abertura em painel verde, faixa do grafismo no pé e encerramento com a assinatura. |
 | `from-text` | Já tenho o texto | começar do zero | 0 | Cole o texto do Word ou do e-mail: títulos, listas e tabelas viram blocos formatados. |
 
 ## Textos fixos (`meta`)
@@ -662,5 +677,5 @@ Posições: "start", "end", { "index": n }, { "before": "id" }, { "after": "id" 
 
 ## Página e imagens
 
-A4 com margens laterais de 20 mm (padrão): área útil 170 × 252 mm em retrato e 257 × 165 mm em paisagem. A opção `margins` muda só a largura: `narrow` (15 mm, 180 mm úteis em retrato) para tabelas largas e `wide` (25 mm, 160 mm). Imagens: png, jpeg, webp, gif, svg; resolução mínima 150 ppi no tamanho impresso (ideal 300).
+A4 com margens laterais de 20 mm (padrão): área útil 170 × 252 mm em retrato e 257 × 165 mm em paisagem. A opção `margins` muda só a largura: `narrow` (15 mm, 180 mm úteis em retrato) para tabelas largas e `wide` (25 mm, 160 mm). Apresentação (`format: "slides"`): telas 16:9 de 240 × 135 mm com área útil de 191 × 83 mm, sem cabeçalho, rodapé ou margens do design (a assinatura e a faixa do pé seguem o MIV, p. 58). Imagens: png, jpeg, webp, gif, svg; resolução mínima 150 ppi no tamanho impresso (ideal 300).
 

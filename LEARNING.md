@@ -30,6 +30,7 @@ Leia as entradas relacionadas à tarefa. Os detalhes ficam em `docs/learning/`.
 - [Campos visuais sobre a marcação segura](docs/learning/decision-texto-com-marcacao-em-vez-de-contenteditable.md) — edição WYSIWYG, mas o documento guarda marcação escapada; formatação por trechos, sem `execCommand`.
 - [Edição na página por campo flutuante](docs/learning/decision-edicao-na-pagina-por-campo-flutuante.md) — duplo clique abre campo sobre o trecho (`data-edit`); as páginas não ficam editáveis.
 - [Contrato para agentes de IA](docs/learning/decision-contrato-para-agentes-de-ia.md) — mesmo modelo do editor, operações por id, PDF pelo próprio app; nada de HTML gerado nem renderizador paralelo.
+- [Apresentação como formato do documento](docs/learning/decision-apresentacao-como-formato.md) — slides 16:9 do MIV sobre os mesmos blocos; tela 240 × 135 mm pela proporção dos corpos; seção = tela com "(continuação)".
 - [Paisagem pela quebra de página](docs/learning/decision-paisagem-por-quebra-de-pagina.md) — A4 deitado só no conteúdo, a partir de uma quebra; capas do MIV ficam em retrato.
 - [Formatação pendente com o cursor parado](docs/learning/decision-formatacao-pendente-no-cursor.md) — Ctrl+B sem seleção vale para o próximo texto digitado; IME recebe o formato no `compositionend`.
 

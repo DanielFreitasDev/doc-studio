@@ -1072,6 +1072,34 @@ fieldset.field { margin: 0; padding: 0; border: 0; }
 }
 .choice__thumb--none { background: var(--surface-2); color: var(--text-subtle); }
 .choice__thumb .page { pointer-events: none; }
+/* Capas e encerramentos das apresentações: miniatura deitada (16:9). */
+.choice__thumb:has(.page--slide) { aspect-ratio: 16 / 9; }
+
+/* Formato do documento (painel Design): folha A4 ou apresentação 16:9 */
+.format-options { display: grid; gap: var(--space-2); }
+.format-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color var(--dur-fast), background-color var(--dur-fast);
+}
+.format-option:hover { background: var(--surface-2); }
+.format-option input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.format-option:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+.format-option:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.format-option strong { display: block; font-size: var(--text-sm); font-weight: 600; }
+.format-option small { display: block; font-size: var(--text-xs); line-height: 1.35; color: var(--text-muted); }
+.format-option__shape { flex: none; border: 1.5px solid currentColor; border-radius: 2px; color: var(--text-subtle); background: var(--surface); }
+.format-option__shape--a4 { width: 21px; height: 30px; margin-inline: 5px; }
+.format-option__shape--slides { width: 32px; height: 18px; }
+.format-option:has(input:checked) .format-option__shape { color: var(--primary); }
+.design-slides-note { margin: 0; }
 
 /* Faixas do alto (cabeçalho) e do pé (rodapé) de uma página de amostra */
 .choice-grid--top, .choice-grid--bottom, .choice-grid--brand { grid-template-columns: repeat(auto-fill, minmax(min(100%, 128px), 1fr)); }

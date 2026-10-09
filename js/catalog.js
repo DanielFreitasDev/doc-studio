@@ -14,14 +14,14 @@ import { THEMES, COVERS, BACK_COVERS, DESIGN_OPTIONS, DESIGN_PRESETS, DEFAULT_DE
 import { TEMPLATES, TEMPLATE_CATEGORIES, SNIPPETS } from './templates.js';
 import { OPERATIONS, POSITION_FORMS, OPERATIONS_FORMAT, OPERATIONS_VERSION } from './operations.js';
 import { FILE_FORMAT, FILE_VERSION, MAX_BLOCKS } from './model.js';
-import { BRAND_SOURCE, GRAPHIC_PALETTE, SIGNATURE_COLORS, DERIVED_COLORS, TYPOGRAPHY, LOGOS, BRAND_RULES } from './brand.js';
+import { BRAND_SOURCE, GRAPHIC_PALETTE, SIGNATURE_COLORS, DERIVED_COLORS, TYPOGRAPHY, SLIDES, LOGOS, BRAND_RULES } from './brand.js';
 import { IMAGE_PPI } from './validate.js';
 
 export const COMPONENT_GUIDE = {
   section: {
     use: 'Abrir cada assunto principal (capítulo). Alimenta o sumário e recebe número automático.',
     avoid: 'Subdivisões dentro de um assunto (use Subtítulo). Seções sem conteúdo.',
-    pdf: 'Nunca fica sozinha no pé da página. "newPage" começa em folha nova; "opener" cria uma página inteira de abertura.',
+    pdf: 'Nunca fica sozinha no pé da página. "newPage" começa em folha nova; "opener" cria uma página inteira de abertura. Na apresentação (design.format "slides") cada seção é uma tela: título e "intro" viram título e subtítulo da tela; se o conteúdo não couber, a tela seguinte repete o título com "(continuação)".',
   },
   heading: {
     use: 'Subdividir uma seção ("Quem participa", "Documentos exigidos").',
@@ -114,9 +114,9 @@ export const COMPONENT_GUIDE = {
     pdf: 'Cada termo é uma unidade; a caixa continua na página seguinte.',
   },
   image: {
-    use: 'Prints de tela e fotos. Com legenda vira "Figura N" e a legenda é o texto alternativo. Prints: moldura e largura 100% (ou 60–80% para prints de celular).',
+    use: 'Prints de tela e fotos. Com legenda vira "Figura N" e a legenda é o texto alternativo. Prints: moldura e largura 100% (ou 60–80% para prints de celular). "sideTitle"/"sideText" põem título e texto ao lado da imagem (a imagem fica com "width" entre 30% e 70%, à esquerda ou à direita conforme "align"): é a tela com foto e a tela com gráfico do MIV (p. 58).',
     avoid: 'Imagens decorativas sem função; imagens com menos de 150 ppi no tamanho impresso.',
-    pdf: 'Não se divide; a imagem mantém a resolução original (até 3508 px) e o PDF a embute sem perda.',
+    pdf: 'Não se divide; a imagem mantém a resolução original (até 3508 px) e o PDF a embute sem perda. Nas telas da apresentação a imagem tem no máximo 56 mm de altura.',
   },
   divider: {
     use: 'Separar visualmente partes de uma seção ("wedge" = grafismo do MIV; "space" = respiro).',
@@ -126,7 +126,7 @@ export const COMPONENT_GUIDE = {
   pagebreak: {
     use: 'Forçar nova página; "orientation": "landscape" deixa as páginas seguintes deitadas (tabelas largas), outra quebra em "portrait" volta.',
     avoid: 'Ajustar espaçamento: a paginação já evita títulos órfãos e buracos.',
-    pdf: 'A capa, a contracapa e as aberturas são sempre em retrato.',
+    pdf: 'A capa, a contracapa e as aberturas são sempre em retrato. Na apresentação a quebra só começa uma tela nova (a orientação não vale: todas são 16:9).',
   },
 };
 
@@ -151,7 +151,7 @@ function describeField(field) {
   }
 }
 
-const optionList = (options) => options.map((o) => ({ id: o.id ?? o.value, label: o.label, ...(o.description ? { description: o.description } : {}) }));
+const optionList = (options) => options.map((o) => ({ id: o.id ?? o.value, label: o.label, ...(o.description ? { description: o.description } : {}), ...(o.format ? { format: o.format } : {}) }));
 
 /** Catálogo completo (objeto JSON), fonte de `schemas/catalog.json` e do COMPONENT_CATALOG.md. */
 export function buildCatalog() {
@@ -184,7 +184,8 @@ export function buildCatalog() {
       backCovers: optionList(BACK_COVERS),
       ...Object.fromEntries(Object.entries(DESIGN_OPTIONS).map(([key, options]) => [key, optionList(options)])),
       booleans: { numberSections: 'numera as seções (01, 02…)', countCover: 'a capa conta como página 1' },
-      assets: { customLogo: 'id da imagem do logo (com signature "custom")', coverImage: 'id da foto (com cover "photo")' },
+      assets: { customLogo: 'id da imagem do logo (com signature "custom")', coverImage: 'id da foto (com cover "photo" ou "slide-photo")' },
+      formats: 'Capas e contracapas sem "format" são da folha A4; "slides" só servem para a apresentação; "any" para os dois. Trocar a capa por uma de outro formato troca design.format junto.',
     },
     presets: DESIGN_PRESETS.map(({ id, label, description, design }) => ({ id, label, description, design })),
     meta: {
@@ -209,6 +210,7 @@ export function buildBrand() {
   return {
     source: BRAND_SOURCE,
     typography: TYPOGRAPHY,
+    slides: SLIDES,
     graphicPalette: GRAPHIC_PALETTE,
     signatureColors: SIGNATURE_COLORS,
     derivedColors: DERIVED_COLORS,

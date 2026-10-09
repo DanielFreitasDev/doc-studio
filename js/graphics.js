@@ -454,6 +454,140 @@ export function chapterArt(idPrefix, style = 'folder') {
   return svg('chapter__art', (CHAPTER_STYLES[style] ?? CHAPTER_LAYERS)(), idPrefix);
 }
 
+/* ------------------------------------------------------------------ telas de apresentação (MIV p. 56–62) */
+/**
+ * Telas 16:9 de 240 × 135 mm (formato "slides", js/design.js). As posições
+ * foram medidas nas telas planas do MIV (p. 58, 60 e 62, a 200 dpi) e
+ * convertidas para esta largura; as aberturas das p. 56 e 57 aparecem no MIV
+ * fotografadas num telão, em perspectiva, então são releituras planas com os
+ * mesmos elementos (faixas, arcos, painel), proporções e cores.
+ */
+const SLIDE_W = 240;
+const SLIDE_H = 135;
+const slideSvg = (className, layers, idPrefix, options = {}) => svg(className, layers, idPrefix, { width: SLIDE_W, height: SLIDE_H, ...options });
+
+/**
+ * Faixa do pé das telas de conteúdo (MIV p. 58): cunha verde que sobe de
+ * 2,3 mm (esquerda) a 10 mm (direita), bloco água-marinha → verde no último
+ * terço e as três barras finas da base (laranja | verde → água | vermelho → laranja).
+ */
+function slideFooterLayers(baseY) {
+  const up = (x, y) => [x, baseY - y];
+  const top = (x) => 2.27 + (7.75 * x) / SLIDE_W;
+  const x1 = 74.4;
+  const x2 = 172.8;
+  return [
+    { pts: [up(0, 0), up(SLIDE_W, 0), up(SLIDE_W, top(SLIDE_W)), up(0, top(0))], color: '#35AB3F' },
+    { pts: [up(x2, 0), up(SLIDE_W, 0), up(SLIDE_W, top(SLIDE_W)), up(x2, top(x2))], colors: ['#5FC4B9', '#3BAE4D'], from: up(x2, 0), to: up(SLIDE_W, 0) },
+    { pts: [up(0, 0), up(x1, 0), up(x1, 1.05), up(0, 0.78)], color: '#F39411' },
+    { pts: [up(x1, 0), up(x2, 0), up(x2, 1.8), up(x1, 1.3)], colors: ['#3AAD4A', '#6CC9D8'], from: up(x1, 0), to: up(x2, 0) },
+    { pts: [up(x2, 0), up(SLIDE_W, 0), up(SLIDE_W, 2.36), up(x2, 1.83)], colors: ['#E42B22', '#EF7C15'], from: up(x2, 0), to: up(SLIDE_W, 0) },
+  ];
+}
+
+export function slideFooterArt(idPrefix) {
+  return svg('footer-art', slideFooterLayers(10), idPrefix, { width: SLIDE_W, height: 10 });
+}
+
+/**
+ * Abertura "Painel verde" (MIV p. 57; com órgão parceiro, p. 59): faixa
+ * branca diagonal com a assinatura, faixa verde → água-marinha no alto,
+ * cantos vermelho e água-marinha à esquerda, faixas verde e laranja embaixo
+ * e o painel verde à direita, onde fica o título.
+ */
+const SLIDE_PANEL_LAYERS = () => [
+  { pts: [[20, 0], [173, 0], [169, 43], [18, 20.8]], colors: ['#33AB3F', '#4DBC8D', '#5AC4B8'], from: [20, 0], to: [170, 40] },
+  { pts: [[0, 0], [22, 0], [20, 16], [0, 14]], colors: ['#E42F21', '#ED521C'], from: [0, 0], to: [20, 16] },
+  { d: 'M 0 14 L 20 16 L 18 20.8 Q 6 32 0 54 Z', colors: ['#53BD9A', '#87CDD5'], from: [0, 14], to: [0, 54] },
+  { pts: [[0, 60.75], [146, 125.6], [144, 135], [127.7, 135], [0, 78.3]], colors: ['#45B16E', '#4FC189'], from: [0, 70], to: [140, 130] },
+  { pts: [[0, 78.3], [127.7, 135], [80.6, 135], [0, 99.2]], colors: ['#F26B21', '#F7941D'], from: [0, 85], to: [110, 135] },
+  { d: 'M 172.8 0 L 240 0 L 240 135 L 144 135 Q 154 68 172.8 0 Z', colors: ['#26A737', '#38B53F'], from: [150, 0], to: [240, 135] },
+];
+
+/**
+ * Abertura "Foto e arcos" (MIV p. 56): a foto fica entre um arco largo (que
+ * limita a área branca do título) e as faixas diagonais do pé; um crescente
+ * verde-claro → verde passa por cima, no alto; arcos vermelho → laranja e
+ * água-marinha no canto de baixo à esquerda. Sem foto, a área recebe o
+ * degradê verde do MIV.
+ */
+const ARC_A = { r: 730.27, from: [72, 0], meet: [127, 63.5], low: [154.7, 102.1] };
+const ARC_B = { r: 95.05, top: [170, 0] };
+const SLIDE_PHOTO_CLIP = `M ${ARC_B.top.join(' ')} L 240 0 L 240 60.1 L ${ARC_A.low.join(' ')} A ${ARC_A.r} ${ARC_A.r} 0 0 0 ${ARC_A.meet.join(' ')} A ${ARC_B.r} ${ARC_B.r} 0 0 1 ${ARC_B.top.join(' ')} Z`;
+const SLIDE_PHOTO_LAYERS = () => [
+  { d: `M ${ARC_A.from.join(' ')} L ${ARC_B.top.join(' ')} A ${ARC_B.r} ${ARC_B.r} 0 0 0 ${ARC_A.meet.join(' ')} A ${ARC_A.r} ${ARC_A.r} 0 0 0 ${ARC_A.from.join(' ')} Z`, colors: ['#5DB12F', '#26A737', '#2DB39E'], from: [80, 0], to: [150, 55] },
+  { pts: [[88, 135], [240, 60.1], [240, 76], [110, 135]], colors: ['#2DB39E', '#4EC6E0'], from: [90, 135], to: [240, 70] },
+  { pts: [[110, 135], [240, 76], [240, 88], [122, 135]], colors: ['#26A737', '#45B16E'], from: [110, 135], to: [240, 80] },
+  { pts: [[228, 135], [240, 129], [240, 135]], colors: ['#F59C00', '#E94F0E'], from: [228, 135], to: [240, 130] },
+  sector({ c: [-18, 158], r1: 64, r2: 72, a1: -80, a2: -48, colors: ['#2DB39E', '#4EC6E0'] }),
+  sector({ c: [-18, 158], r1: 44, r2: 64, a1: -72, a2: -22, colors: ['#ED2225', '#F59C00'] }),
+  sector({ c: [-18, 158], r1: 36, r2: 44, a1: -40, a2: -10, colors: ['#2DB39E', '#45B16E'] }),
+];
+
+function slidePhotoBackground(idPrefix, photoUrl) {
+  const clip = `${idPrefix}-clip`;
+  const fill = `${idPrefix}-photo`;
+  const tint = `${idPrefix}-tint`;
+  // Como no MIV, o alto da foto recebe um véu verde → água-marinha que some para baixo.
+  const content = photoUrl
+    ? `<g clip-path="url(#${clip})"><image href="${photoUrl}" x="118" y="0" width="122" height="116" preserveAspectRatio="xMidYMid slice"/><rect x="118" y="0" width="122" height="116" fill="url(#${tint})"/></g>`
+    : `<path d="${SLIDE_PHOTO_CLIP}" fill="url(#${fill})"/>`;
+  return `<defs><clipPath id="${clip}"><path d="${SLIDE_PHOTO_CLIP}"/></clipPath>${gradientDef(fill, [120, 0], [240, 110], ['#45B16E', '#2DB39E', '#5FCAC9'])}<linearGradient id="${tint}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26A737" stop-opacity="0.55"/><stop offset="0.45" stop-color="#2DB39E" stop-opacity="0"/></linearGradient></defs>${content}`;
+}
+
+/**
+ * Encerramento "Leque" (MIV p. 58 e 60): à esquerda de uma diagonal, anéis e
+ * raios do grafismo (água-marinha, verde e um raio laranja → vermelho); à
+ * direita, a área branca com a assinatura, e na borda direita uma faixa
+ * estreita água-marinha → verde com a ponta vermelha.
+ */
+const FAN_CENTER = [-28.3, -23.6];
+const SLIDE_FAN_LAYERS = () => [
+  { pts: [[0, 0], [191.8, 0], [73.2, 135], [0, 135]], colors: ['#5BC4C0', '#45B16E', '#3DB54A'], from: [0, 0], to: [70, 135] },
+  sector({ c: FAN_CENTER, r1: 95.5, r2: 182, a1: 0, a2: 90, colors: ['#4BBE7E', '#3DB54A'] }),
+  sector({ c: FAN_CENTER, r1: 76, r2: 95.5, a1: 0, a2: 90, colors: ['#55C5B2', '#4BBE7E'] }),
+  sector({ c: FAN_CENTER, r1: 0, r2: 76, a1: 0, a2: 90, colors: ['#5BC4C0', '#55C5B2'] }),
+  { pts: [[134, 0], [163.5, 0], [75.6, 52.9], [47, 58.6]], colors: ['#F7941D', '#F26B21', '#ED2225'], from: [55, 56], to: [160, 0] },
+  { pts: [[163.5, 0], [191.8, 0], [165.5, 30], [150.2, 27]], colors: ['#5FCAC9', '#45B16E'], from: [180, 0], to: [155, 30] },
+  { pts: [[191.8, 0], [224.9, 0], [240, 132], [240, 135], [73.2, 135]], color: '#FFFFFF' },
+  { pts: [[224.9, 0], [240, 0], [240, 132]], colors: ['#5FCAC9', '#38B53F'], from: [232, 0], to: [240, 120] },
+  { pts: [[231, 0], [240, 0], [240, 30]], colors: ['#F26B21', '#ED2225'], from: [231, 0], to: [240, 30] },
+];
+
+/**
+ * Vinheta (MIV p. 62): branco, canto superior esquerdo com faixas laranja e
+ * verde, e faixas em camadas no pé (cunha verde ↔ água-marinha que sobe para a
+ * direita, com a faixa vermelho → laranja embaixo).
+ */
+const SLIDE_VIGNETTE_LAYERS = () => {
+  const top = (x) => 121.2 - 0.1597 * x;
+  return [
+    { pts: [[0, 0], [14, 0], [0, 21.5]], colors: ['#F26B21', '#ED2225'], from: [0, 0], to: [10, 14] },
+    { pts: [[14, 0], [31.5, 0], [0, 42.5], [0, 21.5]], colors: ['#45B16E', '#5FCAC9'], from: [0, 0], to: [20, 30] },
+    { pts: [[0, 135], [0, top(0)], [40, top(40)], [40, 135]], colors: ['#5FCAC9', '#38B53F'], from: [0, 135], to: [40, 135] },
+    { pts: [[40, top(40)], [150, top(150)], [150, 135], [40, 135]], colors: ['#38B53F', '#55C5B2'], from: [40, 135], to: [150, 135] },
+    { pts: [[150, top(150)], [240, top(240)], [240, 135], [150, 135]], colors: ['#38B53F', '#5FCAC9'], from: [150, 135], to: [240, 135] },
+    { pts: [[30, 135], [47.8, 125.9], [240, 111.5], [240, 135]], colors: ['#F15A24', '#F7941D'], from: [30, 135], to: [240, 135] },
+  ];
+};
+
+// Encerramento "Verde pleno" (contracapa do MIV, p. 117, na tela 16:9).
+const SLIDE_SOLID_LAYERS = () => [
+  { pts: [[0, 0], [SLIDE_W, 0], [SLIDE_W, SLIDE_H], [0, SLIDE_H]], colors: ['#26A737', '#45B16E', '#2DB39E'], from: [0, 67.5], to: [SLIDE_W, 67.5] },
+];
+
+/** Arte das telas de abertura (capa), encerramento (contracapa) e abertura de seção. */
+export function slideArt(id, idPrefix, { photoUrl = '', className = 'cover__art' } = {}) {
+  if (id === 'slide-photo') return slideSvg(className, SLIDE_PHOTO_LAYERS(), idPrefix, { before: slidePhotoBackground(idPrefix, photoUrl) });
+  const layers = {
+    'slide-panel': SLIDE_PANEL_LAYERS,
+    'slide-fan': SLIDE_FAN_LAYERS,
+    'slide-vignette': SLIDE_VIGNETTE_LAYERS,
+    'slide-solid': SLIDE_SOLID_LAYERS,
+  }[id];
+  return layers ? slideSvg(className, layers(), idPrefix) : '';
+}
+
 /* ------------------------------------------------------------------ escala de cinza (MIV p. 12) */
 const hexToGray = (hex) => {
   const value = Number.parseInt(hex, 16);

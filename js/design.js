@@ -6,6 +6,24 @@
 import { monthYear } from './utils.js';
 
 /**
+ * Tela de apresentação 16:9 (formato "slides", MIV p. 56–60). O MIV dá o
+ * padrão das telas para datashow com título em Kanit Bold 19 pt, subtítulo em
+ * Kanit Medium 11 pt e texto em Kanit Regular 7 pt numa tela de ~165 mm de
+ * largura; a tela de 240 × 135 mm mantém as mesmas proporções com o texto a
+ * 10,2 pt, perto do corpo dos blocos do documento (9,6 pt), então todos os
+ * blocos servem nos slides. Posições medidas nas telas da p. 58 (a 200 dpi):
+ * assinatura no alto à direita, texto a 34 mm da borda esquerda, faixa do
+ * grafismo no pé. A margem lateral do design não vale nos slides.
+ */
+const SLIDE_GEOMETRY = Object.freeze({
+  pageMm: [240, 135],
+  marginsMm: { left: 34, right: 15 },
+  bodyTopMm: 32,
+  contentWidthMm: 191,
+  contentHeightMm: 83,
+});
+
+/**
  * Geometria da folha A4 (mm). A margem lateral padrão é a de 20 mm dos
  * manuais aprovados; o MIV fixa o formato (A4, p. 34) mas não a margem do
  * texto, então a opção "margins" a estreita ou alarga sem tocar no cabeçalho,
@@ -20,10 +38,18 @@ export const PAGE_GEOMETRY = Object.freeze({
   contentWidthMm: { portrait: 170, landscape: 257 },
   contentHeightMm: { portrait: 252, landscape: 165 },
   letterheadOffsetMm: 31,
+  slide: SLIDE_GEOMETRY,
 });
 
-/** Largura útil (mm) da página com a margem lateral escolhida. */
+/** Formato do documento: A4 (retrato/paisagem) ou apresentação 16:9. */
+export const isSlides = (design) => design?.format === 'slides';
+
+/**
+ * Largura útil (mm) da página com a margem lateral escolhida. A orientação
+ * "slide" é a tela 16:9 da apresentação (margens fixas do MIV).
+ */
 export function contentWidthMm(orientation = 'portrait', margins = 'regular') {
+  if (orientation === 'slide') return SLIDE_GEOMETRY.contentWidthMm;
   const page = PAGE_GEOMETRY.pageMm[orientation === 'landscape' ? 'landscape' : 'portrait'][0];
   return page - 2 * (PAGE_GEOMETRY.marginsMm[margins] ?? PAGE_GEOMETRY.marginsMm.regular);
 }
@@ -50,7 +76,10 @@ export const THEMES = [
 /**
  * Capas. "mivPage" indica a página do MIV usada como referência; as que não
  * têm são releituras com os mesmos elementos (faixas, leque, cores).
- * `dark` = fundo escuro (textos e assinatura em negativo).
+ * `dark` = fundo escuro (textos e assinatura em negativo). `format`: as capas
+ * sem ele são da folha A4; as de apresentação ("slides") são as telas de
+ * abertura e de encerramento do MIV (p. 56–62); "none" vale para os dois.
+ * `photo` = usa a foto da capa (`design.coverImage`).
  */
 export const COVERS = [
   { id: 'folder', label: 'Pasta', description: 'Faixas diagonais nos cantos, como a pasta do MIV (p. 44) e os manuais aprovados' },
@@ -62,12 +91,14 @@ export const COVERS = [
   { id: 'fan', label: 'Leque', description: 'Elemento base do grafismo: raios em leque (MIV p. 26)' },
   { id: 'solid', label: 'Verde pleno', description: 'Degradê verde → água-marinha com assinatura em negativo (MIV p. 117)', dark: true },
   { id: 'minimal', label: 'Minimalista', description: 'Branco, com a faixa do papel timbrado no pé' },
-  { id: 'photo', label: 'Foto', description: 'Sua foto no alto, recortada pelas faixas (slide com foto, MIV p. 56)' },
+  { id: 'photo', label: 'Foto', description: 'Sua foto no alto, recortada pelas faixas (slide com foto, MIV p. 56)', photo: true },
   { id: 'totem', label: 'Totem', description: 'Degradê verde em arco, assinatura vertical e raios no pé (totem, MIV p. 115)' },
   { id: 'sign', label: 'Placa', description: 'Painel verde à direita com o título em branco (placa de obra, MIV p. 76)' },
   { id: 'stage', label: 'Palco', description: 'Título centralizado e faixas em camadas no pé (fundo de palco, MIV p. 104)' },
   { id: 'certificate', label: 'Certificado', description: 'Clássica e centralizada, com faixa fina no alto (certificado, MIV p. 52)' },
-  { id: 'none', label: 'Sem capa', description: 'O documento começa direto no conteúdo' },
+  { id: 'slide-panel', label: 'Painel verde', description: 'Assinatura na faixa branca diagonal e título no painel verde (tela de abertura, MIV p. 57 e 59)', format: 'slides' },
+  { id: 'slide-photo', label: 'Foto e arcos', description: 'Título à esquerda, sua foto entre os arcos e assinatura com o conceito (tela de abertura, MIV p. 56)', format: 'slides', photo: true },
+  { id: 'none', label: 'Sem capa', description: 'O documento começa direto no conteúdo', format: 'any' },
 ];
 
 export const BACK_COVERS = [
@@ -81,10 +112,34 @@ export const BACK_COVERS = [
   { id: 'stage', label: 'Palco', description: 'Faixas em camadas no pé, assinatura centralizada (fundo de palco, MIV p. 104)' },
   { id: 'certificate', label: 'Certificado', description: 'Faixa fina no alto e faixa do timbrado no pé (MIV p. 52)' },
   { id: 'backdrop', label: 'Backdrop', description: 'Quadros verdes e brancos com as assinaturas alternadas (backdrop de eventos, MIV p. 116)' },
-  { id: 'none', label: 'Sem contracapa', description: 'Termina na última página de conteúdo' },
+  { id: 'slide-fan', label: 'Leque', description: 'Raios do grafismo à esquerda e a assinatura na área branca (tela de encerramento, MIV p. 58 e 60)', format: 'slides' },
+  { id: 'slide-vignette', label: 'Vinheta', description: 'Fundo branco, assinatura com o conceito e faixas em camadas no pé (vinheta, MIV p. 62)', format: 'slides' },
+  { id: 'slide-solid', label: 'Verde pleno', description: 'Degradê verde com a assinatura e o conceito em negativo (MIV p. 117)', format: 'slides', dark: true },
+  { id: 'none', label: 'Sem contracapa', description: 'Termina na última página de conteúdo', format: 'any' },
 ];
 
+/** A capa ou contracapa serve para o formato? (sem `format` = folha A4) */
+export const fitsFormat = (option, format) => (option.format ?? 'a4') === 'any' || (option.format ?? 'a4') === format;
+
+/** Capas e contracapas de um formato ("a4" ou "slides"), na ordem do catálogo. */
+export const coversFor = (format) => COVERS.filter((c) => fitsFormat(c, format));
+export const backCoversFor = (format) => BACK_COVERS.filter((c) => fitsFormat(c, format));
+
+/** A capa escolhida usa a foto do documento (`design.coverImage`)? */
+export const coverUsesPhoto = (coverId) => Boolean(COVERS.find((c) => c.id === coverId)?.photo);
+
+/** Capa e contracapa padrão de cada formato (quando a escolhida não serve para ele). */
+const FORMAT_DEFAULTS = {
+  a4: { cover: 'folder', backCover: 'folder' },
+  slides: { cover: 'slide-panel', backCover: 'slide-fan' },
+};
+
 export const DESIGN_OPTIONS = {
+  // Documento em folhas A4 ou apresentação em telas 16:9 para datashow (MIV p. 56–60).
+  format: [
+    { value: 'a4', label: 'Documento A4', description: 'Folhas A4 para imprimir ou ler em PDF: manuais, guias, relatórios, ofícios' },
+    { value: 'slides', label: 'Apresentação 16:9', description: 'Telas para datashow, como o padrão de apresentação do MIV (p. 56–60): uma seção por tela' },
+  ],
   header: [
     { value: 'classic', label: 'Texto' },
     { value: 'rule', label: 'Texto e linha' },
@@ -161,7 +216,7 @@ export const DESIGN_OPTIONS = {
 
 /** Nome de cada opção de design para pessoas (revisão de alterações, mensagens). */
 export const DESIGN_LABELS = Object.freeze({
-  theme: 'Tema de cores', cover: 'Capa', backCover: 'Contracapa', header: 'Cabeçalho', footer: 'Rodapé',
+  format: 'Formato', theme: 'Tema de cores', cover: 'Capa', backCover: 'Contracapa', header: 'Cabeçalho', footer: 'Rodapé',
   pageNumber: 'Numeração', sectionStyle: 'Títulos de seção', cardStyle: 'Cartões', bodyFont: 'Fonte do texto',
   headingWeight: 'Peso dos títulos', density: 'Espaçamento', margins: 'Margens laterais', signature: 'Assinatura', colorMode: 'Impressão',
   chapterStyle: 'Abertura de capítulo', numberSections: 'Numerar seções', countCover: 'Capa conta como página',
@@ -178,6 +233,7 @@ export function designValueLabel(key, value) {
 }
 
 export const DEFAULT_DESIGN = Object.freeze({
+  format: 'a4',
   theme: 'green',
   cover: 'folder',
   backCover: 'folder',
@@ -257,10 +313,26 @@ export const DESIGN_PRESETS = [
     id: 'totem', label: 'Campanha (totem)', description: 'Degradê verde em arco e raios coloridos',
     design: { theme: 'sky', cover: 'totem', backCover: 'concept', header: 'classic', footer: 'half', pageNumber: 'circle', sectionStyle: 'band', cardStyle: 'soft', chapterStyle: 'solid', headingWeight: 'strong' },
   },
+  // Apresentações (telas 16:9 do MIV, p. 56–62).
+  {
+    id: 'slides', label: 'Apresentação do MIV', description: 'Abertura em painel verde e encerramento em leque, como as telas do MIV',
+    design: { format: 'slides', theme: 'green', cover: 'slide-panel', backCover: 'slide-fan', pageNumber: 'none', cardStyle: 'soft' },
+  },
+  {
+    id: 'slides-photo', label: 'Apresentação com foto', description: 'Sua foto na abertura, entre os arcos do MIV, e vinheta no fim',
+    design: { format: 'slides', theme: 'green', cover: 'slide-photo', backCover: 'slide-vignette', pageNumber: 'none', cardStyle: 'soft' },
+  },
+  {
+    id: 'slides-numbers', label: 'Apresentação de resultados', description: 'Sóbria, com números de página e encerramento em verde pleno',
+    design: { format: 'slides', theme: 'navy', cover: 'slide-panel', backCover: 'slide-solid', pageNumber: 'circle', cardStyle: 'outline' },
+  },
 ];
 
-// Estilos prontos sem peso de título explícito usam o padrão.
-for (const preset of DESIGN_PRESETS) preset.design.headingWeight ??= 'regular';
+// Estilos prontos sem peso de título ou formato explícitos usam o padrão (os de A4 trocam o formato de volta).
+for (const preset of DESIGN_PRESETS) {
+  preset.design.headingWeight ??= 'regular';
+  preset.design.format ??= 'a4';
+}
 
 const VALID = {
   theme: THEMES.map((t) => t.id),
@@ -269,12 +341,29 @@ const VALID = {
   ...Object.fromEntries(Object.entries(DESIGN_OPTIONS).map(([key, options]) => [key, options.map((o) => o.value)])),
 };
 
+/**
+ * Formato que uma capa ou contracapa implica: as de apresentação só existem
+ * em "slides" e as da folha só em "a4" ("none" não implica nada).
+ */
+function impliedFormat(raw) {
+  for (const [key, list] of [['cover', COVERS], ['backCover', BACK_COVERS]]) {
+    const option = list.find((o) => o.id === raw?.[key]);
+    if (option && option.format !== 'any') return option.format ?? 'a4';
+  }
+  return null;
+}
+
 export function normalizeDesign(raw) {
   if (!raw || typeof raw !== 'object') raw = {};
   const design = { ...DEFAULT_DESIGN };
   for (const [key, allowed] of Object.entries(VALID)) {
     if (allowed.includes(raw[key])) design[key] = raw[key];
   }
+  // Sem formato informado, a capa escolhida decide; capa e contracapa de outro formato voltam ao padrão dele.
+  if (!VALID.format.includes(raw.format)) design.format = impliedFormat(design) ?? DEFAULT_DESIGN.format;
+  const fallback = FORMAT_DEFAULTS[design.format];
+  if (!fitsFormat(COVERS.find((c) => c.id === design.cover), design.format)) design.cover = fallback.cover;
+  if (!fitsFormat(BACK_COVERS.find((c) => c.id === design.backCover), design.format)) design.backCover = fallback.backCover;
   for (const key of ['numberSections', 'countCover']) {
     if (typeof raw[key] === 'boolean') design[key] = raw[key];
   }
@@ -283,9 +372,21 @@ export function normalizeDesign(raw) {
   return design;
 }
 
+/**
+ * Aplica mudanças de design (painel, menu, operações de agentes). Trocar a
+ * capa por uma de outro formato troca o formato junto; trocar o formato leva
+ * capa e contracapa para as padrão dele quando as atuais não servem.
+ */
+export function mergeDesign(current, changes) {
+  const next = { ...current, ...changes };
+  if (!('format' in changes)) next.format = impliedFormat(changes) ?? current.format;
+  return normalizeDesign(next);
+}
+
 /** Atributos aplicados ao contêiner .doc (prévia, medição e miniaturas). */
 export function docAttributes(design) {
   return {
+    'data-format': design.format,
     'data-doc-theme': design.theme,
     'data-section-style': design.sectionStyle,
     'data-card-style': design.cardStyle,

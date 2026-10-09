@@ -11,8 +11,9 @@ import { renderInline, safeUrl, linkUrl, stripMarkup } from '../js/markup.js';
 import { normalizeDocument, parseFilePayload, toFilePayload, createDocument } from '../js/model.js';
 import { applyOperations, parseOperationsPayload, diffDocuments, assetConflicts } from '../js/operations.js';
 import { createStore } from '../js/state.js';
-import { validateDocument, brandReport } from '../js/validate.js';
-import { contentWidthMm, normalizeDesign, DESIGN_OPTIONS } from '../js/design.js';
+import { validateDocument, brandReport, contentAdvice } from '../js/validate.js';
+import { contentWidthMm, normalizeDesign, mergeDesign, DESIGN_OPTIONS, DESIGN_PRESETS } from '../js/design.js';
+import { createRenderContext, renderBlock } from '../js/render.js';
 import { markdownToBlocks } from '../js/markdown.js';
 import { TEMPLATES, TEMPLATE_CATEGORIES } from '../js/templates.js';
 import { BLOCK_TYPES, orientationAt } from '../js/schema.js';
@@ -286,4 +287,63 @@ test('caracteres fora das fontes do MIV geram aviso; código e texto de tela nã
   assert.match(warn([{ type: 'paragraph', text: 'Menu ⋯' }])[0].message, /⋯/);
   assert.equal(warn([{ type: 'paragraph', text: 'Acentos, “aspas”, travessão — e R$ 10 → ok…' }]).length, 0);
   assert.equal(warn([{ type: 'code', text: 'a ≤ b ⋯' }, { type: 'paragraph', text: 'use `x ≥ 1`' }]).length, 0);
+});
+
+test('apresentação: capa e contracapa acompanham o formato', () => {
+  assert.equal(normalizeDesign({}).format, 'a4');
+  // Capa de tela sem formato informado: a capa decide.
+  assert.deepEqual(pick(normalizeDesign({ cover: 'slide-photo' })), { format: 'slides', cover: 'slide-photo', backCover: 'slide-fan' });
+  // Formato explícito vence: capas do outro formato voltam ao padrão dele.
+  assert.deepEqual(pick(normalizeDesign({ format: 'slides', cover: 'folder', backCover: 'concept' })), { format: 'slides', cover: 'slide-panel', backCover: 'slide-fan' });
+  assert.deepEqual(pick(normalizeDesign({ format: 'a4', cover: 'slide-panel' })), { format: 'a4', cover: 'folder', backCover: 'folder' });
+  assert.equal(normalizeDesign({ format: 'slides', cover: 'none', backCover: 'none' }).cover, 'none');
+  // Painel, menu e operações: trocar o formato ou escolher uma capa de outro formato.
+  const a4 = normalizeDesign({ cover: 'identity', backCover: 'vignette' });
+  assert.deepEqual(pick(mergeDesign(a4, { format: 'slides' })), { format: 'slides', cover: 'slide-panel', backCover: 'slide-fan' });
+  assert.deepEqual(pick(mergeDesign(a4, { cover: 'slide-photo' })), { format: 'slides', cover: 'slide-photo', backCover: 'slide-fan' });
+  assert.deepEqual(pick(mergeDesign(mergeDesign(a4, { format: 'slides' }), { format: 'a4' })), { format: 'a4', cover: 'folder', backCover: 'folder' });
+  for (const preset of DESIGN_PRESETS) assert.deepEqual(pick(normalizeDesign(preset.design)), pick(preset.design), preset.id);
+  assert.equal(contentWidthMm('slide'), 191);
+  assert.equal(contentWidthMm('slide', 'narrow'), 191);
+});
+
+const pick = ({ format, cover, backCover }) => ({ format, cover, backCover });
+
+test('apresentação: validação explica capa de outro formato e a operação troca o formato junto', () => {
+  const issues = validateDocument({ design: { format: 'a4', cover: 'slide-panel' }, blocks: [] }).issues;
+  assert.ok(issues.some((i) => i.code === 'format-mismatch' && /slide-panel/.test(i.message) && /folder/.test(i.message)), JSON.stringify(issues));
+  const result = applyOperations(createDocument(), [{ op: 'setDesign', set: { cover: 'slide-photo' } }]);
+  assert.equal(result.ok, true);
+  assert.equal(result.doc.design.format, 'slides');
+  const slides = createDocument({ design: { format: 'slides', cover: 'slide-photo' }, blocks: [{ type: 'paragraph', text: 'Sem título' }, { type: 'section', title: 'A' }] });
+  assert.ok(brandReport(slides).some((i) => i.rule === 'layout' && i.status === 'error' && /sem foto/.test(i.message)));
+  assert.ok(brandReport(slides).some((i) => i.rule === 'slides-pattern' && i.status === 'ok'));
+  assert.ok(contentAdvice(slides).some((i) => i.code === 'slide-without-title'));
+});
+
+test('apresentação: cada seção abre uma tela e traz o título repetido para a continuação', () => {
+  const doc = createDocument({ design: { format: 'slides' }, blocks: [{ type: 'section', title: 'Resultados **2026**', intro: 'Subtítulo' }] });
+  const [atom] = renderBlock(doc.blocks[0], createRenderContext(doc, {}));
+  assert.equal(atom.breakBefore, true);
+  assert.match(atom.html, /b-slide-title__title/);
+  assert.match(atom.html, /b-slide-title__sub/);
+  assert.match(atom.lead, /atom--continued/);
+  assert.match(atom.lead, /<strong>2026<\/strong> <span class="b-slide-title__cont">\(continuação\)<\/span>/);
+  // Na folha A4 a seção continua como antes (sem quebra forçada nem título repetido).
+  const a4 = createDocument({ blocks: [{ type: 'section', title: 'A' }] });
+  const [plain] = renderBlock(a4.blocks[0], createRenderContext(a4, {}));
+  assert.ok(!plain.breakBefore && !plain.lead);
+});
+
+test('imagem com texto ao lado: coluna entre 30% e 70% e resolução na largura da coluna', () => {
+  const blocks = [{ type: 'image', assetId: 'i', width: 100, sideTitle: 'Título', sideText: 'Texto' }];
+  const doc = createDocument({ blocks });
+  const [atom] = renderBlock(doc.blocks[0], createRenderContext(doc, { i: { url: 'blob:x', width: 1000, height: 750 } }));
+  assert.match(atom.html, /b-fig-side--left/);
+  assert.match(atom.html, /--fig-w:50%/);
+  assert.match(atom.html, /data-edit="sideText"/);
+  // 1000 px em 50% de 170 mm (85 mm) = 299 ppi; sem o texto ao lado seriam 170 mm = 149 ppi.
+  const ppi = (b) => brandReport(createDocument({ blocks: b }), { i: { width: 1000, height: 750 } }).filter((item) => item.rule === 'image-resolution' && item.status === 'warning');
+  assert.equal(ppi(blocks).length, 0);
+  assert.equal(ppi([{ ...blocks[0], sideTitle: '', sideText: '' }]).length, 1);
 });

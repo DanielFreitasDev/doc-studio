@@ -135,7 +135,20 @@
       "portrait": 252,
       "landscape": 165
     },
-    "letterheadOffsetMm": 31
+    "letterheadOffsetMm": 31,
+    "slide": {
+      "pageMm": [
+        240,
+        135
+      ],
+      "marginsMm": {
+        "left": 34,
+        "right": 15
+      },
+      "bodyTopMm": 32,
+      "contentWidthMm": 191,
+      "contentHeightMm": 83
+    }
   },
   "groups": [
     {
@@ -171,7 +184,7 @@
       "group": "text",
       "use": "Abrir cada assunto principal (capítulo). Alimenta o sumário e recebe número automático.",
       "avoid": "Subdivisões dentro de um assunto (use Subtítulo). Seções sem conteúdo.",
-      "pdf": "Nunca fica sozinha no pé da página. \"newPage\" começa em folha nova; \"opener\" cria uma página inteira de abertura.",
+      "pdf": "Nunca fica sozinha no pé da página. \"newPage\" começa em folha nova; \"opener\" cria uma página inteira de abertura. Na apresentação (design.format \"slides\") cada seção é uma tela: título e \"intro\" viram título e subtítulo da tela; se o conteúdo não couber, a tela seguinte repete o título com \"(continuação)\".",
       "fields": [
         {
           "key": "title",
@@ -1541,9 +1554,9 @@
       "label": "Imagem",
       "description": "Print ou foto com legenda numerada",
       "group": "media",
-      "use": "Prints de tela e fotos. Com legenda vira \"Figura N\" e a legenda é o texto alternativo. Prints: moldura e largura 100% (ou 60–80% para prints de celular).",
+      "use": "Prints de tela e fotos. Com legenda vira \"Figura N\" e a legenda é o texto alternativo. Prints: moldura e largura 100% (ou 60–80% para prints de celular). \"sideTitle\"/\"sideText\" põem título e texto ao lado da imagem (a imagem fica com \"width\" entre 30% e 70%, à esquerda ou à direita conforme \"align\"): é a tela com foto e a tela com gráfico do MIV (p. 58).",
       "avoid": "Imagens decorativas sem função; imagens com menos de 150 ppi no tamanho impresso.",
-      "pdf": "Não se divide; a imagem mantém a resolução original (até 3508 px) e o PDF a embute sem perda.",
+      "pdf": "Não se divide; a imagem mantém a resolução original (até 3508 px) e o PDF a embute sem perda. Nas telas da apresentação a imagem tem no máximo 56 mm de altura.",
       "fields": [
         {
           "key": "assetId",
@@ -1650,6 +1663,20 @@
           "key": "frame",
           "label": "Moldura fina",
           "type": "boolean"
+        },
+        {
+          "key": "sideTitle",
+          "label": "Título ao lado da imagem (opcional)",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
+        },
+        {
+          "key": "sideText",
+          "label": "Texto ao lado da imagem (opcional)",
+          "type": "string",
+          "formatting": true,
+          "maxLength": 20000
         }
       ],
       "defaults": {
@@ -1660,7 +1687,9 @@
         "ratio": "original",
         "fit": "cover",
         "focus": "center",
-        "frame": true
+        "frame": true,
+        "sideTitle": "",
+        "sideText": ""
       }
     },
     {
@@ -1711,7 +1740,7 @@
       "group": "page",
       "use": "Forçar nova página; \"orientation\": \"landscape\" deixa as páginas seguintes deitadas (tabelas largas), outra quebra em \"portrait\" volta.",
       "avoid": "Ajustar espaçamento: a paginação já evita títulos órfãos e buracos.",
-      "pdf": "A capa, a contracapa e as aberturas são sempre em retrato.",
+      "pdf": "A capa, a contracapa e as aberturas são sempre em retrato. Na apresentação a quebra só começa uma tela nova (a orientação não vale: todas são 16:9).",
       "fields": [
         {
           "key": "orientation",
@@ -2013,6 +2042,7 @@
   ],
   "design": {
     "defaults": {
+      "format": "a4",
       "theme": "green",
       "cover": "folder",
       "backCover": "folder",
@@ -2179,9 +2209,22 @@
         "description": "Clássica e centralizada, com faixa fina no alto (certificado, MIV p. 52)"
       },
       {
+        "id": "slide-panel",
+        "label": "Painel verde",
+        "description": "Assinatura na faixa branca diagonal e título no painel verde (tela de abertura, MIV p. 57 e 59)",
+        "format": "slides"
+      },
+      {
+        "id": "slide-photo",
+        "label": "Foto e arcos",
+        "description": "Título à esquerda, sua foto entre os arcos e assinatura com o conceito (tela de abertura, MIV p. 56)",
+        "format": "slides"
+      },
+      {
         "id": "none",
         "label": "Sem capa",
-        "description": "O documento começa direto no conteúdo"
+        "description": "O documento começa direto no conteúdo",
+        "format": "any"
       }
     ],
     "backCovers": [
@@ -2236,9 +2279,40 @@
         "description": "Quadros verdes e brancos com as assinaturas alternadas (backdrop de eventos, MIV p. 116)"
       },
       {
+        "id": "slide-fan",
+        "label": "Leque",
+        "description": "Raios do grafismo à esquerda e a assinatura na área branca (tela de encerramento, MIV p. 58 e 60)",
+        "format": "slides"
+      },
+      {
+        "id": "slide-vignette",
+        "label": "Vinheta",
+        "description": "Fundo branco, assinatura com o conceito e faixas em camadas no pé (vinheta, MIV p. 62)",
+        "format": "slides"
+      },
+      {
+        "id": "slide-solid",
+        "label": "Verde pleno",
+        "description": "Degradê verde com a assinatura e o conceito em negativo (MIV p. 117)",
+        "format": "slides"
+      },
+      {
         "id": "none",
         "label": "Sem contracapa",
-        "description": "Termina na última página de conteúdo"
+        "description": "Termina na última página de conteúdo",
+        "format": "any"
+      }
+    ],
+    "format": [
+      {
+        "id": "a4",
+        "label": "Documento A4",
+        "description": "Folhas A4 para imprimir ou ler em PDF: manuais, guias, relatórios, ofícios"
+      },
+      {
+        "id": "slides",
+        "label": "Apresentação 16:9",
+        "description": "Telas para datashow, como o padrão de apresentação do MIV (p. 56–60): uma seção por tela"
       }
     ],
     "header": [
@@ -2452,8 +2526,9 @@
     },
     "assets": {
       "customLogo": "id da imagem do logo (com signature \"custom\")",
-      "coverImage": "id da foto (com cover \"photo\")"
-    }
+      "coverImage": "id da foto (com cover \"photo\" ou \"slide-photo\")"
+    },
+    "formats": "Capas e contracapas sem \"format\" são da folha A4; \"slides\" só servem para a apresentação; \"any\" para os dois. Trocar a capa por uma de outro formato troca design.format junto."
   },
   "presets": [
     {
@@ -2470,7 +2545,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "soft",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2487,7 +2563,8 @@
         "sectionStyle": "band",
         "cardStyle": "top",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2504,7 +2581,8 @@
         "sectionStyle": "number",
         "cardStyle": "outline",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2521,7 +2599,8 @@
         "sectionStyle": "band",
         "cardStyle": "soft",
         "chapterStyle": "solid",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2538,7 +2617,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "outline",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2555,7 +2635,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "soft",
         "chapterStyle": "solid",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2572,7 +2653,8 @@
         "sectionStyle": "band",
         "cardStyle": "top",
         "chapterStyle": "solid",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2589,7 +2671,8 @@
         "sectionStyle": "number",
         "cardStyle": "outline",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2606,7 +2689,8 @@
         "sectionStyle": "number",
         "cardStyle": "top",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2623,7 +2707,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "soft",
         "chapterStyle": "stage",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2640,7 +2725,8 @@
         "sectionStyle": "number",
         "cardStyle": "top",
         "chapterStyle": "solid",
-        "headingWeight": "strong"
+        "headingWeight": "strong",
+        "format": "a4"
       }
     },
     {
@@ -2657,7 +2743,8 @@
         "sectionStyle": "band",
         "cardStyle": "soft",
         "chapterStyle": "arcs",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2674,7 +2761,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "outline",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2691,7 +2779,50 @@
         "sectionStyle": "band",
         "cardStyle": "soft",
         "chapterStyle": "solid",
-        "headingWeight": "strong"
+        "headingWeight": "strong",
+        "format": "a4"
+      }
+    },
+    {
+      "id": "slides",
+      "label": "Apresentação do MIV",
+      "description": "Abertura em painel verde e encerramento em leque, como as telas do MIV",
+      "design": {
+        "format": "slides",
+        "theme": "green",
+        "cover": "slide-panel",
+        "backCover": "slide-fan",
+        "pageNumber": "none",
+        "cardStyle": "soft",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "slides-photo",
+      "label": "Apresentação com foto",
+      "description": "Sua foto na abertura, entre os arcos do MIV, e vinheta no fim",
+      "design": {
+        "format": "slides",
+        "theme": "green",
+        "cover": "slide-photo",
+        "backCover": "slide-vignette",
+        "pageNumber": "none",
+        "cardStyle": "soft",
+        "headingWeight": "regular"
+      }
+    },
+    {
+      "id": "slides-numbers",
+      "label": "Apresentação de resultados",
+      "description": "Sóbria, com números de página e encerramento em verde pleno",
+      "design": {
+        "format": "slides",
+        "theme": "navy",
+        "cover": "slide-panel",
+        "backCover": "slide-solid",
+        "pageNumber": "circle",
+        "cardStyle": "outline",
+        "headingWeight": "regular"
       }
     }
   ],
@@ -2833,7 +2964,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "soft",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2853,7 +2985,8 @@
         "sectionStyle": "band",
         "cardStyle": "top",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2891,7 +3024,8 @@
         "sectionStyle": "number",
         "cardStyle": "outline",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2911,7 +3045,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "outline",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -2931,7 +3066,25 @@
         "sectionStyle": "number",
         "cardStyle": "top",
         "chapterStyle": "solid",
-        "headingWeight": "strong"
+        "headingWeight": "strong",
+        "format": "a4"
+      }
+    },
+    {
+      "id": "slides",
+      "name": "Apresentação em telas",
+      "description": "Apresentação 16:9 para datashow no padrão de telas do MIV: abertura em painel verde, agenda, uma seção por tela, números, etapas, foto com texto e encerramento.",
+      "kind": "model",
+      "category": "management",
+      "blocks": 12,
+      "design": {
+        "format": "slides",
+        "theme": "green",
+        "cover": "slide-panel",
+        "backCover": "slide-fan",
+        "pageNumber": "none",
+        "cardStyle": "soft",
+        "headingWeight": "regular"
       }
     },
     {
@@ -2951,7 +3104,8 @@
         "sectionStyle": "band",
         "cardStyle": "soft",
         "chapterStyle": "solid",
-        "headingWeight": "strong"
+        "headingWeight": "strong",
+        "format": "a4"
       }
     },
     {
@@ -2971,7 +3125,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "outline",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -3010,7 +3165,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "soft",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -3029,7 +3185,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "outline",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     },
     {
@@ -3048,6 +3205,23 @@
         "sectionStyle": "kicker",
         "cardStyle": "soft",
         "chapterStyle": "folder",
+        "headingWeight": "regular",
+        "format": "a4"
+      }
+    },
+    {
+      "id": "slides-blank",
+      "name": "Apresentação em branco",
+      "description": "Telas 16:9 no padrão do MIV: abertura em painel verde, faixa do grafismo no pé e encerramento com a assinatura.",
+      "kind": "start",
+      "blocks": 0,
+      "design": {
+        "format": "slides",
+        "theme": "green",
+        "cover": "slide-panel",
+        "backCover": "slide-fan",
+        "pageNumber": "none",
+        "cardStyle": "soft",
         "headingWeight": "regular"
       }
     },
@@ -3067,7 +3241,8 @@
         "sectionStyle": "kicker",
         "cardStyle": "soft",
         "chapterStyle": "folder",
-        "headingWeight": "regular"
+        "headingWeight": "regular",
+        "format": "a4"
       }
     }
   ],
